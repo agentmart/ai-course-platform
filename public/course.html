@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Product Leadership — Course</title>
+<!-- Clerk — replace with your publishable key -->
+<script async crossorigin="anonymous"
+  data-clerk-publishable-key="pk_live_YOUR_CLERK_PUBLISHABLE_KEY"
+  src="https://YOUR_FRONTEND_API.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
+</script>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:#f5f0e8; font-family:'DM Sans',sans-serif; }
+
+/* ACCESS GATE — shown while checking */
+#access-gate {
+  min-height: 100vh; display:flex; align-items:center; justify-content:center;
+  flex-direction:column; gap:16px; background:#1a1512; color:#f0ebe2;
+}
+#access-gate .gate-spinner {
+  width:40px; height:40px; border:3px solid rgba(255,255,255,0.1);
+  border-top-color:#c8590a; border-radius:50%; animation:spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+#access-gate p { font-family:'IBM Plex Mono',monospace; font-size:13px; color:rgba(240,235,226,0.4); }
+#access-gate .gate-err { color:#f87171; font-size:14px; text-align:center; max-width:400px; }
+#access-gate .gate-link { color:#c8590a; text-decoration:none; }
+
+/* Course frame — hidden until access verified */
+#course-frame { display:none; }
+
+/* ─── CODE RUNNER PANEL ─── */
+/* Injected into every day view automatically */
+.code-runner-panel {
+  margin-top: 20px;
+  background: #1a1512;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #3d3530;
+}
+.crp-bar {
+  background: rgba(255,255,255,0.04); padding:8px 14px;
+  display:flex; align-items:center; gap:10px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+}
+.crp-dots { display:flex; gap:6px; }
+.crp-dot { width:10px; height:10px; border-radius:50%; }
+.crp-red { background:#ff5f57; } .crp-yel { background:#ffbd2e; } .crp-grn { background:#28c840; }
+.crp-title { font-family:'IBM Plex Mono',monospace; font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:0.1em; }
+.crp-lang { margin-left:auto; }
+.crp-lang select {
+  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+  color:rgba(255,255,255,0.5); padding:4px 8px; border-radius:3px;
+  font-size:11px; font-family:'IBM Plex Mono',monospace;
+}
+.crp-editor textarea {
+  width:100%; padding:14px 16px; background:transparent; border:none; outline:none;
+  color:#d4c5b0; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  line-height:1.7; resize:vertical; min-height:100px;
+}
+.crp-footer {
+  padding:10px 14px; border-top:1px solid rgba(255,255,255,0.06);
+  display:flex; align-items:center; justify-content:flex-end; gap:10px;
+}
+.crp-run {
+  background:#c8590a; color:white; border:none; padding:7px 22px;
+  border-radius:3px; font-size:12px; font-weight:700; cursor:pointer;
+  font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;
+}
+.crp-clear { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); border:none; padding:7px 14px; border-radius:3px; font-size:11px; cursor:pointer; }
+.crp-output {
+  background:rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.05);
+  padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px;
+  color:#90b878; min-height:40px; white-space:pre-wrap; word-break:break-all;
+}
+.crp-output.err { color:#f87171; }
+.crp-output.running { color:rgba(255,255,255,0.3); }
+.crp-spinner { width:12px; height:12px; border:2px solid rgba(255,255,255,0.15); border-top-color:#c8590a; border-radius:50%; animation:spin 0.6s linear infinite; display:none; }
+.crp-spinner.on { display:inline-block; }
+</style>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Access gate — shown while verifying -->
+<div id="access-gate">
+  <div class="gate-spinner"></div>
+  <p>Verifying access...</p>
+</div>
+
+<!-- The actual course — hidden until access granted -->
+<div id="course-frame">
+  <!--
+    IMPORTANT: paste the full content of ai-leadership-60days.html here,
+    replacing everything between <body> and </body>.
+    The access gate logic below will unhide this div once access is confirmed.
+    OR serve course.html from a /protected/ route in Vercel (see vercel.json).
+  -->
+  <div id="course-content-placeholder" style="padding:40px;text-align:center;color:#8c7f74;font-family:IBM Plex Mono,monospace;font-size:13px;">
+    Course content loads here after access is verified.
+  </div>
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────
+const API_BASE = window.location.origin;
+const PISTON = 'https://emkc.org/api/v2/piston/execute';
+const LANG_VERSIONS = {
+  python:     { language:'python',     version:'3.10.0' },
+  javascript: { language:'javascript', version:'18.15.0' },
+  typescript: { language:'typescript', version:'5.0.3' },
+  bash:       { language:'bash',       version:'5.2.0' },
+  rust:       { language:'rust',       version:'1.68.2' },
+  go:         { language:'go',         version:'1.16.2' },
+};
+
+// ─── ACCESS GATE ──────────────────────────────────
+window.addEventListener('load', async () => {
+  // Handle ?access=granted from Stripe redirect (after successful payment)
+  const params = new URLSearchParams(window.location.search);
+  const justPaid = params.get('access') === 'granted';
+
+  // Wait for Clerk
+  await new Promise(resolve => {
+    const check = setInterval(() => {
+      if (window.Clerk) { clearInterval(check); resolve(); }
+    }, 100);
+    setTimeout(() => { clearInterval(check); resolve(); }, 5000);
+  });
+
+  if (!window.Clerk) { showError('Auth service unavailable. Please refresh.'); return; }
+
+  await window.Clerk.load();
+  const user = window.Clerk.user;
+
+  if (!user) {
+    showError('Please <a class="gate-link" href="/">sign in</a> to access the course.');
+    return;
+  }
+
+  try {
+    const token = await window.Clerk.session.getToken();
+    const res = await fetch(API_BASE + '/api/check-access', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    const { hasAccess, tier } = await res.json();
+
+    if (hasAccess || justPaid) {
+      grantAccess(tier);
+    } else {
+      showError(`You need to purchase the course to access this content.<br><br><a class="gate-link" href="/#pricing">View pricing →</a>`);
+    }
+  } catch (e) {
+    // If API is unreachable (dev mode), grant access anyway
+    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+      grantAccess('full');
+    } else {
+      showError('Could not verify access. Please try refreshing the page.');
+    }
+  }
+});
+
+function grantAccess(tier) {
+  document.getElementById('access-gate').style.display = 'none';
+  document.getElementById('course-frame').style.display = 'block';
+  // After a moment, inject code runners into every task section
+  setTimeout(() => injectCodeRunners(), 800);
+}
+
+function showError(html) {
+  const gate = document.getElementById('access-gate');
+  gate.querySelector('.gate-spinner').style.display = 'none';
+  gate.querySelector('p').style.display = 'none';
+  const errDiv = document.createElement('div');
+  errDiv.className = 'gate-err';
+  errDiv.innerHTML = html;
+  gate.appendChild(errDiv);
+}
+
+// ─── CODE RUNNER INJECTION ────────────────────────
+// Finds every task item in the course and appends a code runner panel
+function injectCodeRunners() {
+  // Inject a code runner after every task block
+  document.querySelectorAll('.section-block').forEach((block, idx) => {
+    if (!block.querySelector('.sb-label')?.textContent.includes('Tasks')) return;
+    const panel = buildCodeRunner(idx);
+    block.parentNode.insertBefore(panel, block.nextSibling);
+  });
+}
+
+function buildCodeRunner(idx) {
+  const panel = document.createElement('div');
+  panel.className = 'code-runner-panel';
+  panel.id = 'crp-' + idx;
+  panel.innerHTML = `
+    <div class="crp-bar">
+      <div class="crp-dots">
+        <div class="crp-dot crp-red"></div>
+        <div class="crp-dot crp-yel"></div>
+        <div class="crp-dot crp-grn"></div>
+      </div>
+      <span class="crp-title">CODE RUNNER</span>
+      <div class="crp-lang">
+        <select id="crp-lang-${idx}">
+          <option value="python">Python 3</option>
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+          <option value="bash">Bash</option>
+          <option value="go">Go</option>
+          <option value="rust">Rust</option>
+        </select>
+      </div>
+    </div>
+    <div class="crp-editor">
+      <textarea id="crp-code-${idx}" spellcheck="false" placeholder="# Write or paste your code here\n# Press Ctrl+Enter or click Run"></textarea>
+    </div>
+    <div class="crp-footer">
+      <button class="crp-clear" onclick="clearRunner(${idx})">Clear</button>
+      <button class="crp-run" onclick="runCode(${idx})">
+        <span class="crp-spinner" id="crp-spin-${idx}"></span>
+        ▶ Run
+      </button>
+    </div>
+    <div class="crp-output" id="crp-out-${idx}">// Press Run to execute your code</div>
+  `;
+
+  // Ctrl+Enter support
+  setTimeout(() => {
+    const ta = document.getElementById(`crp-code-${idx}`);
+    if (ta) ta.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode(idx); }
+    });
+  }, 100);
+
+  return panel;
+}
+
+async function runCode(idx) {
+  const code = document.getElementById(`crp-code-${idx}`)?.value || '';
+  const langKey = document.getElementById(`crp-lang-${idx}`)?.value || 'python';
+  const out = document.getElementById(`crp-out-${idx}`);
+  const spin = document.getElementById(`crp-spin-${idx}`);
+
+  if (!code.trim()) { out.textContent = '// No code to run.'; return; }
+
+  spin.classList.add('on');
+  out.textContent = 'Running...';
+  out.className = 'crp-output running';
+
+  try {
+    const lang = LANG_VERSIONS[langKey];
+    const res = await fetch(PISTON, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        language: lang.language,
+        version: lang.version,
+        files: [{ content: code }],
+        stdin: '',
+        args: [],
+        run_timeout: 15000,
+        compile_timeout: 10000,
+      })
+    });
+    const data = await res.json();
+
+    if (data.message) { // API error
+      out.textContent = 'Error: ' + data.message;
+      out.className = 'crp-output err';
+      return;
+    }
+
+    const stdout = data.run?.stdout || '';
+    const stderr = data.run?.stderr || '';
+    const signal = data.run?.signal;
+
+    if (signal === 'SIGKILL') {
+      out.textContent = '⏱ Execution timed out (15s limit). Try with smaller input.';
+      out.className = 'crp-output err';
+    } else if (stderr && !stdout) {
+      out.textContent = stderr;
+      out.className = 'crp-output err';
+    } else {
+      out.textContent = stdout || '(no output)';
+      if (stderr) out.textContent += '\n\n--- stderr ---\n' + stderr;
+      out.className = 'crp-output';
+    }
+
+  } catch (e) {
+    out.textContent = 'Execution failed: ' + e.message + '\n\nNote: The Piston API requires internet access.';
+    out.className = 'crp-output err';
+  } finally {
+    spin.classList.remove('on');
+  }
+}
+
+function clearRunner(idx) {
+  const ta = document.getElementById(`crp-code-${idx}`);
+  const out = document.getElementById(`crp-out-${idx}`);
+  if (ta) ta.value = '';
+  if (out) { out.textContent = '// Press Run to execute your code'; out.className = 'crp-output'; }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+{
+  "name": "ai-course-platform",
+  "version": "1.0.0",
+  "description": "60-Day AI Product Leadership Course Platform",
+  "type": "module",
+  "dependencies": {
+    "stripe": "^14.0.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "jose": "^5.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
