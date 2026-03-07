@@ -424,14 +424,17 @@ document.getElementById('overlay').addEventListener('click', e => {
   if (e.target.id === 'overlay') closeModal();
 });
 
+// All sign-in paths use Clerk's hosted sign-in UI.
+// redirectToOAuth is not part of Clerk Browser JS — use redirectToSignIn/redirectToSignUp instead.
 async function doSocialSignIn(strategy) {
   if (!clerk) { setModalErr('Auth not loaded — please refresh.'); return; }
   closeModal();
   try {
-    await clerk.redirectToOAuth({
-      strategy,
-      redirectUrl:       (cfg.appUrl || location.origin) + '/course.html',
-      redirectUrlComplete: (cfg.appUrl || location.origin) + '/course.html',
+    // Clerk's hosted UI shows all configured OAuth providers.
+    // afterSignInUrl / afterSignUpUrl control the post-auth redirect.
+    await clerk.redirectToSignIn({
+      afterSignInUrl:  '/course.html',
+      afterSignUpUrl:  '/course.html',
     });
   } catch(e) {
     openModal('up');
@@ -440,11 +443,17 @@ async function doSocialSignIn(strategy) {
 }
 
 async function doEmailSignIn() {
-  const email = document.getElementById('m-email').value.trim();
-  if (!email) { setModalErr('Please enter your email address.'); return; }
-  if (!clerk)  { setModalErr('Auth not loaded — please refresh.'); return; }
+  if (!clerk) { setModalErr('Auth not loaded — please refresh.'); return; }
   closeModal();
-  await clerk.redirectToSignIn({ redirectUrl: (cfg.appUrl || location.origin) + '/course.html' });
+  try {
+    await clerk.redirectToSignIn({
+      afterSignInUrl: '/course.html',
+      afterSignUpUrl: '/course.html',
+    });
+  } catch(e) {
+    openModal('up');
+    setModalErr('Sign-in error: ' + (e.errors?.[0]?.message || e.message));
+  }
 }
 
 async function doSignOut() { await clerk?.signOut(); refreshUI(); }
