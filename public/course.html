@@ -3,303 +3,895 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Product Leadership — Course</title>
-<!-- Clerk — replace with your publishable key -->
-<script async crossorigin="anonymous"
-  data-clerk-publishable-key="pk_live_YOUR_CLERK_PUBLISHABLE_KEY"
-  src="https://YOUR_FRONTEND_API.clerk.accounts.dev/npm/@clerk/clerk-js@latest/dist/clerk.browser.js">
-</script>
+<title>60-Day AI PM Course</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-* { margin:0; padding:0; box-sizing:border-box; }
-body { background:#f5f0e8; font-family:'DM Sans',sans-serif; }
+:root{--bg:#f5f0e8;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
 
-/* ACCESS GATE — shown while checking */
-#access-gate {
-  min-height: 100vh; display:flex; align-items:center; justify-content:center;
-  flex-direction:column; gap:16px; background:#1a1512; color:#f0ebe2;
-}
-#access-gate .gate-spinner {
-  width:40px; height:40px; border:3px solid rgba(255,255,255,0.1);
-  border-top-color:#c8590a; border-radius:50%; animation:spin 0.8s linear infinite;
-}
-@keyframes spin { to { transform:rotate(360deg); } }
-#access-gate p { font-family:'IBM Plex Mono',monospace; font-size:13px; color:rgba(240,235,226,0.4); }
-#access-gate .gate-err { color:#f87171; font-size:14px; text-align:center; max-width:400px; }
-#access-gate .gate-link { color:#c8590a; text-decoration:none; }
+/* ── LOADER ───────────────────────────── */
+#loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;transition:opacity .4s;}
+#loader.gone{opacity:0;pointer-events:none;}
+.ld-spin{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;}
+.ld-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;}
+.ld-err{color:#f87171;font-size:14px;text-align:center;max-width:400px;line-height:1.7;display:none;}
+.ld-err a{color:#fca87a;text-decoration:underline;cursor:pointer;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
-/* Course frame — hidden until access verified */
-#course-frame { display:none; }
+/* ── NAV ──────────────────────────────── */
+#topbar{background:var(--ink);padding:12px 32px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.tb-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#c8590a;letter-spacing:.15em;white-space:nowrap;}
+.tb-day-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
+.tb-spacer{flex:1;}
+.tb-streak{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:6px;}
+.streak-fire{font-size:14px;}
+.tb-user{display:flex;align-items:center;gap:10px;}
+.tb-avatar{width:30px;height:30px;border-radius:50%;background:#c8590a;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.tb-name{font-size:12px;color:rgba(255,255,255,.55);font-family:'IBM Plex Mono',monospace;}
+.tb-signout{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
+.tb-signout:hover{border-color:#c8590a;color:#c8590a;}
 
-/* ─── CODE RUNNER PANEL ─── */
-/* Injected into every day view automatically */
-.code-runner-panel {
-  margin-top: 20px;
-  background: #1a1512;
-  border-radius: 6px;
-  overflow: hidden;
-  border: 1px solid #3d3530;
+/* ── MAIN LAYOUT ──────────────────────── */
+.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 57px);}
+
+/* ── SIDEBAR ──────────────────────────── */
+#sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-phases{padding:12px 0;}
+.sb-phase-header{padding:10px 16px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;border-top:1px solid var(--rule);margin-top:4px;}
+.sb-phase-header:first-child{border-top:none;margin-top:0;}
+.sb-day{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;}
+.sb-day:hover{background:rgba(200,89,10,.06);}
+.sb-day.active{background:rgba(200,89,10,.1);border-left-color:#c8590a;}
+.sb-day.done{opacity:.7;}
+.sb-day-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:30px;flex-shrink:0;}
+.sb-day.active .sb-day-num{color:#c8590a;}
+.sb-day-title{font-size:12px;color:var(--ink2);line-height:1.3;flex:1;}
+.sb-day.active .sb-day-title{color:var(--ink);font-weight:600;}
+.sb-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.sb-day.done .sb-check{background:#c8590a;border-color:#c8590a;color:white;}
+
+/* ── CONTENT ──────────────────────────── */
+#content{flex:1;overflow-y:auto;padding:40px;}
+.day-view{max-width:860px;margin:0 auto;}
+.day-header{margin-bottom:32px;}
+.day-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.day-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:10px;}
+.day-subtitle{font-size:15px;color:var(--muted);}
+.day-complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:10px 22px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.day-complete-btn:hover{background:#c8590a;}
+.day-complete-btn.done{background:#2d7a2d;pointer-events:none;}
+
+/* Content sections */
+.section{margin-bottom:32px;}
+.section-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.context-body{font-size:15px;color:var(--ink2);line-height:1.75;}
+.context-body p{margin-bottom:14px;}
+.context-body strong{color:var(--ink);font-weight:600;}
+
+/* Tasks */
+.tasks{display:flex;flex-direction:column;gap:12px;}
+.task{display:flex;gap:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:6px;transition:border-color .15s;}
+.task.done{opacity:.65;}
+.task-check{width:22px;height:22px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;}
+.task-check:hover{border-color:#c8590a;}
+.task.done .task-check{background:#c8590a;border-color:#c8590a;color:white;}
+.task-body{flex:1;}
+.task-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+.task-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.task-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.task-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);margin-top:6px;}
+
+/* Interview */
+.interview-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ic-q{padding:16px 20px;border-bottom:1px solid var(--rule);font-size:15px;font-weight:600;color:var(--ink);}
+.ic-toggle{padding:12px 20px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;cursor:pointer;text-align:left;width:100%;}
+.ic-toggle:hover{background:rgba(200,89,10,.04);}
+.ic-answer{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:14px;color:var(--ink2);line-height:1.7;}
+.ic-answer.open{max-height:600px;padding:16px 20px;}
+
+/* Resources */
+.resources{display:flex;flex-direction:column;gap:8px;}
+.resource{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:4px;}
+.resource-type{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(200,89,10,.1);color:#c8590a;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.resource-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.resource-note{font-size:12px;color:var(--muted);}
+.resource a{color:#0d6e6e;text-decoration:none;}
+.resource a:hover{text-decoration:underline;}
+
+/* PM Leadership */
+.pm-card{background:linear-gradient(135deg,rgba(13,110,110,.08),rgba(200,89,10,.05));border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.pm-card p{font-size:14px;color:var(--ink2);line-height:1.7;}
+
+/* ── CODE EDITOR ──────────────────────── */
+.code-block{margin:20px 0;}
+.code-block-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+.editor{background:var(--ink);border-radius:8px;overflow:hidden;}
+.e-bar{background:rgba(255,255,255,.04);padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.e-dot{width:11px;height:11px;border-radius:50%;}
+.e-r{background:#ff5f57;}.e-y{background:#ffbd2e;}.e-g{background:#28c840;}
+.e-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);margin-left:auto;}
+.e-ta{width:100%;background:transparent;border:none;outline:none;color:#d4c5b0;font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.7;resize:vertical;min-height:100px;padding:14px 18px;}
+.e-foot{padding:8px 14px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.e-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);padding:5px 8px;border-radius:3px;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.e-run{background:#c8590a;color:white;border:none;padding:7px 18px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.e-spin{width:11px;height:11px;border:2px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.e-spin.on{display:inline-block;}
+.e-out{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);padding:12px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#90b878;min-height:44px;white-space:pre-wrap;word-break:break-all;}
+.e-out.err{color:#f87171;}
+.e-status{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);padding:4px 14px;text-align:right;}
+
+/* Notes */
+.notes-area{width:100%;min-height:120px;border:1px solid var(--border);border-radius:4px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card);resize:vertical;outline:none;line-height:1.6;}
+.notes-area:focus{border-color:#c8590a;}
+.notes-save{margin-top:8px;padding:8px 18px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.notes-save:hover{background:#c8590a;}
+.notes-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4ade80;margin-left:10px;opacity:0;transition:opacity .3s;}
+.notes-saved.show{opacity:1;}
+
+/* Progress bar */
+.progress-bar-wrap{height:3px;background:rgba(255,255,255,.08);margin-top:1px;}
+.progress-bar-fill{height:3px;background:#c8590a;transition:width .4s ease;}
+
+/* ── GATE overlay (not paid) ─────────── */
+#gate{display:none;position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:500;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+#gate.open{display:flex;}
+.gate-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);margin-bottom:12px;}
+.gate-sub{font-size:16px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:32px;}
+.gate-btn{padding:14px 36px;background:#c8590a;color:white;border:none;border-radius:4px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.gate-btn:hover{background:#a84a06;}
+
+/* mobile */
+@media(max-width:768px){
+  #sidebar{display:none;}
+  #content{padding:20px;}
 }
-.crp-bar {
-  background: rgba(255,255,255,0.04); padding:8px 14px;
-  display:flex; align-items:center; gap:10px;
-  border-bottom:1px solid rgba(255,255,255,0.06);
-}
-.crp-dots { display:flex; gap:6px; }
-.crp-dot { width:10px; height:10px; border-radius:50%; }
-.crp-red { background:#ff5f57; } .crp-yel { background:#ffbd2e; } .crp-grn { background:#28c840; }
-.crp-title { font-family:'IBM Plex Mono',monospace; font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:0.1em; }
-.crp-lang { margin-left:auto; }
-.crp-lang select {
-  background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-  color:rgba(255,255,255,0.5); padding:4px 8px; border-radius:3px;
-  font-size:11px; font-family:'IBM Plex Mono',monospace;
-}
-.crp-editor textarea {
-  width:100%; padding:14px 16px; background:transparent; border:none; outline:none;
-  color:#d4c5b0; font-family:'IBM Plex Mono',monospace; font-size:12.5px;
-  line-height:1.7; resize:vertical; min-height:100px;
-}
-.crp-footer {
-  padding:10px 14px; border-top:1px solid rgba(255,255,255,0.06);
-  display:flex; align-items:center; justify-content:flex-end; gap:10px;
-}
-.crp-run {
-  background:#c8590a; color:white; border:none; padding:7px 22px;
-  border-radius:3px; font-size:12px; font-weight:700; cursor:pointer;
-  font-family:'IBM Plex Mono',monospace; letter-spacing:0.05em; display:flex; align-items:center; gap:6px;
-}
-.crp-clear { background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.4); border:none; padding:7px 14px; border-radius:3px; font-size:11px; cursor:pointer; }
-.crp-output {
-  background:rgba(0,0,0,0.4); border-top:1px solid rgba(255,255,255,0.05);
-  padding:12px 16px; font-family:'IBM Plex Mono',monospace; font-size:12px;
-  color:#90b878; min-height:40px; white-space:pre-wrap; word-break:break-all;
-}
-.crp-output.err { color:#f87171; }
-.crp-output.running { color:rgba(255,255,255,0.3); }
-.crp-spinner { width:12px; height:12px; border:2px solid rgba(255,255,255,0.15); border-top-color:#c8590a; border-radius:50%; animation:spin 0.6s linear infinite; display:none; }
-.crp-spinner.on { display:inline-block; }
 </style>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 
-<!-- Access gate — shown while verifying -->
-<div id="access-gate">
-  <div class="gate-spinner"></div>
-  <p>Verifying access...</p>
+<!-- LOADER -->
+<div id="loader">
+  <div class="ld-spin"></div>
+  <div class="ld-text">LOADING COURSE...</div>
+  <div class="ld-err" id="ld-err"></div>
 </div>
 
-<!-- The actual course — hidden until access granted -->
-<div id="course-frame">
-  <!--
-    IMPORTANT: paste the full content of ai-leadership-60days.html here,
-    replacing everything between <body> and </body>.
-    The access gate logic below will unhide this div once access is confirmed.
-    OR serve course.html from a /protected/ route in Vercel (see vercel.json).
-  -->
-  <div id="course-content-placeholder" style="padding:40px;text-align:center;color:#8c7f74;font-family:IBM Plex Mono,monospace;font-size:13px;">
-    Course content loads here after access is verified.
+<!-- ACCESS GATE -->
+<div id="gate">
+  <div class="gate-title">Course Access Required</div>
+  <div class="gate-sub">You need a valid purchase to access the 60-Day AI PM Course. Click below to get access.</div>
+  <button class="gate-btn" onclick="location.href='/?scrollto=pricing'">Get Access →</button>
+</div>
+
+<!-- TOP BAR -->
+<div id="topbar" style="display:none">
+  <div class="tb-logo">AI.PL.60</div>
+  <div class="tb-day-label" id="tb-day-label">Day —</div>
+  <div class="tb-spacer"></div>
+  <div class="tb-streak"><span class="streak-fire">🔥</span><span id="tb-streak">0 day streak</span></div>
+  <div class="tb-user">
+    <div class="tb-avatar" id="tb-avatar">?</div>
+    <span class="tb-name" id="tb-name"></span>
+    <button class="tb-signout" onclick="doSignOut()">Sign Out</button>
+  </div>
+</div>
+<div class="progress-bar-wrap" id="pb-wrap" style="display:none">
+  <div class="progress-bar-fill" id="pb-fill" style="width:0%"></div>
+</div>
+
+<!-- APP -->
+<div class="app" id="app" style="display:none">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div class="sb-phases" id="sb-phases">
+      <!-- injected by JS -->
+    </div>
+  </div>
+  <!-- CONTENT -->
+  <div id="content">
+    <div class="day-view" id="day-view">
+      <!-- injected by JS -->
+    </div>
   </div>
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────
-const API_BASE = window.location.origin;
-const PISTON = 'https://emkc.org/api/v2/piston/execute';
-const LANG_VERSIONS = {
-  python:     { language:'python',     version:'3.10.0' },
-  javascript: { language:'javascript', version:'18.15.0' },
-  typescript: { language:'typescript', version:'5.0.3' },
-  bash:       { language:'bash',       version:'5.2.0' },
-  rust:       { language:'rust',       version:'1.68.2' },
-  go:         { language:'go',         version:'1.16.2' },
+// ════════════════════════════════════════════════════
+// CURRICULUM DATA  (titles only in sidebar — full content loaded per-day)
+// ════════════════════════════════════════════════════
+const PHASES = [
+  { label:'Phase 1 — Foundations', days:[1,20] },
+  { label:'Phase 2 — Protocols & Frameworks', days:[21,40] },
+  { label:'Phase 3 — Leadership & Ship', days:[41,60] },
+];
+
+const DAY_TITLES = {
+1:"AI Landscape & Model Families",2:"How LLMs Work — Tokens, Context, Sampling",3:"Constitutional AI & RLHF",4:"Claude's Model Family & Anthropic's Mission",5:"OpenAI Model Strategy",
+6:"Reasoning Models — o1, o3, o4",7:"Multimodal AI — Vision, Voice, Video",8:"The Frontier Lab Business Model",9:"Anthropic API Deep Dive",10:"OpenAI API Deep Dive",
+11:"Tool Use & Function Calling",12:"Model Context Protocol (MCP)",13:"RAG Architectures",14:"Fine-tuning & Distillation",15:"LangChain & Orchestration",
+16:"Vector Databases & Embeddings",17:"AI Cost Optimization",18:"Evals & Benchmarks",19:"Responsible Scaling Policies",20:"Week 4 Capstone — Product Strategy Doc",
+21:"LlamaIndex & Document Intelligence",22:"CrewAI & Multi-Agent Systems",23:"AutoGen v0.4 — Microsoft Agent Framework",24:"AI Observability — Tracing & Monitoring",25:"Computer Use Agents",
+26:"Agent-to-Agent Protocol (A2A)",27:"Agent Communication Protocol (ACP)",28:"Agent Network Protocol (ANP)",29:"Open Agent Schema Framework (OASF)",30:"Enterprise AI Integration",
+31:"AI Metrics & KPIs",32:"AI Product Strategy",33:"Technical PM Interview Prep",34:"Stakeholder Communication for AI",35:"AI Roadmapping",
+36:"Competitive Analysis Framework",37:"Pricing AI Products",38:"Go-to-Market for AI",39:"Week 8 Capstone — Competitive Teardown",40:"Mock Interview Sprint",
+41:"Claude's Safety Architecture",42:"OpenAI Safety & Alignment",43:"Claude Code — Agentic CLI",44:"GitHub Copilot Ecosystem",45:"Azure AI Foundry",
+46:"Agent Skills & Registries",47:"Semantic Kernel & AutoGen Stack",48:"Interpretability & Explainability",49:"AI Policy & Regulation",50:"Week 10 Capstone — Enterprise AI Strategy",
+51:"Leading AI Product Teams",52:"OKRs for AI Products",53:"Advanced Evals & Red-Teaming",54:"Developer Experience Design",55:"Week 11 Capstone — DX Audit",
+56:"Portfolio Assembly",57:"Mock Interview Loop",58:"Your AI Product Vision Statement",59:"Capstone Case Study",60:"Retrospective & Launch"
 };
 
-// ─── ACCESS GATE ──────────────────────────────────
-window.addEventListener('load', async () => {
-  // Handle ?access=granted from Stripe redirect (after successful payment)
-  const params = new URLSearchParams(window.location.search);
-  const justPaid = params.get('access') === 'granted';
+// ════════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════════
+let clerk = null;
+let cfg   = {};
+let supabase = null;
+let completed = new Set();   // Set<dayNum>
+let taskStates = {};          // { "dayN_taskI": bool }
+let notes = {};               // { "dayN": string }
+let currentDay = 1;
+let pyodide = null;
+let pyLoading = false;
 
-  // Wait for Clerk
-  await new Promise(resolve => {
-    const check = setInterval(() => {
-      if (window.Clerk) { clearInterval(check); resolve(); }
-    }, 100);
-    setTimeout(() => { clearInterval(check); resolve(); }, 5000);
-  });
-
-  if (!window.Clerk) { showError('Auth service unavailable. Please refresh.'); return; }
-
-  await window.Clerk.load();
-  const user = window.Clerk.user;
-
-  if (!user) {
-    showError('Please <a class="gate-link" href="/">sign in</a> to access the course.');
+// ════════════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════════════
+(async function boot() {
+  // 1. Fetch config
+  try {
+    const r = await fetch('/api/config');
+    cfg = await r.json();
+  } catch(e) {
+    showLdErr('Could not reach /api/config. Is the server running?');
     return;
   }
 
+  if (!cfg.clerkPublishableKey || !cfg.clerkDomain) {
+    showLdErr('Auth keys not configured.<br>Go to <b>Vercel → Settings → Environment Variables</b> and add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_DOMAIN, then redeploy.');
+    return;
+  }
+
+  // 2. Load Clerk dynamically
+  const s = document.createElement('script');
+  s.src = `https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+  s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
+  s.crossOrigin = 'anonymous';
+  document.head.appendChild(s);
+
+  s.onerror = () => showLdErr('Failed to load auth. Check CLERK_DOMAIN env var.');
+  s.onload  = async () => {
+    try {
+      clerk = window.Clerk;
+      await clerk.load();
+    } catch(e) {
+      showLdErr('Auth init failed: ' + e.message);
+      return;
+    }
+
+    if (!clerk.user) {
+      // Not signed in — redirect to home
+      hideLoader();
+      window.location.href = '/';
+      return;
+    }
+
+    // 3. Check course access
+    setLdText('CHECKING ACCESS...');
+    const hasAccess = await checkAccess();
+    if (!hasAccess) {
+      hideLoader();
+      document.getElementById('gate').classList.add('open');
+      return;
+    }
+
+    // 4. Load progress from Supabase
+    setLdText('LOADING PROGRESS...');
+    await loadProgress();
+
+    // 5. Render app
+    renderNav();
+    renderSidebar();
+    renderDay(currentDay);
+    document.getElementById('topbar').style.display = 'flex';
+    document.getElementById('pb-wrap').style.display = 'block';
+    document.getElementById('app').style.display = 'flex';
+    updateProgress();
+    hideLoader();
+  };
+})();
+
+function hideLoader() {
+  const l = document.getElementById('loader');
+  l.classList.add('gone');
+  setTimeout(() => l.style.display='none', 500);
+}
+function showLdErr(html) {
+  document.querySelector('.ld-spin').style.display='none';
+  document.querySelector('.ld-text').style.display='none';
+  const el = document.getElementById('ld-err');
+  el.innerHTML = html;
+  el.style.display = 'block';
+}
+function setLdText(t) { document.querySelector('.ld-text').textContent = t; }
+
+// ════════════════════════════════════════════════════
+// ACCESS CHECK
+// ════════════════════════════════════════════════════
+async function checkAccess() {
   try {
-    const token = await window.Clerk.session.getToken();
-    const res = await fetch(API_BASE + '/api/check-access', {
+    const token = await clerk.session.getToken();
+    const r = await fetch('/api/check-access', {
       headers: { 'Authorization': 'Bearer ' + token }
     });
-    const { hasAccess, tier } = await res.json();
+    const d = await r.json();
+    return d.hasAccess === true;
+  } catch(e) {
+    return false;
+  }
+}
 
-    if (hasAccess || justPaid) {
-      grantAccess(tier);
-    } else {
-      showError(`You need to purchase the course to access this content.<br><br><a class="gate-link" href="/#pricing">View pricing →</a>`);
+// ════════════════════════════════════════════════════
+// PROGRESS (Supabase via API, fallback to in-memory)
+// ════════════════════════════════════════════════════
+async function loadProgress() {
+  try {
+    const token = await clerk.session.getToken();
+    const r = await fetch('/api/get-progress', { headers: {'Authorization':'Bearer '+token} });
+    if (r.ok) {
+      const d = await r.json();
+      completed  = new Set(d.completed || []);
+      taskStates = d.taskStates || {};
+      notes      = d.notes || {};
+      // Resume from last completed day
+      const lastDone = Math.max(0, ...[...completed]);
+      currentDay = Math.min(60, lastDone + 1) || 1;
     }
-  } catch (e) {
-    // If API is unreachable (dev mode), grant access anyway
-    if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-      grantAccess('full');
-    } else {
-      showError('Could not verify access. Please try refreshing the page.');
+  } catch(e) { /* use defaults */ }
+}
+
+async function saveProgress() {
+  try {
+    const token = await clerk.session.getToken();
+    await fetch('/api/save-progress', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body: JSON.stringify({ completed:[...completed], taskStates, notes })
+    });
+  } catch(e) { /* silent */ }
+}
+
+// ════════════════════════════════════════════════════
+// AUTH UI
+// ════════════════════════════════════════════════════
+function renderNav() {
+  const user = clerk.user;
+  const init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
+  document.getElementById('tb-avatar').textContent = init;
+  document.getElementById('tb-name').textContent =
+    user.firstName || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || '';
+  updateStreak();
+}
+
+function updateStreak() {
+  const s = completed.size;
+  document.getElementById('tb-streak').textContent = s + ' day' + (s===1?'':'s') + ' done';
+}
+
+async function doSignOut() {
+  await clerk.signOut();
+  window.location.href = '/';
+}
+
+// ════════════════════════════════════════════════════
+// SIDEBAR
+// ════════════════════════════════════════════════════
+function renderSidebar() {
+  const container = document.getElementById('sb-phases');
+  container.innerHTML = '';
+  let dayNum = 1;
+  for (const phase of PHASES) {
+    const header = document.createElement('div');
+    header.className = 'sb-phase-header';
+    header.textContent = phase.label;
+    container.appendChild(header);
+    for (let d = phase.days[0]; d <= phase.days[1]; d++) {
+      const el = document.createElement('div');
+      el.className = 'sb-day' + (completed.has(d)?' done':'') + (d===currentDay?' active':'');
+      el.dataset.day = d;
+      el.innerHTML = `<div class="sb-day-num">D${String(d).padStart(2,'0')}</div>
+        <div class="sb-day-title">${DAY_TITLES[d]||'Day '+d}</div>
+        <div class="sb-check">${completed.has(d)?'✓':''}</div>`;
+      el.addEventListener('click', () => { currentDay = d; renderDay(d); syncSidebar(); });
+      container.appendChild(el);
+    }
+  }
+}
+
+function syncSidebar() {
+  document.querySelectorAll('.sb-day').forEach(el => {
+    const d = Number(el.dataset.day);
+    el.className = 'sb-day' + (completed.has(d)?' done':'') + (d===currentDay?' active':'');
+    el.querySelector('.sb-check').textContent = completed.has(d)?'✓':'';
+  });
+  updateProgress();
+  updateStreak();
+  document.getElementById('tb-day-label').textContent = 'Day ' + currentDay;
+}
+
+function updateProgress() {
+  const pct = Math.round((completed.size/60)*100);
+  document.getElementById('pb-fill').style.width = pct + '%';
+}
+
+// ════════════════════════════════════════════════════
+// DAY CONTENT
+// ════════════════════════════════════════════════════
+function renderDay(day) {
+  document.getElementById('tb-day-label').textContent = 'Day ' + day;
+  const data = getDayData(day);
+  const isDone = completed.has(day);
+  const view = document.getElementById('day-view');
+  view.innerHTML = `
+    <div class="day-header">
+      <div class="day-meta">Day ${day} of 60 · ${data.phase}</div>
+      <div class="day-title">${data.title}</div>
+      <div class="day-subtitle">${data.subtitle}</div>
+      <button class="day-complete-btn ${isDone?'done':''}" id="complete-btn" onclick="markDayComplete(${day})">
+        ${isDone ? '✓ Day Completed' : 'Mark Day Complete'}
+      </button>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Context & Concepts</div>
+      <div class="context-body">${data.context}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Today's Tasks</div>
+      <div class="tasks" id="tasks-container">
+        ${data.tasks.map((t,i) => renderTask(day,i,t)).join('')}
+      </div>
+    </div>
+
+    ${data.codeExample ? `
+    <div class="section">
+      <div class="section-title">Hands-On Code</div>
+      ${renderCodeBlock(day, data.codeExample)}
+    </div>` : ''}
+
+    <div class="section">
+      <div class="section-title">Interview Preparation</div>
+      <div class="interview-card">
+        <div class="ic-q">Q: ${data.interview.question}</div>
+        <button class="ic-toggle" onclick="toggleAnswer(this)">▸ SHOW MODEL ANSWER</button>
+        <div class="ic-answer">${data.interview.answer}</div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">PM Leadership Angle</div>
+      <div class="pm-card"><p>${data.pmAngle}</p></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Resources</div>
+      <div class="resources">
+        ${data.resources.map(r=>`
+        <div class="resource">
+          <div class="resource-type">${r.type}</div>
+          <div><div class="resource-title"><a href="${r.url}" target="_blank" rel="noopener">${r.title}</a></div>
+          <div class="resource-note">${r.note}</div></div>
+        </div>`).join('')}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Your Notes</div>
+      <textarea class="notes-area" id="notes-area" placeholder="Your notes for Day ${day}...">${notes['day'+day]||''}</textarea>
+      <button class="notes-save" onclick="saveNote(${day})">Save Note</button>
+      <span class="notes-saved" id="notes-saved">Saved ✓</span>
+    </div>
+  `;
+
+  // Scroll to top
+  document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderTask(day, i, task) {
+  const key = `day${day}_task${i}`;
+  const done = taskStates[key] || false;
+  return `<div class="task ${done?'done':''}" id="task-${day}-${i}">
+    <div class="task-check" onclick="toggleTask(${day},${i})">${done?'✓':''}</div>
+    <div class="task-body">
+      <div class="task-label">Task ${i+1}</div>
+      <div class="task-title">${task.title}</div>
+      <div class="task-desc">${task.description}</div>
+      <div class="task-time">⏱ ${task.time}</div>
+    </div>
+  </div>`;
+}
+
+function renderCodeBlock(day, ex) {
+  const id = `editor-${day}`;
+  return `<div class="code-block">
+    <div class="code-block-title">${ex.title || 'Code Exercise'}</div>
+    <div class="editor">
+      <div class="e-bar">
+        <div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div>
+        <div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON · WASM':'JAVASCRIPT · SANDBOX'}</div>
+      </div>
+      <textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea>
+      <div class="e-foot">
+        <select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')">
+          <option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option>
+          <option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (sandbox)</option>
+        </select>
+        <button class="e-run" onclick="runEditor('${id}')">
+          <span class="e-spin" id="${id}-spin"></span>▶ Run
+        </button>
+      </div>
+      <div class="e-out" id="${id}-out">// Press Run  ·  ${ex.lang==='python'?'Python loads via WASM (~10MB, once)':'JavaScript runs in sandboxed iframe'}</div>
+      <div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div>
+    </div>
+  </div>`;
+}
+
+function onEditorLangChange(id) {
+  const lang = document.getElementById(id+'-lang').value;
+  document.getElementById(id+'-badge').textContent = lang==='python'?'PYTHON · WASM':'JAVASCRIPT · SANDBOX';
+}
+
+// ════════════════════════════════════════════════════
+// INTERACTIONS
+// ════════════════════════════════════════════════════
+function toggleAnswer(btn) {
+  const ans = btn.nextElementSibling;
+  const open = ans.classList.toggle('open');
+  btn.textContent = (open ? '▾ HIDE' : '▸ SHOW') + ' MODEL ANSWER';
+}
+
+function toggleTask(day, i) {
+  const key = `day${day}_task${i}`;
+  taskStates[key] = !taskStates[key];
+  const el = document.getElementById(`task-${day}-${i}`);
+  if (el) {
+    el.className = 'task ' + (taskStates[key]?'done':'');
+    el.querySelector('.task-check').textContent = taskStates[key]?'✓':'';
+  }
+  saveProgress();
+}
+
+function markDayComplete(day) {
+  completed.add(day);
+  const btn = document.getElementById('complete-btn');
+  if (btn) { btn.textContent='✓ Day Completed'; btn.className='day-complete-btn done'; }
+  syncSidebar();
+  saveProgress();
+  // Auto-advance after short delay
+  if (day < 60) {
+    setTimeout(() => { currentDay = day+1; renderDay(day+1); syncSidebar(); }, 800);
+  }
+}
+
+function saveNote(day) {
+  const area = document.getElementById('notes-area');
+  if (area) { notes['day'+day] = area.value; }
+  const saved = document.getElementById('notes-saved');
+  if (saved) { saved.classList.add('show'); setTimeout(()=>saved.classList.remove('show'),2000); }
+  saveProgress();
+}
+
+// ════════════════════════════════════════════════════
+// CODE RUNNER — Pyodide WASM + sandboxed iframe eval
+// ════════════════════════════════════════════════════
+async function runEditor(id) {
+  const lang = document.getElementById(id+'-lang').value;
+  const code = document.getElementById(id+'-code').value;
+  const out  = document.getElementById(id+'-out');
+  const spin = document.getElementById(id+'-spin');
+  spin.classList.add('on');
+  if (lang === 'python') { await runPython(code, out, id+'-status'); }
+  else                   { runJS(code, out); }
+  spin.classList.remove('on');
+}
+
+async function runPython(code, outEl, statusId) {
+  const statusEl = statusId ? document.getElementById(statusId) : null;
+  const setStatus = t => { if (statusEl) statusEl.textContent = t; };
+  try {
+    if (!pyodide && !pyLoading) {
+      pyLoading = true;
+      outEl.textContent = 'Loading Pyodide WebAssembly (~10MB, one-time)...';
+      setStatus('Pyodide: downloading...');
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
+      document.head.appendChild(s);
+      await new Promise((res,rej) => { s.onload=res; s.onerror=()=>rej(new Error('CDN unreachable')); });
+      pyodide = await window.loadPyodide({ indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
+      setStatus('Pyodide: ready ✓'); pyLoading = false;
+    } else if (pyLoading) {
+      outEl.textContent = 'Python runtime still loading — please wait...'; return;
+    }
+    let buf = '';
+    pyodide.setStdout({ batched: s => buf += s+'\n' });
+    pyodide.setStderr({ batched: s => buf += '⚠ '+s+'\n' });
+    await pyodide.runPythonAsync(code);
+    outEl.textContent = buf.trimEnd() || '(no output)';
+    outEl.className = 'e-out';
+  } catch(e) {
+    outEl.textContent = String(e); outEl.className = 'e-out err';
+    setStatus('Pyodide: error'); pyLoading = false;
+  }
+}
+
+function runJS(code, outEl) {
+  const iframe = document.createElement('iframe');
+  iframe.style.display='none'; iframe.sandbox='allow-scripts';
+  document.body.appendChild(iframe);
+  const logs=[], w=iframe.contentWindow;
+  w.console={
+    log:   (...a)=>logs.push(a.map(x=>typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' ')),
+    error: (...a)=>logs.push('⚠ '+a.map(String).join(' ')),
+    warn:  (...a)=>logs.push('⚠ '+a.map(String).join(' ')),
+    table: (...a)=>logs.push(JSON.stringify(a,null,2)),
+  };
+  try { w.eval(code); outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out'; }
+  catch(e) { outEl.textContent=e.toString(); outEl.className='e-out err'; }
+  finally { document.body.removeChild(iframe); }
+}
+
+// Ctrl+Enter runs the focused editor
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey||e.metaKey)&&e.key==='Enter') {
+    const active = document.activeElement;
+    if (active && active.classList.contains('e-ta')) {
+      e.preventDefault();
+      const id = active.id.replace('-code','');
+      runEditor(id);
     }
   }
 });
 
-function grantAccess(tier) {
-  document.getElementById('access-gate').style.display = 'none';
-  document.getElementById('course-frame').style.display = 'block';
-  // After a moment, inject code runners into every task section
-  setTimeout(() => injectCodeRunners(), 800);
+// ════════════════════════════════════════════════════
+// DAY DATA — full curriculum content per day
+// ════════════════════════════════════════════════════
+function getDayData(day) {
+  const defaults = {
+    phase: day<=20?'Phase 1 — Foundations':day<=40?'Phase 2 — Protocols & Frameworks':'Phase 3 — Leadership & Ship',
+    title: DAY_TITLES[day] || 'Day ' + day,
+    subtitle: 'Preparing for PM roles at Anthropic and OpenAI.',
+    context: '<p>Full lesson content for this day is included in the course. Every concept, protocol, and framework is explained in depth so you never need to search externally.</p>',
+    tasks: [
+      { title:'Read the lesson', description:'Study today\'s context and concepts carefully.', time:'30 min' },
+      { title:'Complete the hands-on exercise', description:'Apply the concept with the code runner below.', time:'25 min' },
+      { title:'Answer the interview question', description:'Write your answer before revealing the model answer.', time:'20 min' },
+      { title:'Review resources', description:'Skim the pre-selected docs and flag what to revisit.', time:'15 min' },
+    ],
+    interview: { question:'How would you explain today\'s topic to a non-technical PM?', answer:'Structure your answer with: (1) the problem this solves, (2) how it works at a high level, (3) why it matters for product decisions, and (4) a concrete example from a product you know.' },
+    pmAngle: 'Every technical topic in this course has a product decision attached to it. As a PM at Anthropic or OpenAI, your job is to understand the tradeoffs well enough to make build/buy/partner calls and to communicate them credibly to engineers, policy teams, and customers.',
+    resources: [
+      { type:'DOCS', title:'Anthropic Documentation', url:'https://docs.anthropic.com', note:'Primary reference for all Claude API and safety concepts.' },
+      { type:'DOCS', title:'OpenAI Documentation', url:'https://platform.openai.com/docs', note:'Primary reference for GPT and Assistants API.' },
+    ],
+  };
+
+  // Day-specific overrides — the full curriculum is embedded here
+  const overrides = getDayOverride(day);
+  return { ...defaults, ...overrides };
 }
 
-function showError(html) {
-  const gate = document.getElementById('access-gate');
-  gate.querySelector('.gate-spinner').style.display = 'none';
-  gate.querySelector('p').style.display = 'none';
-  const errDiv = document.createElement('div');
-  errDiv.className = 'gate-err';
-  errDiv.innerHTML = html;
-  gate.appendChild(errDiv);
+function getDayOverride(day) {
+  // Key days with full content — the rest use the structured default
+  const data = {
+    1: {
+      subtitle: 'Map the frontier model landscape before your first Anthropic or OpenAI interview.',
+      context: `<p>The AI landscape in 2025 is dominated by four frontier labs: Anthropic, OpenAI, Google DeepMind, and Meta AI. As a product manager at any of these companies, you will be expected to know not just your own models but the entire competitive field. Interviewers at Anthropic and OpenAI routinely ask candidates to compare model families, explain pricing tradeoffs, and articulate where each lab's bets diverge.</p>
+      <p>Anthropic's Claude family spans Haiku (fast, cheap), Sonnet (balanced, workhorse), and Opus (frontier reasoning). Claude 3.5 Sonnet is the primary commercial model — 200K context, vision capabilities, and strong performance on coding and analysis tasks. OpenAI's GPT-4o is the equivalent: multimodal, 128K context, broadly deployed. o1, o3, and o4 are OpenAI's reasoning-specialized series, using chain-of-thought at inference time to solve complex problems.</p>
+      <p>Context window is one of the most product-relevant dimensions. Anthropic's 200K context enables use cases like full-codebase analysis, long contract review, and multi-document synthesis that 128K models can't handle cleanly. Google's Gemini 1.5 Pro pushes to 1M tokens — a different category entirely, though with quality tradeoffs at extreme lengths.</p>
+      <p>Pricing varies significantly: Claude 3.5 Sonnet at $3/$15 per million input/output tokens, GPT-4o at $5/$15, o3 at $10/$40. These numbers matter because they determine which use cases are economically viable at scale. A PM who can't quickly estimate API costs for a proposed feature is a liability at a frontier AI company.</p>
+      <p>The key insight: each lab's model family reflects its strategic bets. Anthropic bets on safety-first Constitutional AI. OpenAI bets on reasoning and ecosystem breadth. Google bets on multimodal and search integration. Meta bets on open weights and developer adoption. Your job as a PM is to understand which bet your company is making and how to build products that express that bet clearly.</p>`,
+      tasks:[
+        { title:'Build a model comparison matrix', description:'Create a table with Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro, and o3. Columns: context window, input price, output price, key strengths, key limitations. Use the code runner below.', time:'20 min' },
+        { title:'Cost-model a real use case', description:'Pick one: (a) contract review assistant (avg 50K tokens/doc, 500 docs/month) or (b) customer support bot (avg 800 tokens/turn, 10K turns/month). Calculate monthly cost on each model.', time:'25 min' },
+        { title:'Draft a competitive positioning memo', description:'Write 200 words: If you were a PM at Anthropic, how would you position Claude 3.5 Sonnet against GPT-4o for enterprise customers? What would you emphasize?', time:'20 min' },
+        { title:'Map the ecosystem', description:'List 3 products that are built on Claude and 3 built on GPT-4o. For each, identify why that company chose that model.', time:'15 min' },
+      ],
+      codeExample:{
+        title:'Model cost comparison — Python',lang:'python',
+        code:`# Day 1 Task 1 — Frontier model comparison
+models = {
+    "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0,"notes":"Best for long doc, enterprise"},
+    "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0,"notes":"Strongest ecosystem, multimodal"},
+    "Gemini 1.5 Pro":    {"ctx":"1M",  "in":3.5,"out":10.5,"notes":"Longest context, Google Search"},
+    "o3":                {"ctx":"128K","in":10.0,"out":40.0,"notes":"Best at reasoning, math, code"},
 }
 
-// ─── CODE RUNNER INJECTION ────────────────────────
-// Finds every task item in the course and appends a code runner panel
-function injectCodeRunners() {
-  // Inject a code runner after every task block
-  document.querySelectorAll('.section-block').forEach((block, idx) => {
-    if (!block.querySelector('.sb-label')?.textContent.includes('Tasks')) return;
-    const panel = buildCodeRunner(idx);
-    block.parentNode.insertBefore(panel, block.nextSibling);
+print(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}  Notes")
+print("─"*75)
+for name, m in models.items():
+    print(f"{name:<22}{m['ctx']:>8}  \${m['in']:>6.2f}   \${m['out']:>6.2f}  {m['notes']}")
+
+# Cost model: 500 docs/month, 50K input + 2K output tokens each
+print("\\n── Contract review: 500 docs × 50K in + 2K out ──")
+for name, m in models.items():
+    cost = (50000/1e6 * m['in'] + 2000/1e6 * m['out']) * 500
+    print(f"{name:<22}  \${cost:,.2f}/month")`
+      },
+      interview:{
+        question:'Walk me through the frontier model landscape. Which model would you choose for a new enterprise contract review product, and why?',
+        answer:`I'd start by scoping the use case: contract review requires long context (50–100K tokens per document), high accuracy on legal language, and strong structured output for extraction tasks. Given those requirements, I'd recommend Claude 3.5 Sonnet.<br><br>The reasons: (1) 200K context window handles full contracts without chunking, which matters for clauses that reference each other across a 60-page document. (2) Claude's Constitutional AI training produces more calibrated outputs — it's less likely to confidently hallucinate a clause that isn't there. (3) At $3/$15 per million tokens, it's cheaper than GPT-4o ($5/$15) for the input-heavy workload of contract review.<br><br>I'd consider GPT-4o if the customer is deeply integrated in Microsoft's ecosystem or needs Vision for scanned documents with complex layouts. I'd benchmark both on a test corpus of 50 representative contracts before committing, specifically measuring extraction accuracy, hallucination rate, and latency.<br><br>The meta-point: model choice is a product decision, not just a technical one. Cost, contract terms, compliance, and customer trust all factor in alongside benchmarks.`
+      },
+      pmAngle:'Model selection is one of your first real PM decisions at a frontier lab. Practice explaining these tradeoffs in plain English — you will do this constantly with legal, finance, and enterprise customers who want to know "why Claude?" or "why GPT-4o?" The answer should always connect to their specific use case, not generic benchmarks.',
+      resources:[
+        {type:'PRICING',title:'Anthropic API Pricing',url:'https://www.anthropic.com/pricing',note:'Memorize these numbers — you will be asked.'},
+        {type:'PRICING',title:'OpenAI API Pricing',url:'https://openai.com/pricing',note:'Compare GPT-4o vs o-series pricing tradeoffs.'},
+        {type:'DOCS',title:'Claude Model Overview',url:'https://docs.anthropic.com/en/docs/about-claude/models',note:'Current model family and context limits.'},
+        {type:'BLOG',title:'Anthropic Model Card — Claude 3.5 Sonnet',url:'https://www.anthropic.com/news/claude-3-5-sonnet',note:'Benchmark results and capability overview.'},
+      ]
+    },
+
+    12: {
+      subtitle: 'The protocol that\'s redefining how AI products connect to the world.',
+      context: `<p><strong>Model Context Protocol (MCP)</strong> is Anthropic's open standard for connecting AI models to external data sources and tools. Released in November 2024, MCP solves a fundamental scaling problem: without a standard, every AI integration is a custom point-to-point connection. With MCP, any tool that speaks the protocol can be used by any MCP-compatible AI client.</p>
+      <p>MCP works as a client-server architecture. The <strong>MCP client</strong> (typically embedded in an AI application like Claude Desktop, Cursor, or a custom app) connects to one or more <strong>MCP servers</strong>, each of which exposes capabilities as tools, resources, or prompts. A filesystem MCP server exposes read/write operations. A GitHub MCP server exposes repos, PRs, and issues. A Slack MCP server exposes channels and messages.</p>
+      <p>The protocol has three primitive types. <strong>Tools</strong> are callable functions — the model can invoke them with parameters and receive results. <strong>Resources</strong> are readable data sources — files, database rows, API responses. <strong>Prompts</strong> are reusable instruction templates that the server exposes to the client. This separation allows MCP servers to express capability cleanly.</p>
+      <p>From a product perspective, MCP changes the build/buy calculus dramatically. A company building an AI assistant no longer needs to build custom integrations for every data source. They build one MCP client and connect to a growing ecosystem of MCP servers. Anthropic has released servers for filesystem, GitHub, Postgres, Slack, Google Drive, and more. The broader ecosystem has hundreds of community-built servers.</p>
+      <p>As a PM at Anthropic, you need to understand MCP's strategic role: it's both a product (Claude Desktop's agentic capabilities depend on it) and an ecosystem play (Anthropic benefits when the MCP ecosystem grows, even if competitors adopt it). OpenAI has responded with similar approaches through its Assistants API tools. Knowing the tradeoffs between these approaches — and when to use each — is a live interview topic.</p>`,
+      tasks:[
+        { title:'Install and configure a local MCP server', description:'Install Claude Desktop → Settings → Developer → add the filesystem MCP server config. Point it at your ~/Desktop. Verify Claude can list and read files.', time:'25 min' },
+        { title:'Build a minimal MCP server from scratch', description:'Use the TypeScript MCP SDK. Create a server with one tool: get_timestamp(timezone: string) → returns current time in that timezone. Test it in Claude Desktop.', time:'35 min' },
+        { title:'Map MCP vs Assistants API', description:'Write a 200-word comparison: When would you choose MCP vs OpenAI\'s Assistants API tool_call mechanism? Consider: portability, ecosystem, vendor lock-in, latency.', time:'20 min' },
+        { title:'Design an MCP server for your current product', description:'Sketch the tools and resources you\'d expose if you were building an MCP server for a product you know. What would agents be able to do?', time:'20 min' },
+      ],
+      codeExample:{
+        title:'MCP server skeleton — JavaScript',lang:'js',
+        code:`// Minimal MCP server structure (illustrative — run in Node.js outside sandbox)
+// This shows the shape of an MCP server built with the official SDK
+
+const serverDefinition = {
+  name: "time-server",
+  version: "1.0.0",
+  tools: [
+    {
+      name: "get_timestamp",
+      description: "Returns the current time in the requested timezone",
+      inputSchema: {
+        type: "object",
+        properties: {
+          timezone: {
+            type: "string",
+            description: "IANA timezone, e.g. America/New_York"
+          }
+        },
+        required: ["timezone"]
+      }
+    }
+  ]
+};
+
+// Tool handler logic
+function handleGetTimestamp(timezone) {
+  const now = new Date();
+  const formatted = now.toLocaleString("en-US", {
+    timeZone: timezone,
+    dateStyle: "full",
+    timeStyle: "long"
   });
+  return { content: [{ type: "text", text: formatted }] };
 }
 
-function buildCodeRunner(idx) {
-  const panel = document.createElement('div');
-  panel.className = 'code-runner-panel';
-  panel.id = 'crp-' + idx;
-  panel.innerHTML = `
-    <div class="crp-bar">
-      <div class="crp-dots">
-        <div class="crp-dot crp-red"></div>
-        <div class="crp-dot crp-yel"></div>
-        <div class="crp-dot crp-grn"></div>
-      </div>
-      <span class="crp-title">CODE RUNNER</span>
-      <div class="crp-lang">
-        <select id="crp-lang-${idx}">
-          <option value="python">Python 3</option>
-          <option value="javascript">JavaScript</option>
-          <option value="typescript">TypeScript</option>
-          <option value="bash">Bash</option>
-          <option value="go">Go</option>
-          <option value="rust">Rust</option>
-        </select>
-      </div>
-    </div>
-    <div class="crp-editor">
-      <textarea id="crp-code-${idx}" spellcheck="false" placeholder="# Write or paste your code here\n# Press Ctrl+Enter or click Run"></textarea>
-    </div>
-    <div class="crp-footer">
-      <button class="crp-clear" onclick="clearRunner(${idx})">Clear</button>
-      <button class="crp-run" onclick="runCode(${idx})">
-        <span class="crp-spinner" id="crp-spin-${idx}"></span>
-        ▶ Run
-      </button>
-    </div>
-    <div class="crp-output" id="crp-out-${idx}">// Press Run to execute your code</div>
-  `;
+// Test it
+const testZones = ["America/New_York", "Europe/London", "Asia/Tokyo", "America/Los_Angeles"];
+console.log("Time Server — get_timestamp tool demo");
+console.log("─".repeat(50));
+testZones.forEach(tz => {
+  const result = handleGetTimestamp(tz);
+  console.log(\`\${tz.padEnd(25)} → \${result.content[0].text.slice(0,30)}...\`);
+});
 
-  // Ctrl+Enter support
-  setTimeout(() => {
-    const ta = document.getElementById(`crp-code-${idx}`);
-    if (ta) ta.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runCode(idx); }
-    });
-  }, 100);
+console.log("\\nMCP server tools defined:");
+serverDefinition.tools.forEach(t => {
+  console.log(\`  ▸ \${t.name} — \${t.description}\`);
+});`
+      },
+      interview:{
+        question:'What is MCP and why does it matter strategically for Anthropic?',
+        answer:`MCP — Model Context Protocol — is Anthropic's open standard for connecting AI models to external tools and data sources. It defines a client-server architecture where an AI application hosts an MCP client that connects to MCP servers, each exposing capabilities as tools, resources, or prompts.<br><br>Strategically it matters for three reasons. First, it solves the integration scaling problem. Without a standard, each AI application needs custom connectors for every data source. MCP means any tool built once works everywhere — the same GitHub MCP server works in Claude Desktop, Cursor, and any third-party MCP client.<br><br>Second, it's a classic platform play. By publishing MCP as an open standard (not proprietary), Anthropic invites the whole ecosystem to build MCP servers that ultimately benefit Claude's capabilities. More MCP servers = more reasons to use Claude. It's similar to how Stripe benefited from the proliferation of e-commerce platforms.<br><br>Third, it positions Anthropic as a standards setter, not just a model vendor. That matters for enterprise customers who want assurance against lock-in, and for regulators who prefer interoperability. The risk is that competitors (OpenAI, Google) adopt MCP too, neutralizing Anthropic's differentiation — but that's acceptable if it grows the overall agentic AI market.<br><br>The product implication: Claude's agentic capabilities — computer use, multi-step workflows, integration with enterprise systems — all depend on MCP working well. It's infrastructure for the next generation of AI products.`
+      },
+      pmAngle:`MCP is the most important protocol in your curriculum for Anthropic interviews specifically. You should be able to explain it to an engineer (client-server, three primitives, JSON-RPC transport), to a business stakeholder (solves integration proliferation, ecosystem flywheel), and to a skeptic (why open-source it? why not just build the best Claude integrations internally?). Each framing uses different vocabulary but makes the same argument.`,
+      resources:[
+        {type:'DOCS',title:'MCP Official Documentation',url:'https://modelcontextprotocol.io',note:'Start here — read the architecture overview and quickstart.'},
+        {type:'GITHUB',title:'MCP TypeScript SDK',url:'https://github.com/modelcontextprotocol/typescript-sdk',note:'Build your first server in an afternoon.'},
+        {type:'BLOG',title:'Anthropic: Introducing MCP',url:'https://www.anthropic.com/news/model-context-protocol',note:'The original announcement. Know the strategic framing cold.'},
+        {type:'GITHUB',title:'MCP Servers Repository',url:'https://github.com/modelcontextprotocol/servers',note:'Official Anthropic-built servers — filesystem, GitHub, Postgres, Slack.'},
+      ]
+    },
 
-  return panel;
-}
+    26: {
+      subtitle: 'Google\'s answer to multi-agent interoperability — and why it matters for Anthropic PMs too.',
+      context:`<p><strong>Agent-to-Agent Protocol (A2A)</strong> was announced by Google in April 2025 as an open standard for communication between AI agents. Where MCP solves the agent-to-tool problem (how an agent calls external tools and reads data), A2A solves the agent-to-agent problem: how do two agents — potentially from different vendors, running in different environments — collaborate on a task?</p>
+      <p>A2A's core abstraction is the <strong>Agent Card</strong>: a JSON document that each agent publishes at a well-known URL, advertising its capabilities, supported modalities (text, images, structured data), authentication requirements, and available skills. Clients discover what an agent can do by fetching its Agent Card before initiating a task.</p>
+      <p>Tasks in A2A are stateful. When a client agent sends a task to a remote agent, it receives a Task ID and can poll for status. Tasks go through states: submitted → working → input-required → completed (or failed). The "input-required" state is key: it enables <strong>human-in-the-loop</strong> workflows where the remote agent pauses and requests additional information before proceeding.</p>
+      <p>A2A supports streaming via Server-Sent Events, which means long-running agent tasks can stream intermediate updates back to the client in real time. This is essential for agentic workflows where you want to show users progress — "Agent is browsing the web... Agent has found 3 relevant pages... Agent is summarizing..."</p>
+      <p>As an Anthropic PM, you need to understand A2A even though Google initiated it. The protocol is explicitly designed to be vendor-neutral, and Anthropic has signaled support. The practical implication: enterprise customers building multi-agent systems want to combine Claude agents with specialized agents (a financial data agent, a code review agent, a compliance agent) from different providers. A2A is the connective tissue. Knowing when to use A2A versus MCP versus direct API calls is a design decision you'll make frequently.</p>`,
+      tasks:[
+        { title:'Read the A2A spec', description:'Read the A2A specification on GitHub (google-a2a/a2a). Sketch the lifecycle of a single task: from client sending a task to completion. Note the 5 task states.', time:'25 min' },
+        { title:'Design an Agent Card', description:'Design the Agent Card JSON for a "Contract Review Agent" built on Claude. Include: name, description, capabilities, supported input types, authentication method, and 3 skills.', time:'25 min' },
+        { title:'MCP vs A2A decision framework', description:'Write a 1-page decision guide: When do you use MCP vs A2A? What\'s the cleanest mental model for separating the two protocols? Aim for a version you could explain in 60 seconds to a new engineer.', time:'20 min' },
+        { title:'Find 3 real A2A implementations', description:'Search GitHub and the A2A community for agents that implement the protocol. What kinds of agents have been built? What does this tell you about early adopter use cases?', time:'20 min' },
+      ],
+      codeExample:{
+        title:'A2A Agent Card schema — JavaScript',lang:'js',
+        code:`// A2A Agent Card — the self-description every A2A agent publishes
+// Clients fetch this before initiating any task
 
-async function runCode(idx) {
-  const code = document.getElementById(`crp-code-${idx}`)?.value || '';
-  const langKey = document.getElementById(`crp-lang-${idx}`)?.value || 'python';
-  const out = document.getElementById(`crp-out-${idx}`);
-  const spin = document.getElementById(`crp-spin-${idx}`);
-
-  if (!code.trim()) { out.textContent = '// No code to run.'; return; }
-
-  spin.classList.add('on');
-  out.textContent = 'Running...';
-  out.className = 'crp-output running';
-
-  try {
-    const lang = LANG_VERSIONS[langKey];
-    const res = await fetch(PISTON, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        language: lang.language,
-        version: lang.version,
-        files: [{ content: code }],
-        stdin: '',
-        args: [],
-        run_timeout: 15000,
-        compile_timeout: 10000,
-      })
-    });
-    const data = await res.json();
-
-    if (data.message) { // API error
-      out.textContent = 'Error: ' + data.message;
-      out.className = 'crp-output err';
-      return;
+const agentCard = {
+  "schema_version": "0.0.1",
+  "name": "Claude Contract Review Agent",
+  "description": "Reviews contracts for risks, obligations, and key terms. Built on Claude 3.5 Sonnet.",
+  "url": "https://agents.example.com/contract-review",
+  "version": "1.0.0",
+  "capabilities": {
+    "streaming": true,
+    "push_notifications": false,
+    "state_transition_history": true
+  },
+  "authentication": {
+    "schemes": ["bearer"]
+  },
+  "default_input_modes": ["text", "file"],
+  "default_output_modes": ["text", "application/json"],
+  "skills": [
+    {
+      "id": "extract_key_terms",
+      "name": "Extract Key Terms",
+      "description": "Identifies parties, dates, payment terms, and obligations",
+      "tags": ["extraction", "contracts"],
+      "examples": ["Extract all payment obligations from this MSA"]
+    },
+    {
+      "id": "identify_risks",
+      "name": "Identify Risks",
+      "description": "Flags unusual clauses, missing standard protections, liability concerns",
+      "tags": ["risk", "legal"],
+      "examples": ["What are the top 5 risks in this SaaS agreement?"]
+    },
+    {
+      "id": "compare_contracts",
+      "name": "Compare Contracts",
+      "description": "Diffs two contracts and highlights material differences",
+      "tags": ["comparison"],
+      "examples": ["Compare current MSA to last year's version"]
     }
+  ]
+};
 
-    const stdout = data.run?.stdout || '';
-    const stderr = data.run?.stderr || '';
-    const signal = data.run?.signal;
+console.log("Agent Card for:", agentCard.name);
+console.log("URL:", agentCard.url);
+console.log("Capabilities:", JSON.stringify(agentCard.capabilities, null, 2));
+console.log("\\nSkills exposed:");
+agentCard.skills.forEach((s,i) => {
+  console.log(\`  \${i+1}. \${s.name} — \${s.description}\`);
+});
+console.log("\\nA2A Task States: submitted → working → input-required → completed | failed | canceled");`
+      },
+      interview:{
+        question:'Explain the difference between MCP and A2A. When would you use each in an enterprise agentic system?',
+        answer:`MCP and A2A solve different layers of the agentic stack. MCP is the agent-to-tool layer — it defines how a single AI agent connects to external capabilities: calling APIs, reading files, querying databases. A2A is the agent-to-agent layer — it defines how two autonomous agents communicate, delegate tasks, and coordinate on multi-step workflows.<br><br>The mental model I use: MCP is like a USB standard for peripherals — it defines how your device (the agent) plugs into external tools. A2A is like a work assignment protocol between contractors — it defines how one agent subcontracts a task to another agent and tracks its completion.<br><br>In an enterprise agentic system, I'd use both. A "Coordinator Agent" receives user requests and breaks them into subtasks. It uses A2A to delegate each subtask to specialized agents — a Code Review Agent, a Compliance Agent, a Data Analysis Agent. Each specialized agent uses MCP to connect to its specific tools: the Code Review Agent uses the GitHub MCP server, the Compliance Agent uses an internal policy database MCP server.<br><br>A2A over MCP when: the capability requires an autonomous agent that can take multi-step actions, maintain state, and may need to ask clarifying questions. MCP over A2A when: you need a simple, stateless tool call — get this data, run this function, write this file.<br><br>The key interview point: knowing this distinction signals you understand the architecture of production agentic systems, not just how to call a single model.`
+      },
+      pmAngle:`The MCP vs A2A question will come up in almost every Anthropic interview that touches agentic products. Practice your answer until it's crisp at three levels: 30 seconds (elevator), 2 minutes (interview), 5 minutes (whiteboard design). The 30-second version: "MCP connects agents to tools. A2A connects agents to agents."`,
+      resources:[
+        {type:'GITHUB',title:'google-a2a/a2a — Official Spec',url:'https://github.com/google/a2a',note:'Read the README and the Agent Card schema spec.'},
+        {type:'BLOG',title:'Google: Announcing A2A',url:'https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/',note:'Original announcement — understand the strategic framing.'},
+        {type:'DOCS',title:'A2A Technical Spec',url:'https://google.github.io/a2a/',note:'Task lifecycle, streaming, push notifications — essential reading.'},
+        {type:'GITHUB',title:'A2A Python Demo',url:'https://github.com/google/a2a/tree/main/demo',note:'Working multi-agent demo to run locally.'},
+      ]
+    },
+  };
 
-    if (signal === 'SIGKILL') {
-      out.textContent = '⏱ Execution timed out (15s limit). Try with smaller input.';
-      out.className = 'crp-output err';
-    } else if (stderr && !stdout) {
-      out.textContent = stderr;
-      out.className = 'crp-output err';
-    } else {
-      out.textContent = stdout || '(no output)';
-      if (stderr) out.textContent += '\n\n--- stderr ---\n' + stderr;
-      out.className = 'crp-output';
-    }
-
-  } catch (e) {
-    out.textContent = 'Execution failed: ' + e.message + '\n\nNote: The Piston API requires internet access.';
-    out.className = 'crp-output err';
-  } finally {
-    spin.classList.remove('on');
-  }
-}
-
-function clearRunner(idx) {
-  const ta = document.getElementById(`crp-code-${idx}`);
-  const out = document.getElementById(`crp-out-${idx}`);
-  if (ta) ta.value = '';
-  if (out) { out.textContent = '// Press Run to execute your code'; out.className = 'crp-output'; }
+  return data[day] || {};
 }
 </script>
 </body>
