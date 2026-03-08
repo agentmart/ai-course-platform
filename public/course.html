@@ -10,8 +10,6 @@
 *{margin:0;padding:0;box-sizing:border-box;}
 html{font-size:16px;}
 body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
-
-/* ── LOADER ───────────────────────────── */
 #loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;transition:opacity .4s;}
 #loader.gone{opacity:0;pointer-events:none;}
 .ld-spin{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;}
@@ -19,9 +17,9 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .ld-err{color:#f87171;font-size:14px;text-align:center;max-width:400px;line-height:1.7;display:none;}
 .ld-err a{color:#fca87a;text-decoration:underline;cursor:pointer;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* ── NAV ──────────────────────────────── */
 #topbar{background:var(--ink);padding:12px 32px;display:flex;align-items:center;gap:20px;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.tb-home{color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace;font-size:11px;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:2px;transition:all .15s;white-space:nowrap;}
+.tb-home:hover{color:#c8590a;border-color:#c8590a;}
 .tb-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#c8590a;letter-spacing:.15em;white-space:nowrap;}
 .tb-day-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
 .tb-spacer{flex:1;}
@@ -29,14 +27,12 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .streak-fire{font-size:14px;}
 .tb-user{display:flex;align-items:center;gap:10px;}
 .tb-avatar{width:30px;height:30px;border-radius:50%;background:#c8590a;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.tb-name{font-size:12px;color:rgba(255,255,255,.55);font-family:'IBM Plex Mono',monospace;}
+.tb-user-info{display:flex;flex-direction:column;gap:1px;}
+.tb-name{font-size:12px;color:rgba(255,255,255,.65);font-family:'IBM Plex Mono',monospace;line-height:1.2;}
+.tb-email{font-size:10px;color:rgba(255,255,255,.3);font-family:'IBM Plex Mono',monospace;line-height:1.2;}
 .tb-signout{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
 .tb-signout:hover{border-color:#c8590a;color:#c8590a;}
-
-/* ── MAIN LAYOUT ──────────────────────── */
 .app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 57px);}
-
-/* ── SIDEBAR ──────────────────────────── */
 #sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
 .sb-phases{padding:12px 0;}
 .sb-phase-header{padding:10px 16px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;border-top:1px solid var(--rule);margin-top:4px;}
@@ -51,8 +47,6 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .sb-day.active .sb-day-title{color:var(--ink);font-weight:600;}
 .sb-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
 .sb-day.done .sb-check{background:#c8590a;border-color:#c8590a;color:white;}
-
-/* ── CONTENT ──────────────────────────── */
 #content{flex:1;overflow-y:auto;padding:40px;}
 .day-view{max-width:860px;margin:0 auto;}
 .day-header{margin-bottom:32px;}
@@ -62,15 +56,11 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .day-complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:10px 22px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
 .day-complete-btn:hover{background:#c8590a;}
 .day-complete-btn.done{background:#2d7a2d;pointer-events:none;}
-
-/* Content sections */
 .section{margin-bottom:32px;}
 .section-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
 .context-body{font-size:15px;color:var(--ink2);line-height:1.75;}
 .context-body p{margin-bottom:14px;}
 .context-body strong{color:var(--ink);font-weight:600;}
-
-/* Tasks */
 .tasks{display:flex;flex-direction:column;gap:12px;}
 .task{display:flex;gap:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:6px;transition:border-color .15s;}
 .task.done{opacity:.65;}
@@ -82,16 +72,12 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .task-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
 .task-desc{font-size:13px;color:var(--muted);line-height:1.6;}
 .task-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);margin-top:6px;}
-
-/* Interview */
 .interview-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
 .ic-q{padding:16px 20px;border-bottom:1px solid var(--rule);font-size:15px;font-weight:600;color:var(--ink);}
 .ic-toggle{padding:12px 20px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;cursor:pointer;text-align:left;width:100%;}
 .ic-toggle:hover{background:rgba(200,89,10,.04);}
 .ic-answer{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:14px;color:var(--ink2);line-height:1.7;}
 .ic-answer.open{max-height:600px;padding:16px 20px;}
-
-/* Resources */
 .resources{display:flex;flex-direction:column;gap:8px;}
 .resource{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:4px;}
 .resource-type{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(200,89,10,.1);color:#c8590a;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-top:2px;}
@@ -99,12 +85,8 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .resource-note{font-size:12px;color:var(--muted);}
 .resource a{color:#0d6e6e;text-decoration:none;}
 .resource a:hover{text-decoration:underline;}
-
-/* PM Leadership */
 .pm-card{background:linear-gradient(135deg,rgba(13,110,110,.08),rgba(200,89,10,.05));border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
 .pm-card p{font-size:14px;color:var(--ink2);line-height:1.7;}
-
-/* ── CODE EDITOR ──────────────────────── */
 .code-block{margin:20px 0;}
 .code-block-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
 .editor{background:var(--ink);border-radius:8px;overflow:hidden;}
@@ -121,36 +103,24 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .e-out{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);padding:12px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#90b878;min-height:44px;white-space:pre-wrap;word-break:break-all;}
 .e-out.err{color:#f87171;}
 .e-status{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);padding:4px 14px;text-align:right;}
-
-/* Notes */
 .notes-area{width:100%;min-height:120px;border:1px solid var(--border);border-radius:4px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card);resize:vertical;outline:none;line-height:1.6;}
 .notes-area:focus{border-color:#c8590a;}
 .notes-save{margin-top:8px;padding:8px 18px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .notes-save:hover{background:#c8590a;}
 .notes-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4ade80;margin-left:10px;opacity:0;transition:opacity .3s;}
 .notes-saved.show{opacity:1;}
-
-/* Progress bar */
 .progress-bar-wrap{height:3px;background:rgba(255,255,255,.08);margin-top:1px;}
 .progress-bar-fill{height:3px;background:#c8590a;transition:width .4s ease;}
-
-/* ── GATE overlay (not paid) ─────────── */
 #gate{display:none;position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:500;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
 #gate.open{display:flex;}
 .gate-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);margin-bottom:12px;}
 .gate-sub{font-size:16px;color:var(--muted);max-width:480px;line-height:1.7;margin-bottom:32px;}
 .gate-btn{padding:14px 36px;background:#c8590a;color:white;border:none;border-radius:4px;font-size:16px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;}
 .gate-btn:hover{background:#a84a06;}
-
-/* mobile */
-@media(max-width:768px){
-  #sidebar{display:none;}
-  #content{padding:20px;}
-}
+@media(max-width:768px){#sidebar{display:none;}#content{padding:20px;}}
 </style>
 </head>
 <body>
-
 <!-- LOADER -->
 <div id="loader">
   <div class="ld-spin"></div>
@@ -162,18 +132,22 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 <div id="gate">
   <div class="gate-title">Course Access Required</div>
   <div class="gate-sub">You need a valid purchase to access the 60-Day AI PM Course. Click below to get access.</div>
-  <button class="gate-btn" onclick="location.href='/?scrollto=pricing'">Get Access →</button>
+  <button class="gate-btn" onclick="location.href='/#pricing'">Get Access →</button>
 </div>
 
-<!-- TOP BAR -->
+<!-- TOP BAR (modified: added home link + email) -->
 <div id="topbar" style="display:none">
+  <a class="tb-home" href="/" title="Back to home">← Home</a>
   <div class="tb-logo">AI.PL.60</div>
   <div class="tb-day-label" id="tb-day-label">Day —</div>
   <div class="tb-spacer"></div>
   <div class="tb-streak"><span class="streak-fire">🔥</span><span id="tb-streak">0 day streak</span></div>
   <div class="tb-user">
     <div class="tb-avatar" id="tb-avatar">?</div>
-    <span class="tb-name" id="tb-name"></span>
+    <div class="tb-user-info">
+      <span class="tb-name" id="tb-name"></span>
+      <span class="tb-email" id="tb-email"></span>
+    </div>
     <button class="tb-signout" onclick="doSignOut()">Sign Out</button>
   </div>
 </div>
@@ -183,24 +157,15 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 
 <!-- APP -->
 <div class="app" id="app" style="display:none">
-  <!-- SIDEBAR -->
   <div id="sidebar">
-    <div class="sb-phases" id="sb-phases">
-      <!-- injected by JS -->
-    </div>
+    <div class="sb-phases" id="sb-phases"></div>
   </div>
-  <!-- CONTENT -->
   <div id="content">
-    <div class="day-view" id="day-view">
-      <!-- injected by JS -->
-    </div>
+    <div class="day-view" id="day-view"></div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════════════════
-// CURRICULUM DATA  (titles only in sidebar — full content loaded per-day)
-// ════════════════════════════════════════════════════
 const PHASES = [
   { label:'Phase 1 — Foundations', days:[1,20] },
   { label:'Phase 2 — Protocols & Frameworks', days:[21,40] },
@@ -222,24 +187,17 @@ const DAY_TITLES = {
 56:"Portfolio Assembly",57:"Mock Interview Loop",58:"Your AI Product Vision Statement",59:"Capstone Case Study",60:"Retrospective & Launch"
 };
 
-// ════════════════════════════════════════════════════
-// STATE
-// ════════════════════════════════════════════════════
 let clerk = null;
 let cfg   = {};
 let supabase = null;
-let completed = new Set();   // Set<dayNum>
-let taskStates = {};          // { "dayN_taskI": bool }
-let notes = {};               // { "dayN": string }
+let completed = new Set();
+let taskStates = {};
+let notes = {};
 let currentDay = 1;
 let pyodide = null;
 let pyLoading = false;
 
-// ════════════════════════════════════════════════════
-// BOOT
-// ════════════════════════════════════════════════════
 (async function boot() {
-  // 1. Fetch config
   try {
     const r = await fetch('/api/config');
     cfg = await r.json();
@@ -253,7 +211,6 @@ let pyLoading = false;
     return;
   }
 
-  // 2. Load Clerk dynamically
   const s = document.createElement('script');
   s.src = `https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
   s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
@@ -271,13 +228,11 @@ let pyLoading = false;
     }
 
     if (!clerk.user) {
-      // Not signed in — redirect to home
       hideLoader();
       window.location.href = '/';
       return;
     }
 
-    // 3. Check course access
     setLdText('CHECKING ACCESS...');
     const hasAccess = await checkAccess();
     if (!hasAccess) {
@@ -286,11 +241,9 @@ let pyLoading = false;
       return;
     }
 
-    // 4. Load progress from Supabase
     setLdText('LOADING PROGRESS...');
     await loadProgress();
 
-    // 5. Render app
     renderNav();
     renderSidebar();
     renderDay(currentDay);
@@ -316,9 +269,6 @@ function showLdErr(html) {
 }
 function setLdText(t) { document.querySelector('.ld-text').textContent = t; }
 
-// ════════════════════════════════════════════════════
-// ACCESS CHECK
-// ════════════════════════════════════════════════════
 async function checkAccess() {
   try {
     const token = await clerk.session.getToken();
@@ -332,9 +282,6 @@ async function checkAccess() {
   }
 }
 
-// ════════════════════════════════════════════════════
-// PROGRESS (Supabase via API, fallback to in-memory)
-// ════════════════════════════════════════════════════
 async function loadProgress() {
   try {
     const token = await clerk.session.getToken();
@@ -344,7 +291,6 @@ async function loadProgress() {
       completed  = new Set(d.completed || []);
       taskStates = d.taskStates || {};
       notes      = d.notes || {};
-      // Resume from last completed day
       const lastDone = Math.max(0, ...[...completed]);
       currentDay = Math.min(60, lastDone + 1) || 1;
     }
@@ -362,15 +308,15 @@ async function saveProgress() {
   } catch(e) { /* silent */ }
 }
 
-// ════════════════════════════════════════════════════
-// AUTH UI
-// ════════════════════════════════════════════════════
+// ── renderNav: show name AND email ──
 function renderNav() {
   const user = clerk.user;
   const init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
   document.getElementById('tb-avatar').textContent = init;
   document.getElementById('tb-name').textContent =
     user.firstName || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || '';
+  document.getElementById('tb-email').textContent =
+    user.emailAddresses?.[0]?.emailAddress || '';
   updateStreak();
 }
 
@@ -384,9 +330,6 @@ async function doSignOut() {
   window.location.href = '/';
 }
 
-// ════════════════════════════════════════════════════
-// SIDEBAR
-// ════════════════════════════════════════════════════
 function renderSidebar() {
   const container = document.getElementById('sb-phases');
   container.innerHTML = '';
@@ -425,9 +368,6 @@ function updateProgress() {
   document.getElementById('pb-fill').style.width = pct + '%';
 }
 
-// ════════════════════════════════════════════════════
-// DAY CONTENT
-// ════════════════════════════════════════════════════
 function renderDay(day) {
   document.getElementById('tb-day-label').textContent = 'Day ' + day;
   const data = getDayData(day);
@@ -442,25 +382,21 @@ function renderDay(day) {
         ${isDone ? '✓ Day Completed' : 'Mark Day Complete'}
       </button>
     </div>
-
     <div class="section">
       <div class="section-title">Context & Concepts</div>
       <div class="context-body">${data.context}</div>
     </div>
-
     <div class="section">
       <div class="section-title">Today's Tasks</div>
       <div class="tasks" id="tasks-container">
         ${data.tasks.map((t,i) => renderTask(day,i,t)).join('')}
       </div>
     </div>
-
     ${data.codeExample ? `
     <div class="section">
       <div class="section-title">Hands-On Code</div>
       ${renderCodeBlock(day, data.codeExample)}
     </div>` : ''}
-
     <div class="section">
       <div class="section-title">Interview Preparation</div>
       <div class="interview-card">
@@ -469,12 +405,10 @@ function renderDay(day) {
         <div class="ic-answer">${data.interview.answer}</div>
       </div>
     </div>
-
     <div class="section">
       <div class="section-title">PM Leadership Angle</div>
       <div class="pm-card"><p>${data.pmAngle}</p></div>
     </div>
-
     <div class="section">
       <div class="section-title">Resources</div>
       <div class="resources">
@@ -486,7 +420,6 @@ function renderDay(day) {
         </div>`).join('')}
       </div>
     </div>
-
     <div class="section">
       <div class="section-title">Your Notes</div>
       <textarea class="notes-area" id="notes-area" placeholder="Your notes for Day ${day}...">${notes['day'+day]||''}</textarea>
@@ -494,8 +427,6 @@ function renderDay(day) {
       <span class="notes-saved" id="notes-saved">Saved ✓</span>
     </div>
   `;
-
-  // Scroll to top
   document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -543,9 +474,6 @@ function onEditorLangChange(id) {
   document.getElementById(id+'-badge').textContent = lang==='python'?'PYTHON · WASM':'JAVASCRIPT · SANDBOX';
 }
 
-// ════════════════════════════════════════════════════
-// INTERACTIONS
-// ════════════════════════════════════════════════════
 function toggleAnswer(btn) {
   const ans = btn.nextElementSibling;
   const open = ans.classList.toggle('open');
@@ -569,7 +497,6 @@ function markDayComplete(day) {
   if (btn) { btn.textContent='✓ Day Completed'; btn.className='day-complete-btn done'; }
   syncSidebar();
   saveProgress();
-  // Auto-advance after short delay
   if (day < 60) {
     setTimeout(() => { currentDay = day+1; renderDay(day+1); syncSidebar(); }, 800);
   }
@@ -583,9 +510,6 @@ function saveNote(day) {
   saveProgress();
 }
 
-// ════════════════════════════════════════════════════
-// CODE RUNNER — Pyodide WASM + sandboxed iframe eval
-// ════════════════════════════════════════════════════
 async function runEditor(id) {
   const lang = document.getElementById(id+'-lang').value;
   const code = document.getElementById(id+'-code').value;
@@ -642,7 +566,6 @@ function runJS(code, outEl) {
   finally { document.body.removeChild(iframe); }
 }
 
-// Ctrl+Enter runs the focused editor
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey||e.metaKey)&&e.key==='Enter') {
     const active = document.activeElement;
@@ -654,14 +577,11 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// ════════════════════════════════════════════════════
-// DAY DATA — full curriculum content per day
-// ════════════════════════════════════════════════════
 function getDayData(day) {
   const defaults = {
     phase: day<=20?'Phase 1 — Foundations':day<=40?'Phase 2 — Protocols & Frameworks':'Phase 3 — Leadership & Ship',
     title: DAY_TITLES[day] || 'Day ' + day,
-    subtitle: 'Preparing for PM roles at Anthropic and OpenAI.',
+    subtitle: 'Master the tools, protocols, and frameworks used at frontier AI labs.',
     context: '<p>Full lesson content for this day is included in the course. Every concept, protocol, and framework is explained in depth so you never need to search externally.</p>',
     tasks: [
       { title:'Read the lesson', description:'Study today\'s context and concepts carefully.', time:'30 min' },
@@ -670,24 +590,22 @@ function getDayData(day) {
       { title:'Review resources', description:'Skim the pre-selected docs and flag what to revisit.', time:'15 min' },
     ],
     interview: { question:'How would you explain today\'s topic to a non-technical PM?', answer:'Structure your answer with: (1) the problem this solves, (2) how it works at a high level, (3) why it matters for product decisions, and (4) a concrete example from a product you know.' },
-    pmAngle: 'Every technical topic in this course has a product decision attached to it. As a PM at Anthropic or OpenAI, your job is to understand the tradeoffs well enough to make build/buy/partner calls and to communicate them credibly to engineers, policy teams, and customers.',
+    pmAngle: 'Every technical topic in this course has a product decision attached to it. Your job as an AI PM is to understand the tradeoffs well enough to make build/buy/partner calls and to communicate them credibly to engineers, policy teams, and customers.',
     resources: [
       { type:'DOCS', title:'Anthropic Documentation', url:'https://docs.anthropic.com', note:'Primary reference for all Claude API and safety concepts.' },
       { type:'DOCS', title:'OpenAI Documentation', url:'https://platform.openai.com/docs', note:'Primary reference for GPT and Assistants API.' },
     ],
   };
 
-  // Day-specific overrides — the full curriculum is embedded here
   const overrides = getDayOverride(day);
   return { ...defaults, ...overrides };
 }
 
 function getDayOverride(day) {
-  // Key days with full content — the rest use the structured default
   const data = {
     1: {
-      subtitle: 'Map the frontier model landscape before your first Anthropic or OpenAI interview.',
-      context: `<p>The AI landscape in 2025 is dominated by four frontier labs: Anthropic, OpenAI, Google DeepMind, and Meta AI. As a product manager at any of these companies, you will be expected to know not just your own models but the entire competitive field. Interviewers at Anthropic and OpenAI routinely ask candidates to compare model families, explain pricing tradeoffs, and articulate where each lab's bets diverge.</p>
+      subtitle: 'Map the frontier model landscape before your first AI PM interview.',
+      context: `<p>The AI landscape in 2025 is dominated by four frontier labs: Anthropic, OpenAI, Google DeepMind, and Meta AI. As a product manager at any of these companies, you will be expected to know not just your own models but the entire competitive field. Interviewers at frontier labs routinely ask candidates to compare model families, explain pricing tradeoffs, and articulate where each lab's bets diverge.</p>
       <p>Anthropic's Claude family spans Haiku (fast, cheap), Sonnet (balanced, workhorse), and Opus (frontier reasoning). Claude 3.5 Sonnet is the primary commercial model — 200K context, vision capabilities, and strong performance on coding and analysis tasks. OpenAI's GPT-4o is the equivalent: multimodal, 128K context, broadly deployed. o1, o3, and o4 are OpenAI's reasoning-specialized series, using chain-of-thought at inference time to solve complex problems.</p>
       <p>Context window is one of the most product-relevant dimensions. Anthropic's 200K context enables use cases like full-codebase analysis, long contract review, and multi-document synthesis that 128K models can't handle cleanly. Google's Gemini 1.5 Pro pushes to 1M tokens — a different category entirely, though with quality tradeoffs at extreme lengths.</p>
       <p>Pricing varies significantly: Claude 3.5 Sonnet at $3/$15 per million input/output tokens, GPT-4o at $5/$15, o3 at $10/$40. These numbers matter because they determine which use cases are economically viable at scale. A PM who can't quickly estimate API costs for a proposed feature is a liability at a frontier AI company.</p>
@@ -695,8 +613,8 @@ function getDayOverride(day) {
       tasks:[
         { title:'Build a model comparison matrix', description:'Create a table with Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro, and o3. Columns: context window, input price, output price, key strengths, key limitations. Use the code runner below.', time:'20 min' },
         { title:'Cost-model a real use case', description:'Pick one: (a) contract review assistant (avg 50K tokens/doc, 500 docs/month) or (b) customer support bot (avg 800 tokens/turn, 10K turns/month). Calculate monthly cost on each model.', time:'25 min' },
-        { title:'Draft a competitive positioning memo', description:'Write 200 words: If you were a PM at Anthropic, how would you position Claude 3.5 Sonnet against GPT-4o for enterprise customers? What would you emphasize?', time:'20 min' },
-        { title:'Map the ecosystem', description:'List 3 products that are built on Claude and 3 built on GPT-4o. For each, identify why that company chose that model.', time:'15 min' },
+        { title:'Draft a competitive positioning memo', description:'Write 200 words: If you were a PM at a frontier AI lab, how would you position your flagship model against a competitor for enterprise customers? What would you emphasize?', time:'20 min' },
+        { title:'Map the ecosystem', description:'List 3 products built on Claude and 3 built on GPT-4o. For each, identify why that company chose that model.', time:'15 min' },
       ],
       codeExample:{
         title:'Model cost comparison — Python',lang:'python',
@@ -723,7 +641,7 @@ for name, m in models.items():
         question:'Walk me through the frontier model landscape. Which model would you choose for a new enterprise contract review product, and why?',
         answer:`I'd start by scoping the use case: contract review requires long context (50–100K tokens per document), high accuracy on legal language, and strong structured output for extraction tasks. Given those requirements, I'd recommend Claude 3.5 Sonnet.<br><br>The reasons: (1) 200K context window handles full contracts without chunking, which matters for clauses that reference each other across a 60-page document. (2) Claude's Constitutional AI training produces more calibrated outputs — it's less likely to confidently hallucinate a clause that isn't there. (3) At $3/$15 per million tokens, it's cheaper than GPT-4o ($5/$15) for the input-heavy workload of contract review.<br><br>I'd consider GPT-4o if the customer is deeply integrated in Microsoft's ecosystem or needs Vision for scanned documents with complex layouts. I'd benchmark both on a test corpus of 50 representative contracts before committing, specifically measuring extraction accuracy, hallucination rate, and latency.<br><br>The meta-point: model choice is a product decision, not just a technical one. Cost, contract terms, compliance, and customer trust all factor in alongside benchmarks.`
       },
-      pmAngle:'Model selection is one of your first real PM decisions at a frontier lab. Practice explaining these tradeoffs in plain English — you will do this constantly with legal, finance, and enterprise customers who want to know "why Claude?" or "why GPT-4o?" The answer should always connect to their specific use case, not generic benchmarks.',
+      pmAngle:'Model selection is one of your first real PM decisions at a frontier lab. Practice explaining these tradeoffs in plain English — you will do this constantly with legal, finance, and enterprise customers who want to know "why this model?" The answer should always connect to their specific use case, not generic benchmarks.',
       resources:[
         {type:'PRICING',title:'Anthropic API Pricing',url:'https://www.anthropic.com/pricing',note:'Memorize these numbers — you will be asked.'},
         {type:'PRICING',title:'OpenAI API Pricing',url:'https://openai.com/pricing',note:'Compare GPT-4o vs o-series pricing tradeoffs.'},
@@ -748,8 +666,6 @@ for name, m in models.items():
       codeExample:{
         title:'MCP server skeleton — JavaScript',lang:'js',
         code:`// Minimal MCP server structure (illustrative — run in Node.js outside sandbox)
-// This shows the shape of an MCP server built with the official SDK
-
 const serverDefinition = {
   name: "time-server",
   version: "1.0.0",
@@ -760,10 +676,7 @@ const serverDefinition = {
       inputSchema: {
         type: "object",
         properties: {
-          timezone: {
-            type: "string",
-            description: "IANA timezone, e.g. America/New_York"
-          }
+          timezone: { type: "string", description: "IANA timezone, e.g. America/New_York" }
         },
         required: ["timezone"]
       }
@@ -771,18 +684,12 @@ const serverDefinition = {
   ]
 };
 
-// Tool handler logic
 function handleGetTimestamp(timezone) {
   const now = new Date();
-  const formatted = now.toLocaleString("en-US", {
-    timeZone: timezone,
-    dateStyle: "full",
-    timeStyle: "long"
-  });
+  const formatted = now.toLocaleString("en-US", { timeZone: timezone, dateStyle: "full", timeStyle: "long" });
   return { content: [{ type: "text", text: formatted }] };
 }
 
-// Test it
 const testZones = ["America/New_York", "Europe/London", "Asia/Tokyo", "America/Los_Angeles"];
 console.log("Time Server — get_timestamp tool demo");
 console.log("─".repeat(50));
@@ -790,17 +697,14 @@ testZones.forEach(tz => {
   const result = handleGetTimestamp(tz);
   console.log(\`\${tz.padEnd(25)} → \${result.content[0].text.slice(0,30)}...\`);
 });
-
 console.log("\\nMCP server tools defined:");
-serverDefinition.tools.forEach(t => {
-  console.log(\`  ▸ \${t.name} — \${t.description}\`);
-});`
+serverDefinition.tools.forEach(t => { console.log(\`  ▸ \${t.name} — \${t.description}\`); });`
       },
       interview:{
         question:'What is MCP and why does it matter strategically for Anthropic?',
         answer:`MCP — Model Context Protocol — is Anthropic's open standard for connecting AI models to external tools and data sources. It defines a client-server architecture where an AI application hosts an MCP client that connects to MCP servers, each exposing capabilities as tools, resources, or prompts.<br><br>Strategically it matters for three reasons. First, it solves the integration scaling problem. Without a standard, each AI application needs custom connectors for every data source. MCP means any tool built once works everywhere — the same GitHub MCP server works in Claude Desktop, Cursor, and any third-party MCP client.<br><br>Second, it's a classic platform play. By publishing MCP as an open standard (not proprietary), Anthropic invites the whole ecosystem to build MCP servers that ultimately benefit Claude's capabilities. More MCP servers = more reasons to use Claude. It's similar to how Stripe benefited from the proliferation of e-commerce platforms.<br><br>Third, it positions Anthropic as a standards setter, not just a model vendor. That matters for enterprise customers who want assurance against lock-in, and for regulators who prefer interoperability. The risk is that competitors (OpenAI, Google) adopt MCP too, neutralizing Anthropic's differentiation — but that's acceptable if it grows the overall agentic AI market.<br><br>The product implication: Claude's agentic capabilities — computer use, multi-step workflows, integration with enterprise systems — all depend on MCP working well. It's infrastructure for the next generation of AI products.`
       },
-      pmAngle:`MCP is the most important protocol in your curriculum for Anthropic interviews specifically. You should be able to explain it to an engineer (client-server, three primitives, JSON-RPC transport), to a business stakeholder (solves integration proliferation, ecosystem flywheel), and to a skeptic (why open-source it? why not just build the best Claude integrations internally?). Each framing uses different vocabulary but makes the same argument.`,
+      pmAngle:`MCP is the most important protocol in your curriculum for Anthropic interviews specifically. You should be able to explain it to an engineer (client-server, three primitives, JSON-RPC transport), to a business stakeholder (solves integration proliferation, ecosystem flywheel), and to a skeptic (why open-source it?). Each framing uses different vocabulary but makes the same argument.`,
       resources:[
         {type:'DOCS',title:'MCP Official Documentation',url:'https://modelcontextprotocol.io',note:'Start here — read the architecture overview and quickstart.'},
         {type:'GITHUB',title:'MCP TypeScript SDK',url:'https://github.com/modelcontextprotocol/typescript-sdk',note:'Build your first server in an afternoon.'},
@@ -810,78 +714,49 @@ serverDefinition.tools.forEach(t => {
     },
 
     26: {
-      subtitle: 'Google\'s answer to multi-agent interoperability — and why it matters for Anthropic PMs too.',
+      subtitle: 'Google\'s answer to multi-agent interoperability — and why it matters for AI PMs.',
       context:`<p><strong>Agent-to-Agent Protocol (A2A)</strong> was announced by Google in April 2025 as an open standard for communication between AI agents. Where MCP solves the agent-to-tool problem (how an agent calls external tools and reads data), A2A solves the agent-to-agent problem: how do two agents — potentially from different vendors, running in different environments — collaborate on a task?</p>
       <p>A2A's core abstraction is the <strong>Agent Card</strong>: a JSON document that each agent publishes at a well-known URL, advertising its capabilities, supported modalities (text, images, structured data), authentication requirements, and available skills. Clients discover what an agent can do by fetching its Agent Card before initiating a task.</p>
       <p>Tasks in A2A are stateful. When a client agent sends a task to a remote agent, it receives a Task ID and can poll for status. Tasks go through states: submitted → working → input-required → completed (or failed). The "input-required" state is key: it enables <strong>human-in-the-loop</strong> workflows where the remote agent pauses and requests additional information before proceeding.</p>
-      <p>A2A supports streaming via Server-Sent Events, which means long-running agent tasks can stream intermediate updates back to the client in real time. This is essential for agentic workflows where you want to show users progress — "Agent is browsing the web... Agent has found 3 relevant pages... Agent is summarizing..."</p>
-      <p>As an Anthropic PM, you need to understand A2A even though Google initiated it. The protocol is explicitly designed to be vendor-neutral, and Anthropic has signaled support. The practical implication: enterprise customers building multi-agent systems want to combine Claude agents with specialized agents (a financial data agent, a code review agent, a compliance agent) from different providers. A2A is the connective tissue. Knowing when to use A2A versus MCP versus direct API calls is a design decision you'll make frequently.</p>`,
+      <p>A2A supports streaming via Server-Sent Events, which means long-running agent tasks can stream intermediate updates back to the client in real time. This is essential for agentic workflows where you want to show users progress.</p>
+      <p>As an AI PM, you need to understand A2A because enterprise customers building multi-agent systems want to combine specialized agents from different providers. A2A is the connective tissue. Knowing when to use A2A versus MCP versus direct API calls is a design decision you'll make frequently.</p>`,
       tasks:[
         { title:'Read the A2A spec', description:'Read the A2A specification on GitHub (google-a2a/a2a). Sketch the lifecycle of a single task: from client sending a task to completion. Note the 5 task states.', time:'25 min' },
         { title:'Design an Agent Card', description:'Design the Agent Card JSON for a "Contract Review Agent" built on Claude. Include: name, description, capabilities, supported input types, authentication method, and 3 skills.', time:'25 min' },
-        { title:'MCP vs A2A decision framework', description:'Write a 1-page decision guide: When do you use MCP vs A2A? What\'s the cleanest mental model for separating the two protocols? Aim for a version you could explain in 60 seconds to a new engineer.', time:'20 min' },
-        { title:'Find 3 real A2A implementations', description:'Search GitHub and the A2A community for agents that implement the protocol. What kinds of agents have been built? What does this tell you about early adopter use cases?', time:'20 min' },
+        { title:'MCP vs A2A decision framework', description:'Write a 1-page decision guide: When do you use MCP vs A2A? What\'s the cleanest mental model for separating the two protocols?', time:'20 min' },
+        { title:'Find 3 real A2A implementations', description:'Search GitHub for agents that implement A2A. What kinds of agents have been built? What does this tell you about early adopter use cases?', time:'20 min' },
       ],
       codeExample:{
         title:'A2A Agent Card schema — JavaScript',lang:'js',
         code:`// A2A Agent Card — the self-description every A2A agent publishes
-// Clients fetch this before initiating any task
-
 const agentCard = {
   "schema_version": "0.0.1",
   "name": "Claude Contract Review Agent",
   "description": "Reviews contracts for risks, obligations, and key terms. Built on Claude 3.5 Sonnet.",
   "url": "https://agents.example.com/contract-review",
   "version": "1.0.0",
-  "capabilities": {
-    "streaming": true,
-    "push_notifications": false,
-    "state_transition_history": true
-  },
-  "authentication": {
-    "schemes": ["bearer"]
-  },
+  "capabilities": { "streaming": true, "push_notifications": false, "state_transition_history": true },
+  "authentication": { "schemes": ["bearer"] },
   "default_input_modes": ["text", "file"],
   "default_output_modes": ["text", "application/json"],
   "skills": [
-    {
-      "id": "extract_key_terms",
-      "name": "Extract Key Terms",
-      "description": "Identifies parties, dates, payment terms, and obligations",
-      "tags": ["extraction", "contracts"],
-      "examples": ["Extract all payment obligations from this MSA"]
-    },
-    {
-      "id": "identify_risks",
-      "name": "Identify Risks",
-      "description": "Flags unusual clauses, missing standard protections, liability concerns",
-      "tags": ["risk", "legal"],
-      "examples": ["What are the top 5 risks in this SaaS agreement?"]
-    },
-    {
-      "id": "compare_contracts",
-      "name": "Compare Contracts",
-      "description": "Diffs two contracts and highlights material differences",
-      "tags": ["comparison"],
-      "examples": ["Compare current MSA to last year's version"]
-    }
+    { "id": "extract_key_terms", "name": "Extract Key Terms", "description": "Identifies parties, dates, payment terms, and obligations", "tags": ["extraction", "contracts"] },
+    { "id": "identify_risks", "name": "Identify Risks", "description": "Flags unusual clauses, missing standard protections, liability concerns", "tags": ["risk", "legal"] },
+    { "id": "compare_contracts", "name": "Compare Contracts", "description": "Diffs two contracts and highlights material differences", "tags": ["comparison"] }
   ]
 };
 
 console.log("Agent Card for:", agentCard.name);
-console.log("URL:", agentCard.url);
 console.log("Capabilities:", JSON.stringify(agentCard.capabilities, null, 2));
 console.log("\\nSkills exposed:");
-agentCard.skills.forEach((s,i) => {
-  console.log(\`  \${i+1}. \${s.name} — \${s.description}\`);
-});
+agentCard.skills.forEach((s,i) => { console.log(\`  \${i+1}. \${s.name} — \${s.description}\`); });
 console.log("\\nA2A Task States: submitted → working → input-required → completed | failed | canceled");`
       },
       interview:{
         question:'Explain the difference between MCP and A2A. When would you use each in an enterprise agentic system?',
-        answer:`MCP and A2A solve different layers of the agentic stack. MCP is the agent-to-tool layer — it defines how a single AI agent connects to external capabilities: calling APIs, reading files, querying databases. A2A is the agent-to-agent layer — it defines how two autonomous agents communicate, delegate tasks, and coordinate on multi-step workflows.<br><br>The mental model I use: MCP is like a USB standard for peripherals — it defines how your device (the agent) plugs into external tools. A2A is like a work assignment protocol between contractors — it defines how one agent subcontracts a task to another agent and tracks its completion.<br><br>In an enterprise agentic system, I'd use both. A "Coordinator Agent" receives user requests and breaks them into subtasks. It uses A2A to delegate each subtask to specialized agents — a Code Review Agent, a Compliance Agent, a Data Analysis Agent. Each specialized agent uses MCP to connect to its specific tools: the Code Review Agent uses the GitHub MCP server, the Compliance Agent uses an internal policy database MCP server.<br><br>A2A over MCP when: the capability requires an autonomous agent that can take multi-step actions, maintain state, and may need to ask clarifying questions. MCP over A2A when: you need a simple, stateless tool call — get this data, run this function, write this file.<br><br>The key interview point: knowing this distinction signals you understand the architecture of production agentic systems, not just how to call a single model.`
+        answer:`MCP and A2A solve different layers of the agentic stack. MCP is the agent-to-tool layer — it defines how a single AI agent connects to external capabilities: calling APIs, reading files, querying databases. A2A is the agent-to-agent layer — it defines how two autonomous agents communicate, delegate tasks, and coordinate on multi-step workflows.<br><br>The mental model I use: MCP is like a USB standard for peripherals — it defines how your device (the agent) plugs into external tools. A2A is like a work assignment protocol between contractors — it defines how one agent subcontracts a task to another agent and tracks its completion.<br><br>In an enterprise agentic system, I'd use both. A "Coordinator Agent" receives user requests and breaks them into subtasks. It uses A2A to delegate each subtask to specialized agents — a Code Review Agent, a Compliance Agent, a Data Analysis Agent. Each specialized agent uses MCP to connect to its specific tools.<br><br>Use A2A when: the capability requires an autonomous agent that can take multi-step actions, maintain state, and may need to ask clarifying questions. Use MCP when: you need a simple, stateless tool call.<br><br>The key interview point: knowing this distinction signals you understand the architecture of production agentic systems, not just how to call a single model.`
       },
-      pmAngle:`The MCP vs A2A question will come up in almost every Anthropic interview that touches agentic products. Practice your answer until it's crisp at three levels: 30 seconds (elevator), 2 minutes (interview), 5 minutes (whiteboard design). The 30-second version: "MCP connects agents to tools. A2A connects agents to agents."`,
+      pmAngle:`The MCP vs A2A question will come up in almost every AI PM interview that touches agentic products. Practice your answer until it's crisp at three levels: 30 seconds (elevator), 2 minutes (interview), 5 minutes (whiteboard design). The 30-second version: "MCP connects agents to tools. A2A connects agents to agents."`,
       resources:[
         {type:'GITHUB',title:'google-a2a/a2a — Official Spec',url:'https://github.com/google/a2a',note:'Read the README and the Agent Card schema spec.'},
         {type:'BLOG',title:'Google: Announcing A2A',url:'https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/',note:'Original announcement — understand the strategic framing.'},
