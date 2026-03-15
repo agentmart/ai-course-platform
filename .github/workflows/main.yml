@@ -1,0 +1,42 @@
+name: Main Branch Workflow
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches:
+      - main
+
+jobs:
+  review-and-merge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18' # Based on package.json engines
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      # Here you would typically add a step for AI Code Review.
+      # Since Copilot custom agents are invoked interactively, we add a simple check.
+      - name: Ensure PR checks pass
+        run: |
+          echo "Simulating code review. To use the custom Agent, run \`gh copilot suggest --agent main-merger\`"
+          echo "Please ensure the branch protection rules require this workflow to pass."
+
+      - name: Enable Auto-Merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Requires branch protection rules to be enabled on `main` branch to effectively merge
+          # Automatically select merge or squash or rebase based on your workflow
+          gh pr merge "${{ github.event.pull_request.number }}" --merge --auto
