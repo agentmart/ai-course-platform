@@ -1,0 +1,52 @@
+name: Weekly AI Companies Sync
+
+on:
+  schedule:
+    # Every Monday at 8:00 AM UTC
+    - cron: '0 8 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (no DB writes)'
+        required: false
+        default: 'false'
+
+jobs:
+  sync-companies:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    # GITHUB_TOKEN is automatically available — no secrets to add
+    permissions:
+      contents: read
+      models: read   # required for GitHub Models API access
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run company sync agent
+        env:
+          # GITHUB_TOKEN injected automatically — powers GitHub Models
+          GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/sync-companies.mjs
+
+      - name: Upload sync report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: sync-report-${{ github.run_id }}
+          path: sync-report.json
+          retention-days: 30
