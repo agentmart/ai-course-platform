@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Companies Hiring — becomeaipm.com</title>
+    <meta name="description"
+        content="Live directory of AI startups with recent funding. Track which companies are actively hiring AI PMs.">
+    <link
+        href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900;1,600&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f5f0e8;
+            --bg2: #ede8df;
+            --ink: #1a1512;
+            --ink2: #3d3530;
+            --muted: #8c7f74;
+            --border: #ccc4b8;
+            --card: #faf7f2;
+            --amber: #c8590a;
+            --teal: #0d6e6e;
+            --rule: #d4cdc4;
+            --green: #16a34a;
+            --purple: #7c3aed;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--ink);
+            font-family: 'DM Sans', sans-serif;
+            min-height: 100vh;
+        }
+
+        nav {
+            background: var(--ink);
+            padding: 14px 40px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .nav-logo {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 12px;
+            color: var(--amber);
+            letter-spacing: .15em;
+            text-decoration: none;
+        }
+
+        .nav-sep {
+            color: rgba(255, 255, 255, .15);
+            font-size: 14px;
+        }
+
+        .nav-page {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: rgba(255, 255, 255, .3);
+        }
+
+        .nav-sp {
+            flex: 1;
+        }
+
+        .nav-pill {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: rgba(255, 255, 255, .4);
+            text-decoration: none;
+            padding: 4px 11px;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 2px;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .nav-pill:hover {
+            color: var(--amber);
+            border-color: var(--amber);
+        }
+
+        .hero {
+            padding: 52px 40px 36px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .eyebrow {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .eyebrow-tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            letter-spacing: .2em;
+            color: var(--amber);
+            text-transform: uppercase;
+        }
+
+        .pulse-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--ink);
+            padding: 3px 11px;
+            border-radius: 20px;
+        }
+
+        .pulse-dot {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #4ade80;
+            animation: glow 2s infinite;
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                opacity: 1;
+                box-shadow: 0 0 0 0 rgba(74, 222, 128, .4)
+            }
+
+            50% {
+                opacity: .5;
+                box-shadow: 0 0 0 4px rgba(74, 222, 128, 0)
+            }
+        }
+
+        .pulse-text {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: rgba(255, 255, 255, .4);
+        }
+
+        h1 {
+            font-family: 'Fraunces', serif;
+            font-size: clamp(30px, 4.2vw, 52px);
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.05;
+            margin-bottom: 12px;
+        }
+
+        h1 em {
+            color: var(--amber);
+            font-style: italic;
+        }
+
+        .hero-sub {
+            font-size: 15px;
+            color: var(--muted);
+            max-width: 540px;
+            line-height: 1.7;
+            margin-bottom: 28px;
+        }
+
+        .legend {
+            display: flex;
+            gap: 22px;
+            flex-wrap: wrap;
+        }
+
+        .leg-item {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .ldot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+        }
+
+        .ldot-teal {
+            background: var(--teal);
+        }
+
+        .ldot-yc {
+            background: #ea580c;
+        }
+
+        .ldot-hn {
+            background: var(--purple);
+        }
+
+        .controls {
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            border-bottom: 1px solid var(--border);
+            padding: 16px 40px;
+            position: sticky;
+            top: 57px;
+            z-index: 90;
+        }
+
+        .ctrl {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .row1 {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            position: relative;
+            flex: 1;
+            max-width: 360px;
+            min-width: 180px;
+        }
+
+        .s-icon {
+            position: absolute;
+            left: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 12px;
+            color: var(--muted);
+            pointer-events: none;
+        }
+
+        #q {
+            width: 100%;
+            padding: 8px 10px 8px 30px;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            background: var(--bg);
+            color: var(--ink);
+            font: 14px 'DM Sans', sans-serif;
+            outline: none;
+            transition: border-color .15s;
+        }
+
+        #q:focus {
+            border-color: var(--amber);
+        }
+
+        #q::placeholder {
+            color: var(--muted);
+        }
+
+        #cnt {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            color: var(--muted);
+            margin-left: auto;
+            white-space: nowrap;
+        }
+
+        .row2 {
+            display: flex;
+            gap: 7px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .grp-lbl {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: .14em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-right: 2px;
+        }
+
+        .chip {
+            padding: 4px 11px;
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--ink2);
+            font: 11px 'IBM Plex Mono', monospace;
+            cursor: pointer;
+            transition: all .15s;
+            white-space: nowrap;
+        }
+
+        .chip:hover {
+            border-color: var(--amber);
+            color: var(--amber);
+        }
+
+        .chip.on {
+            background: var(--amber);
+            border-color: var(--amber);
+            color: #fff;
+        }
+
+        .chip.sort.on {
+            background: var(--teal);
+            border-color: var(--teal);
+        }
+
+        .chip-gap {
+            width: 1px;
+            height: 18px;
+            background: var(--rule);
+            margin: 0 4px;
+        }
+
+        .grid-area {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 26px 40px 60px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(308px, 1fr));
+            gap: 18px;
+        }
+
+        /* ── CARD ── */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            transition: box-shadow .15s, border-color .15s;
+            position: relative;
+        }
+
+        .card:hover {
+            border-color: rgba(200, 89, 10, .3);
+            box-shadow: 0 4px 20px rgba(26, 21, 18, .07);
+        }
+
+        .card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--amber), transparent);
+            opacity: 0;
+            transition: opacity .2s;
+            border-radius: 0 0 8px 8px;
+        }
+
+        .card:hover::after {
+            opacity: 1;
+        }
+
+        .chead {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .cname {
+            font-family: 'Fraunces', serif;
+            font-size: 19px;
+            font-weight: 900;
+            color: var(--ink);
+            line-height: 1.1;
+        }
+
+        .sbadge {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 3px;
+            flex-shrink: 0;
+            margin-top: 3px;
+        }
+
+        .sb-vc {
+            background: rgba(13, 110, 110, .1);
+            color: var(--teal);
+        }
+
+        .sb-yc {
+            background: rgba(234, 88, 12, .1);
+            color: #ea580c;
+        }
+
+        .sb-hn {
+            background: rgba(124, 58, 237, .1);
+            color: var(--purple);
+        }
+
+        .cfund {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--amber);
+            margin-bottom: 14px;
+        }
+
+        .cfund.nil {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 400;
+        }
+
+        .crule {
+            border: none;
+            border-top: 1px solid var(--rule);
+            margin-bottom: 12px;
+        }
+
+        .cs {
+            margin-bottom: 10px;
+        }
+
+        .csl {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            letter-spacing: .14em;
+            color: var(--muted);
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .tag {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            padding: 2px 7px;
+            border-radius: 3px;
+        }
+
+        .ti {
+            background: rgba(13, 110, 110, .08);
+            color: var(--teal);
+            border: 1px solid rgba(13, 110, 110, .14);
+        }
+
+        .ti.yc {
+            background: rgba(234, 88, 12, .08);
+            color: #ea580c;
+            border-color: rgba(234, 88, 12, .18);
+        }
+
+        .tt {
+            background: rgba(200, 89, 10, .07);
+            color: #9a4008;
+            border: 1px solid rgba(200, 89, 10, .14);
+        }
+
+        .founders {
+            font-size: 13px;
+            color: var(--ink2);
+            line-height: 1.5;
+        }
+
+        .cfoot {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: auto;
+            padding-top: 12px;
+            border-top: 1px solid var(--rule);
+        }
+
+        .roles {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .roles.has {
+            color: var(--green);
+        }
+
+        .roles.zero {
+            color: var(--muted);
+        }
+
+        .roles.unk {
+            color: var(--border);
+        }
+
+        .ats-lbl {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 9px;
+            color: var(--muted);
+        }
+
+        .cdate {
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 10px;
+            color: var(--muted);
+            margin-left: auto;
+        }
+
+        /* ── SKELETONS ── */
+        .sk-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(308px, 1fr));
+            gap: 18px;
+        }
+
+        .sk-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 20px 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .sk {
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--bg2) 25%, var(--border) 50%, var(--bg2) 75%);
+            background-size: 200% 100%;
+            animation: sk 1.4s infinite;
+        }
+
+        @keyframes sk {
+            0% {
+                background-position: 200% 0
+            }
+
+            100% {
+                background-position: -200% 0
+            }
+        }
+
+        .skh {
+            height: 22px;
+        }
+
+        .skm {
+            height: 13px;
+        }
+
+        .sks {
+            height: 10px;
+        }
+
+        .w60 {
+            width: 60%;
+        }
+
+        .w45 {
+            width: 45%;
+        }
+
+        .w75 {
+            width: 75%;
+        }
+
+        .w35 {
+            width: 35%;
+        }
+
+        .empty-wrap {
+            text-align: center;
+            padding: 64px 20px;
+            color: var(--muted);
+        }
+
+        .empty-ico {
+            font-size: 34px;
+            margin-bottom: 12px;
+        }
+
+        .empty-h {
+            font-family: 'Fraunces', serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+
+        .empty-p {
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        @media(max-width:768px) {
+            nav {
+                padding: 12px 20px;
+            }
+
+            .hero,
+            .grid-area {
+                padding-left: 20px;
+                padding-right: 20px;
+            }
+
+            .controls {
+                padding: 12px 20px;
+                top: 53px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a class="nav-logo" href="/">AI.PL.60</a>
+        <span class="nav-sep">/</span>
+        <span class="nav-page">Companies</span>
+        <div class="nav-sp"></div>
+        <a class="nav-pill" href="/course.html">Open Course →</a>
+        <a class="nav-pill" href="/">← Home</a>
+    </nav>
+
+    <div class="hero">
+        <div class="eyebrow">
+            <span class="eyebrow-tag">Live Directory</span>
+            <div class="pulse-badge">
+                <div class="pulse-dot"></div>
+                <span class="pulse-text" id="sync-txt">loading…</span>
+            </div>
+        </div>
+        <h1>AI Companies<br><em>Worth Targeting</em></h1>
+        <p class="hero-sub">Recent funding rounds, YC batches, and active hirers — the companies most likely to have AI
+            PM openings. Open role counts refresh every 24 hours.</p>
+        <div class="legend">
+            <div class="leg-item">
+                <div class="ldot ldot-teal"></div>VC Funding Round
+            </div>
+            <div class="leg-item">
+                <div class="ldot ldot-yc"></div>YC Backed
+            </div>
+            <div class="leg-item">
+                <div class="ldot ldot-hn"></div>HN Who's Hiring
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="ctrl">
+            <div class="row1">
+                <div class="search-box">
+                    <span class="s-icon">🔍</span>
+                    <input id="q" type="text" placeholder="Search company, tech, investor…" autocomplete="off">
+                </div>
+                <span id="cnt">—</span>
+            </div>
+            <div class="row2">
+                <span class="grp-lbl">Show</span>
+                <button class="chip on" data-f="all" onclick="setF('all',this)">All</button>
+                <button class="chip" data-f="hiring" onclick="setF('hiring',this)">● Actively Hiring</button>
+                <button class="chip" data-f="yc" onclick="setF('yc',this)">YC Backed</button>
+                <button class="chip" data-f="vc" onclick="setF('vc',this)">VC Funded</button>
+                <button class="chip" data-f="big" onclick="setF('big',this)">$10M+ Raise</button>
+                <div class="chip-gap"></div>
+                <span class="grp-lbl">Sort</span>
+                <button class="chip sort on" data-s="date" onclick="setS('date',this)">Latest</button>
+                <button class="chip sort" data-s="funding" onclick="setS('funding',this)">Funding ↓</button>
+                <button class="chip sort" data-s="roles" onclick="setS('roles',this)">Most Roles</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-area">
+        <div class="sk-grid" id="skeleton">
+            ${[...Array(8)].map(()=>`
+            <div class="sk-card">
+                <div class="sk skh w60"></div>
+                <div class="sk skm w45"></div>
+                <div style="height:1px;background:var(--rule);"></div>
+                <div class="sk sks w75"></div>
+                <div class="sk sks w35"></div>
+            </div>`).join('')}
+        </div>
+        <div class="grid" id="grid" style="display:none"></div>
+        <div class="empty-wrap" id="empty" style="display:none">
+            <div class="empty-ico">🔭</div>
+            <div class="empty-h">No companies found</div>
+            <div class="empty-p">Clear your filters or try a different search term.</div>
+        </div>
+    </div>
+
+    <script>
+        let all = [], f = 'all', s = 'date', q = '';
+
+        (async () => {
+            try {
+                const [cr, sr] = await Promise.all([fetch('/api/companies'), fetch('/api/sync-status')]);
+                const { companies } = await cr.json();
+                all = companies || [];
+
+                if (sr.ok) {
+                    const { last_sync } = await sr.json();
+                    if (last_sync) {
+                        const ago = Math.floor((Date.now() - new Date(last_sync)) / 86400000);
+                        document.getElementById('sync-txt').textContent = ago === 0 ? 'updated today' : `updated ${ago}d ago`;
+                    } else {
+                        document.getElementById('sync-txt').textContent = 'updated weekly';
+                    }
+                } else {
+                    document.getElementById('sync-txt').textContent = 'updated weekly';
+                }
+
+                document.getElementById('skeleton').style.display = 'none';
+                document.getElementById('grid').style.display = 'grid';
+                render();
+            } catch (e) {
+                document.getElementById('skeleton').style.display = 'none';
+                document.getElementById('empty').style.display = 'block';
+                document.getElementById('sync-txt').textContent = 'error';
+            }
+        })();
+
+        function setF(v, el) { f = v; document.querySelectorAll('.chip[data-f]').forEach(c => c.classList.remove('on')); el.classList.add('on'); render(); }
+        function setS(v, el) { s = v; document.querySelectorAll('.chip[data-s]').forEach(c => c.classList.remove('on')); el.classList.add('on'); render(); }
+        let dt; document.getElementById('q').addEventListener('input', function () { clearTimeout(dt); dt = setTimeout(() => { q = this.value.trim().toLowerCase(); render(); }, 160); });
+
+        function getList() {
+            let list = all;
+            if (q) list = list.filter(c => c.company_name.toLowerCase().includes(q) || (c.tech_stack || []).some(t => t.value?.toLowerCase().includes(q)) || (c.investors || []).some(i => i.value?.toLowerCase().includes(q)) || (c.founder_names || []).some(x => x.value?.toLowerCase().includes(q)));
+            if (f === 'hiring') list = list.filter(c => (c.open_roles || 0) > 0);
+            if (f === 'yc') list = list.filter(c => (c.investors || []).some(i => /y combinator|yc/i.test(i.value || '')));
+            if (f === 'vc') list = list.filter(c => /vc funding/i.test(c.source || ''));
+            if (f === 'big') list = list.filter(c => fund(c.funding_amount) >= 10e6);
+            if (s === 'date') list = [...list].sort((a, b) => (b.announcement_date || '') > (a.announcement_date || '') ? 1 : -1);
+            if (s === 'funding') list = [...list].sort((a, b) => fund(b.funding_amount) - fund(a.funding_amount));
+            if (s === 'roles') list = [...list].sort((a, b) => (b.open_roles || 0) - (a.open_roles || 0));
+            return list;
+        }
+
+        function fund(str) {
+            if (!str) return 0;
+            const n = parseFloat((str.replace(/,/g, '').match(/([\d.]+)/) || [0, 0])[1]);
+            if (/billion|B\b/i.test(str)) return n * 1e9;
+            if (/million|M\b/i.test(str) || /\$[\d.]+[Mm]/.test(str)) return n * 1e6;
+            if (/thousand|K\b/i.test(str)) return n * 1e3;
+            return n;
+        }
+
+        function render() {
+            const list = getList();
+            const grid = document.getElementById('grid'), empty = document.getElementById('empty');
+            document.getElementById('cnt').textContent = list.length + (list.length === 1 ? ' company' : ' companies');
+            if (!list.length) { grid.innerHTML = ''; empty.style.display = 'block'; return; }
+            empty.style.display = 'none';
+            grid.innerHTML = list.map(mkCard).join('');
+        }
+
+        function mkCard(c) {
+            const founders = (c.founder_names || []).map(x => x.value).filter(Boolean);
+            const tech = (c.tech_stack || []).map(x => x.value).filter(Boolean);
+            const inv = (c.investors || []).map(x => x.value).filter(Boolean);
+            const date = c.announcement_date ? new Date(c.announcement_date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '—';
+            const { bc, bt } = badge(c.source);
+
+            const roles = c.roles_updated_at != null
+                ? (c.open_roles > 0
+                    ? `<span class="roles has">● ${c.open_roles} open role${c.open_roles === 1 ? '' : 's'}</span><span class="ats-lbl">${c.greenhouse_slug ? 'Greenhouse' : c.lever_slug ? 'Lever' : ''}</span>`
+                    : `<span class="roles zero">○ No open roles</span>`)
+                : `<span class="roles unk">○ Checking…</span>`;
+
+            return `<div class="card">
+  <div class="chead"><div class="cname">${e(c.company_name)}</div><span class="sbadge ${bc}">${bt}</span></div>
+  <div class="cfund${c.funding_amount ? '' : ' nil'}">${e(c.funding_amount || 'Undisclosed')}</div>
+  <hr class="crule">
+  ${inv.length ? `<div class="cs"><div class="csl">Investors</div><div class="tags">${inv.map(v => `<span class="tag ti${/y combinator|yc/i.test(v) ? ' yc' : ''}">${e(v)}</span>`).join('')}</div></div>` : ''}
+  ${tech.length ? `<div class="cs"><div class="csl">Tech Stack</div><div class="tags">${tech.map(v => `<span class="tag tt">${e(v)}</span>`).join('')}</div></div>` : ''}
+  ${founders.length ? `<div class="cs"><div class="csl">Founders</div><div class="founders">${founders.map(e).join(', ')}</div></div>` : ''}
+  <div class="cfoot">${roles}<span class="cdate">${date}</span></div>
+</div>`;
+        }
+
+        function badge(src) {
+            if (!src) return { bc: 'sb-vc', bt: 'VC' };
+            const l = src.toLowerCase();
+            if (l.includes('yc') || l.includes('startup track')) return { bc: 'sb-yc', bt: 'YC' };
+            if (l.includes('hn') || l.includes('hiring')) return { bc: 'sb-hn', bt: 'HN' };
+            return { bc: 'sb-vc', bt: 'VC' };
+        }
+        function e(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+    </script>
+</body>
+
+</html>
