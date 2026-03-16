@@ -4,18 +4,37 @@
  *
  * Daily PM job checker — verified ATS slugs (March 2026).
  *
- * Key corrections from previous version:
- *   OpenAI        → moved from Greenhouse → Ashby (slug: openai)
- *   Cohere        → moved from Greenhouse → Ashby (slug: cohere)
- *   Perplexity    → moved from Lever      → Ashby (slug: perplexity, not perplexityai)
- *   LangChain     → moved from Lever      → Ashby (slug: langchain)
- *   ElevenLabs    → moved from Workable   → Ashby (slug: elevenlabs)
- *   Replicate     → moved from Lever      → Ashby (slug: replicate)
- *   Character AI  → moved from Greenhouse → Ashby (slug: character-technologies)
- *   Weights&Biases→ was greenhouse/wandb  → Lever (slug: wandb)  [acquired by CoreWeave]
- *   Runway        → Greenhouse slug fixed  → runwayml (not runway)
- *   Glean         → was ashby/glean       → Greenhouse (slug: gleanwork)
- *   Hugging Face  → confirmed Workable    → huggingface ✅
+ * Key corrections (March 2026 audit):
+ *   OpenAI        → Ashby (slug: openai) ✅
+ *   Cohere        → Ashby (slug: cohere) ✅
+ *   Perplexity    → Ashby (slug: perplexity) ✅
+ *   LangChain     → Ashby (slug: langchain) ✅
+ *   ElevenLabs    → Ashby (slug: elevenlabs) ✅
+ *   Contextual AI → moved from Ashby → Greenhouse (slug: contextualai) ✅
+ *   Imbue         → moved from Ashby → Greenhouse (slug: imbue) ✅
+ *   Runway        → Greenhouse slug: runwayml ✅
+ *   Glean         → Greenhouse slug: gleanwork ✅
+ *   Hugging Face  → Workable body fix (remote must be []) ✅
+ *
+ * Removed (acquired / board gone):
+ *   Replicate     → acquired by Cloudflare (Nov 2025), no ATS board
+ *   Weights&Biases→ acquired by CoreWeave; jobs now under CoreWeave
+ *   Character AI  → Ashby board returns null (hiring paused?)
+ *   Luma AI       → No active Ashby/GH board found
+ *   Inflection AI → Greenhouse 404, Ashby null
+ *   Norm AI       → Ashby null board
+ *   Magic AI      → Ashby null board
+ *   Hex Security  → Lever 404
+ *   Beacon Health → Lever 404
+ *   Code Metal    → Greenhouse 404
+ *
+ * New companies added (March 2026):
+ *   CoreWeave     → Greenhouse (slug: coreweave)  — 281 jobs, 19 PM
+ *   Descript      → Greenhouse (slug: descript)    — 18 jobs, 4 PM
+ *   Airtable      → Greenhouse (slug: airtable)    — 53 jobs, 4 PM
+ *   Replit        → Ashby (slug: replit)           — 85 jobs, 3 PM
+ *   Ideogram      → Ashby (slug: ideogram)         — 11 jobs, 1 PM
+ *   Linear        → Ashby (slug: linear)           — 21 jobs, 2 PM
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -43,42 +62,43 @@ const isPMRole = title => PM_KEYWORDS.some(k => (title || '').toLowerCase().incl
 // ─────────────────────────────────────────────────────────
 const KNOWN_COMPANIES = [
 
-  // ── Frontier Labs ────────────────────────────────────────
-  { name: 'Anthropic', greenhouse: 'anthropic' },           // ✅ confirmed working
-  { name: 'OpenAI', ashby: 'openai' },              // moved from GH → Ashby
-  { name: 'Mistral AI', lever: 'mistral' },             // ✅ confirmed working
-  { name: 'Cohere', ashby: 'cohere' },              // moved from GH → Ashby
-  { name: 'Character AI', ashby: 'character-technologies' }, // moved from GH → Ashby
-  { name: 'Inflection AI', greenhouse: 'inflection' },
-  { name: 'xAI', greenhouse: 'xai' },
+  // ── Frontier Labs ─────────────────────────────────────────
+  { name: 'Anthropic',    greenhouse: 'anthropic' },      // ✅ 28 PM roles
+  { name: 'OpenAI',       ashby: 'openai' },              // ✅ 32 PM roles
+  { name: 'Mistral AI',   lever: 'mistral' },             // ✅ 6 PM roles
+  { name: 'Cohere',       ashby: 'cohere' },              // ✅ 9 PM roles
+  { name: 'xAI',          greenhouse: 'xai' },            // ✅
 
-  // ── AI Infrastructure & Tools ─────────────────────────────
-  { name: 'Scale AI', greenhouse: 'scaleai' },             // ✅ confirmed working
-  { name: 'Together AI', greenhouse: 'togetherai' },          // ✅ confirmed working
-  { name: 'Hugging Face', workable: 'huggingface' },         // ✅ confirmed Workable
-  { name: 'Weights & Biases', lever: 'wandb' },               // Lever (now CoreWeave)
-  { name: 'Replicate', ashby: 'replicate' },           // moved from Lever → Ashby
-  { name: 'Runway', greenhouse: 'runwayml' },            // slug is runwayml not runway
-  { name: 'ElevenLabs', ashby: 'elevenlabs' },          // moved from Workable → Ashby
+  // ── AI Infrastructure & Cloud ─────────────────────────────
+  { name: 'Scale AI',     greenhouse: 'scaleai' },        // ✅ 20 PM roles
+  { name: 'Together AI',  greenhouse: 'togetherai' },     // ✅ 4 PM roles
+  { name: 'Hugging Face', workable: 'huggingface' },      // ✅ Workable
+  { name: 'CoreWeave',    greenhouse: 'coreweave' },      // ✅ 19 PM roles (W&B now here)
+
+  // ── Creative & Generative AI ──────────────────────────────
+  { name: 'Runway',       greenhouse: 'runwayml' },       // ✅ slug is runwayml
+  { name: 'ElevenLabs',   ashby: 'elevenlabs' },          // ✅
+  { name: 'Ideogram',     ashby: 'ideogram' },            // ✅ 1 PM role
 
   // ── Developer AI Platforms ────────────────────────────────
-  { name: 'LangChain', ashby: 'langchain' },           // moved from Lever → Ashby
-  { name: 'Perplexity', ashby: 'perplexity' },          // moved from Lever → Ashby (slug: perplexity not perplexityai)
-  { name: 'Glean', greenhouse: 'gleanwork' },           // slug is gleanwork not glean
-  { name: 'Cursor', ashby: 'cursor' },              // ✅
-  { name: 'Cognition', ashby: 'cognition' },           // ✅
-  { name: 'Luma AI', ashby: 'lumaai' },              // ✅
-  { name: 'Sierra AI', ashby: 'sierra' },              // ✅
-  { name: 'Harvey AI', ashby: 'harvey' },              // ✅
-  { name: 'Contextual AI', ashby: 'contextualai' },        // ✅
-  { name: 'Imbue', ashby: 'imbue' },               // ✅
-  { name: 'Norm AI', ashby: 'normai' },              // ✅
-  { name: 'Magic AI', ashby: 'magic' },               // ✅
+  { name: 'LangChain',    ashby: 'langchain' },           // ✅
+  { name: 'Perplexity',   ashby: 'perplexity' },          // ✅ slug: perplexity (not perplexityai)
+  { name: 'Glean',        greenhouse: 'gleanwork' },      // ✅ slug: gleanwork
+  { name: 'Cursor',       ashby: 'cursor' },              // ✅
+  { name: 'Cognition',    ashby: 'cognition' },           // ✅
+  { name: 'Sierra AI',    ashby: 'sierra' },              // ✅
+  { name: 'Harvey AI',    ashby: 'harvey' },              // ✅
+  { name: 'Contextual AI',greenhouse: 'contextualai' },   // ✅ moved from Ashby → Greenhouse
+  { name: 'Imbue',        greenhouse: 'imbue' },          // ✅ moved from Ashby → Greenhouse
+  { name: 'Replit',       ashby: 'replit' },              // ✅ 3 PM roles
+  { name: 'Linear',       ashby: 'linear' },              // ✅ 2 PM roles
 
-  // ── YC Companies (from DB discovery) ─────────────────────
-  { name: 'Hex Security', lever: 'hexsecurity' },
-  { name: 'Code Metal', greenhouse: 'codemetal' },
-  { name: 'Beacon Health', lever: 'beacon-health' },
+  // ── AI-Native Productivity ────────────────────────────────
+  { name: 'Descript',     greenhouse: 'descript' },       // ✅ 4 PM roles
+  { name: 'Airtable',     greenhouse: 'airtable' },       // ✅ 4 PM roles
+
+  // ── Robotics & Embodied AI ────────────────────────────────
+  { name: 'Neuralink',    greenhouse: 'neuralink' },      // ✅
 ];
 
 // ─────────────────────────────────────────────────────────
@@ -134,7 +154,7 @@ async function fetchWorkable(slug) {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: '', location: [], remote: false }),
+        body: JSON.stringify({ query: '', location: [], remote: [] }),  // remote must be array
         signal: AbortSignal.timeout(8000),
       }
     );
