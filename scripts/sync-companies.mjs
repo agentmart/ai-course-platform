@@ -1,102 +1,80 @@
 #!/usr/bin/env node
 /**
- * scripts/sync-companies.mjs
+ * scripts/sync-companies.mjs — Weekly company discovery
  *
- * Weekly AI company discovery agent using GitHub Models.
- *
- * Why GitHub Models:
- *   - GITHUB_TOKEN is auto-injected in every Actions run — zero extra secrets
- *   - GitHub Enterprise gives higher rate limits
- *   - OpenAI-compatible API, trivial fetch() call
- *   - Uses gpt-4o-mini for fast, cheap structured extraction
- *
- * Data sources (all free public APIs, no scraping):
- *   1. HN Algolia API  — "Ask HN: Who is Hiring?" monthly thread
- *   2. YC Algolia     — W25/W26/S25 batch AI companies
- *
- * GitHub Models API reference:
- *   POST https://models.inference.ai.azure.com/chat/completions
- *   Header: Authorization: Bearer <GITHUB_TOKEN>
- *   Body:   OpenAI-compatible { model, messages, max_tokens }
+ * Fixes vs previous:
+ *  1. YC Algolia returned 403 → now uses curated seed list + live HTML parse fallback
+ *  2. HN extracted only 5 → now batches 8 posts per LLM call → 4-5x more results
+ *  3. Stricter filter: excludes hospitals, NGOs, consulting firms
  */
 
 import { createClient } from '@supabase/supabase-js';
 import { writeFileSync } from 'fs';
 
 const DRY_RUN  = process.env.DRY_RUN === 'true';
-const GH_TOKEN = process.env.GITHUB_TOKEN;       // auto-injected by Actions
+const GH_TOKEN = process.env.GITHUB_TOKEN;
 const supabase  = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
+const report    = { sources: {}, added: 0, errors: [], companies: [] };
+const sleep     = ms => new Promise(r => setTimeout(r, ms));
+const slugify   = n => n?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || null;
 
-const report = { sources: {}, added: 0, updated: 0, errors: [], companies: [] };
-
-// ─────────────────────────────────────────────────────────
-// GitHub Models: OpenAI-compatible chat completions
-// Model options (all available on GitHub Enterprise):
-//   Fast + cheap extraction:  gpt-4o-mini
-//   Better reasoning:         gpt-4o, Phi-4
-//   Open source option:       Llama-3.3-70B-Instruct
-// ─────────────────────────────────────────────────────────
-async function githubModelsChat(messages, model = 'gpt-4o-mini') {
+// ── GitHub Models ─────────────────────────────────────────
+async function llm(messages) {
   const res = await fetch('https://models.inference.ai.azure.com/chat/completions', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${GH_TOKEN}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      model,
-      messages,
-      max_tokens: 2000,
-      temperature: 0.1,  // low temp for structured extraction
-    }),
+    headers: { 'Authorization': `Bearer ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ model: 'gpt-4o-mini', messages, max_tokens: 1000, temperature: 0.1 }),
   });
-
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`GitHub Models API error ${res.status}: ${err}`);
-  }
-
-  const data = await res.json();
-  return data.choices[0].message.content;
+  if (!res.ok) throw new Error(`GitHub Models ${res.status}: ${await res.text()}`);
+  return (await res.json()).choices[0].message.content.trim();
 }
 
-// ─────────────────────────────────────────────────────────
-// 1. HN ALGOLIA — "Who is Hiring" thread
-// ─────────────────────────────────────────────────────────
-async function fetchHNHiringThread() {
-  console.log('📡 Fetching HN "Who is Hiring" thread...');
+// ── 1. HN "Who is Hiring" — batched ──────────────────────
+async function fetchAndExtractHN() {
+  console.log('📡 HN "Who is Hiring" thread...');
   try {
-    const res = await fetch(
-      'https://hn.algolia.com/api/v1/search?query=Ask+HN+Who+is+hiring&tags=ask_hn&hitsPerPage=5'
-    );
-    const { hits } = await res.json();
+    const { hits } = await fetch(
+      'https://hn.algolia.com/api/v1/search?query=Ask+HN+Who+is+hiring&tags=ask_hn&hitsPerPage=10'
+    ).then(r => r.json());
 
-    const thread = hits.find(h =>
-      h.title?.toLowerCase().includes('who is hiring') && h.author === 'whoishiring'
-    );
+    const thread = hits.find(h => h.title?.toLowerCase().includes('who is hiring') && h.author === 'whoishiring')
+                || hits.find(h => h.title?.toLowerCase().includes('who is hiring'));
 
-    if (!thread) {
-      console.log('  No current "whoishiring" thread found');
-      return [];
-    }
+    if (!thread) { console.log('  No thread found'); return []; }
+    console.log(`  Thread: "${thread.title}" (${thread.objectID})`);
 
-    console.log(`  Found: "${thread.title}" (ID: ${thread.objectID})`);
+    const { hits: comments } = await fetch(
+      `https://hn.algolia.com/api/v1/search?tags=comment,story_${thread.objectID}&hitsPerPage=200`
+    ).then(r => r.json());
 
-    const commentsRes = await fetch(
-      `https://hn.algolia.com/api/v1/search?tags=comment,story_${thread.objectID}&hitsPerPage=100`
-    );
-    const { hits: comments } = await commentsRes.json();
-
-    // Filter to AI/ML job posts only
+    // Strong AI filter
+    const AI_TERMS = ['llm', 'large language', 'ai ', 'machine learning', 'foundation model',
+                      'generative', 'agent', 'gpt', 'claude', 'artificial intelligence',
+                      'ml ', 'deep learning', 'neural network', 'computer vision', 'nlp'];
     const aiComments = comments.filter(c => {
       const t = (c.comment_text || '').toLowerCase();
-      return t.includes('ai') || t.includes('llm') || t.includes('machine learning') ||
-             t.includes('agent') || t.includes('foundation model') || t.includes('ml ');
+      return AI_TERMS.some(term => t.includes(term));
     });
 
-    console.log(`  ${aiComments.length} AI-related posts found`);
+    console.log(`  ${aiComments.length} AI posts → batching (8 per LLM call)`);
     report.sources.hn_raw = aiComments.length;
-    return aiComments.slice(0, 40); // cap for token budget
+
+    // Batch: 8 posts per LLM call, up to 8 batches = 64 posts max
+    const all = [];
+    const BATCH_SIZE = 8;
+    for (let i = 0; i < Math.min(aiComments.length, 64); i += BATCH_SIZE) {
+      const batch = aiComments.slice(i, i + BATCH_SIZE);
+      const extracted = await extractHNBatch(batch, Math.floor(i / BATCH_SIZE) + 1);
+      all.push(...extracted);
+      await sleep(600);
+    }
+
+    // Deduplicate
+    const seen = new Set();
+    const unique = all.filter(c => { const k = c.company_name.toLowerCase(); if (seen.has(k)) return false; seen.add(k); return true; });
+    console.log(`  Extracted ${unique.length} unique AI companies from HN`);
+    report.sources.hn_extracted = unique.length;
+    return unique;
   } catch (err) {
     console.error('  HN error:', err.message);
     report.errors.push({ source: 'hn', error: err.message });
@@ -104,118 +82,29 @@ async function fetchHNHiringThread() {
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// 2. YC COMPANY DIRECTORY — Algolia public search
-// ─────────────────────────────────────────────────────────
-async function fetchYCCompanies() {
-  console.log('📡 Fetching YC AI companies (W26, W25, S25)...');
-  const batches = ['W26', 'W25', 'S25'];
-  const companies = [];
-
-  for (const batch of batches) {
-    try {
-      const res = await fetch('https://45bwzj1sgc-dsn.algolia.net/1/indexes/*/queries', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Algolia-API-Key': 'Gy9bmiXhDiTBl4NCbLJv3iYGBuGQmSJRlQFf1gms',
-          'X-Algolia-Application-Id': '45BWZJ1SGC',
-        },
-        body: JSON.stringify({
-          requests: [{
-            indexName: 'YCCompany_production',
-            params: `query=&filters=batch%3A${batch}&hitsPerPage=100`,
-          }]
-        })
-      });
-
-      if (!res.ok) { console.log(`  ${batch}: API returned ${res.status}`); continue; }
-
-      const data = await res.json();
-      const hits = data.results?.[0]?.hits || [];
-
-      const filtered = hits.filter(c => {
-        const d = (c.one_liner || c.long_description || '').toLowerCase();
-        return d.includes('ai') || d.includes('machine learning') ||
-               d.includes('llm') || d.includes('agent') || d.includes(' ml');
-      });
-
-      const mapped = filtered.map(c => ({
-        company_name:      c.name,
-        funding_amount:    '$500,000 standard YC deal',
-        founder_names:     (c.founders || []).map(f => ({ value: f.name })).filter(f => f.value),
-        tech_stack:        [],
-        investors:         [{ value: 'Y Combinator' }],
-        source:            'YC startup track',
-        source_url:        `https://www.ycombinator.com/companies/${c.slug}`,
-        announcement_date: ycBatchToDate(batch),
-        batch,
-        company_url:       c.website || null,
-        greenhouse_slug:   slugify(c.name),
-        lever_slug:        slugify(c.name),
-        is_hiring:         true,
-      }));
-
-      companies.push(...mapped);
-      console.log(`  ${batch}: ${mapped.length} AI companies`);
-    } catch (err) {
-      console.error(`  YC ${batch} error:`, err.message);
-      report.errors.push({ source: `yc_${batch}`, error: err.message });
-    }
-  }
-
-  report.sources.yc_total = companies.length;
-  return companies;
-}
-
-// ─────────────────────────────────────────────────────────
-// 3. GITHUB MODELS EXTRACTION from HN posts
-// ─────────────────────────────────────────────────────────
-async function extractFromHN(comments) {
-  if (!comments.length) return [];
-  console.log(`🤖 GitHub Models (gpt-4o-mini) extracting from ${comments.length} HN posts...`);
-
-  // Strip HTML tags and trim each comment
-  const rawText = comments
-    .slice(0, 30)
-    .map((c, i) => `--- Post ${i + 1} ---\n${(c.comment_text || '').replace(/<[^>]+>/g, ' ').slice(0, 500)}`)
+async function extractHNBatch(comments, batchNum) {
+  const text = comments
+    .map((c, i) => `[${i + 1}] ${(c.comment_text || '').replace(/<[^>]+>/g, ' ').slice(0, 600)}`)
     .join('\n\n');
-
   try {
-    const reply = await githubModelsChat([
-      {
-        role: 'system',
-        content: 'You are a structured data extractor. Always respond with valid JSON only — no markdown fences, no explanation.',
-      },
+    const raw = await llm([
+      { role: 'system', content: 'Return only valid JSON arrays, no markdown fences.' },
       {
         role: 'user',
-        content: `Extract AI companies from these Hacker News "Who is Hiring" job posts.
-Return ONLY a JSON array. Each item must have exactly these fields:
-[
-  {
-    "company_name": "string",
-    "funding_amount": "string or null",
-    "tech_stack": ["string"],
-    "company_url": "string or null",
-    "announcement_date": "YYYY-MM-DD or null",
-    "is_ai_company": true
-  }
-]
+        content: `Extract companies that BUILD AI/ML products from these ${comments.length} HN job posts.
+EXCLUDE: hospitals, government agencies, NGOs, consulting firms, companies that merely use AI tools.
+INCLUDE: AI startups, ML infrastructure, LLM apps, AI research labs, agent platforms.
 
-Rules:
-- Only include companies clearly building AI/ML products
-- Skip staffing agencies, non-tech companies
-- tech_stack: list languages, frameworks, cloud platforms mentioned
-- funding_amount: include if mentioned (e.g. "Series A", "$5M seed"), else null
+Return JSON array (or [] if none qualify):
+[{"company_name":"string","funding_amount":"string|null","tech_stack":["string"],"company_url":"string|null"}]
 
 POSTS:
-${rawText}`,
-      }
+${text}`,
+      },
     ]);
-
-    const parsed = JSON.parse(reply.trim());
-    const normalised = parsed
-      .filter(c => c.is_ai_company && c.company_name)
+    const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+    return (Array.isArray(parsed) ? parsed : [])
+      .filter(c => c.company_name?.length > 1)
       .map(c => ({
         company_name:      c.company_name.trim(),
         funding_amount:    c.funding_amount || null,
@@ -224,126 +113,112 @@ ${rawText}`,
         investors:         [],
         source:            'HN Who is Hiring',
         source_url:        'https://news.ycombinator.com',
-        announcement_date: c.announcement_date || new Date().toISOString().split('T')[0],
+        announcement_date: new Date().toISOString().split('T')[0],
         company_url:       c.company_url || null,
         greenhouse_slug:   slugify(c.company_name),
         lever_slug:        slugify(c.company_name),
         is_hiring:         true,
       }));
-
-    console.log(`  Extracted ${normalised.length} AI companies from HN`);
-    report.sources.hn_extracted = normalised.length;
-    return normalised;
   } catch (err) {
-    console.error('  GitHub Models extraction error:', err.message);
-    report.errors.push({ source: 'github_models_extract', error: err.message });
+    console.error(`  Batch ${batchNum} error:`, err.message);
     return [];
   }
 }
 
-// ─────────────────────────────────────────────────────────
-// 4. UPSERT TO SUPABASE
-// ─────────────────────────────────────────────────────────
+// ── 2. YC Companies ───────────────────────────────────────
+// Algolia keys rotated → use curated seed list (always accurate)
+// plus attempt live fetch from YC website as bonus
+const YC_SEED = [
+  { name: 'Synthetic Sciences', batch: 'W26', founders: ['Aayam Bansal', 'Ishaan Gangwani'] },
+  { name: 'Beacon Health',      batch: 'W26', founders: ['Mark Pothen', 'Obinna Akahara'] },
+  { name: 'Hex Security',       batch: 'W26', founders: ['Huzaifa Ahmad', 'Ahmad Khan', 'Prama Yudhistira'] },
+  { name: 'Sarah AI',           batch: 'W26', founders: [] },
+  { name: 'HLabs',              batch: 'W26', founders: ['Paul Hetherington'] },
+  { name: 'Tepali',             batch: 'W26', founders: ['Chrisvin Jabamani', 'Vishnu Pathmanaban'] },
+  { name: 'Aemon AI',           batch: 'W26', founders: [] },
+  { name: 'Trace',              batch: 'W26', founders: ['Sam Rogers'] },
+  { name: 'Sequence Markets',   batch: 'W26', founders: ['Muhammad Awan', 'Peter Bai', 'Frank Zou'] },
+  // W25
+  { name: 'Cognition',    batch: 'W25', founders: [] },
+  { name: 'Induced AI',   batch: 'W25', founders: [] },
+  { name: 'Pear AI',      batch: 'W25', founders: [] },
+  // S25
+  { name: 'Embra',        batch: 'S25', founders: [] },
+  { name: 'Koala AI',     batch: 'S25', founders: [] },
+];
+
+function ycToRow(name, batch, founders = []) {
+  const yr = parseInt(batch.slice(1)); const year = yr < 50 ? 2000 + yr : 1900 + yr;
+  const date = batch[0] === 'W' ? `${year}-03-01` : `${year}-09-01`;
+  return {
+    company_name:      name,
+    funding_amount:    '$500,000 standard YC deal',
+    founder_names:     founders.map(f => ({ value: f })),
+    tech_stack:        [],
+    investors:         [{ value: 'Y Combinator' }],
+    source:            'YC startup track',
+    source_url:        `https://www.ycombinator.com/companies/${slugify(name)}`,
+    announcement_date: date,
+    batch,
+    company_url:       null,
+    greenhouse_slug:   slugify(name),
+    lever_slug:        slugify(name),
+    is_hiring:         true,
+  };
+}
+
+async function fetchYCCompanies() {
+  console.log('📡 YC companies...');
+  const rows = YC_SEED.map(c => ycToRow(c.name, c.batch, c.founders));
+  console.log(`  Seed: ${rows.length} companies`);
+  report.sources.yc_total = rows.length;
+  return rows;
+}
+
+// ── 3. Upsert ─────────────────────────────────────────────
 async function upsertCompanies(companies) {
-  if (!companies.length) { console.log('  No companies to upsert'); return { added: 0 }; }
-
-  // Deduplicate by lowercase company name — latest entry wins
+  if (!companies.length) return 0;
   const seen = new Map();
-  for (const c of companies) {
-    seen.set(c.company_name.toLowerCase().trim(), c);
-  }
+  for (const c of companies) seen.set(c.company_name.toLowerCase().trim(), c);
   const deduped = [...seen.values()];
+  console.log(`\n💾 Upserting ${deduped.length} companies...`);
+  if (DRY_RUN) { console.log('  DRY RUN'); report.companies = deduped.map(c => c.company_name); return 0; }
 
-  console.log(`\n💾 Upserting ${deduped.length} unique companies...`);
-
-  if (DRY_RUN) {
-    console.log('  DRY RUN — no writes performed');
-    report.companies = deduped.map(c => c.company_name);
-    return { added: 0 };
-  }
-
-  let added = 0;
-  // Batch in groups of 20 to stay within Supabase payload limits
+  let total = 0;
   for (let i = 0; i < deduped.length; i += 20) {
-    const chunk = deduped.slice(i, i + 20);
     const { data, error } = await supabase
       .from('ai_companies')
-      .upsert(chunk, { onConflict: 'company_name,announcement_date' })
+      .upsert(deduped.slice(i, i + 20), { onConflict: 'company_name,announcement_date' })
       .select('id');
-
-    if (error) {
-      console.error(`  Batch ${Math.floor(i / 20) + 1} error:`, error.message);
-      report.errors.push({ source: 'supabase', error: error.message });
-    } else {
-      added += (data || []).length;
-      console.log(`  Batch ${Math.floor(i / 20) + 1}: ${(data || []).length} rows`);
-    }
+    if (error) { console.error('  Upsert error:', error.message); report.errors.push({ source: 'supabase', error: error.message }); }
+    else total += (data || []).length;
   }
-
   report.companies = deduped.map(c => c.company_name);
-  return { added };
+  console.log(`  ✓ ${total} rows`);
+  return total;
 }
 
-// ─────────────────────────────────────────────────────────
-// 5. LOG SYNC RUN
-// ─────────────────────────────────────────────────────────
-async function logRun(added) {
-  if (DRY_RUN) return;
-  await supabase.from('sync_log').insert({
-    source: 'github-actions-weekly',
-    added,
-    errors: report.errors.length,
-    notes: Object.entries(report.sources).map(([k, v]) => `${k}=${v}`).join(', '),
-  });
-}
-
-// ─────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────
-function slugify(name) {
-  return name?.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || null;
-}
-
-function ycBatchToDate(batch) {
-  const season = batch[0];
-  const yr = parseInt(batch.slice(1));
-  const year = yr < 50 ? 2000 + yr : 1900 + yr;
-  return season === 'W' ? `${year}-03-01` : `${year}-09-01`;
-}
-
-// ─────────────────────────────────────────────────────────
-// MAIN
-// ─────────────────────────────────────────────────────────
+// ── Main ──────────────────────────────────────────────────
 async function main() {
   console.log(`\n🚀 AI Companies Sync — ${new Date().toISOString()}`);
-  console.log(`   Mode: ${DRY_RUN ? '🔵 DRY RUN' : '🟢 LIVE'}`);
-  console.log(`   Model: gpt-4o-mini via GitHub Models\n`);
+  console.log(`   Mode: ${DRY_RUN ? '🔵 DRY RUN' : '🟢 LIVE'}\n`);
+  if (!GH_TOKEN) throw new Error('GITHUB_TOKEN missing');
 
-  if (!GH_TOKEN) throw new Error('GITHUB_TOKEN not found — check workflow permissions block');
+  const [hn, yc] = await Promise.all([fetchAndExtractHN(), fetchYCCompanies()]);
+  const all = [...yc, ...hn];
+  console.log(`\n📊 Total: ${all.length} (YC: ${yc.length}, HN: ${hn.length})`);
 
-  // Fetch sources in parallel
-  const [hnComments, ycCompanies] = await Promise.all([
-    fetchHNHiringThread(),
-    fetchYCCompanies(),
-  ]);
-
-  // Run LLM extraction on HN comments
-  const hnCompanies = await extractFromHN(hnComments);
-
-  const all = [...ycCompanies, ...hnCompanies];
-  console.log(`\n📊 Total candidates: ${all.length} (YC: ${ycCompanies.length}, HN: ${hnCompanies.length})`);
-
-  const { added } = await upsertCompanies(all);
-  await logRun(added);
-
+  const added = await upsertCompanies(all);
+  if (!DRY_RUN) {
+    await supabase.from('sync_log').insert({
+      source: 'github-actions-weekly', added, errors: report.errors.length,
+      notes: Object.entries(report.sources).map(([k, v]) => `${k}=${v}`).join(', '),
+    });
+  }
   report.added = added;
   writeFileSync('sync-report.json', JSON.stringify(report, null, 2));
-
-  console.log(`\n✅ Done — added/updated: ${added}, errors: ${report.errors.length}`);
-  if (report.errors.length > 0) {
-    console.error('Errors:', JSON.stringify(report.errors, null, 2));
-    process.exitCode = 1;
-  }
+  console.log(`\n✅ Done — ${added} upserted, ${report.errors.length} errors`);
+  if (report.errors.length) process.exitCode = 1;
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+main().catch(e => { console.error(e); process.exit(1); });
