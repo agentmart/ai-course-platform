@@ -7,9 +7,8 @@
  * Architecture:
  *   - Greenhouse / Lever / Workable: direct fetch() — no bot detection
  *   - Ashby: ALL slugs batched into ONE Playwright subprocess call
- *     (fetch-ashby-playwright.mjs) which launches real Chromium,
- *     bypasses Cloudflare, returns results as JSON. Single browser
- *     launch for all Ashby companies = fast + no per-call overhead.
+ *     (fetch-ashby-playwright.mjs) using route interception to capture
+ *     each page's natural GraphQL response. Cloudflare-safe.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -21,7 +20,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const supabase   = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const sleep      = ms => new Promise(r => setTimeout(r, ms));
 
-// PM role keywords
 const PM_KEYWORDS = [
   'product manager', 'product lead', 'head of product', 'vp of product', 'vp product',
   'director of product', 'chief product', 'technical pm', 'ai pm', 'product operations',
@@ -32,54 +30,49 @@ const PM_KEYWORDS = [
 const isPMRole = title => PM_KEYWORDS.some(k => (title || '').toLowerCase().includes(k));
 
 // ─────────────────────────────────────────────────────────────────────────────
-// KNOWN_COMPANIES — verified ATS slugs only. No auto-slugify() entries.
-// DB is the source of truth after first run; this list seeds new companies.
+// KNOWN_COMPANIES — manually verified ATS slugs only.
+// Rule: never add a company without confirming the slug works in a browser.
 // ─────────────────────────────────────────────────────────────────────────────
 const KNOWN_COMPANIES = [
   // Frontier Labs
-  { name: 'Anthropic',         greenhouse: 'anthropic' },
-  { name: 'OpenAI',            ashby:      'openai' },
-  { name: 'Mistral AI',        lever:      'mistral' },
-  { name: 'Cohere',            ashby:      'cohere' },
-  { name: 'xAI',               greenhouse: 'xai' },
+  { name: 'Anthropic',        greenhouse: 'anthropic' },
+  { name: 'OpenAI',           ashby:      'openai' },
+  { name: 'Mistral AI',       lever:      'mistral' },
+  { name: 'Cohere',           ashby:      'cohere' },
+  { name: 'xAI',              greenhouse: 'xai' },
   // AI Infrastructure
-  { name: 'Scale AI',          greenhouse: 'scaleai' },
-  { name: 'Together AI',       greenhouse: 'togetherai' },
-  { name: 'Hugging Face',      workable:   'huggingface' },
-  { name: 'CoreWeave',         greenhouse: 'coreweave' },
+  { name: 'Scale AI',         greenhouse: 'scaleai' },
+  { name: 'Together AI',      greenhouse: 'togetherai' },
+  { name: 'Hugging Face',     workable:   'huggingface' },
+  { name: 'CoreWeave',        greenhouse: 'coreweave' },
   // Creative & Generative AI
-  { name: 'Runway',            greenhouse: 'runwayml' },
-  { name: 'ElevenLabs',        ashby:      'elevenlabs' },
-  { name: 'Ideogram',          ashby:      'ideogram' },
+  { name: 'Runway',           greenhouse: 'runwayml' },
+  { name: 'ElevenLabs',       ashby:      'elevenlabs' },
+  { name: 'Ideogram',         ashby:      'ideogram' },
   // Developer AI Platforms
-  { name: 'Perplexity',        ashby:      'perplexity' },
-  { name: 'Glean',             greenhouse: 'gleanwork' },
-  { name: 'Cursor',            ashby:      'cursor' },
-  { name: 'Cognition',         ashby:      'cognition' },
-  { name: 'LangChain',         ashby:      'langchain' },
-  { name: 'Sierra AI',         ashby:      'sierra' },
-  { name: 'Harvey AI',         ashby:      'harvey' },
-  { name: 'Contextual AI',     greenhouse: 'contextualai' },
-  { name: 'Imbue',             greenhouse: 'imbue' },
-  { name: 'Replit',            ashby:      'replit' },
-  { name: 'Linear',            ashby:      'linear' },
+  { name: 'Perplexity',       ashby:      'perplexity' },
+  { name: 'Glean',            greenhouse: 'gleanwork' },
+  { name: 'Cursor',           ashby:      'cursor' },
+  { name: 'Cognition',        ashby:      'cognition' },
+  { name: 'LangChain',        ashby:      'langchain' },
+  { name: 'Sierra AI',        ashby:      'sierra' },
+  { name: 'Harvey AI',        ashby:      'harvey' },
+  { name: 'Contextual AI',    greenhouse: 'contextualai' },
+  { name: 'Imbue',            greenhouse: 'imbue' },
+  { name: 'Replit',           ashby:      'replit' },
+  { name: 'Linear',           ashby:      'linear' },
+  { name: 'Modal',            ashby:      'modal' },
   // AI-Native Productivity
-  { name: 'Descript',          greenhouse: 'descript' },
-  { name: 'Airtable',          greenhouse: 'airtable' },
-  // Other high-signal AI companies
-  { name: 'Neuralink',         greenhouse: 'neuralink' },
-  { name: 'Weights & Biases',  lever:      'wandb' },
-  { name: 'Modal',             ashby:      'modal' },
-  { name: 'Stability AI',      greenhouse: 'stabilityai' },
-  { name: 'Midjourney',        greenhouse: 'midjourney' },
-  { name: 'Covariant',         greenhouse: 'covariant' },
-  { name: 'Adept AI',          greenhouse: 'adeptai' },
-  { name: 'Inflection AI',     ashby:      'inflection' },
-  { name: 'Character AI',      greenhouse: 'characterai' },
+  { name: 'Descript',         greenhouse: 'descript' },
+  { name: 'Airtable',         greenhouse: 'airtable' },
+  // Other verified AI companies
+  { name: 'Neuralink',        greenhouse: 'neuralink' },
+  { name: 'Weights & Biases', lever:      'wandb' },
+  { name: 'Stability AI',     greenhouse: 'stabilityai' },
 ];
 
 // ─────────────────────────────────────────────────────────
-// Non-Ashby ATS fetchers (direct API, no bot detection)
+// Non-Ashby ATS fetchers
 // ─────────────────────────────────────────────────────────
 
 async function fetchGreenhouse(slug) {
@@ -157,18 +150,16 @@ async function fetchWorkable(slug) {
 function runPlaywrightAshby(slugs) {
   return new Promise((resolve) => {
     if (!slugs.length) return resolve({});
-
     const scriptPath = join(__dirname, 'fetch-ashby-playwright.mjs');
     execFile(
       process.execPath,
       [scriptPath, slugs.join(',')],
-      { maxBuffer: 10 * 1024 * 1024, timeout: 5 * 60 * 1000 }, // 5 min, 10MB
+      { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 }, // 10 min
       (err, stdout, stderr) => {
         if (stderr) process.stderr.write(stderr);
         if (err) {
           console.error('Playwright subprocess error:', err.message);
-          resolve(Object.fromEntries(slugs.map(s => [s, null])));
-          return;
+          return resolve(Object.fromEntries(slugs.map(s => [s, null])));
         }
         try {
           resolve(JSON.parse(stdout));
@@ -208,11 +199,9 @@ async function upsertJobs(company, allJobs, companyId) {
       is_active:    true,
       last_seen_at: now,
     }));
-
     const { error } = await supabase
       .from('job_postings')
       .upsert(rows, { onConflict: 'company_name,external_id,ats_source' });
-
     if (error) console.error(`  ⚠  job_postings upsert (${company.name}):`, error.message);
   }
 
@@ -224,10 +213,9 @@ async function upsertJobs(company, allJobs, companyId) {
     ashby_slug:       company.ashby      || null,
     workable_slug:    company.workable   || null,
   };
-
-  const updateQ = supabase.from('ai_companies').update(slugUpdate);
-  if (companyId) await updateQ.eq('id', companyId);
-  else           await updateQ.ilike('company_name', company.name);
+  const q = supabase.from('ai_companies').update(slugUpdate);
+  if (companyId) await q.eq('id', companyId);
+  else           await q.ilike('company_name', company.name);
 
   return { total: allJobs.length, pm: pmJobs.length };
 }
@@ -242,7 +230,6 @@ async function main() {
     .from('ai_companies')
     .select('id, company_name, greenhouse_slug, lever_slug, ashby_slug, workable_slug')
     .eq('is_hiring', true);
-
   if (dbErr) console.error('DB error:', dbErr.message);
 
   const dbMap = new Map((dbRows || []).map(r => [r.company_name.toLowerCase(), r]));
@@ -251,28 +238,28 @@ async function main() {
   const map = new Map();
   for (const c of KNOWN_COMPANIES) map.set(c.name.toLowerCase(), { ...c, db_id: null });
   for (const [key, row] of dbMap) {
-    const existing = map.get(key) || {};
+    const ex = map.get(key) || {};
     map.set(key, {
       name:       row.company_name,
-      greenhouse: row.greenhouse_slug || existing.greenhouse || null,
-      lever:      row.lever_slug      || existing.lever      || null,
-      ashby:      row.ashby_slug      || existing.ashby      || null,
-      workable:   row.workable_slug   || existing.workable   || null,
+      greenhouse: row.greenhouse_slug || ex.greenhouse || null,
+      lever:      row.lever_slug      || ex.lever      || null,
+      ashby:      row.ashby_slug      || ex.ashby      || null,
+      workable:   row.workable_slug   || ex.workable   || null,
       db_id:      row.id,
     });
   }
 
   const toCheck = [...map.values()].filter(c => c.greenhouse || c.lever || c.workable || c.ashby);
 
-  // ── Batch ALL Ashby slugs → one Playwright launch ──────────
+  // ── Batch ALL Ashby slugs → one Playwright launch ──────
   const ashbyCompanies = toCheck.filter(c => c.ashby);
   let ashbyResults = {};
   if (ashbyCompanies.length) {
-    console.log(`🎭 Playwright: fetching ${ashbyCompanies.length} Ashby companies in one browser session...\n`);
+    console.log(`🎭 Playwright: fetching ${ashbyCompanies.length} Ashby companies...\n`);
     ashbyResults = await runPlaywrightAshby(ashbyCompanies.map(c => c.ashby));
   }
 
-  // ── Main loop ───────────────────────────────────────────────
+  // ── Main loop ───────────────────────────────────────────
   console.log(`Checking ${toCheck.length} companies (Greenhouse / Lever / Workable / Ashby)\n`);
   console.log(`${'Company'.padEnd(30)} ${'All'.padStart(5)} ${'PM'.padStart(5)}  ATS`);
   console.log('─'.repeat(60));
@@ -285,7 +272,6 @@ async function main() {
     let jobs = null;
 
     if (company.ashby) {
-      // Already fetched in the Playwright batch — no extra HTTP call
       jobs = ashbyResults[company.ashby] ?? null;
     } else if (company.greenhouse) {
       jobs = await fetchGreenhouse(company.greenhouse);
@@ -314,7 +300,6 @@ async function main() {
     const result = await upsertJobs(company, jobs, dbRow?.id || null);
     tally[ats] = (tally[ats] || 0) + 1;
 
-    // Auto-insert new companies not yet in DB
     if (!dbRow?.id && result.total > 0) {
       await supabase.from('ai_companies').upsert({
         company_name:      company.name,
@@ -341,10 +326,8 @@ async function main() {
 
   console.log('\n' + '─'.repeat(60));
   console.log(`✅ ${totalUpdated} checked  |  ${totalPM} PM roles active  |  ${notFound} not on ATS`);
-  if (notFound > 0) {
-    console.log(`\n⚠  ${notFound} not found — slug may have changed or company inactive.`);
-  }
-  console.log(`\nBreakdown: ${Object.entries(tally).map(([k, v]) => `${k}=${v}`).join('  ')}`);
+  if (notFound > 0) console.log(`\n⚠  ${notFound} not found — slug may have changed or company inactive.`);
+  console.log(`\nBreakdown: ${Object.entries(tally).map(([k,v]) => `${k}=${v}`).join('  ')}`);
 
   await supabase.from('sync_log').insert({
     source:  'github-actions-daily-jobs',
