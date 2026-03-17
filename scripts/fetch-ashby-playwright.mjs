@@ -2,58 +2,60 @@
 /**
  * scripts/fetch-ashby-playwright.mjs
  *
- * Playwright-based Ashby job board scraper — network intercept approach.
+ * Playwright + stealth plugin Ashby scraper.
  *
- * Why the previous page.evaluate() approach failed:
- *   Cloudflare detects navigator.webdriver=true in headless Chromium and
- *   silently returns null for jobBoard on ANY fetch call from that session,
- *   even ones made inside the browser context via page.evaluate().
+ * Why playwright-extra + stealth:
+ *   Cloudflare blocks headless Chromium via multiple fingerprinting vectors:
+ *   TLS fingerprint, canvas entropy, WebGL vendor, permission APIs, navigator
+ *   properties, iframe contentWindow, hairline features, etc.
+ *   Manual navigator.webdriver spoofing only patches one signal.
+ *   playwright-extra-plugin-stealth patches ~20 detection vectors simultaneously,
+ *   making headless Chromium indistinguishable from a real Chrome browser.
  *
- * This version's approach — intercept the page's OWN network request:
- *   1. Register a response listener BEFORE navigating
- *   2. Navigate to jobs.ashbyhq.com/<slug> — the React SPA makes the
- *      GraphQL call itself as part of its normal render cycle
- *   3. Capture that response via page.on('response') — it's a legitimate
- *      browser-initiated request, Cloudflare can't distinguish it from human
- *   4. No second API call needed; we just read what the page already fetched
- *
- * Additionally hides automation signals via:
- *   - --disable-blink-features=AutomationControlled launch arg
- *   - context.addInitScript to delete navigator.webdriver
- *   - Realistic chrome object + plugin count spoofing
+ * Strategy — intercept the page's OWN network request:
+ *   1. Register response listener BEFORE navigating
+ *   2. Navigate to jobs.ashbyhq.com/<slug> — Ashby's React SPA fires the
+ *      GraphQL call itself as part of its render cycle
+ *   3. Capture that response via page.on('response') — legitimate browser
+ *      request, Cloudflare passes it because stealth makes us look real
+ *   4. No second API call needed — we just read what the page already fetched
  *
  * Usage:  node scripts/fetch-ashby-playwright.mjs openai,cursor,harvey
  * Stdout: JSON { slug: Job[] | null, ... }
- *   null = page loaded but no GraphQL response captured (CF blocked or bad slug)
+ *   null = CF blocked or invalid slug
  *   []   = valid company, zero open roles right now
  */
 
-import { chromium } from 'playwright';
+import { chromium } from 'playwright-extra';
+import StealthPlugin from 'playwright-extra-plugin-stealth';
+
+chromium.use(StealthPlugin());
 
 async function scrapeSlug(page, slug) {
   return new Promise(async (resolve) => {
     let resolved = false;
     let capturedJobs = null;
 
-    // Safety timeout — resolve null if nothing captured within 25s
-    const timer = setTimeout(() => {
-      if (!resolved) {
-        resolved = true;
-        process.stderr.write(`  [playwright] ${slug}: timeout — no GraphQL response captured\n`);
-        resolve(null);
-      }
-    }, 25000);
+    const done = (jobs, reason) => {
+      if (resolved) return;
+      resolved = true;
+      clearTimeout(timer);
+      if (reason) process.stderr.write(`  [playwright] ${slug}: ${reason}\n`);
+      resolve(jobs);
+    };
 
-    // Listen for the GraphQL response the page makes during its render cycle.
-    // This fires before waitForLoadState resolves, so we catch it in-flight.
+    // Safety net — resolve null if nothing captured within 28s
+    const timer = setTimeout(() => done(null, 'timeout — no GraphQL response captured'), 28000);
+
+    // Intercept the GraphQL response Ashby fires during its render cycle
     page.on('response', async (response) => {
       try {
         if (!response.url().includes('non-user-graphql')) return;
-        if (response.status() !== 200) return;
-
+        if (response.status() !== 200) {
+          return done(null, `GraphQL HTTP ${response.status()}`);
+        }
         const body = await response.json();
         const postings = body?.data?.jobBoard?.jobPostings;
-
         if (Array.isArray(postings)) {
           capturedJobs = postings.map(j => ({
             external_id: j.id,
@@ -64,38 +66,29 @@ async function scrapeSlug(page, slug) {
             job_url:     j.externalLink || `https://jobs.ashbyhq.com/${slug}/${j.id}`,
             ats_source:  'ashby',
           }));
-          process.stderr.write(`  [playwright] ${slug}: captured ${capturedJobs.length} jobs\n`);
+          process.stderr.write(`  [playwright] ${slug}: ${capturedJobs.length} jobs\n`);
+          done(capturedJobs, null);
         } else {
-          // Page loaded but Cloudflare returned null jobBoard
-          process.stderr.write(`  [playwright] ${slug}: GraphQL returned null jobBoard\n`);
-        }
-
-        if (!resolved) {
-          resolved = true;
-          clearTimeout(timer);
-          resolve(capturedJobs);
+          done(null, 'GraphQL responded but jobBoard is null (CF challenge or bad slug)');
         }
       } catch (e) {
-        // Response body parse error — not fatal, just skip
+        done(null, `response parse error: ${e.message}`);
       }
     });
 
     try {
       await page.goto(`https://jobs.ashbyhq.com/${slug}`, {
-        waitUntil: 'networkidle',
-        timeout: 22000,
+        waitUntil: 'domcontentloaded',
+        timeout: 25000,
       });
+      // Wait up to 8s for the React SPA to boot and fire the GraphQL call
+      await page.waitForTimeout(8000);
     } catch (e) {
-      process.stderr.write(`  [playwright] ${slug}: navigation error: ${e.message}\n`);
+      process.stderr.write(`  [playwright] ${slug}: navigation: ${e.message}\n`);
     }
 
-    // If networkidle fired but response listener never resolved us
-    // (e.g. page was a 404 or CF challenge with no GraphQL call)
-    if (!resolved) {
-      resolved = true;
-      clearTimeout(timer);
-      resolve(capturedJobs); // null if nothing captured
-    }
+    // If we reach here and haven't resolved, no GraphQL call was intercepted
+    done(capturedJobs, capturedJobs === null ? 'page loaded but no GraphQL call captured' : null);
   });
 }
 
@@ -108,16 +101,15 @@ async function main() {
     process.exit(1);
   }
 
-  process.stderr.write(`[playwright] Launching Chromium for ${slugs.length} Ashby slugs...\n`);
+  process.stderr.write(`[playwright] Launching Chromium (stealth) for ${slugs.length} slugs...\n`);
 
   const browser = await chromium.launch({
     headless: true,
     args: [
-      // Hide automation signals — critical for Cloudflare bypass
-      '--disable-blink-features=AutomationControlled',
       '--no-sandbox',
       '--disable-setuid-sandbox',
       '--disable-dev-shm-usage',
+      '--disable-gpu',
     ],
   });
 
@@ -126,17 +118,6 @@ async function main() {
     locale: 'en-US',
     timezoneId: 'America/New_York',
     viewport: { width: 1280, height: 800 },
-  });
-
-  // Spoof navigator properties that Cloudflare checks
-  await context.addInitScript(() => {
-    // Remove the webdriver flag — the #1 bot detection signal
-    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    // Fake plugin count — headless Chrome has 0 plugins
-    Object.defineProperty(navigator, 'plugins', { get: () => ({ length: 3 }) });
-    Object.defineProperty(navigator, 'languages', { get: () => ['en-US', 'en'] });
-    // Add chrome object that real Chrome has
-    if (!window.chrome) window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {} };
   });
 
   const results = {};

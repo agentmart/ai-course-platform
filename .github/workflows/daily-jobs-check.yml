@@ -9,7 +9,7 @@ on:
 jobs:
   check-jobs:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     permissions:
       contents: read
@@ -27,11 +27,11 @@ jobs:
       - name: Install app dependencies
         run: npm ci
 
-      - name: Install Playwright + Chromium
+      - name: Install Playwright stealth + Chromium
         # Installed directly in CI — not in package.json to keep lock file clean.
-        # npm install (no --save) installs locally without touching package-lock.json.
+        # playwright-extra + stealth plugin bypass Cloudflare bot detection on Ashby.
         run: |
-          npm install playwright
+          npm install playwright-extra playwright-extra-plugin-stealth playwright
           npx playwright install chromium --with-deps
 
       - name: Run daily jobs checker
