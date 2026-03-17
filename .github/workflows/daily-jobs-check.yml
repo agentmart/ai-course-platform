@@ -9,7 +9,7 @@ on:
 jobs:
   check-jobs:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 20
 
     permissions:
       contents: read
@@ -26,6 +26,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Install Playwright Chromium
+        # Only installs Chromium (not Firefox/WebKit) — ~170MB, keeps the job fast
+        run: npx playwright install chromium --with-deps
 
       - name: Run daily jobs checker
         env:
