@@ -7,9 +7,8 @@
  * Architecture:
  *   - Greenhouse / Lever / Workable: direct fetch() — no bot detection
  *   - Ashby: ALL slugs batched into ONE Playwright subprocess call
- *     (fetch-ashby-playwright.mjs) which launches real Chromium,
- *     bypasses Cloudflare, returns results as JSON. Single browser
- *     launch for all Ashby companies = fast + no per-call overhead.
+ *     (fetch-ashby-playwright.mjs). Single Chromium launch, route-intercept
+ *     strategy, results returned as JSON via stdout.
  */
 
 import { createClient } from '@supabase/supabase-js';
@@ -21,7 +20,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const supabase   = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 const sleep      = ms => new Promise(r => setTimeout(r, ms));
 
-// PM role keywords
 const PM_KEYWORDS = [
   'product manager', 'product lead', 'head of product', 'vp of product', 'vp product',
   'director of product', 'chief product', 'technical pm', 'ai pm', 'product operations',
@@ -33,7 +31,6 @@ const isPMRole = title => PM_KEYWORDS.some(k => (title || '').toLowerCase().incl
 
 // ─────────────────────────────────────────────────────────────────────────────
 // KNOWN_COMPANIES — verified ATS slugs only. No auto-slugify() entries.
-// DB is the source of truth after first run; this list seeds new companies.
 // ─────────────────────────────────────────────────────────────────────────────
 const KNOWN_COMPANIES = [
   // Frontier Labs
@@ -72,14 +69,11 @@ const KNOWN_COMPANIES = [
   { name: 'Modal',             ashby:      'modal' },
   { name: 'Stability AI',      greenhouse: 'stabilityai' },
   { name: 'Midjourney',        greenhouse: 'midjourney' },
-  { name: 'Covariant',         greenhouse: 'covariant' },
-  { name: 'Adept AI',          greenhouse: 'adeptai' },
-  { name: 'Inflection AI',     ashby:      'inflection' },
   { name: 'Character AI',      greenhouse: 'characterai' },
 ];
 
 // ─────────────────────────────────────────────────────────
-// Non-Ashby ATS fetchers (direct API, no bot detection)
+// Non-Ashby ATS fetchers
 // ─────────────────────────────────────────────────────────
 
 async function fetchGreenhouse(slug) {
@@ -151,7 +145,10 @@ async function fetchWorkable(slug) {
 }
 
 // ─────────────────────────────────────────────────────────
-// Ashby: batch all slugs through one Playwright subprocess
+// Ashby: batch all slugs through one Playwright subprocess.
+// stdout from the subprocess is the ONLY thing we read —
+// do NOT pipe child.stdout anywhere else or execFile's
+// callback buffer will be drained and JSON.parse will fail.
 // ─────────────────────────────────────────────────────────
 
 function runPlaywrightAshby(slugs) {
@@ -162,8 +159,9 @@ function runPlaywrightAshby(slugs) {
     execFile(
       process.execPath,
       [scriptPath, slugs.join(',')],
-      { maxBuffer: 10 * 1024 * 1024, timeout: 5 * 60 * 1000 }, // 5 min, 10MB
+      { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 }, // 10 min, 10MB
       (err, stdout, stderr) => {
+        // stderr = progress logs from the Playwright script — print them
         if (stderr) process.stderr.write(stderr);
         if (err) {
           console.error('Playwright subprocess error:', err.message);
@@ -173,11 +171,14 @@ function runPlaywrightAshby(slugs) {
         try {
           resolve(JSON.parse(stdout));
         } catch (e) {
-          console.error('Failed to parse Playwright output:', e.message);
+          console.error('Failed to parse Playwright JSON output:', e.message);
+          console.error('Raw stdout (first 500 chars):', stdout.slice(0, 500));
           resolve(Object.fromEntries(slugs.map(s => [s, null])));
         }
       }
     );
+    // NOTE: do NOT pipe child.stdout — it drains the stream and
+    // leaves execFile's callback with an empty string to parse.
   });
 }
 
@@ -247,7 +248,6 @@ async function main() {
 
   const dbMap = new Map((dbRows || []).map(r => [r.company_name.toLowerCase(), r]));
 
-  // Merge KNOWN_COMPANIES (baseline) with DB (source of truth for slugs)
   const map = new Map();
   for (const c of KNOWN_COMPANIES) map.set(c.name.toLowerCase(), { ...c, db_id: null });
   for (const [key, row] of dbMap) {
@@ -264,15 +264,15 @@ async function main() {
 
   const toCheck = [...map.values()].filter(c => c.greenhouse || c.lever || c.workable || c.ashby);
 
-  // ── Batch ALL Ashby slugs → one Playwright launch ──────────
+  // ── Batch ALL Ashby slugs → one Playwright launch ──────
   const ashbyCompanies = toCheck.filter(c => c.ashby);
   let ashbyResults = {};
   if (ashbyCompanies.length) {
-    console.log(`🎭 Playwright: fetching ${ashbyCompanies.length} Ashby companies in one browser session...\n`);
+    console.log(`🎭 Playwright: fetching ${ashbyCompanies.length} Ashby companies...\n`);
     ashbyResults = await runPlaywrightAshby(ashbyCompanies.map(c => c.ashby));
   }
 
-  // ── Main loop ───────────────────────────────────────────────
+  // ── Main loop ───────────────────────────────────────────
   console.log(`Checking ${toCheck.length} companies (Greenhouse / Lever / Workable / Ashby)\n`);
   console.log(`${'Company'.padEnd(30)} ${'All'.padStart(5)} ${'PM'.padStart(5)}  ATS`);
   console.log('─'.repeat(60));
@@ -285,7 +285,6 @@ async function main() {
     let jobs = null;
 
     if (company.ashby) {
-      // Already fetched in the Playwright batch — no extra HTTP call
       jobs = ashbyResults[company.ashby] ?? null;
     } else if (company.greenhouse) {
       jobs = await fetchGreenhouse(company.greenhouse);
@@ -314,7 +313,6 @@ async function main() {
     const result = await upsertJobs(company, jobs, dbRow?.id || null);
     tally[ats] = (tally[ats] || 0) + 1;
 
-    // Auto-insert new companies not yet in DB
     if (!dbRow?.id && result.total > 0) {
       await supabase.from('ai_companies').upsert({
         company_name:      company.name,
@@ -342,7 +340,7 @@ async function main() {
   console.log('\n' + '─'.repeat(60));
   console.log(`✅ ${totalUpdated} checked  |  ${totalPM} PM roles active  |  ${notFound} not on ATS`);
   if (notFound > 0) {
-    console.log(`\n⚠  ${notFound} not found — slug may have changed or company inactive.`);
+    console.log(`\n⚠  ${notFound} not found — slug changed or company inactive.`);
   }
   console.log(`\nBreakdown: ${Object.entries(tally).map(([k, v]) => `${k}=${v}`).join('  ')}`);
 

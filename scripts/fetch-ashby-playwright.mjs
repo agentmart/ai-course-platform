@@ -2,79 +2,70 @@
 /**
  * scripts/fetch-ashby-playwright.mjs
  *
- * Playwright-based Ashby job board scraper.
+ * Playwright-based Ashby scraper — intercept strategy.
  *
- * Why Playwright instead of fetch():
- *   Ashby uses Cloudflare bot detection. Even with browser-like headers,
- *   Node fetch() gets a null jobBoard response because Cloudflare checks
- *   TLS fingerprinting and browser behavioral signals that fetch() can't fake.
+ * Why route interception instead of page.evaluate fetch:
+ *   Cloudflare serves a JS challenge page on first visit. The page "loads"
+ *   (domcontentloaded fires, goto resolves) but is still a CF challenge —
+ *   not Ashby content. Our manual fetch inside page.evaluate fires immediately
+ *   after the 1500ms wait and hits CF before the challenge resolves.
  *
- *   Playwright launches a real Chromium instance, visits the Ashby page
- *   (acquiring Cloudflare clearance cookies), then calls the GraphQL endpoint
- *   FROM INSIDE the browser via page.evaluate(). The request carries real
- *   session cookies + correct same-origin headers — Cloudflare passes it.
+ *   Instead, we use page.route() to intercept Ashby's OWN GraphQL call
+ *   as their React app loads. When CF resolves and Ashby renders, their
+ *   JS makes the GraphQL request — we capture that response instead of
+ *   making our own. No racing the challenge timer.
  *
- * Usage (called as subprocess by daily-jobs-check.mjs):
- *   node scripts/fetch-ashby-playwright.mjs openai,cursor,harvey,perplexity
+ * Stealth measures applied:
+ *   - --disable-blink-features=AutomationControlled (hides automation flag)
+ *   - navigator.webdriver patched to undefined via addInitScript
+ *   - window.chrome stub added
+ *   - Realistic Chrome UA + locale + timezone
  *
- * Output (stdout): JSON object — { slug: Job[] | null, ... }
- *   null = slug not found or Cloudflare blocked
- *   []   = valid company, no open roles right now
+ * Usage: node scripts/fetch-ashby-playwright.mjs slug1,slug2,...
+ * Output (stdout): JSON { slug: Job[] | null, ... }
+ *   null = not found or CF blocked after all retries
+ *   []   = valid company, zero open roles
  */
 
 import { chromium } from 'playwright';
 
-const GRAPHQL_QUERY = `
-  query ApiJobBoardWithTeams($organizationHostedJobsPageName: String!) {
-    jobBoard: jobBoardWithTeams(organizationHostedJobsPageName: $organizationHostedJobsPageName) {
-      jobPostings {
-        id
-        title
-        isRemote
-        departmentName
-        jobLocation { name }
-        externalLink
-      }
-    }
-  }
-`;
+async function scrapeSlug(context, slug) {
+  const page = await context.newPage();
+  let captured = null;
 
-async function scrapeSlug(page, slug) {
   try {
-    // Step 1: Visit the page — acquires Cloudflare clearance cookies
-    await page.goto(`https://jobs.ashbyhq.com/${slug}`, {
-      waitUntil: 'domcontentloaded',
-      timeout: 20000,
+    // Intercept Ashby's own GraphQL call as the page loads naturally.
+    // This fires AFTER CF resolves and Ashby's React app runs — no racing.
+    await page.route('**/non-user-graphql**', async (route) => {
+      try {
+        const response = await route.fetch();
+        const text = await response.text();
+        try {
+          const json = JSON.parse(text);
+          const postings = json?.data?.jobBoard?.jobPostings;
+          if (Array.isArray(postings)) captured = postings;
+        } catch { /* JSON parse failed */ }
+        await route.fulfill({ response, body: text });
+      } catch {
+        await route.continue();
+      }
     });
 
-    // Step 2: Brief wait for CF challenge to resolve if present
-    await page.waitForTimeout(1500);
+    // networkidle waits for all XHRs to settle, including Ashby's GraphQL call.
+    // This naturally handles CF JS challenges — we wait until the real page loads.
+    await page.goto(`https://jobs.ashbyhq.com/${slug}`, {
+      waitUntil: 'networkidle',
+      timeout: 30000,
+    });
 
-    // Step 3: Call GraphQL from inside the browser context.
-    // Relative URL → request goes through jobs.ashbyhq.com with the session
-    // cookies the page just acquired. Cloudflare sees a legitimate browser session.
-    const postings = await page.evaluate(async ({ slug, query }) => {
-      try {
-        const res = await fetch('/api/non-user-graphql?op=ApiJobBoardWithTeams', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            operationName: 'ApiJobBoardWithTeams',
-            variables: { organizationHostedJobsPageName: slug },
-            query,
-          }),
-        });
-        if (!res.ok) return null;
-        const data = await res.json();
-        return data?.data?.jobBoard?.jobPostings ?? null;
-      } catch {
-        return null;
-      }
-    }, { slug, query: GRAPHQL_QUERY });
+    // Extra buffer if the GraphQL call came in just before networkidle fired
+    if (!captured) {
+      await page.waitForTimeout(2000);
+    }
 
-    if (!Array.isArray(postings)) return null;
+    if (!Array.isArray(captured)) return null;
 
-    return postings.map(j => ({
+    return captured.map(j => ({
       external_id: j.id,
       title:       j.title,
       department:  j.departmentName || null,
@@ -84,8 +75,10 @@ async function scrapeSlug(page, slug) {
       ats_source:  'ashby',
     }));
   } catch (e) {
-    process.stderr.write(`  [playwright] ${slug}: ${e.message}\n`);
+    process.stderr.write(`  [playwright] ${slug} error: ${e.message}\n`);
     return null;
+  } finally {
+    await page.close();
   }
 }
 
@@ -100,32 +93,49 @@ async function main() {
 
   process.stderr.write(`[playwright] Launching Chromium for ${slugs.length} Ashby slugs...\n`);
 
-  const browser = await chromium.launch({ headless: true });
+  const browser = await chromium.launch({
+    headless: true,
+    args: [
+      '--disable-blink-features=AutomationControlled',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+    ],
+  });
+
   const context = await browser.newContext({
     userAgent: 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
     locale: 'en-US',
     timezoneId: 'America/New_York',
+    viewport: { width: 1280, height: 800 },
+  });
+
+  // Patch automation-detection properties before any page script runs
+  await context.addInitScript(() => {
+    Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
+    window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {}, app: {} };
   });
 
   const results = {};
 
   for (const slug of slugs) {
-    process.stderr.write(`  → ${slug}\n`);
-    const page = await context.newPage();
-    results[slug] = await scrapeSlug(page, slug);
-    await page.close();
-    // Brief pause between slugs — avoids Cloudflare rate limits
-    if (slugs.indexOf(slug) < slugs.length - 1) {
-      await new Promise(r => setTimeout(r, 1200));
+    process.stderr.write(`  -> ${slug}\n`);
+    results[slug] = await scrapeSlug(context, slug);
+    const count = results[slug] === null ? 'null' : results[slug].length;
+    process.stderr.write(`     ${slug}: ${count}\n`);
+    // Pause between slugs to avoid Cloudflare rate limits
+    if (slug !== slugs[slugs.length - 1]) {
+      await new Promise(r => setTimeout(r, 1500));
     }
   }
 
   await browser.close();
 
-  // Output JSON to stdout — parsed by daily-jobs-check.mjs
-  process.stdout.write(JSON.stringify(results));
   const succeeded = Object.values(results).filter(v => v !== null).length;
-  process.stderr.write(`\n[playwright] Done. ${succeeded}/${slugs.length} slugs succeeded.\n`);
+  process.stderr.write(`[playwright] Done. ${succeeded}/${slugs.length} slugs succeeded.\n`);
+
+  // Write JSON to stdout — consumed by daily-jobs-check.mjs via execFile callback
+  // IMPORTANT: nothing else should write to stdout in this process
+  process.stdout.write(JSON.stringify(results));
 }
 
 main().catch(e => {
