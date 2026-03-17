@@ -24,12 +24,15 @@ jobs:
           node-version: '20'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: Install app dependencies
         run: npm ci
 
-      - name: Install Playwright Chromium
-        # Only installs Chromium (not Firefox/WebKit) — ~170MB, keeps the job fast
-        run: npx playwright install chromium --with-deps
+      - name: Install Playwright + Chromium
+        # Installed directly in CI — not in package.json to keep lock file clean.
+        # npm install (no --save) installs locally without touching package-lock.json.
+        run: |
+          npm install playwright
+          npx playwright install chromium --with-deps
 
       - name: Run daily jobs checker
         env:
