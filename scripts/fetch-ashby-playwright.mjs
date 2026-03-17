@@ -2,94 +2,83 @@
 /**
  * scripts/fetch-ashby-playwright.mjs
  *
- * Playwright-based Ashby scraper — waitForResponse approach.
+ * Playwright-based Ashby scraper — intercept strategy.
  *
- * Key insight: don't make a secondary fetch() call (Cloudflare fingerprints it).
- * Instead, use page.waitForResponse() to observe the browser's OWN natural
- * GraphQL request that Ashby makes when the page loads. We're just a passive
- * observer of a request the page was always going to make.
+ * Why route interception instead of page.evaluate fetch:
+ *   Cloudflare serves a JS challenge page on first visit. The page "loads"
+ *   (domcontentloaded fires, goto resolves) but is still a CF challenge —
+ *   not Ashby content. Our manual fetch inside page.evaluate fires immediately
+ *   after the 1500ms wait and hits CF before the challenge resolves.
+ *
+ *   Instead, we use page.route() to intercept Ashby's OWN GraphQL call
+ *   as their React app loads. When CF resolves and Ashby renders, their
+ *   JS makes the GraphQL request — we capture that response instead of
+ *   making our own. No racing the challenge timer.
+ *
+ * Stealth measures applied:
+ *   - --disable-blink-features=AutomationControlled (hides automation flag)
+ *   - navigator.webdriver patched to undefined via addInitScript
+ *   - window.chrome stub added
+ *   - Realistic Chrome UA + locale + timezone
  *
  * Usage: node scripts/fetch-ashby-playwright.mjs slug1,slug2,...
- * stdout: JSON { slug: Job[] | null }
- *   null = company not found or blocked
- *   []   = valid, no open roles
+ * Output (stdout): JSON { slug: Job[] | null, ... }
+ *   null = not found or CF blocked after all retries
+ *   []   = valid company, zero open roles
  */
 
 import { chromium } from 'playwright';
 
-function mapPosting(j, slug) {
-  return {
-    external_id: j.id,
-    title:       j.title,
-    department:  j.departmentName || null,
-    location:    j.jobLocation?.name || null,
-    remote:      j.isRemote || false,
-    job_url:     j.externalLink || `https://jobs.ashbyhq.com/${slug}/${j.id}`,
-    ats_source:  'ashby',
-  };
-}
+async function scrapeSlug(context, slug) {
+  const page = await context.newPage();
+  let captured = null;
 
-async function scrapeSlug(page, slug) {
   try {
-    // Observe the browser's OWN GraphQL call — set up BEFORE navigation.
-    // Filter specifically for ApiJobBoardWithTeams to avoid capturing
-    // other unrelated GraphQL calls the page might make.
-    const responsePromise = page.waitForResponse(
-      async (resp) => {
-        if (!resp.url().includes('non-user-graphql')) return false;
-        if (resp.status() !== 200) return false;
+    // Intercept Ashby's own GraphQL call as the page loads naturally.
+    // This fires AFTER CF resolves and Ashby's React app runs — no racing.
+    await page.route('**/non-user-graphql**', async (route) => {
+      try {
+        const response = await route.fetch();
+        const text = await response.text();
         try {
-          const body = resp.request().postData() || '';
-          return body.includes('ApiJobBoardWithTeams');
-        } catch {
-          return true; // if we can't read the body, accept any graphql response
-        }
-      },
-      { timeout: 25000 }
-    );
-
-    await page.goto(`https://jobs.ashbyhq.com/${slug}`, {
-      waitUntil: 'domcontentloaded',
-      timeout: 25000,
+          const json = JSON.parse(text);
+          const postings = json?.data?.jobBoard?.jobPostings;
+          if (Array.isArray(postings)) captured = postings;
+        } catch { /* JSON parse failed */ }
+        await route.fulfill({ response, body: text });
+      } catch {
+        await route.continue();
+      }
     });
 
-    process.stderr.write(`     navigated → ${page.url()}\n`);
+    // networkidle waits for all XHRs to settle, including Ashby's GraphQL call.
+    // This naturally handles CF JS challenges — we wait until the real page loads.
+    await page.goto(`https://jobs.ashbyhq.com/${slug}`, {
+      waitUntil: 'networkidle',
+      timeout: 30000,
+    });
 
-    // Await the intercepted response
-    let response;
-    try {
-      response = await responsePromise;
-    } catch (e) {
-      process.stderr.write(`     waitForResponse timeout for ${slug}: ${e.message}\n`);
-      process.stderr.write(`     page URL was: ${page.url()}\n`);
-      // Log page title to detect Cloudflare challenge pages
-      try {
-        const title = await page.title();
-        process.stderr.write(`     page title: ${title}\n`);
-      } catch {}
-      return null;
+    // Extra buffer if the GraphQL call came in just before networkidle fired
+    if (!captured) {
+      await page.waitForTimeout(2000);
     }
 
-    let json;
-    try {
-      json = await response.json();
-    } catch (e) {
-      process.stderr.write(`     JSON parse error for ${slug}: ${e.message}\n`);
-      return null;
-    }
+    if (!Array.isArray(captured)) return null;
 
-    const postings = json?.data?.jobBoard?.jobPostings;
-
-    if (!Array.isArray(postings)) {
-      // Log a snippet to understand what came back
-      process.stderr.write(`     unexpected response for ${slug}: ${JSON.stringify(json).slice(0, 300)}\n`);
-      return null;
-    }
-
-    return postings.map(j => mapPosting(j, slug));
+    return captured.map(j => ({
+      external_id: j.id,
+      title:       j.title,
+      department:  j.departmentName || null,
+      location:    j.jobLocation?.name || null,
+      remote:      j.isRemote || false,
+      job_url:     j.externalLink || `https://jobs.ashbyhq.com/${slug}/${j.id}`,
+      ats_source:  'ashby',
+    }));
   } catch (e) {
     process.stderr.write(`  [playwright] ${slug} error: ${e.message}\n`);
     return null;
+  } finally {
+    await page.close();
   }
 }
 
@@ -102,7 +91,7 @@ async function main() {
     process.exit(1);
   }
 
-  process.stderr.write(`[playwright] Launching Chromium for ${slugs.length} slugs...\n`);
+  process.stderr.write(`[playwright] Launching Chromium for ${slugs.length} Ashby slugs...\n`);
 
   const browser = await chromium.launch({
     headless: true,
@@ -110,8 +99,6 @@ async function main() {
       '--disable-blink-features=AutomationControlled',
       '--no-sandbox',
       '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-gpu',
     ],
   });
 
@@ -120,37 +107,35 @@ async function main() {
     locale: 'en-US',
     timezoneId: 'America/New_York',
     viewport: { width: 1280, height: 800 },
-    extraHTTPHeaders: { 'Accept-Language': 'en-US,en;q=0.9' },
   });
 
-  // Mask navigator.webdriver — primary Cloudflare JS detection signal
+  // Patch automation-detection properties before any page script runs
   await context.addInitScript(() => {
     Object.defineProperty(navigator, 'webdriver', { get: () => undefined });
-    // Also mask chrome automation extension presence
-    delete window.cdc_adoQpoasnfa76pfcZLmcfl_Array;
-    delete window.cdc_adoQpoasnfa76pfcZLmcfl_Promise;
-    delete window.cdc_adoQpoasnfa76pfcZLmcfl_Symbol;
+    window.chrome = { runtime: {}, loadTimes: () => {}, csi: () => {}, app: {} };
   });
 
   const results = {};
 
-  for (let i = 0; i < slugs.length; i++) {
-    const slug = slugs[i];
+  for (const slug of slugs) {
     process.stderr.write(`  -> ${slug}\n`);
-    const page = await context.newPage();
-    results[slug] = await scrapeSlug(page, slug);
-    const r = results[slug];
-    process.stderr.write(`     result: ${r === null ? 'NULL' : `${r.length} jobs`}\n`);
-    await page.close();
-    if (i < slugs.length - 1) await new Promise(r => setTimeout(r, 1500));
+    results[slug] = await scrapeSlug(context, slug);
+    const count = results[slug] === null ? 'null' : results[slug].length;
+    process.stderr.write(`     ${slug}: ${count}\n`);
+    // Pause between slugs to avoid Cloudflare rate limits
+    if (slug !== slugs[slugs.length - 1]) {
+      await new Promise(r => setTimeout(r, 1500));
+    }
   }
 
   await browser.close();
 
-  // Write JSON to stdout — consumed by daily-jobs-check.mjs
+  const succeeded = Object.values(results).filter(v => v !== null).length;
+  process.stderr.write(`[playwright] Done. ${succeeded}/${slugs.length} slugs succeeded.\n`);
+
+  // Write JSON to stdout — consumed by daily-jobs-check.mjs via execFile callback
+  // IMPORTANT: nothing else should write to stdout in this process
   process.stdout.write(JSON.stringify(results));
-  const ok = Object.values(results).filter(v => v !== null).length;
-  process.stderr.write(`\n[playwright] Done. ${ok}/${slugs.length} succeeded.\n`);
 }
 
 main().catch(e => {
