@@ -156,16 +156,16 @@ h1 em{color:var(--amber);font-style:italic;}
     </div>
     <div class="row2">
       <span class="glbl">Show</span>
-      <button class="chip on" data-f="all"    onclick="setF('all',this)">All</button>
-      <button class="chip"    data-f="hiring" onclick="setF('hiring',this)">● Has PM Roles</button>
+      <button class="chip"    data-f="all"    onclick="setF('all',this)">All</button>
+      <button class="chip on" data-f="hiring" onclick="setF('hiring',this)">● Has PM Roles</button>
       <button class="chip"    data-f="yc"     onclick="setF('yc',this)">YC Backed</button>
       <button class="chip"    data-f="vc"     onclick="setF('vc',this)">VC Funded</button>
       <button class="chip"    data-f="big"    onclick="setF('big',this)">$10M+ Raise</button>
       <div class="sep"></div>
       <span class="glbl">Sort</span>
-      <button class="chip sort on" data-s="date"    onclick="setS('date',this)">Latest</button>
+      <button class="chip sort"    data-s="date"    onclick="setS('date',this)">Latest</button>
       <button class="chip sort"    data-s="funding" onclick="setS('funding',this)">Funding ↓</button>
-      <button class="chip sort"    data-s="roles"   onclick="setS('roles',this)">Most Roles</button>
+      <button class="chip sort on" data-s="roles"   onclick="setS('roles',this)">Most Roles</button>
     </div>
   </div>
 </div>
@@ -196,7 +196,8 @@ h1 em{color:var(--amber);font-style:italic;}
   <div class="drawer-body" id="drawer-body"><div class="jobs-loading">Loading…</div></div>
 </div>
 <script>
-let all=[],f='all',s='date',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerkUser=null;
+// Default: show only companies with PM roles, sorted by most roles first
+let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerkUser=null;
 (async()=>{
   try{const cfg=await fetch('/api/config').then(r=>r.json());if(cfg.clerkPublishableKey&&cfg.clerkDomain){const sc=document.createElement('script');sc.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;sc.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);sc.crossOrigin='anonymous';sc.onload=async()=>{try{const c=window.Clerk;await c.load();clerkUser=c.user||null;}catch(e){}};document.head.appendChild(sc);}}catch(e){}
   try{
