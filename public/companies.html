@@ -15,6 +15,31 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 .nav-sp{flex:1;}
 .nav-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:4px 11px;border:1px solid rgba(255,255,255,.1);border-radius:2px;transition:all .15s;white-space:nowrap;}
 .nav-pill:hover{color:var(--amber);border-color:var(--amber);}
+.nav-user{display:flex;align-items:center;gap:8px;}
+.nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
+.nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
+.nav-signout:hover{color:var(--amber);}
+/* AUTH GATE */
+#auth-gate{position:fixed;inset:0;background:var(--ink);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
+#auth-gate.hidden{display:none;}
+.gate-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:.2em;margin-bottom:32px;}
+.gate-title{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,48px);font-weight:900;color:#f0ebe2;line-height:1.1;margin-bottom:12px;}
+.gate-sub{font-size:15px;color:rgba(240,235,226,.45);max-width:460px;line-height:1.7;margin-bottom:36px;}
+.gate-perks{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:36px;}
+.gate-perk{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(240,235,226,.35);}
+.gate-perk::before{content:'✓ ';color:var(--amber);}
+.gate-btn{padding:14px 36px;background:var(--amber);color:white;border:none;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.gate-btn:hover{background:#a84a06;}
+.gate-back{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.2);text-decoration:none;}
+.gate-back:hover{color:rgba(255,255,255,.5);}
+/* SIGN-IN OVERLAY */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.open{display:flex;}
+.clerk-wrap{position:relative;max-width:480px;width:90%;}
+.m-close{position:absolute;top:-14px;right:-14px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--ink);border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.m-close:hover{color:var(--amber);}
+#clerk-mount{min-height:200px;display:flex;align-items:center;justify-content:center;}
+/* HERO */
 .hero{padding:48px 40px 32px;max-width:1200px;margin:0 auto;}
 .eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
 .eyebrow-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;}
@@ -25,10 +50,6 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,50px);font-weight:900;color:var(--ink);line-height:1.05;margin-bottom:10px;}
 h1 em{color:var(--amber);font-style:italic;}
 .hero-sub{font-size:15px;color:var(--muted);max-width:520px;line-height:1.7;margin-bottom:24px;}
-.legend{display:flex;gap:20px;flex-wrap:wrap;}
-.leg{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
-.ldot{width:7px;height:7px;border-radius:50%;}
-.vc-dot{background:var(--teal);}.yc-dot{background:#ea580c;}.hn-dot{background:var(--purple);}
 .controls{background:var(--card);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 40px;position:sticky;top:57px;z-index:100;}
 .ctrl{max-width:1200px;margin:0 auto;display:flex;flex-direction:column;gap:10px;}
 .row1{display:flex;gap:10px;align-items:center;flex-wrap:wrap;}
@@ -53,15 +74,9 @@ h1 em{color:var(--amber);font-style:italic;}
 .card:hover .cname{color:var(--amber);}
 .sbadge{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;flex-shrink:0;margin-top:3px;}
 .sb-vc{background:rgba(13,110,110,.1);color:var(--teal);}.sb-yc{background:rgba(234,88,12,.1);color:#ea580c;}.sb-hn{background:rgba(124,58,237,.1);color:var(--purple);}
-.cfund{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:var(--amber);margin-bottom:12px;}
-.cfund.nil{color:var(--muted);font-size:11px;font-weight:400;}
+.cfund{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--amber);margin-bottom:12px;}
+.cfund.nil{color:var(--muted);font-weight:400;font-size:10px;letter-spacing:.05em;}
 .crule{border:none;border-top:1px solid var(--rule);margin-bottom:10px;}
-.cs{margin-bottom:8px;}.csl{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:4px;}
-.tags{display:flex;flex-wrap:wrap;gap:4px;}
-.tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:3px;}
-.ti{background:rgba(13,110,110,.08);color:var(--teal);border:1px solid rgba(13,110,110,.14);}
-.ti.yc{background:rgba(234,88,12,.08);color:#ea580c;border-color:rgba(234,88,12,.18);}
-.tt{background:rgba(200,89,10,.07);color:#9a4008;border:1px solid rgba(200,89,10,.14);}
 .cfoot{display:flex;align-items:center;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid var(--rule);}
 .roles-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;}
 .roles-badge.has{color:var(--green);}.roles-badge.zero{color:var(--muted);}.roles-badge.unk{color:var(--border);}
@@ -86,7 +101,7 @@ h1 em{color:var(--amber);font-style:italic;}
 .dh-close:hover{border-color:var(--amber);color:var(--amber);}
 .dh-company{font-family:'Fraunces',serif;font-size:21px;font-weight:900;color:var(--ink);line-height:1.1;}
 .dh-meta{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:4px;}
-.dh-funding{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);font-weight:700;}
+.dh-funding{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);font-weight:600;}
 .dh-src{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
 .dh-investors{display:flex;gap:5px;flex-wrap:wrap;margin-top:7px;}
 .drawer-tabs{display:flex;border-bottom:1px solid var(--rule);flex-shrink:0;background:var(--bg);}
@@ -110,6 +125,9 @@ h1 em{color:var(--amber);font-style:italic;}
 .jc-ats{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(200,89,10,.07);color:#9a4008;border-radius:3px;}
 .jc-footer{display:flex;align-items:center;justify-content:space-between;}
 .jc-date{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
+.save-btn{background:none;border:1px solid var(--border);color:var(--muted);padding:5px 10px;border-radius:3px;font-size:11px;cursor:pointer;font-family:'IBM Plex Mono',monospace;transition:all .15s;margin-right:6px;}
+.save-btn:hover{border-color:var(--amber);color:var(--amber);}
+.save-btn.saved{background:rgba(200,89,10,.1);border-color:var(--amber);color:var(--amber);}
 .apply-btn{display:inline-flex;align-items:center;gap:5px;padding:6px 13px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none;transition:background .15s;}
 .apply-btn:hover{background:var(--amber);}
 .refresh-row{padding:9px 16px;background:rgba(200,89,10,.04);border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:7px;}
@@ -123,18 +141,64 @@ h1 em{color:var(--amber);font-style:italic;}
 .about-stat{display:flex;gap:24px;margin-bottom:20px;}
 .stat-n{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--amber);}
 .stat-l{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:2px;}
+.tag{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:2px 7px;border-radius:3px;}
+.ti{background:rgba(13,110,110,.08);color:var(--teal);border:1px solid rgba(13,110,110,.14);}
+.ti.yc{background:rgba(234,88,12,.08);color:#ea580c;border-color:rgba(234,88,12,.18);}
+.tt{background:rgba(200,89,10,.07);color:#9a4008;border:1px solid rgba(200,89,10,.14);}
+.tags{display:flex;flex-wrap:wrap;gap:4px;}
+/* SAVED ROLES PANEL */
+.saved-banner{background:rgba(200,89,10,.07);border-bottom:1px solid rgba(200,89,10,.15);padding:8px 40px;display:none;align-items:center;gap:10px;}
+.saved-banner.show{display:flex;}
+.saved-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);}
+.saved-clear{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;margin-left:auto;}
+.saved-clear:hover{color:var(--amber);}
 @media(max-width:768px){nav{padding:12px 20px;}.hero,.grid-area{padding-left:20px;padding-right:20px;}.controls{padding:12px 20px;top:53px;}.drawer{width:100vw;}}
 </style>
 </head>
 <body>
-<nav>
+
+<!-- AUTH GATE -->
+<div id="auth-gate">
+  <div class="gate-logo">// AI.PL.60 — Product Leadership Track</div>
+  <h2 class="gate-title">AI Companies Hiring<br><span style="color:var(--amber);font-style:italic">PM Roles</span></h2>
+  <p class="gate-sub">Sign in to browse 241+ open PM roles at frontier AI companies, save roles you like, and track new openings daily.</p>
+  <div class="gate-perks">
+    <span class="gate-perk">241 live PM roles</span>
+    <span class="gate-perk">27 AI companies</span>
+    <span class="gate-perk">Updated daily</span>
+    <span class="gate-perk">Save roles</span>
+  </div>
+  <button class="gate-btn" onclick="openSignIn()">Sign In to View Roles →</button>
+  <a href="/" class="gate-back">← Back to home</a>
+</div>
+
+<!-- SIGN-IN OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="clerk-wrap">
+    <button class="m-close" onclick="closeSignIn()">×</button>
+    <div id="clerk-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
+  </div>
+</div>
+
+<nav id="main-nav" style="display:none">
   <a class="nav-logo" href="/">AI.PL.60</a>
   <span class="nav-sep">/</span>
   <span class="nav-page">Companies</span>
   <div class="nav-sp"></div>
+  <a class="nav-pill" href="/lenny.html">🎤 Interview Prep</a>
   <a class="nav-pill" href="/course.html">Open Course →</a>
-  <a class="nav-pill" href="/">← Home</a>
+  <div class="nav-user" id="nav-user" style="display:none">
+    <div class="nav-avatar" id="nav-avatar">?</div>
+    <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
+  </div>
 </nav>
+
+<div id="saved-banner" class="saved-banner">
+  <span class="saved-txt" id="saved-txt">0 roles saved</span>
+  <button class="saved-clear" onclick="clearSaved()">Clear all</button>
+</div>
+
+<div id="main-content" style="display:none">
 <div class="hero">
   <div class="eyebrow">
     <span class="eyebrow-tag">Live Directory</span>
@@ -142,11 +206,6 @@ h1 em{color:var(--amber);font-style:italic;}
   </div>
   <h1>AI Companies<br><em>Worth Targeting</em></h1>
   <p class="hero-sub">Click any company to see their open PM roles. Updated daily from Greenhouse, Lever, Ashby, and Workable.</p>
-  <div class="legend">
-    <div class="leg"><div class="ldot vc-dot"></div>VC Funded</div>
-    <div class="leg"><div class="ldot yc-dot"></div>YC Backed</div>
-    <div class="leg"><div class="ldot hn-dot"></div>HN Hiring</div>
-  </div>
 </div>
 <div class="controls">
   <div class="ctrl">
@@ -158,9 +217,9 @@ h1 em{color:var(--amber);font-style:italic;}
       <span class="glbl">Show</span>
       <button class="chip"    data-f="all"    onclick="setF('all',this)">All</button>
       <button class="chip on" data-f="hiring" onclick="setF('hiring',this)">● Has PM Roles</button>
+      <button class="chip"    data-f="saved"  onclick="setF('saved',this)">♥ Saved</button>
       <button class="chip"    data-f="yc"     onclick="setF('yc',this)">YC Backed</button>
-      <button class="chip"    data-f="vc"     onclick="setF('vc',this)">VC Funded</button>
-      <button class="chip"    data-f="big"    onclick="setF('big',this)">$10M+ Raise</button>
+      <button class="chip"    data-f="big"    onclick="setF('big',this)">$500M+ Raise</button>
       <div class="sep"></div>
       <span class="glbl">Sort</span>
       <button class="chip sort"    data-s="date"    onclick="setS('date',this)">Latest</button>
@@ -181,7 +240,9 @@ h1 em{color:var(--amber);font-style:italic;}
   <div class="grid" id="grid" style="display:none"></div>
   <div class="empty-wrap" id="empty" style="display:none"><div class="empty-ico">🔭</div><div class="empty-h">No companies found</div></div>
 </div>
-<div class="drawer-overlay" id="overlay" onclick="closeDrawer()"></div>
+</div>
+
+<div class="drawer-overlay" id="dr-overlay" onclick="closeDrawer()"></div>
 <div class="drawer" id="drawer">
   <div class="drawer-header">
     <div class="dh-top">
@@ -195,28 +256,118 @@ h1 em{color:var(--amber);font-style:italic;}
   </div>
   <div class="drawer-body" id="drawer-body"><div class="jobs-loading">Loading…</div></div>
 </div>
+
 <script>
-// Default: show only companies with PM roles, sorted by most roles first
-let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerkUser=null;
+let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null;
+let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
+
+// Boot: load Clerk, then decide gate vs content
 (async()=>{
-  try{const cfg=await fetch('/api/config').then(r=>r.json());if(cfg.clerkPublishableKey&&cfg.clerkDomain){const sc=document.createElement('script');sc.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;sc.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);sc.crossOrigin='anonymous';sc.onload=async()=>{try{const c=window.Clerk;await c.load();clerkUser=c.user||null;}catch(e){}};document.head.appendChild(sc);}}catch(e){}
+  try{
+    const cfg = await fetch('/api/config').then(r=>r.json());
+    if(!cfg.clerkPublishableKey||!cfg.clerkDomain) return showGate();
+    const s=document.createElement('script');
+    s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+    s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
+    s.crossOrigin='anonymous';
+    document.head.appendChild(s);
+    s.onload=async()=>{
+      clerk=window.Clerk;
+      await clerk.load();
+      if(clerk.user){
+        user=clerk.user;
+        showContent();
+        loadCompanies();
+      } else {
+        showGate();
+      }
+      clerk.addListener(e=>{
+        if(e.user&&!user){ user=e.user; closeSignIn(); showContent(); loadCompanies(); }
+        if(!e.user&&user){ user=null; location.reload(); }
+      });
+    };
+    s.onerror=()=>showGate();
+  }catch(e){ showGate(); }
+})();
+
+function showGate(){ document.getElementById('auth-gate').classList.remove('hidden'); }
+function showContent(){
+  document.getElementById('auth-gate').classList.add('hidden');
+  document.getElementById('main-nav').style.display='flex';
+  document.getElementById('main-content').style.display='block';
+  const av=document.getElementById('nav-avatar');
+  const nu=document.getElementById('nav-user');
+  if(user){ av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase(); nu.style.display='flex'; }
+}
+async function doSignOut(){ await clerk?.signOut(); location.reload(); }
+
+function openSignIn(){
+  document.getElementById('overlay').classList.add('open');
+  if(!clerkMounted&&clerk){
+    const el=document.getElementById('clerk-mount');
+    el.innerHTML='';
+    clerk.mountSignIn(el,{routing:'hash'});
+    clerkMounted=true;
+  }
+}
+function closeSignIn(){
+  document.getElementById('overlay').classList.remove('open');
+  if(clerkMounted&&clerk){ try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){} clerkMounted=false; }
+}
+document.getElementById('overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('overlay'))closeSignIn(); });
+
+async function loadCompanies(){
   try{
     const[cr,sr]=await Promise.all([fetch('/api/companies'),fetch('/api/sync-status')]);
-    const{companies}=await cr.json();all=companies||[];
+    const{companies}=await cr.json(); all=companies||[];
     if(sr.ok){const{last_sync}=await sr.json();if(last_sync){const ago=Math.floor((Date.now()-new Date(last_sync))/86400000);document.getElementById('sync-txt').textContent=ago===0?'updated today':`updated ${ago}d ago`;}else document.getElementById('sync-txt').textContent='updated weekly';}
-    document.getElementById('skeleton').style.display='none';document.getElementById('grid').style.display='grid';render();
-  }catch(e){document.getElementById('skeleton').style.display='none';document.getElementById('empty').style.display='block';document.getElementById('sync-txt').textContent='error';}
-})();
+    document.getElementById('skeleton').style.display='none';
+    document.getElementById('grid').style.display='grid';
+    updateSavedBanner();
+    render();
+  }catch(e){ document.getElementById('skeleton').style.display='none'; document.getElementById('empty').style.display='block'; }
+}
+
+// Saved roles
+function toggleSave(jobId, jobTitle, companyName, e){
+  e.stopPropagation();
+  const key=String(jobId);
+  if(saved[key]) delete saved[key];
+  else saved[key]={jobTitle,companyName,savedAt:Date.now()};
+  localStorage.setItem('saved_roles',JSON.stringify(saved));
+  updateSavedBanner();
+  // Update button state
+  const btn=document.getElementById('save-'+key);
+  if(btn){
+    btn.classList.toggle('saved',!!saved[key]);
+    btn.textContent=saved[key]?'♥ Saved':'♡ Save';
+  }
+}
+function clearSaved(){ saved={}; localStorage.setItem('saved_roles','{}'); updateSavedBanner(); if(f==='saved')render(); }
+function updateSavedBanner(){
+  const count=Object.keys(saved).length;
+  const banner=document.getElementById('saved-banner');
+  banner.classList.toggle('show',count>0);
+  document.getElementById('saved-txt').textContent=`${count} role${count===1?'':'s'} saved`;
+  // Also update saved filter chip
+  const chip=document.querySelector('.chip[data-f="saved"]');
+  if(chip) chip.textContent=count>0?`♥ Saved (${count})`:'♥ Saved';
+}
+
 function setF(v,el){f=v;document.querySelectorAll('.chip[data-f]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
 function setS(v,el){s=v;document.querySelectorAll('.chip[data-s]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
 let dt;document.getElementById('q').addEventListener('input',function(){clearTimeout(dt);dt=setTimeout(()=>{q=this.value.trim().toLowerCase();render();},160);});
+
 function getList(){
   let list=all;
   if(q)list=list.filter(c=>c.company_name.toLowerCase().includes(q)||(c.tech_stack||[]).some(t=>t.value?.toLowerCase().includes(q))||(c.investors||[]).some(i=>i.value?.toLowerCase().includes(q)));
   if(f==='hiring')list=list.filter(c=>(c.open_roles||0)>0);
+  if(f==='saved'){
+    const savedCompanies=new Set(Object.values(saved).map(s=>s.companyName));
+    list=list.filter(c=>savedCompanies.has(c.company_name));
+  }
   if(f==='yc')list=list.filter(c=>(c.investors||[]).some(i=>/y combinator|yc/i.test(i.value||'')));
-  if(f==='vc')list=list.filter(c=>/vc funding/i.test(c.source||''));
-  if(f==='big')list=list.filter(c=>parseFund(c.funding_amount)>=10e6);
+  if(f==='big')list=list.filter(c=>parseFund(c.funding_amount)>=500e6);
   if(s==='date')list=[...list].sort((a,b)=>(b.announcement_date||'')>(a.announcement_date||'')?1:-1);
   if(s==='funding')list=[...list].sort((a,b)=>parseFund(b.funding_amount)-parseFund(a.funding_amount));
   if(s==='roles')list=[...list].sort((a,b)=>(b.open_roles||0)-(a.open_roles||0));
@@ -231,24 +382,23 @@ function render(){
 }
 function mkCard(c){
   const inv=(c.investors||[]).map(x=>x.value).filter(Boolean);
-  const tech=(c.tech_stack||[]).map(x=>x.value).filter(Boolean);
-  const founders=(c.founder_names||[]).map(x=>x.value).filter(Boolean);
   const{bc,bt}=badge(c.source);
   const roles=c.open_roles||0;
   const rolesCls=c.roles_updated_at?(roles>0?'has':'zero'):'unk';
   const rolesLabel=c.roles_updated_at?(roles>0?`● ${roles} PM role${roles===1?'':'s'}`:'○ No PM roles'):'○ Not checked yet';
+  const fund=c.funding_amount?c.funding_amount:'ATS TRACKED';
+  const fundCls=c.funding_amount?'cfund':'cfund nil';
   return `<div class="card" onclick='openDrawer(${JSON.stringify(JSON.stringify(c))})'>
 <div class="chead"><div class="cname">${e(c.company_name)}</div><span class="sbadge ${bc}">${bt}</span></div>
-<div class="cfund${c.funding_amount?'':' nil'}">${e(c.funding_amount||'Undisclosed')}</div>
+<div class="${fundCls}">${e(fund)}</div>
 <hr class="crule">
-${inv.length?`<div class="cs"><div class="csl">Investors</div><div class="tags">${inv.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
-${tech.length?`<div class="cs"><div class="csl">Tech</div><div class="tags">${tech.slice(0,4).map(v=>`<span class="tag tt">${e(v)}</span>`).join('')}</div></div>`:''}
-${founders.length?`<div class="cs"><div class="csl">Founders</div><div style="font-size:13px;color:var(--ink2)">${founders.map(e).join(', ')}</div></div>`:''}
+${inv.length?`<div style="margin-bottom:8px"><div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Investors</div><div class="tags">${inv.slice(0,3).map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
 <div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles →</span></div>
 </div>`;
 }
 function badge(src){if(!src)return{bc:'sb-vc',bt:'VC'};const l=src.toLowerCase();if(l.includes('yc')||l.includes('startup track'))return{bc:'sb-yc',bt:'YC'};if(l.includes('hn')||l.includes('hiring'))return{bc:'sb-hn',bt:'HN'};return{bc:'sb-vc',bt:'VC'};}
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+
 function openDrawer(jsonStr){
   const company=JSON.parse(jsonStr);activeCompany=company;activeTab='jobs';
   document.getElementById('dh-company').textContent=company.company_name;
@@ -257,11 +407,11 @@ function openDrawer(jsonStr){
   const invs=(company.investors||[]).map(i=>i.value).filter(Boolean);
   document.getElementById('dh-investors').innerHTML=invs.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}" style="font-size:10px">${e(v)}</span>`).join('');
   document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');
-  document.getElementById('overlay').classList.add('open');document.getElementById('drawer').classList.add('open');
+  document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');
   document.body.style.overflow='hidden';
   loadJobs(company);
 }
-function closeDrawer(){document.getElementById('overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';activeCompany=null;}
+function closeDrawer(){document.getElementById('dr-overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';activeCompany=null;}
 function switchTab(tab){
   activeTab=tab;
   document.getElementById('tab-jobs').classList.toggle('on',tab==='jobs');
@@ -287,8 +437,8 @@ function renderJobsTab(){
   const key=activeCompany?.id||activeCompany?.company_name;
   const jobs=(jobsCache[key]?.jobs)||[];
   const lr=activeCompany?.roles_updated_at?new Date(activeCompany.roles_updated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):null;
-  const rrow=lr?`<div class="refresh-row"><div class="refresh-dot"></div><span class="refresh-txt">PM roles refreshed ${lr}</span></div>`:'';
-  if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">🔭</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now, or this company posts on a private ATS not yet indexed.</div></div>`;return;}
+  const rrow=lr?`<div class="refresh-row"><div class="refresh-dot"></div><span class="refresh-txt">Refreshed ${lr}</span></div>`:'';
+  if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">🔭</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now. Check back tomorrow.</div></div>`;return;}
   body.innerHTML=rrow+`<div class="jobs-list">${jobs.map(j=>jobCard(j)).join('')}</div>`;
 }
 function jobCard(j){
@@ -298,10 +448,11 @@ function jobCard(j){
   const jt=e(j.title);
   const cn=e(activeCompany?.company_name||'');
   const cid=activeCompany?.id||'null';
+  const isSaved=!!saved[String(j.id)];
   return `<div class="job-card">
 <div class="jc-top"><div class="jc-title">${jt}</div>${j.remote?'<span class="jc-remote">REMOTE</span>':''}</div>
 <div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">📍 ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div>
-<div class="jc-footer"><span class="jc-date">Listed ${fs} · Seen ${ls}</span><button class="apply-btn" onclick="trackAndOpen(event,${j.id},${cid},'${cn}','${jt}','${e(jurl)}')">Apply →</button></div>
+<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'♥ Saved':'♡ Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},${cid},'${cn}','${jt}','${e(jurl)}')">Apply →</button></div></div>
 </div>`;
 }
 function renderAboutTab(){
@@ -315,12 +466,11 @@ function renderAboutTab(){
   const pmRoles=(jobsCache[key]?.jobs||[]).length;
   body.innerHTML=`<div class="about-body">
 <div class="about-stat"><div><div class="stat-n">${pmRoles}</div><div class="stat-l">PM Roles</div></div><div><div class="stat-n">${c.open_roles||0}</div><div class="stat-l">Total Open</div></div></div>
+${c.funding_amount?`<div class="about-section"><div class="about-label">Funding</div><div style="font-size:13px;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:600">${e(c.funding_amount)}</div></div>`:''}
 ${founders.length?`<div class="about-section"><div class="about-label">Founders</div><div style="font-size:13px;color:var(--ink2)">${founders.map(e).join(' · ')}</div></div>`:''}
 ${inv.length?`<div class="about-section"><div class="about-label">Investors</div><div class="tags">${inv.map(v=>`<span class="tag ti${/yc|y combinator/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
 ${tech.length?`<div class="about-section"><div class="about-label">Tech Stack</div><div class="tags">${tech.map(v=>`<span class="tag tt">${e(v)}</span>`).join('')}</div></div>`:''}
-${c.source?`<div class="about-section"><div class="about-label">Source</div><div style="font-size:13px;color:var(--ink2)">${e(c.source)}</div></div>`:''}
 ${c.company_url?`<div class="about-section"><div class="about-label">Website</div><a class="about-url" href="${e(c.company_url)}" target="_blank" rel="noopener">${e(c.company_url)}</a></div>`:''}
-<div class="about-section"><div class="about-label">Announced</div><div style="font-size:13px;color:var(--ink2)">${date}</div></div>
 </div>`;
 }
 async function trackAndOpen(evt,jobId,companyId,companyName,jobTitle,jobUrl){
@@ -328,11 +478,11 @@ async function trackAndOpen(evt,jobId,companyId,companyName,jobTitle,jobUrl){
   window.open(jobUrl,'_blank','noopener');
   try{
     let token=null;
-    if(clerkUser&&window.Clerk?.session){try{token=await window.Clerk.session.getToken();}catch(e){}}
+    if(clerk?.session){try{token=await clerk.session.getToken();}catch(e){}}
     fetch('/api/track-click',{method:'POST',headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},body:JSON.stringify({job_posting_id:jobId||null,company_id:companyId||null,company_name:companyName,job_title:jobTitle,job_url:jobUrl,referrer_page:'companies'})});
   }catch(e){}
 }
-document.addEventListener('keydown',e=>{if(e.key==='Escape')closeDrawer();});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDrawer(); closeSignIn(); } });
 </script>
 </body>
 </html>
