@@ -31,6 +31,7 @@ const isPMRole = title => PM_KEYWORDS.some(k => (title || '').toLowerCase().incl
 
 // ─────────────────────────────────────────────────────────────────────────────
 // KNOWN_COMPANIES — verified ATS slugs only. No auto-slugify() entries.
+// Cursor slug returned null last run (CF transient block) — keep it, will retry.
 // ─────────────────────────────────────────────────────────────────────────────
 const KNOWN_COMPANIES = [
   // Frontier Labs
@@ -65,15 +66,12 @@ const KNOWN_COMPANIES = [
   { name: 'Airtable',          greenhouse: 'airtable' },
   // Other high-signal AI companies
   { name: 'Neuralink',         greenhouse: 'neuralink' },
-  { name: 'Weights & Biases',  lever:      'wandb' },
   { name: 'Modal',             ashby:      'modal' },
   { name: 'Stability AI',      greenhouse: 'stabilityai' },
-  { name: 'Midjourney',        greenhouse: 'midjourney' },
-  { name: 'Character AI',      greenhouse: 'characterai' },
 ];
 
 // ─────────────────────────────────────────────────────────
-// Non-Ashby ATS fetchers
+// Non-Ashby ATS fetchers (direct API, no bot detection)
 // ─────────────────────────────────────────────────────────
 
 async function fetchGreenhouse(slug) {
@@ -146,9 +144,9 @@ async function fetchWorkable(slug) {
 
 // ─────────────────────────────────────────────────────────
 // Ashby: batch all slugs through one Playwright subprocess.
-// stdout from the subprocess is the ONLY thing we read —
-// do NOT pipe child.stdout anywhere else or execFile's
-// callback buffer will be drained and JSON.parse will fail.
+// stdout from subprocess is the ONLY thing we read — do NOT
+// pipe child.stdout anywhere else or execFile callback will
+// receive an empty string and JSON.parse will fail.
 // ─────────────────────────────────────────────────────────
 
 function runPlaywrightAshby(slugs) {
@@ -159,9 +157,8 @@ function runPlaywrightAshby(slugs) {
     execFile(
       process.execPath,
       [scriptPath, slugs.join(',')],
-      { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 }, // 10 min, 10MB
+      { maxBuffer: 10 * 1024 * 1024, timeout: 10 * 60 * 1000 },
       (err, stdout, stderr) => {
-        // stderr = progress logs from the Playwright script — print them
         if (stderr) process.stderr.write(stderr);
         if (err) {
           console.error('Playwright subprocess error:', err.message);
@@ -177,8 +174,6 @@ function runPlaywrightAshby(slugs) {
         }
       }
     );
-    // NOTE: do NOT pipe child.stdout — it drains the stream and
-    // leaves execFile's callback with an empty string to parse.
   });
 }
 
@@ -248,6 +243,7 @@ async function main() {
 
   const dbMap = new Map((dbRows || []).map(r => [r.company_name.toLowerCase(), r]));
 
+  // Merge KNOWN_COMPANIES (baseline) with DB (source of truth for slugs)
   const map = new Map();
   for (const c of KNOWN_COMPANIES) map.set(c.name.toLowerCase(), { ...c, db_id: null });
   for (const [key, row] of dbMap) {
@@ -264,7 +260,7 @@ async function main() {
 
   const toCheck = [...map.values()].filter(c => c.greenhouse || c.lever || c.workable || c.ashby);
 
-  // ── Batch ALL Ashby slugs → one Playwright launch ──────
+  // ── Batch ALL Ashby slugs → one Playwright launch ──────────
   const ashbyCompanies = toCheck.filter(c => c.ashby);
   let ashbyResults = {};
   if (ashbyCompanies.length) {
@@ -272,7 +268,7 @@ async function main() {
     ashbyResults = await runPlaywrightAshby(ashbyCompanies.map(c => c.ashby));
   }
 
-  // ── Main loop ───────────────────────────────────────────
+  // ── Main loop ───────────────────────────────────────────────
   console.log(`Checking ${toCheck.length} companies (Greenhouse / Lever / Workable / Ashby)\n`);
   console.log(`${'Company'.padEnd(30)} ${'All'.padStart(5)} ${'PM'.padStart(5)}  ATS`);
   console.log('─'.repeat(60));
