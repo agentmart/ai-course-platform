@@ -220,7 +220,6 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 <script src="/days/day-58.js"></script>
 <script src="/days/day-59.js"></script>
 <script src="/days/day-60.js"></script>
-<!-- END individual day content files -->
 
 <script>
 const PHASES = [
@@ -473,10 +472,10 @@ function getDayData(day){
   return {...defaults,...overrides};
 }
 
+// All day content is served by /days/day-NN.js individual files.
+// Each file sets window.COURSE_DAY_DATA[N] directly.
 function getDayOverride(day){
-  // All day content is served by /days/day-NN.js individual files.
-  // Each file sets window.COURSE_DAY_DATA[N] directly.
-  if(window.COURSE_DAY_DATA&&window.COURSE_DAY_DATA[day]){
+  if(window.COURSE_DAY_DATA && window.COURSE_DAY_DATA[day]){
     return window.COURSE_DAY_DATA[day];
   }
   return {};
