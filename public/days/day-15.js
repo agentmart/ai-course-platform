@@ -41,61 +41,49 @@ window.COURSE_DAY_DATA[15] = {
   ],
 
   codeExample: {
-    title: 'LangGraph state machine vs raw API — JavaScript comparison',
+    title: 'LangGraph state machine vs raw API \u2014 JavaScript comparison',
     lang: 'js',
-    code: `// LangGraph vs Raw API — when the abstraction earns its keep
+    code: `// LangGraph vs Raw API \u2014 when the abstraction earns its keep
 // Demonstrating the key difference: LangGraph manages state across agent loop cycles
 
 // === PATTERN 1: Raw API (best for simple, stateless tasks) ===
-const rawAPIPattern = {
+var rawAPIPattern = {
   useCase: "Single extraction task, no loops, no state",
-  code: `
-  // Direct API call — simple, transparent, easy to debug
-  const response = await anthropic.messages.create({
-    model: 'claude-sonnet-4-6',
-    max_tokens: 1024,
-    system: 'Extract key contract terms as JSON',
-    messages: [{ role: 'user', content: contractText }]
-  });
-  `,
+  pseudocode: [
+    "// Direct API call \u2014 simple, transparent, easy to debug",
+    "const response = await anthropic.messages.create({",
+    "  model: 'claude-sonnet-4-6',",
+    "  max_tokens: 1024,",
+    "  system: 'Extract key contract terms as JSON',",
+    "  messages: [{ role: 'user', content: contractText }]",
+    "});"
+  ],
   pros: ['Zero abstraction overhead', 'Full token visibility', 'Easy to debug', 'No framework dependency'],
   cons: ['No built-in state management', 'No cycle support', 'Manual error handling']
 };
 
 // === PATTERN 2: LangGraph (best for agentic loops with state) ===
-const langGraphPattern = {
+var langGraphPattern = {
   useCase: "Research agent that searches, evaluates, and retries if needed",
-  code: `
-  // LangGraph manages state across multiple agent cycles
-  // State flows through graph nodes; cycles are first-class
-  import { StateGraph, END } from '@langchain/langgraph';
-  
-  const workflow = new StateGraph({
-    channels: {
-      query: null,
-      searchResults: null,
-      answer: null,
-      retryCount: { default: () => 0 }
-    }
-  });
-  
-  // Nodes: each is a function that transforms state
-  workflow.addNode('search', searchNode);
-  workflow.addNode('evaluate', evaluateNode);
-  workflow.addNode('answer', answerNode);
-  
-  // Conditional edge: retry if sources insufficient
-  workflow.addConditionalEdges('evaluate', (state) => {
-    if (state.retryCount < 3 && state.searchResults.length < 2) return 'search';
-    return 'answer';
-  });
-  `,
+  pseudocode: [
+    "// LangGraph manages state across multiple agent cycles",
+    "import { StateGraph, END } from '@langchain/langgraph';",
+    "const workflow = new StateGraph({ channels: { query, searchResults, answer, retryCount } });",
+    "workflow.addNode('search', searchNode);",
+    "workflow.addNode('evaluate', evaluateNode);",
+    "workflow.addNode('answer', answerNode);",
+    "// Conditional edge: retry if sources insufficient",
+    "workflow.addConditionalEdges('evaluate', (state) => {",
+    "  if (state.retryCount < 3 && state.searchResults.length < 2) return 'search';",
+    "  return 'answer';",
+    "});"
+  ],
   pros: ['State persists across cycles', 'Conditional routing is explicit', 'Human-in-loop built in', 'Parallel node execution'],
   cons: ['More setup than raw API', 'Overkill for simple tasks', 'LangChain dependency']
 };
 
 // === DECISION FRAMEWORK ===
-const orchestrationDecisions = [
+var orchestrationDecisions = [
   { scenario: 'Single LLM call (extract, classify, summarize)', recommendation: 'Raw API', reason: 'No orchestration needed' },
   { scenario: 'RAG pipeline (retrieve + generate)', recommendation: 'LlamaIndex or LangChain LCEL', reason: 'Built-in retrieval abstractions' },
   { scenario: 'Agentic tool-use loop', recommendation: 'LangGraph', reason: 'State + cycles + conditional routing' },
