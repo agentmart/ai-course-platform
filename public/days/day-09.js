@@ -3,142 +3,151 @@
 // Review changes:
 // - CRITICAL: model string updated claude-3-5-sonnet-20241022 → claude-sonnet-4-6
 // - Added prompt caching (highest-ROI API feature, first-party Anthropic)
-// - Added token counting endpoint
+// - Added token counting endpoint (/v1/messages/count_tokens)
 // - Added Files API mention
-// - Updated rate limit guidance to link to live docs
+// - Updated interview answer with caching architecture
 
 window.COURSE_DAY_DATA = window.COURSE_DAY_DATA || {};
 
 window.COURSE_DAY_DATA[9] = {
-  subtitle: 'The API your products will be built on — understand every parameter, and the cost-saving features most teams miss.',
+  subtitle: 'The API your products will be built on — understand every parameter, plus the cost-saving features most teams miss.',
 
-  context: `<p>The Anthropic Messages API is the primary interface for building on Claude. Every API call has the same structure: a <strong>model</strong> identifier, a <strong>max_tokens</strong> limit, a <strong>messages</strong> array of user/assistant turns, and an optional <strong>system</strong> prompt. The current production model strings are <code>claude-sonnet-4-6</code> (primary workhorse), <code>claude-opus-4-6</code> (highest capability), and <code>claude-haiku-4-5-20251001</code> (fastest, cheapest). Always verify current strings at <a href="https://docs.anthropic.com/en/docs/about-claude/models" target="_blank">docs.anthropic.com/en/docs/about-claude/models</a> before coding — using outdated strings causes 404-equivalent errors in production.</p>
-  <p><strong>Streaming</strong> dramatically improves perceived UX. When Claude generates a long response, streaming returns tokens as they're generated via Server-Sent Events, rather than waiting for the full response. For a 500-token response, streaming reduces time-to-first-token from ~5 seconds to ~0.5 seconds. This difference between "waiting for the page to load" and "watching it type" significantly affects user trust and product quality. Implementing streaming is slightly more complex backend code but is almost always worth it for user-facing features.</p>
-  <p><strong>Prompt caching</strong> is the single highest-ROI cost optimization available on the Claude API — and it's a first-party Anthropic feature that most teams don't use. Add <code>"cache_control": {"type": "ephemeral"}</code> to any content block of 1,024+ tokens to make it cacheable. Cache writes cost 1.25x normal input pricing; cache reads cost 0.1x (90% savings). For a product making 10,000 calls/day with a 10,000-token system prompt: without caching ~$300/day, with caching ~$37.50/day. An 87% reduction on that component, from a single API parameter. Five-minute cache TTL; reset on each cache hit. Source: <a href="https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching" target="_blank">Anthropic prompt caching docs</a>.</p>
-  <p>Key operational features: the <strong>token counting endpoint</strong> (<code>POST /v1/messages/count_tokens</code>) allows pre-flight token counting before making the actual call — essential for cost management and context window planning. The <strong>Batch API</strong> processes requests asynchronously at 50% discount, essential for offline workflows. The <strong>Files API</strong> allows uploading documents once and referencing them by file ID across multiple API calls, eliminating repeated document transmission for document-heavy workflows. Always check <a href="https://docs.anthropic.com/en/api/rate-limits" target="_blank">current rate limits</a> rather than using hardcoded tier numbers — they evolve.</p>`,
+  context: `<p>The Anthropic Messages API is the primary interface for building on Claude. Every API call has the same structure: a <strong>model</strong> identifier, a <strong>max_tokens</strong> limit, a <strong>messages</strong> array of user/assistant turns, and an optional <strong>system</strong> prompt. The correct model string for production workloads as of early 2026 is <code>claude-sonnet-4-6</code> (or <code>claude-haiku-4-5-20251001</code> for high-volume lightweight tasks, <code>claude-opus-4-6</code> for maximum capability). Using outdated strings like <code>claude-3-5-sonnet-20241022</code> in production or in interviews is a red flag. The current models are documented at <a href="https://docs.anthropic.com/en/docs/about-claude/models" target="_blank">docs.anthropic.com/en/docs/about-claude/models</a> — bookmark it and check before every project.</p>
+  <p><strong>Streaming</strong> dramatically improves perceived UX. When Claude generates a long response, streaming returns tokens as they're generated via Server-Sent Events, rather than waiting for the full response. For a 500-token response at typical speeds, streaming reduces time-to-first-token from ~5 seconds to ~0.5 seconds. The difference between "waiting for the page to load" and "watching it type" significantly affects user experience and directly impacts retention and satisfaction metrics. Implementing streaming requires slightly different backend code but is almost always worth it for user-facing features.</p>
+  <p><strong>Prompt caching</strong> is the single highest-ROI cost optimization available on the Anthropic API, and it's a first-party feature that most teams don't use. The mechanism: mark a block of your system prompt (or other repeated content) with <code>cache_control: {type: "ephemeral"}</code>. First call: that block is written to cache at 1.25× normal input cost. Subsequent calls within 5 minutes: that block is read at 0.1× normal input cost — a 90% reduction. The minimum cacheable block is 1024 tokens for Sonnet/Opus and 2048 for Haiku. For a product sending 10,000 requests/day with a 10,000-token system prompt, prompt caching reduces that component from roughly $300/month to ~$37/month. This is not an optimization you add after scaling — it should be in your architecture from day one.</p>
+  <p>Two other API features worth knowing: The <strong>token counting endpoint</strong> (<code>POST /v1/messages/count_tokens</code>) allows pre-flight token estimation before making the actual API call — essential for cost guardrails and context window management. The <strong>Batch API</strong> processes requests asynchronously at 50% of standard pricing with a 24-hour completion window, ideal for bulk document processing, nightly evals, and content enrichment pipelines.</p>`,
 
   tasks: [
     {
-      title: 'Make your first structured API call with current model strings',
-      description: 'Call the Anthropic Messages API with: (1) model set to claude-sonnet-4-6, (2) a system prompt giving Claude a specific persona, (3) a multi-turn conversation array with at least 3 turns, (4) a request for JSON output. Verify the response structure. Log the input and output token counts from the response. Save as /day-09/api_call_analysis.js.',
+      title: 'Make your first structured API call',
+      description: 'Call the Anthropic Messages API using model claude-sonnet-4-6 with: (1) a system prompt that gives Claude a specific persona, (2) a multi-turn conversation array with at least 3 turns, (3) a request for JSON output. Verify the response structure. Log the input and output token counts. Save as /day-09/api_call_analysis.js in your portfolio repo.',
       time: '30 min'
     },
     {
-      title: 'Implement streaming and measure the UX difference',
-      description: 'Modify your API call from Task 1 to use streaming (stream: true). Display tokens progressively in the terminal. Measure time-to-first-token vs non-streaming. Document: how many milliseconds faster is the first token? How does this change the user experience design of a product? Save your streaming implementation as /day-09/streaming_implementation.js.',
+      title: 'Implement streaming',
+      description: 'Modify your API call to use streaming (stream: true in the SDK). Display tokens progressively. Measure the time-to-first-token compared to non-streaming. Document both the implementation difference and the UX difference. This is a real product decision you will make repeatedly.',
       time: '25 min'
     },
     {
       title: 'Implement prompt caching and calculate savings',
-      description: 'Take your system prompt from Task 1. If it\'s under 1,024 tokens, expand it (add detailed persona, instructions, examples) until it exceeds that threshold. Add cache_control: {type: "ephemeral"} to the system block. Make the same call 3 times and compare: (a) first call (cache write), (b) second call (cache read), (c) third call (cache read). Verify via the usage object: cache_creation_input_tokens on call 1, cache_read_input_tokens on calls 2-3. Calculate your monthly savings at 10,000 calls/day. Save as /day-09/prompt_caching_demo.js.',
+      description: 'Take your system prompt from Task 1. Add cache_control: {type: "ephemeral"} to it. Run 5 calls and compare the usage.cache_read_input_tokens vs usage.input_tokens breakdown. Calculate: at 10,000 calls/day with this system prompt, what is the monthly cost with and without caching? Save as /day-09/prompt_caching_demo.js. This calculation should be in every architecture doc you write.',
       time: '25 min'
     },
     {
       title: 'Design the API architecture for a document analysis product',
-      description: 'Sketch the full API call sequence for a user uploading a 50-page contract and asking 5 questions about it. Include: which model, prompt caching strategy for the system prompt, token counting pre-flight, streaming for user-facing responses, Batch API for nightly bulk processing. What\'s the estimated cost per document with and without caching? Save as /day-09/document_analysis_architecture.md.',
+      description: 'Sketch the full API call sequence for a user uploading a 50-page contract and asking 5 questions about it. Specify: model string, system prompt length and caching strategy, how questions are structured, streaming or not, and the estimated cost per document. Save as /day-09/document_analysis_architecture.md.',
       time: '20 min'
     }
   ],
 
   codeExample: {
-    title: 'Anthropic API with prompt caching — JavaScript',
+    title: 'Prompt caching savings calculator — JavaScript',
     lang: 'js',
-    code: `// Anthropic Messages API — current model strings + prompt caching
-// IMPORTANT: Always verify current model strings at:
-// https://docs.anthropic.com/en/docs/about-claude/models
+    code: `// Anthropic API — Prompt Caching Cost Calculator
+// IMPORTANT: Verify current pricing at anthropic.com/pricing before using real numbers
+// Current model strings (March 2026):
+//   claude-sonnet-4-6       — primary production model
+//   claude-haiku-4-5-20251001 — fast, cost-efficient
+//   claude-opus-4-6         — highest capability
 
-// Current model strings (March 2026)
-const MODELS = {
-  sonnet: "claude-sonnet-4-6",         // Primary production model
-  opus:   "claude-opus-4-6",           // Highest capability
-  haiku:  "claude-haiku-4-5-20251001", // Fastest, cheapest
+// Pricing framework (check anthropic.com/pricing for current rates)
+const PRICING = {
+  'claude-sonnet-4-6': {
+    input:       3.00,  // per 1M tokens — VERIFY CURRENT
+    output:     15.00,  // per 1M tokens — VERIFY CURRENT
+    cacheWrite:  3.75,  // 1.25x input price for cache writes
+    cacheRead:   0.30,  // 0.10x input price for cache reads
+    minCacheTokens: 1024 // minimum block size for caching
+  },
+  'claude-haiku-4-5-20251001': {
+    input:       0.25,
+    output:      1.25,
+    cacheWrite:  0.3125,
+    cacheRead:   0.025,
+    minCacheTokens: 2048
+  }
 };
 
-// === PROMPT CACHING EXAMPLE ===
-// Add cache_control to any content block >= 1,024 tokens
-// Cache write: 1.25x normal input cost (one-time per unique prefix)
-// Cache read:  0.10x normal input cost (90% savings on subsequent calls)
+function calcMonthlyCost(model, dailyRequests, systemPromptTokens, avgUserTokens, avgOutputTokens) {
+  const p = PRICING[model];
+  if (!p) return { error: 'Model not found — check current pricing at docs.anthropic.com' };
+  
+  // Without caching: all tokens charged at input rate
+  const withoutCaching = (
+    (systemPromptTokens + avgUserTokens) / 1e6 * p.input +
+    avgOutputTokens / 1e6 * p.output
+  ) * dailyRequests * 30;
 
-const SYSTEM_PROMPT = `You are a contract analysis assistant for enterprise legal teams.
-You extract key terms with precision and respond in structured JSON format.
+  // With caching: 1 cache write per day (5-min TTL), rest are cache reads
+  const cacheWritesPerDay = 1; // one cold start per 5-min TTL window
+  const cacheReadsPerDay  = dailyRequests - cacheWritesPerDay;
+  
+  const withCaching = (
+    // Cache writes (1.25x input price, once per TTL)
+    (systemPromptTokens / 1e6 * p.cacheWrite) * cacheWritesPerDay * 30 +
+    // Cache reads (0.10x input price)
+    (systemPromptTokens / 1e6 * p.cacheRead) * cacheReadsPerDay * 30 +
+    // User tokens still charged normally
+    (avgUserTokens / 1e6 * p.input) * dailyRequests * 30 +
+    // Output tokens
+    (avgOutputTokens / 1e6 * p.output) * dailyRequests * 30
+  );
 
-Your analysis should cover:
-1. Parties and signatories (full legal names, roles)
-2. Effective date and term duration
-3. Payment terms (amounts, schedule, late penalties)
-4. Termination conditions (notice period, for cause, for convenience)
-5. Liability limitations and indemnification
-6. Governing law and dispute resolution
-7. Key obligations of each party
-8. Any non-standard or concerning clauses
-
-Always note: (a) what is clearly stated, (b) what is ambiguous, (c) what appears to be missing.
-If a section is not present in the document, state that explicitly rather than inferring.
-[Additional persona instructions would go here to reach 1,024+ token threshold for caching]`;
-
-// Structure with cache_control on the system prompt
-const requestWithCaching = {
-  model: MODELS.sonnet,
-  max_tokens: 2048,
-  system: [
-    {
-      type: "text",
-      text: SYSTEM_PROMPT,
-      cache_control: { type: "ephemeral" }  // <- This is the caching magic
-    }
-  ],
-  messages: [
-    { role: "user", content: "What are the payment terms in this contract? [contract text here]" }
-  ]
-};
-
-// Simulate cost comparison: 10,000 calls/day, 10K-token system prompt
-function calculateMonthlySavings(dailyCalls, systemTokens, inputPricePerM, cachePricePerM, cacheReadPricePerM) {
-  const withoutCaching = dailyCalls * 30 * (systemTokens / 1e6) * inputPricePerM;
-  // With caching: 1 write per cache TTL (5 min), ~reads for the rest
-  // Simplified: assume 1 write, (dailyCalls - 1) reads per 5-min window
-  const writeCost = (systemTokens / 1e6) * cachePricePerM;         // 1 write per 5 min
-  const readCost  = (dailyCalls / (5/60/24)) * 30 * (systemTokens / 1e6) * cacheReadPricePerM; // reads
-  const withCaching = (writeCost + readCost);
-  return { withoutCaching: withoutCaching.toFixed(2), withCaching: withCaching.toFixed(2), savings: (withoutCaching - withCaching).toFixed(2) };
+  return {
+    withoutCaching: withoutCaching.toFixed(2),
+    withCaching: withCaching.toFixed(2),
+    savingsPerMonth: (withoutCaching - withCaching).toFixed(2),
+    savingsPct: Math.round((1 - withCaching / withoutCaching) * 100)
+  };
 }
 
-console.log("=== CURRENT MODEL STRINGS ===");
-Object.entries(MODELS).forEach(([tier, model]) => {
-  console.log("  " + tier.padEnd(8) + model);
+// Scenario: customer support product with large system prompt
+const scenarios = [
+  { name: 'Startup (1K req/day)',  daily: 1000 },
+  { name: 'Growing (10K req/day)', daily: 10000 },
+  { name: 'Scale (100K req/day)',  daily: 100000 },
+];
+
+console.log('='.repeat(70));
+console.log('PROMPT CACHING SAVINGS — claude-sonnet-4-6');
+console.log('System prompt: 8,000 tokens | Avg user message: 500 tokens | Avg output: 300 tokens');
+console.log('Note: verify current pricing at anthropic.com/pricing');
+console.log('='.repeat(70));
+
+scenarios.forEach(s => {
+  const result = calcMonthlyCost('claude-sonnet-4-6', s.daily, 8000, 500, 300);
+  console.log('\n' + s.name);
+  console.log('  Without caching: $' + result.withoutCaching + '/month');
+  console.log('  With caching:    $' + result.withCaching + '/month');
+  console.log('  Savings:         $' + result.savingsPerMonth + '/month (' + result.savingsPct + '% reduction)');
 });
 
-console.log("\n=== REQUEST STRUCTURE WITH PROMPT CACHING ===");
-console.log("Model:    ", requestWithCaching.model);
-console.log("Caching:  ", JSON.stringify(requestWithCaching.system[0].cache_control));
-console.log("Threshold: 1,024 tokens minimum for Sonnet/Opus, 2,048 for Haiku");
-
-console.log("\n=== COST SAVINGS SIMULATION ===");
-console.log("Scenario: 10,000 calls/day with 10,000-token system prompt");
-console.log("(Use live pricing from anthropic.com/pricing for real estimates)");
-// Using example prices - VERIFY CURRENT PRICES before using in real calculations
-const example = calculateMonthlySavings(10000, 10000, 3.00, 3.75, 0.30);
-console.log("Without caching: $" + example.withoutCaching + "/month");
-console.log("With caching:    $" + example.withCaching + "/month (approx)");
-console.log("Monthly savings: $" + example.savings);
-console.log("\nNOTE: Cache TTL is 5 minutes. Cache resets on each read.");
-console.log("Check usage.cache_creation_input_tokens and usage.cache_read_input_tokens in API response.");
-`
+console.log('\n' + '='.repeat(70));
+console.log('CACHING ELIGIBILITY CHECK');
+console.log('Minimum cacheable block: 1024 tokens (Sonnet/Opus), 2048 (Haiku)');
+console.log('Cache TTL: 5 minutes (ephemeral)');
+console.log('ROI is highest when: large system prompt + high request volume');
+console.log('\nImplementation: add cache_control to system prompt block:');
+console.log(JSON.stringify({
+  type: 'text',
+  text: 'Your system prompt here...',
+  cache_control: { type: 'ephemeral' }
+}, null, 2));`
   },
 
   interview: {
-    question: 'Walk me through how you\'d architect a document analysis product on the Anthropic API, including cost optimization.',
-    answer: `For a document analysis product, I\'d architect five layers: ingestion, context management, API integration with cost optimization, output handling, and observability.<br><br><strong>Ingestion:</strong> convert PDFs to clean text using a parsing library (or use the Files API to upload once and reference by file_id across calls). Split documents over 150K tokens into overlapping chunks of ~100K with 10K overlap to preserve context across splits.<br><br><strong>Context management:</strong> the system prompt defines the analysis persona and output schema. Keep it focused but substantial enough to benefit from prompt caching — a 2K-token system prompt at 10K calls/day saves ~80% on that component with cache_control: ephemeral. Use the token counting endpoint (<code>POST /v1/messages/count_tokens</code>) for pre-flight cost estimation.<br><br><strong>API integration:</strong> use <code>claude-sonnet-4-6</code> for most analysis tasks. Use streaming for user-facing real-time responses. Use the Batch API (50% discount) for nightly bulk processing. The batch and streaming decisions save as much as model selection in many architectures.<br><br><strong>Output handling:</strong> specify JSON schema in the system prompt, validate with a schema checker, retry with error feedback when validation fails. Never trust unvalidated AI JSON in production.<br><br><strong>Observability:</strong> log all calls with token counts broken down by component. Within 2 weeks of launch you'll see which system prompt sections are actually influencing output quality — cut the rest to reduce cost further.`
+    question: 'Walk me through how you\u2019d architect a document analysis product on the Anthropic API.',
+    answer: `For a document analysis product, I\u2019d architect four key layers: ingestion, context management, API integration, and output handling. And I\u2019d build in prompt caching from the start.<br><br><strong>Ingestion:</strong> convert incoming documents (PDF, DOCX) to clean text. Split documents over 150K tokens into overlapping chunks of ~100K tokens with 10K overlap to preserve context across splits. Use the token counting endpoint (<code>POST /v1/messages/count_tokens</code>) to measure each document before choosing single-call vs multi-call strategy.<br><br><strong>Context management:</strong> the system prompt defines the analysis persona and JSON output format. Keep it precise and cacheable — add <code>cache_control: {type: \u201cephemeral\u201d}</code> to the system block. If the system prompt is 8,000 tokens and you\u2019re processing 1,000 contracts/month, caching reduces that component cost by ~85%.<br><br><strong>API integration:</strong> use model <code>claude-sonnet-4-6</code> for most analysis. Use streaming for user-facing real-time responses; batch API for async bulk processing at 50% cost reduction. Implement exponential backoff for rate limit handling.<br><br><strong>Output handling:</strong> specify JSON schema in system prompt, validate with a schema checker, retry with feedback on validation failures. Cache outputs for identical document+question combinations to avoid redundant API calls.`
   },
 
-  pmAngle: 'Prompt caching is the most valuable cost optimization most teams never implement because they don\'t know it exists. As an AI PM, knowing this feature cold — and the specific threshold numbers (1,024 tokens for Sonnet, 90% savings on reads) — is the kind of depth that signals genuine product ownership to engineers and interviewers.',
+  pmAngle: 'Prompt caching is not an optimization you discover after your AWS bill arrives — it\u2019s an architectural decision you make on day one. A PM who spec\u2019s a high-system-prompt product without caching is leaving 50-85% of the cost reduction on the table. Know the feature, know the thresholds (1024 tokens minimum), and put it in every architecture document you write.',
 
   resources: [
-    { type: 'DOCS', title: 'Anthropic Models Overview (live)', url: 'https://docs.anthropic.com/en/docs/about-claude/models', note: 'Always check here for current model strings. Bookmark it.' },
-    { type: 'DOCS', title: 'Prompt Caching — Anthropic', url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching', note: 'The most important cost optimization in the API. Read this before your first production deployment.' },
-    { type: 'DOCS', title: 'Token Counting Endpoint', url: 'https://docs.anthropic.com/en/api/messages-count-tokens', note: 'Pre-flight token counting before making the actual API call. Use for cost management.' },
-    { type: 'DOCS', title: 'Anthropic Batch API', url: 'https://docs.anthropic.com/en/docs/build-with-claude/message-batches', note: '50% cost reduction for async workloads. Essential for bulk processing.' },
-    { type: 'DOCS', title: 'Streaming Guide', url: 'https://docs.anthropic.com/en/api/messages-streaming', note: 'How to implement SSE streaming. Required reading before any user-facing feature.' },
-    { type: 'DOCS', title: 'Rate Limits (live)', url: 'https://docs.anthropic.com/en/api/rate-limits', note: 'Always check live docs — rate limit tiers evolve.' }
+    { type: 'DOCS', title: 'Anthropic Models Overview (current strings)', url: 'https://docs.anthropic.com/en/docs/about-claude/models', note: 'Bookmark this — always use current model strings. Check before every project.' },
+    { type: 'DOCS', title: 'Prompt Caching Guide', url: 'https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching', note: 'First-party Anthropic feature. Highest ROI optimization for high-volume products.' },
+    { type: 'DOCS', title: 'Token Counting API', url: 'https://docs.anthropic.com/en/api/messages-count-tokens', note: 'Pre-flight token estimation before making the actual call — essential for cost guardrails.' },
+    { type: 'DOCS', title: 'Messages API Reference', url: 'https://docs.anthropic.com/en/api/messages', note: 'Full API reference — read the request and response schemas.' },
+    { type: 'DOCS', title: 'Batch API (50% cost reduction)', url: 'https://docs.anthropic.com/en/docs/build-with-claude/message-batches', note: 'Async processing at half price. Use for bulk classification, evals, nightly pipelines.' },
+    { type: 'PRICING', title: 'Anthropic Pricing (live)', url: 'https://www.anthropic.com/pricing', note: 'Always verify current prices. Never hardcode — pricing changes quarterly.' }
   ]
 };
