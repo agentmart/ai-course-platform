@@ -158,10 +158,68 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <div id="content"><div class="day-view" id="day-view"></div></div>
 </div>
 
-<!-- Phase data files — load order matters; later files extend COURSE_DAY_DATA -->
-<script src="/course-data-phase1.js"></script>
-<script src="/course-data-phase2.js"></script>
-<script src="/course-data-phase3.js"></script>
+<!-- Individual day content files — each /days/day-NN.js sets window.COURSE_DAY_DATA[N].
+     All 60 files are present. Files load synchronously in order. -->
+<script src="/days/day-01.js"></script>
+<script src="/days/day-02.js"></script>
+<script src="/days/day-03.js"></script>
+<script src="/days/day-04.js"></script>
+<script src="/days/day-05.js"></script>
+<script src="/days/day-06.js"></script>
+<script src="/days/day-07.js"></script>
+<script src="/days/day-08.js"></script>
+<script src="/days/day-09.js"></script>
+<script src="/days/day-10.js"></script>
+<script src="/days/day-11.js"></script>
+<script src="/days/day-12.js"></script>
+<script src="/days/day-13.js"></script>
+<script src="/days/day-14.js"></script>
+<script src="/days/day-15.js"></script>
+<script src="/days/day-16.js"></script>
+<script src="/days/day-17.js"></script>
+<script src="/days/day-18.js"></script>
+<script src="/days/day-19.js"></script>
+<script src="/days/day-20.js"></script>
+<script src="/days/day-21.js"></script>
+<script src="/days/day-22.js"></script>
+<script src="/days/day-23.js"></script>
+<script src="/days/day-24.js"></script>
+<script src="/days/day-25.js"></script>
+<script src="/days/day-26.js"></script>
+<script src="/days/day-27.js"></script>
+<script src="/days/day-28.js"></script>
+<script src="/days/day-29.js"></script>
+<script src="/days/day-30.js"></script>
+<script src="/days/day-31.js"></script>
+<script src="/days/day-32.js"></script>
+<script src="/days/day-33.js"></script>
+<script src="/days/day-34.js"></script>
+<script src="/days/day-35.js"></script>
+<script src="/days/day-36.js"></script>
+<script src="/days/day-37.js"></script>
+<script src="/days/day-38.js"></script>
+<script src="/days/day-39.js"></script>
+<script src="/days/day-40.js"></script>
+<script src="/days/day-41.js"></script>
+<script src="/days/day-42.js"></script>
+<script src="/days/day-43.js"></script>
+<script src="/days/day-44.js"></script>
+<script src="/days/day-45.js"></script>
+<script src="/days/day-46.js"></script>
+<script src="/days/day-47.js"></script>
+<script src="/days/day-48.js"></script>
+<script src="/days/day-49.js"></script>
+<script src="/days/day-50.js"></script>
+<script src="/days/day-51.js"></script>
+<script src="/days/day-52.js"></script>
+<script src="/days/day-53.js"></script>
+<script src="/days/day-54.js"></script>
+<script src="/days/day-55.js"></script>
+<script src="/days/day-56.js"></script>
+<script src="/days/day-57.js"></script>
+<script src="/days/day-58.js"></script>
+<script src="/days/day-59.js"></script>
+<script src="/days/day-60.js"></script>
 
 <script>
 const PHASES = [
@@ -390,7 +448,7 @@ document.addEventListener('keydown',e=>{
   }
 });
 
-// getDayData: merges defaults with COURSE_DAY_DATA populated by the phase data files
+// getDayData: merges defaults with COURSE_DAY_DATA populated by individual day files
 function getDayData(day){
   const defaults={
     phase: day<=20?'Phase 1 — Foundations':day<=40?'Phase 2 — Protocols & Frameworks':'Phase 3 — Leadership & Ship',
@@ -414,68 +472,13 @@ function getDayData(day){
   return {...defaults,...overrides};
 }
 
+// All day content is served by /days/day-NN.js individual files.
+// Each file sets window.COURSE_DAY_DATA[N] directly.
 function getDayOverride(day){
-  if(window.COURSE_DAY_DATA&&window.COURSE_DAY_DATA[day]){
+  if(window.COURSE_DAY_DATA && window.COURSE_DAY_DATA[day]){
     return window.COURSE_DAY_DATA[day];
   }
-  // Inline fallback for days 1, 12, 26 (original inline data kept as safety net)
-  const data={
-    1:{
-      subtitle:'Map the frontier model landscape before your first AI PM interview.',
-      context:`<p>The AI landscape in 2025 is dominated by four frontier labs: Anthropic, OpenAI, Google DeepMind, and Meta AI. Claude 3.5 Sonnet (200K context, vision, strong coding) is Anthropic's primary commercial model. GPT-4o is OpenAI's equivalent: multimodal, 128K context. The o1/o3/o4 reasoning series uses chain-of-thought at inference time for complex problems. Google's Gemini 1.5 Pro supports 1M tokens. Pricing matters: Claude 3.5 Sonnet at $3/$15 per million tokens, GPT-4o at $5/$15, o3 at $10/$40. A PM who can't quickly estimate API costs for a proposed feature is a liability at a frontier AI company.</p>`,
-      tasks:[
-        {title:'Build a model comparison matrix',description:'Create a table: Claude 3.5 Sonnet, GPT-4o, Gemini 1.5 Pro, o3. Columns: context window, input price, output price, key strengths, key limitations.',time:'20 min'},
-        {title:'Cost-model a real use case',description:'Calculate monthly API cost for: contract review (avg 50K tokens/doc, 500 docs/month) on each model.',time:'25 min'},
-        {title:'Draft a competitive positioning memo',description:'Write 200 words: how would you position your flagship model against a competitor for enterprise customers?',time:'20 min'},
-        {title:'Map the ecosystem',description:'List 3 products built on Claude and 3 built on GPT-4o. For each, identify why that company chose that model.',time:'15 min'},
-      ],
-      codeExample:{title:'Model cost comparison — Python',lang:'python',code:`# Day 1 — Frontier model comparison\nmodels = {\n    "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0,"notes":"Best for long doc, enterprise"},\n    "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0,"notes":"Strongest ecosystem, multimodal"},\n    "Gemini 1.5 Pro":    {"ctx":"1M",  "in":3.5,"out":10.5,"notes":"Longest context, Google Search"},\n    "o3":                {"ctx":"128K","in":10.0,"out":40.0,"notes":"Best at reasoning, math, code"},\n}\n\nprint(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}  Notes")\nprint("\u2500"*75)\nfor name, m in models.items():\n    print(f"{name:<22}{m['ctx']:>8}  \${m['in']:>6.2f}   \${m['out']:>6.2f}  {m['notes']}")\n\nprint("\\n\u2500\u2500 Contract review: 500 docs \u00d7 50K in + 2K out \u2500\u2500")\nfor name, m in models.items():\n    cost = (50000/1e6 * m['in'] + 2000/1e6 * m['out']) * 500\n    print(f"{name:<22}  \${cost:,.2f}/month")`},
-      interview:{question:'Walk me through the frontier model landscape. Which model would you choose for a new enterprise contract review product, and why?',answer:`I'd start by scoping the use case: contract review requires long context (50–100K tokens per document), high accuracy on legal language, and strong structured output. I'd recommend Claude 3.5 Sonnet.<br><br>Reasons: (1) 200K context handles full contracts without chunking. (2) Constitutional AI training produces more calibrated outputs. (3) At $3/$15 per million tokens, it's cheaper than GPT-4o ($5/$15) for input-heavy workloads.<br><br>I'd benchmark both on a test corpus of 50 contracts before committing.`},
-      pmAngle:"Model selection is one of your first real PM decisions at a frontier lab. Practice explaining these tradeoffs in plain English — you will do this constantly with legal, finance, and enterprise customers.",
-      resources:[
-        {type:'PRICING',title:'Anthropic API Pricing',url:'https://www.anthropic.com/pricing',note:'Memorize these numbers — you will be asked.'},
-        {type:'PRICING',title:'OpenAI API Pricing',url:'https://openai.com/pricing',note:'Compare GPT-4o vs o-series pricing tradeoffs.'},
-        {type:'DOCS',title:'Claude Model Overview',url:'https://docs.anthropic.com/en/docs/about-claude/models',note:'Current model family and context limits.'},
-      ]
-    },
-    12:{
-      subtitle:"The protocol that's redefining how AI products connect to the world.",
-      context:`<p><strong>Model Context Protocol (MCP)</strong> is Anthropic's open standard for connecting AI models to external data sources and tools. Released in November 2024, MCP solves a fundamental scaling problem: without a standard, every AI integration is a custom point-to-point connection. With MCP, any tool that speaks the protocol can be used by any MCP-compatible AI client. MCP has three primitive types: <strong>Tools</strong> (callable functions), <strong>Resources</strong> (readable data sources), and <strong>Prompts</strong> (reusable instruction templates).</p>`,
-      tasks:[
-        {title:'Install and configure a local MCP server',description:'Install Claude Desktop → Settings → Developer → add the filesystem MCP server config. Verify Claude can list and read files.',time:'25 min'},
-        {title:'Build a minimal MCP server from scratch',description:'Use the TypeScript MCP SDK. Create a server with one tool: get_timestamp(timezone: string). Test it in Claude Desktop.',time:'35 min'},
-        {title:'Map MCP vs Assistants API',description:'Write a 200-word comparison: When would you choose MCP vs OpenAI Assistants API tool_call mechanism?',time:'20 min'},
-        {title:'Design an MCP server for your current product',description:'Sketch the tools and resources you would expose. What would agents be able to do?',time:'20 min'},
-      ],
-      codeExample:{title:'MCP server skeleton — JavaScript',lang:'js',code:`// Minimal MCP server structure\nconst serverDefinition = {\n  name: "time-server",\n  version: "1.0.0",\n  tools: [{\n    name: "get_timestamp",\n    description: "Returns the current time in the requested timezone",\n    inputSchema: {\n      type: "object",\n      properties: { timezone: { type: "string", description: "IANA timezone, e.g. America/New_York" } },\n      required: ["timezone"]\n    }\n  }]\n};\n\nfunction handleGetTimestamp(timezone) {\n  const now = new Date();\n  const formatted = now.toLocaleString("en-US", { timeZone: timezone, dateStyle: "full", timeStyle: "long" });\n  return { content: [{ type: "text", text: formatted }] };\n}\n\nconst testZones = ["America/New_York", "Europe/London", "Asia/Tokyo", "America/Los_Angeles"];\nconsole.log("Time Server \u2014 get_timestamp tool demo");\nconsole.log("\u2500".repeat(50));\ntestZones.forEach(tz => {\n  const result = handleGetTimestamp(tz);\n  console.log(\`\${tz.padEnd(25)} \u2192 \${result.content[0].text.slice(0,35)}...\`);\n});\nconsole.log("\\nTools defined:", serverDefinition.tools.map(t => t.name).join(", "));`},
-      interview:{question:'What is MCP and why does it matter strategically for Anthropic?',answer:`MCP is Anthropic's open standard for connecting AI models to external tools and data sources. It defines a client-server architecture with three primitive types: Tools (callable functions), Resources (readable data), and Prompts (reusable templates).<br><br>Strategically: (1) It solves the integration scaling problem — build once, works everywhere. (2) It's a classic platform play — open-sourcing MCP invites an ecosystem that benefits Claude's capabilities. (3) It positions Anthropic as a standards setter with enterprise customers.`},
-      pmAngle:"MCP is the most important protocol in your curriculum for Anthropic interviews. Be able to explain it to an engineer (client-server, three primitives), a business stakeholder (ecosystem flywheel), and a skeptic (why open-source it?).",
-      resources:[
-        {type:'DOCS',title:'MCP Official Documentation',url:'https://modelcontextprotocol.io',note:'Start here — read the architecture overview and quickstart.'},
-        {type:'GITHUB',title:'MCP TypeScript SDK',url:'https://github.com/modelcontextprotocol/typescript-sdk',note:'Build your first server in an afternoon.'},
-        {type:'BLOG',title:'Anthropic: Introducing MCP',url:'https://www.anthropic.com/news/model-context-protocol',note:'The original announcement. Know the strategic framing cold.'},
-      ]
-    },
-    26:{
-      subtitle:"Google's answer to multi-agent interoperability — and why it matters for AI PMs.",
-      context:`<p><strong>Agent-to-Agent Protocol (A2A)</strong> was announced by Google in April 2025 as an open standard for communication between AI agents. Where MCP solves the agent-to-tool problem, A2A solves the agent-to-agent problem. A2A's core abstraction is the <strong>Agent Card</strong>: a JSON document each agent publishes advertising its capabilities. Tasks in A2A go through states: submitted &#x2192; working &#x2192; input-required &#x2192; completed (or failed). The "input-required" state enables human-in-the-loop workflows.</p>`,
-      tasks:[
-        {title:'Read the A2A spec',description:'Find the A2A specification on GitHub (google/a2a). Sketch the lifecycle of a single task. Note the 5 task states.',time:'25 min'},
-        {title:'Design an Agent Card',description:'Design the Agent Card JSON for a "Contract Review Agent" built on Claude. Include: name, description, capabilities, 3 skills.',time:'25 min'},
-        {title:'MCP vs A2A decision framework',description:'Write a 1-page decision guide: When do you use MCP vs A2A?',time:'20 min'},
-        {title:'Find 3 real A2A implementations',description:'Search GitHub for agents that implement A2A. What kinds of agents have been built?',time:'20 min'},
-      ],
-      codeExample:{title:'A2A Agent Card schema — JavaScript',lang:'js',code:`// A2A Agent Card \u2014 the self-description every A2A agent publishes\nconst agentCard = {\n  "schema_version": "0.0.2",\n  "name": "Claude Contract Review Agent",\n  "description": "Reviews contracts for risks, obligations, and key terms.",\n  "url": "https://agents.example.com/contract-review",\n  "capabilities": { "streaming": true, "pushNotifications": false },\n  "authentication": { "schemes": ["bearer"] },\n  "defaultInputModes": ["text", "file"],\n  "skills": [\n    { "id": "extract_key_terms", "name": "Extract Key Terms", "description": "Identifies parties, dates, payment terms" },\n    { "id": "identify_risks", "name": "Identify Risks", "description": "Flags unusual clauses and liability concerns" },\n    { "id": "compare_contracts", "name": "Compare Contracts", "description": "Diffs two contracts and highlights material differences" }\n  ]\n};\n\nconsole.log("Agent Card:", agentCard.name);\nconsole.log("Skills:", agentCard.skills.length);\nagentCard.skills.forEach((s,i) => console.log(\`  \${i+1}. \${s.name} \u2014 \${s.description}\`));\nconsole.log("\\nA2A Task States: submitted \u2192 working \u2192 input-required \u2192 completed | failed | canceled");`},
-      interview:{question:'Explain the difference between MCP and A2A. When would you use each?',answer:`MCP is the agent-to-tool layer — how a single AI agent accesses external capabilities. A2A is the agent-to-agent layer — how two autonomous agents coordinate on a task.<br><br>Mental model: MCP is a USB standard for peripherals. A2A is a work assignment protocol between contractors.<br><br>In an enterprise system: a Coordinator Agent delegates to Specialist Agents via A2A, and each Specialist uses MCP to connect to its specific tools. Use A2A when the capability requires an autonomous agent maintaining state. Use MCP for stateless tool calls.`},
-      pmAngle:"The MCP vs A2A question will come up in almost every AI PM interview touching agentic products. The 30-second answer: 'MCP connects agents to tools. A2A connects agents to agents.'",
-      resources:[
-        {type:'GITHUB',title:'google/a2a — Official Spec',url:'https://github.com/google/a2a',note:'Read the README and the Agent Card schema spec.'},
-        {type:'BLOG',title:'Google: Announcing A2A',url:'https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/',note:'Original announcement — understand the strategic framing.'},
-        {type:'DOCS',title:'A2A Technical Spec',url:'https://google.github.io/a2a/',note:'Task lifecycle, streaming, push notifications.'},
-      ]
-    },
-  };
-  return data[day]||{};
+  return {};
 }
 </script>
 </body>
