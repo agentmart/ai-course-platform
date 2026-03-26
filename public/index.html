@@ -8,6 +8,9 @@
   <link
     href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap"
     rel="stylesheet">
+  <!-- Plausible Analytics — privacy-first, no cookies, GDPR compliant -->
+  <script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <style>
     :root {
       --bg: #f5f0e8;
@@ -804,7 +807,7 @@
       </div>
       <div id="auth-btns">
         <button class="btn btn-ghost" onclick="openSignIn()">Sign In</button>
-        <button class="btn btn-amber" onclick="scrollToPricing()">Get Access</button>
+        <button class="btn btn-amber" onclick="scrollToPricing()">Start Free</button>
       </div>
     </div>
   </nav>
@@ -971,54 +974,73 @@ for name,s in models.items():
   <div class="pricing" id="pricing">
     <div class="p-inner">
       <div class="p-label">Pricing</div>
-      <div class="p-title">One payment. Lifetime access.</div>
-      <div class="p-sub">No subscription. All future updates included. 7-day money-back guarantee.</div>
+      <div class="p-title">Start free. Upgrade when you're ready.</div>
+      <div class="p-sub">Try 15 days free. Unlock the full 60-day curriculum, progress tracking, and community with a subscription.</div>
+
+      <!-- Billing toggle -->
+      <div style="display:flex;justify-content:center;margin-bottom:36px;gap:8px;align-items:center;">
+        <span id="toggle-monthly" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(240,235,226,.6);cursor:pointer;" onclick="setBilling('monthly')">Monthly</span>
+        <div id="billing-toggle" onclick="toggleBilling()" style="width:44px;height:24px;background:rgba(200,89,10,.4);border-radius:12px;cursor:pointer;position:relative;transition:background .2s;">
+          <div id="billing-knob" style="width:20px;height:20px;background:#c8590a;border-radius:50%;position:absolute;top:2px;left:22px;transition:left .2s;"></div>
+        </div>
+        <span id="toggle-annual" style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#c8590a;cursor:pointer;" onclick="setBilling('annual')">Annual</span>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4ade80;margin-left:4px;">SAVE 22%</span>
+      </div>
+
       <div class="pgrid">
+        <!-- FREE -->
         <div class="pcard">
-          <div class="p-name">Self-Paced</div>
-          <div><span class="p-amt" id="p-basic">$147</span><span class="p-was">$247</span></div>
-          <div class="p-period">one-time · lifetime</div>
+          <div class="p-name">Free</div>
+          <div><span class="p-amt">$0</span></div>
+          <div class="p-period">forever · no card required</div>
           <ul class="p-feats">
-            <li>All 60 days of content</li>
-            <li>240+ specific tasks</li>
-            <li>Interview Q&A bank</li>
+            <li>Days 1&ndash;15 of course content</li>
+            <li>In-browser code execution</li>
+            <li>Interview Q&A (first 15 days)</li>
+            <li>Companies job board (view &amp; apply)</li>
             <li>Pre-selected resources</li>
           </ul>
-          <button class="p-btn p-btn-g" onclick="checkout('basic')">Get Self-Paced →</button>
+          <button class="p-btn p-btn-g" onclick="openSignIn()">Get Started Free &rarr;</button>
         </div>
+        <!-- MONTHLY / ANNUAL (dynamic) -->
         <div class="pcard hot">
-          <div class="hot-badge">Most Popular</div>
-          <div class="p-name">Full Access</div>
-          <div><span class="p-amt" id="p-full">$297</span><span class="p-was">$497</span></div>
-          <div class="p-period">one-time · lifetime</div>
+          <div class="hot-badge" id="plan-badge">Best Value</div>
+          <div class="p-name" id="plan-name">Annual</div>
+          <div>
+            <span class="p-amt" id="plan-price">$7</span>
+            <span class="p-was" id="plan-was">$9</span>
+          </div>
+          <div class="p-period" id="plan-period">per month &middot; billed $84/year</div>
           <ul class="p-feats">
-            <li>Everything in Self-Paced</li>
-            <li>In-browser code execution</li>
-            <li>Progress tracking & streaks</li>
-            <li>All future updates</li>
-            <li>Direct Q&A with instructor</li>
+            <li>Everything in Free</li>
+            <li><strong>All 60 days</strong> of course content</li>
+            <li>Progress tracking &amp; streaks</li>
+            <li>Save &amp; track job applications</li>
+            <li>Private Slack community</li>
+            <li>All future content updates</li>
+            <li id="cert-feat" style="">Completion certificate</li>
           </ul>
-          <button class="p-btn p-btn-a" onclick="checkout('full')">Get Full Access →</button>
+          <button class="p-btn p-btn-a" id="plan-btn" onclick="checkout(currentBilling)">Get Annual Access &rarr;</button>
         </div>
+        <!-- TEAM -->
         <div class="pcard">
-          <div class="p-name">Team · 5 Seats</div>
+          <div class="p-name">Team &middot; 5 Seats</div>
           <div><span class="p-amt" id="p-team">$997</span></div>
-          <div class="p-period">one-time · 5 seats</div>
+          <div class="p-period">one-time &middot; 5 seats</div>
           <ul class="p-feats">
-            <li>Full Access × 5</li>
+            <li>Full Access &times; 5</li>
             <li>Team progress dashboard</li>
             <li>60-min cohort kick-off call</li>
             <li>Private Slack channel</li>
           </ul>
-          <button class="p-btn p-btn-g" onclick="checkout('team')">Get Team Access →</button>
+          <button class="p-btn p-btn-g" onclick="checkout('team')">Get Team Access &rarr;</button>
         </div>
       </div>
       <div class="gbox">
-        <div class="gbox-icon">🛡️</div>
+        <div class="gbox-icon">&#x1F6E1;&#xFE0F;</div>
         <div>
-          <div class="gbox-title">7-Day Money-Back Guarantee</div>
-          <div class="gbox-text">Complete the first 7 days and don't feel better prepared — email us for a full refund.
-            No questions asked.</div>
+          <div class="gbox-title">Cancel Anytime &middot; 7-Day Money-Back Guarantee</div>
+          <div class="gbox-text">Subscriptions can be cancelled anytime from your billing portal. Not satisfied in the first 7 days? Email us for a full refund. No questions asked.</div>
         </div>
       </div>
     </div>
@@ -1185,6 +1207,8 @@ for name,s in models.items():
         openSignIn();
         return;
       }
+      // Track subscription intent
+      plausible('Checkout Started', {props: {tier: tier}});
       try {
         const token = await clerk.session.getToken();
         const r = await fetch('/api/create-checkout', {
@@ -1315,6 +1339,43 @@ models.forEach(m => {
     document.getElementById('demo-code').addEventListener('keydown', e => {
       if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runDemo(); }
     });
+
+    // ════════════════════════════════════════
+    // BILLING TOGGLE (Monthly ↔ Annual)
+    // ════════════════════════════════════════
+    let currentBilling = 'annual'; // default to annual (better value)
+
+    function setBilling(mode) {
+      currentBilling = mode;
+      updatePricingUI();
+    }
+
+    function toggleBilling() {
+      currentBilling = currentBilling === 'annual' ? 'monthly' : 'annual';
+      updatePricingUI();
+    }
+
+    function updatePricingUI() {
+      const isAnnual = currentBilling === 'annual';
+      // Toggle knob position
+      document.getElementById('billing-knob').style.left = isAnnual ? '22px' : '2px';
+      document.getElementById('billing-toggle').style.background = isAnnual ? 'rgba(200,89,10,.4)' : 'rgba(255,255,255,.15)';
+      // Toggle text highlight
+      document.getElementById('toggle-monthly').style.color = isAnnual ? 'rgba(240,235,226,.6)' : '#c8590a';
+      document.getElementById('toggle-annual').style.color = isAnnual ? '#c8590a' : 'rgba(240,235,226,.6)';
+      // Update card
+      document.getElementById('plan-badge').textContent = isAnnual ? 'Best Value' : 'Most Popular';
+      document.getElementById('plan-name').textContent = isAnnual ? 'Annual' : 'Monthly';
+      document.getElementById('plan-price').textContent = isAnnual ? '$7' : '$9';
+      document.getElementById('plan-was').textContent = isAnnual ? '$9' : '';
+      document.getElementById('plan-was').style.display = isAnnual ? '' : 'none';
+      document.getElementById('plan-period').textContent = isAnnual
+        ? 'per month \u00b7 billed $84/year'
+        : 'per month \u00b7 billed monthly';
+      document.getElementById('plan-btn').textContent = isAnnual ? 'Get Annual Access \u2192' : 'Get Monthly Access \u2192';
+      // Cert only for annual
+      document.getElementById('cert-feat').style.display = isAnnual ? '' : 'none';
+    }
   </script>
 </body>
 

@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Companies Hiring — becomeaipm.com</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Plausible Analytics -->
+<script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
+<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;--purple:#7c3aed;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
@@ -260,12 +263,13 @@ h1 em{color:var(--amber);font-style:italic;}
 <script>
 let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null;
 let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
+let userFeatures={saveJobs:false}; // determined by subscription tier
 
-// Boot: load Clerk, then decide gate vs content
+// Boot: load Clerk, then show content (companies page is free for all)
 (async()=>{
   try{
     const cfg = await fetch('/api/config').then(r=>r.json());
-    if(!cfg.clerkPublishableKey||!cfg.clerkDomain) return showGate();
+    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){ showContent(); loadCompanies(); return; }
     const s=document.createElement('script');
     s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
     s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
@@ -276,21 +280,26 @@ let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
       await clerk.load();
       if(clerk.user){
         user=clerk.user;
-        showContent();
-        loadCompanies();
-      } else {
-        showGate();
+        // Check subscription tier for save/track features
+        try{
+          const token=await clerk.session.getToken();
+          const r=await fetch('/api/check-access',{headers:{'Authorization':'Bearer '+token}});
+          const d=await r.json();
+          if(d.features) userFeatures=d.features;
+        }catch(e){}
       }
+      showContent();
+      loadCompanies();
       clerk.addListener(e=>{
         if(e.user&&!user){ user=e.user; closeSignIn(); showContent(); loadCompanies(); }
         if(!e.user&&user){ user=null; location.reload(); }
       });
     };
-    s.onerror=()=>showGate();
-  }catch(e){ showGate(); }
+    s.onerror=()=>{ showContent(); loadCompanies(); };
+  }catch(e){ showContent(); loadCompanies(); }
 })();
 
-function showGate(){ document.getElementById('auth-gate').classList.remove('hidden'); }
+function showGate(){ /* Companies page is now free — skip gate */ showContent(); loadCompanies(); }
 function showContent(){
   document.getElementById('auth-gate').classList.add('hidden');
   document.getElementById('main-nav').style.display='flex';
@@ -331,12 +340,22 @@ async function loadCompanies(){
 // Saved roles
 function toggleSave(jobId, jobTitle, companyName, e){
   e.stopPropagation();
+  // Free users: prompt to sign in or upgrade
+  if(!user){
+    openSignIn();
+    return;
+  }
+  if(!userFeatures.saveJobs){
+    if(confirm('Save Jobs is a paid feature. Upgrade to monthly or annual to save jobs and track applications.\n\nGo to pricing page?')){
+      location.href='/#pricing';
+    }
+    return;
+  }
   const key=String(jobId);
   if(saved[key]) delete saved[key];
   else saved[key]={jobTitle,companyName,savedAt:Date.now()};
   localStorage.setItem('saved_roles',JSON.stringify(saved));
   updateSavedBanner();
-  // Update button state
   const btn=document.getElementById('save-'+key);
   if(btn){
     btn.classList.toggle('saved',!!saved[key]);

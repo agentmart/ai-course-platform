@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>60-Day AI PM Course</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Plausible Analytics -->
+<script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
+<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
 <style>
 :root{--bg:#f5f0e8;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -133,6 +136,17 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <button class="gate-btn" onclick="location.href='/#pricing'">Get Access &rarr;</button>
 </div>
 
+<!-- Upgrade paywall shown when free user tries to access day 16+ -->
+<div id="upgrade-gate" style="display:none;position:fixed;inset:0;background:rgba(245,240,232,.97);z-index:500;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;">
+  <div style="font-family:'Fraunces',serif;font-size:32px;font-weight:900;color:var(--ink);margin-bottom:10px;">&#x1F512; Premium Content</div>
+  <div style="font-size:15px;color:var(--muted);max-width:500px;line-height:1.7;margin-bottom:12px;">Days 16&ndash;60 are available to paid subscribers. Upgrade to unlock the full 60-day curriculum, progress tracking, job alerts, and Slack community access.</div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);margin-bottom:28px;">You've completed the free preview (Days 1&ndash;15)</div>
+  <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+    <button style="padding:14px 30px;background:#c8590a;color:white;border:none;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="location.href='/#pricing'">Upgrade Now &rarr;</button>
+    <button style="padding:14px 30px;background:transparent;color:var(--ink);border:1px solid var(--border);border-radius:4px;font-size:14px;cursor:pointer;font-family:'DM Sans',sans-serif;" onclick="document.getElementById('upgrade-gate').style.display='none';renderDay(currentDay>maxDayUnlocked?maxDayUnlocked:currentDay);syncSidebar();">Stay on Free</button>
+  </div>
+</div>
+
 <div id="topbar" style="display:none">
   <a class="tb-home" href="/">&larr; Home</a>
   <a class="tb-home" href="/companies.html">Companies</a>
@@ -244,6 +258,7 @@ const DAY_TITLES = {
 };
 
 let clerk=null,cfg={},completed=new Set(),taskStates={},notes={},currentDay=1,pyodide=null,pyLoading=false;
+let maxDayUnlocked=15,userTier='free',userFeatures={progressTracking:false,saveJobs:false,slackCommunity:false,certification:false};
 
 (async function boot(){
   try{ const r=await fetch('/api/config'); cfg=await r.json(); }
@@ -263,14 +278,21 @@ let clerk=null,cfg={},completed=new Set(),taskStates={},notes={},currentDay=1,py
     catch(e){ showLdErr('Auth init failed: '+e.message); return; }
     if(!clerk.user){ hideLoader(); window.location.href='/'; return; }
     setLdText('CHECKING ACCESS...');
-    const hasAccess=await checkAccess();
-    if(!hasAccess){ hideLoader(); document.getElementById('gate').classList.add('open'); return; }
-    setLdText('LOADING PROGRESS...');
-    await loadProgress();
+    const accessInfo=await checkAccess();
+    if(!accessInfo){ hideLoader(); document.getElementById('gate').classList.add('open'); return; }
+    // Apply access info
+    maxDayUnlocked=accessInfo.maxDayUnlocked||15;
+    userTier=accessInfo.tier||'free';
+    userFeatures=accessInfo.features||{progressTracking:false,saveJobs:false,slackCommunity:false,certification:false};
+    if(userFeatures.progressTracking){
+      setLdText('LOADING PROGRESS...');
+      await loadProgress();
+    }
     renderNav(); renderSidebar(); renderDay(currentDay);
     document.getElementById('topbar').style.display='flex';
     document.getElementById('pb-wrap').style.display='block';
     document.getElementById('app').style.display='flex';
+    if(userTier==='free') showUpgradeBanner();
     updateProgress(); hideLoader();
   };
 })();
@@ -283,8 +305,10 @@ async function checkAccess(){
   try{
     const token=await clerk.session.getToken();
     const r=await fetch('/api/check-access',{headers:{'Authorization':'Bearer '+token}});
-    const d=await r.json(); return d.hasAccess===true;
-  }catch(e){ return false; }
+    const d=await r.json();
+    if(!d.hasAccess) return null;
+    return d; // { hasAccess, tier, maxDayUnlocked, features, subscriptionType, ... }
+  }catch(e){ return null; }
 }
 
 async function loadProgress(){
@@ -301,6 +325,7 @@ async function loadProgress(){
 }
 
 async function saveProgress(){
+  if(!userFeatures.progressTracking) return; // Free users don't save progress server-side
   try{
     const token=await clerk.session.getToken();
     await fetch('/api/save-progress',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({completed:[...completed],taskStates,notes})});
@@ -324,10 +349,15 @@ function renderSidebar(){
     const header=document.createElement('div'); header.className='sb-phase-header'; header.textContent=phase.label; container.appendChild(header);
     for(let d=phase.days[0];d<=phase.days[1];d++){
       const el=document.createElement('div');
-      el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'');
+      const isLocked=d>maxDayUnlocked;
+      el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'')+(isLocked?' locked':'');
       el.dataset.day=d;
-      el.innerHTML=`<div class="sb-day-num">D${String(d).padStart(2,'0')}</div><div class="sb-day-title">${DAY_TITLES[d]||'Day '+d}</div><div class="sb-check">${completed.has(d)?'&#10003;':''}</div>`;
-      el.addEventListener('click',()=>{ currentDay=d; renderDay(d); syncSidebar(); });
+      el.innerHTML=`<div class="sb-day-num">${isLocked?'&#x1F512;':''}D${String(d).padStart(2,'0')}</div><div class="sb-day-title">${DAY_TITLES[d]||'Day '+d}</div><div class="sb-check">${completed.has(d)?'&#10003;':''}</div>`;
+      el.addEventListener('click',()=>{
+        if(isLocked){ document.getElementById('upgrade-gate').style.display='flex'; return; }
+        currentDay=d; renderDay(d); syncSidebar();
+      });
+      if(isLocked) el.style.opacity='0.4';
       container.appendChild(el);
     }
   }
@@ -336,11 +366,24 @@ function renderSidebar(){
 function syncSidebar(){
   document.querySelectorAll('.sb-day').forEach(el=>{
     const d=Number(el.dataset.day);
-    el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'');
+    const isLocked=d>maxDayUnlocked;
+    el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'')+(isLocked?' locked':'');
     el.querySelector('.sb-check').innerHTML=completed.has(d)?'&#10003;':'';
+    el.style.opacity=isLocked?'0.4':'';
   });
   updateProgress(); updateStreak();
   document.getElementById('tb-day-label').textContent='Day '+currentDay;
+}
+
+function showUpgradeBanner(){
+  // Inject a persistent banner at the top of course content
+  const topbar=document.getElementById('topbar');
+  if(!topbar||document.getElementById('upgrade-banner')) return;
+  const banner=document.createElement('div');
+  banner.id='upgrade-banner';
+  banner.style.cssText='background:linear-gradient(90deg,#1a1512,#2a1f18);padding:8px 32px;display:flex;align-items:center;gap:12px;font-family:"IBM Plex Mono",monospace;font-size:11px;';
+  banner.innerHTML='<span style="color:#c8590a;">&#x1F513; FREE PLAN</span><span style="color:rgba(255,255,255,.35)">Days 1&ndash;15 unlocked &middot; Upgrade for all 60 days + progress tracking + Slack community</span><a href="/#pricing" style="margin-left:auto;color:#c8590a;text-decoration:none;padding:4px 12px;border:1px solid rgba(200,89,10,.4);border-radius:3px;white-space:nowrap;">Upgrade &rarr;</a>';
+  topbar.after(banner);
 }
 
 function updateProgress(){ const pct=Math.round((completed.size/60)*100); document.getElementById('pb-fill').style.width=pct+'%'; }
@@ -389,6 +432,7 @@ function toggleTask(day,i){
 
 function markDayComplete(day){
   completed.add(day);
+  plausible('Day Completed', {props: {day: day, tier: userTier}});
   const btn=document.getElementById('complete-btn');
   if(btn){ btn.innerHTML='&#10003; Day Completed'; btn.className='day-complete-btn done'; }
   syncSidebar(); saveProgress();

@@ -6,17 +6,22 @@
 
 -- User access table: tracks who has paid and at what tier
 CREATE TABLE IF NOT EXISTS public.user_access (
-  id                 BIGSERIAL PRIMARY KEY,
-  clerk_user_id      TEXT NOT NULL UNIQUE,   -- Clerk's user ID (sub claim in JWT)
-  email              TEXT,
-  tier               TEXT NOT NULL DEFAULT 'full',  -- 'basic' | 'full' | 'team'
-  access_level       INTEGER NOT NULL DEFAULT 2,    -- 1=basic, 2=full, 0=revoked
-  stripe_session_id  TEXT,
-  stripe_customer_id TEXT,
-  granted_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  revoked_at         TIMESTAMPTZ,
-  created_at         TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  updated_at         TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  id                    BIGSERIAL PRIMARY KEY,
+  clerk_user_id         TEXT NOT NULL UNIQUE,   -- Clerk's user ID (sub claim in JWT)
+  email                 TEXT,
+  tier                  TEXT NOT NULL DEFAULT 'free',  -- 'free' | 'monthly' | 'annual' | 'basic' | 'full' | 'team'
+  access_level          INTEGER NOT NULL DEFAULT 0,    -- 0=free, 1=basic, 2=full/paid, -1=revoked
+  subscription_type     TEXT NOT NULL DEFAULT 'free',  -- 'free' | 'monthly' | 'annual' | 'one_time'
+  stripe_subscription_id TEXT,                          -- Stripe subscription ID (for recurring billing)
+  stripe_session_id     TEXT,
+  stripe_customer_id    TEXT,
+  subscription_status   TEXT DEFAULT 'free',            -- 'free' | 'active' | 'past_due' | 'cancelled' | 'one_time'
+  subscription_start    TIMESTAMPTZ,
+  subscription_renews_at TIMESTAMPTZ,
+  granted_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  revoked_at            TIMESTAMPTZ,
+  created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at            TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- Progress tracking: per-user per-day completion
@@ -84,3 +89,37 @@ RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = NOW(); RETURN NEW; END; $$ LANGUAGE
 CREATE TRIGGER trg_user_access_updated
   BEFORE UPDATE ON public.user_access
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- ── Subscription Migration (run once on existing DBs) ──────────
+-- Adds subscription columns to existing user_access table.
+-- Safe to run multiple times (uses IF NOT EXISTS / column checks).
+
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_access' AND column_name='subscription_type') THEN
+    ALTER TABLE public.user_access ADD COLUMN subscription_type TEXT NOT NULL DEFAULT 'free';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_access' AND column_name='stripe_subscription_id') THEN
+    ALTER TABLE public.user_access ADD COLUMN stripe_subscription_id TEXT;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_access' AND column_name='subscription_status') THEN
+    ALTER TABLE public.user_access ADD COLUMN subscription_status TEXT DEFAULT 'free';
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_access' AND column_name='subscription_start') THEN
+    ALTER TABLE public.user_access ADD COLUMN subscription_start TIMESTAMPTZ;
+  END IF;
+  IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='user_access' AND column_name='subscription_renews_at') THEN
+    ALTER TABLE public.user_access ADD COLUMN subscription_renews_at TIMESTAMPTZ;
+  END IF;
+END $$;
+
+-- Migrate existing one-time purchasers: mark them as 'one_time' subscription type
+UPDATE public.user_access
+SET subscription_type = 'one_time',
+    subscription_status = 'one_time'
+WHERE stripe_session_id IS NOT NULL
+  AND subscription_type = 'free'
+  AND access_level > 0;
+
+-- Index for subscription lookups
+CREATE INDEX IF NOT EXISTS idx_user_access_stripe_sub ON public.user_access(stripe_subscription_id);
+CREATE INDEX IF NOT EXISTS idx_user_access_stripe_cust ON public.user_access(stripe_customer_id);
