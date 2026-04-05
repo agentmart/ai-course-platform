@@ -22,19 +22,6 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 .nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
 .nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
 .nav-signout:hover{color:var(--amber);}
-/* AUTH GATE */
-#auth-gate{position:fixed;inset:0;background:var(--ink);z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px;}
-#auth-gate.hidden{display:none;}
-.gate-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:.2em;margin-bottom:32px;}
-.gate-title{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,48px);font-weight:900;color:#f0ebe2;line-height:1.1;margin-bottom:12px;}
-.gate-sub{font-size:15px;color:rgba(240,235,226,.45);max-width:460px;line-height:1.7;margin-bottom:36px;}
-.gate-perks{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;margin-bottom:36px;}
-.gate-perk{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(240,235,226,.35);}
-.gate-perk::before{content:'✓ ';color:var(--amber);}
-.gate-btn{padding:14px 36px;background:var(--amber);color:white;border:none;border-radius:4px;font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
-.gate-btn:hover{background:#a84a06;}
-.gate-back{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.2);text-decoration:none;}
-.gate-back:hover{color:rgba(255,255,255,.5);}
 /* SIGN-IN OVERLAY */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .overlay.open{display:flex;}
@@ -149,7 +136,6 @@ h1 em{color:var(--amber);font-style:italic;}
 .ti.yc{background:rgba(234,88,12,.08);color:#ea580c;border-color:rgba(234,88,12,.18);}
 .tt{background:rgba(200,89,10,.07);color:#9a4008;border:1px solid rgba(200,89,10,.14);}
 .tags{display:flex;flex-wrap:wrap;gap:4px;}
-/* SAVED ROLES PANEL */
 .saved-banner{background:rgba(200,89,10,.07);border-bottom:1px solid rgba(200,89,10,.15);padding:8px 40px;display:none;align-items:center;gap:10px;}
 .saved-banner.show{display:flex;}
 .saved-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);}
@@ -160,40 +146,27 @@ h1 em{color:var(--amber);font-style:italic;}
 </head>
 <body>
 
-<!-- AUTH GATE -->
-<div id="auth-gate">
-  <div class="gate-logo">// AI.PL.60 — Product Leadership Track</div>
-  <h2 class="gate-title">AI Companies Hiring<br><span style="color:var(--amber);font-style:italic">PM Roles</span></h2>
-  <p class="gate-sub">Sign in to browse 241+ open PM roles at frontier AI companies, save roles you like, and track new openings daily.</p>
-  <div class="gate-perks">
-    <span class="gate-perk">241 live PM roles</span>
-    <span class="gate-perk">27 AI companies</span>
-    <span class="gate-perk">Updated daily</span>
-    <span class="gate-perk">Save roles</span>
-  </div>
-  <button class="gate-btn" onclick="openSignIn()">Sign In to View Roles →</button>
-  <a href="/" class="gate-back">← Back to home</a>
-</div>
-
 <!-- SIGN-IN OVERLAY -->
 <div class="overlay" id="overlay">
   <div class="clerk-wrap">
-    <button class="m-close" onclick="closeSignIn()">×</button>
+    <button class="m-close" onclick="closeSignIn()">&#215;</button>
     <div id="clerk-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
   </div>
 </div>
 
-<nav id="main-nav" style="display:none">
+<nav id="main-nav">
   <a class="nav-logo" href="/">AI.PL.60</a>
   <span class="nav-sep">/</span>
   <span class="nav-page">Companies</span>
   <div class="nav-sp"></div>
-  <a class="nav-pill" href="/lenny.html">🎤 Interview Prep</a>
-  <a class="nav-pill" href="/course.html">Open Course →</a>
+  <a class="nav-pill" href="/course.html">Course</a>
+  <a class="nav-pill" href="/analytics.html">Analytics</a>
+  <a class="nav-pill" href="/contact.html">Contact</a>
   <div class="nav-user" id="nav-user" style="display:none">
     <div class="nav-avatar" id="nav-avatar">?</div>
     <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
   </div>
+  <a class="nav-pill" id="signin-pill" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
 </nav>
 
 <div id="saved-banner" class="saved-banner">
@@ -201,7 +174,7 @@ h1 em{color:var(--amber);font-style:italic;}
   <button class="saved-clear" onclick="clearSaved()">Clear all</button>
 </div>
 
-<div id="main-content" style="display:none">
+<div id="main-content">
 <div class="hero">
   <div class="eyebrow">
     <span class="eyebrow-tag">Live Directory</span>
@@ -213,20 +186,20 @@ h1 em{color:var(--amber);font-style:italic;}
 <div class="controls">
   <div class="ctrl">
     <div class="row1">
-      <div class="sbox"><span class="si">🔍</span><input id="q" type="text" placeholder="Search company, tech, investor…" autocomplete="off"></div>
+      <div class="sbox"><span class="si">&#128269;</span><input id="q" type="text" placeholder="Search company, tech, investor…" autocomplete="off"></div>
       <span id="cnt">—</span>
     </div>
     <div class="row2">
       <span class="glbl">Show</span>
       <button class="chip"    data-f="all"    onclick="setF('all',this)">All</button>
-      <button class="chip on" data-f="hiring" onclick="setF('hiring',this)">● Has PM Roles</button>
-      <button class="chip"    data-f="saved"  onclick="setF('saved',this)">♥ Saved</button>
+      <button class="chip on" data-f="hiring" onclick="setF('hiring',this)">&#9679; Has PM Roles</button>
+      <button class="chip"    data-f="saved"  onclick="setF('saved',this)">&#9829; Saved</button>
       <button class="chip"    data-f="yc"     onclick="setF('yc',this)">YC Backed</button>
       <button class="chip"    data-f="big"    onclick="setF('big',this)">$500M+ Raise</button>
       <div class="sep"></div>
       <span class="glbl">Sort</span>
       <button class="chip sort"    data-s="date"    onclick="setS('date',this)">Latest</button>
-      <button class="chip sort"    data-s="funding" onclick="setS('funding',this)">Funding ↓</button>
+      <button class="chip sort"    data-s="funding" onclick="setS('funding',this)">Funding &#8595;</button>
       <button class="chip sort on" data-s="roles"   onclick="setS('roles',this)">Most Roles</button>
     </div>
   </div>
@@ -241,7 +214,7 @@ h1 em{color:var(--amber);font-style:italic;}
     <div class="sk-card"><div class="sk skh w60"></div><div class="sk skm w45"></div><div style="height:1px;background:var(--rule)"></div><div class="sk sks w75"></div><div class="sk sks w35"></div></div>
   </div>
   <div class="grid" id="grid" style="display:none"></div>
-  <div class="empty-wrap" id="empty" style="display:none"><div class="empty-ico">🔭</div><div class="empty-h">No companies found</div></div>
+  <div class="empty-wrap" id="empty" style="display:none"><div class="empty-ico">&#128301;</div><div class="empty-h">No companies found</div></div>
 </div>
 </div>
 
@@ -250,7 +223,7 @@ h1 em{color:var(--amber);font-style:italic;}
   <div class="drawer-header">
     <div class="dh-top">
       <div><div class="dh-company" id="dh-company">—</div><div class="dh-meta"><span class="dh-funding" id="dh-funding"></span><span class="dh-src" id="dh-src"></span></div><div class="dh-investors" id="dh-investors"></div></div>
-      <button class="dh-close" onclick="closeDrawer()">✕</button>
+      <button class="dh-close" onclick="closeDrawer()">&#10005;</button>
     </div>
   </div>
   <div class="drawer-tabs">
@@ -263,13 +236,11 @@ h1 em{color:var(--amber);font-style:italic;}
 <script>
 let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null;
 let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
-let userFeatures={saveJobs:false}; // determined by subscription tier
 
-// Boot: load Clerk, then show content (companies page is free for all)
 (async()=>{
   try{
     const cfg = await fetch('/api/config').then(r=>r.json());
-    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){ showContent(); loadCompanies(); return; }
+    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){ loadCompanies(); updateAuthUI(); return; }
     const s=document.createElement('script');
     s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
     s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
@@ -278,37 +249,32 @@ let userFeatures={saveJobs:false}; // determined by subscription tier
     s.onload=async()=>{
       clerk=window.Clerk;
       await clerk.load();
-      if(clerk.user){
-        user=clerk.user;
-        // Check subscription tier for save/track features
-        try{
-          const token=await clerk.session.getToken();
-          const r=await fetch('/api/check-access',{headers:{'Authorization':'Bearer '+token}});
-          const d=await r.json();
-          if(d.features) userFeatures=d.features;
-        }catch(e){}
-      }
-      showContent();
+      if(clerk.user) user=clerk.user;
+      updateAuthUI();
       loadCompanies();
       clerk.addListener(e=>{
-        if(e.user&&!user){ user=e.user; closeSignIn(); showContent(); loadCompanies(); }
-        if(!e.user&&user){ user=null; location.reload(); }
+        if(e.user&&!user){ user=e.user; closeSignIn(); updateAuthUI(); }
+        if(!e.user&&user){ user=null; updateAuthUI(); }
       });
     };
-    s.onerror=()=>{ showContent(); loadCompanies(); };
-  }catch(e){ showContent(); loadCompanies(); }
+    s.onerror=()=>{ loadCompanies(); updateAuthUI(); };
+  }catch(e){ loadCompanies(); updateAuthUI(); }
 })();
 
-function showGate(){ /* Companies page is now free — skip gate */ showContent(); loadCompanies(); }
-function showContent(){
-  document.getElementById('auth-gate').classList.add('hidden');
-  document.getElementById('main-nav').style.display='flex';
-  document.getElementById('main-content').style.display='block';
-  const av=document.getElementById('nav-avatar');
+function updateAuthUI(){
   const nu=document.getElementById('nav-user');
-  if(user){ av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase(); nu.style.display='flex'; }
+  const sp=document.getElementById('signin-pill');
+  if(user){
+    const av=document.getElementById('nav-avatar');
+    av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
+    nu.style.display='flex';
+    if(sp) sp.style.display='none';
+  } else {
+    nu.style.display='none';
+    if(sp) sp.style.display='inline-flex';
+  }
 }
-async function doSignOut(){ await clerk?.signOut(); location.reload(); }
+async function doSignOut(){ await clerk?.signOut(); user=null; updateAuthUI(); }
 
 function openSignIn(){
   document.getElementById('overlay').classList.add('open');
@@ -337,20 +303,9 @@ async function loadCompanies(){
   }catch(e){ document.getElementById('skeleton').style.display='none'; document.getElementById('empty').style.display='block'; }
 }
 
-// Saved roles
+// Save roles — open to all users (stored in localStorage)
 function toggleSave(jobId, jobTitle, companyName, e){
   e.stopPropagation();
-  // Free users: prompt to sign in or upgrade
-  if(!user){
-    openSignIn();
-    return;
-  }
-  if(!userFeatures.saveJobs){
-    if(confirm('Save Jobs is a paid feature. Upgrade to monthly or annual to save jobs and track applications.\n\nGo to pricing page?')){
-      location.href='/#pricing';
-    }
-    return;
-  }
   const key=String(jobId);
   if(saved[key]) delete saved[key];
   else saved[key]={jobTitle,companyName,savedAt:Date.now()};
@@ -359,7 +314,7 @@ function toggleSave(jobId, jobTitle, companyName, e){
   const btn=document.getElementById('save-'+key);
   if(btn){
     btn.classList.toggle('saved',!!saved[key]);
-    btn.textContent=saved[key]?'♥ Saved':'♡ Save';
+    btn.textContent=saved[key]?'&#9829; Saved':'&#9825; Save';
   }
 }
 function clearSaved(){ saved={}; localStorage.setItem('saved_roles','{}'); updateSavedBanner(); if(f==='saved')render(); }
@@ -368,9 +323,8 @@ function updateSavedBanner(){
   const banner=document.getElementById('saved-banner');
   banner.classList.toggle('show',count>0);
   document.getElementById('saved-txt').textContent=`${count} role${count===1?'':'s'} saved`;
-  // Also update saved filter chip
   const chip=document.querySelector('.chip[data-f="saved"]');
-  if(chip) chip.textContent=count>0?`♥ Saved (${count})`:'♥ Saved';
+  if(chip) chip.textContent=count>0?`&#9829; Saved (${count})`:'&#9829; Saved';
 }
 
 function setF(v,el){f=v;document.querySelectorAll('.chip[data-f]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
@@ -381,10 +335,7 @@ function getList(){
   let list=all;
   if(q)list=list.filter(c=>c.company_name.toLowerCase().includes(q)||(c.tech_stack||[]).some(t=>t.value?.toLowerCase().includes(q))||(c.investors||[]).some(i=>i.value?.toLowerCase().includes(q)));
   if(f==='hiring')list=list.filter(c=>(c.open_roles||0)>0);
-  if(f==='saved'){
-    const savedCompanies=new Set(Object.values(saved).map(s=>s.companyName));
-    list=list.filter(c=>savedCompanies.has(c.company_name));
-  }
+  if(f==='saved'){const savedCompanies=new Set(Object.values(saved).map(s=>s.companyName));list=list.filter(c=>savedCompanies.has(c.company_name));}
   if(f==='yc')list=list.filter(c=>(c.investors||[]).some(i=>/y combinator|yc/i.test(i.value||'')));
   if(f==='big')list=list.filter(c=>parseFund(c.funding_amount)>=500e6);
   if(s==='date')list=[...list].sort((a,b)=>(b.announcement_date||'')>(a.announcement_date||'')?1:-1);
@@ -404,7 +355,7 @@ function mkCard(c){
   const{bc,bt}=badge(c.source);
   const roles=c.open_roles||0;
   const rolesCls=c.roles_updated_at?(roles>0?'has':'zero'):'unk';
-  const rolesLabel=c.roles_updated_at?(roles>0?`● ${roles} PM role${roles===1?'':'s'}`:'○ No PM roles'):'○ Not checked yet';
+  const rolesLabel=c.roles_updated_at?(roles>0?`&#9679; ${roles} PM role${roles===1?'':'s'}`:'&#9675; No PM roles'):'&#9675; Not checked yet';
   const fund=c.funding_amount?c.funding_amount:'ATS TRACKED';
   const fundCls=c.funding_amount?'cfund':'cfund nil';
   return `<div class="card" onclick='openDrawer(${JSON.stringify(JSON.stringify(c))})'>
@@ -412,7 +363,7 @@ function mkCard(c){
 <div class="${fundCls}">${e(fund)}</div>
 <hr class="crule">
 ${inv.length?`<div style="margin-bottom:8px"><div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Investors</div><div class="tags">${inv.slice(0,3).map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
-<div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles →</span></div>
+<div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles &#8594;</span></div>
 </div>`;
 }
 function badge(src){if(!src)return{bc:'sb-vc',bt:'VC'};const l=src.toLowerCase();if(l.includes('yc')||l.includes('startup track'))return{bc:'sb-yc',bt:'YC'};if(l.includes('hn')||l.includes('hiring'))return{bc:'sb-hn',bt:'HN'};return{bc:'sb-vc',bt:'VC'};}
@@ -457,7 +408,7 @@ function renderJobsTab(){
   const jobs=(jobsCache[key]?.jobs)||[];
   const lr=activeCompany?.roles_updated_at?new Date(activeCompany.roles_updated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):null;
   const rrow=lr?`<div class="refresh-row"><div class="refresh-dot"></div><span class="refresh-txt">Refreshed ${lr}</span></div>`:'';
-  if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">🔭</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now. Check back tomorrow.</div></div>`;return;}
+  if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">&#128301;</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now. Check back tomorrow.</div></div>`;return;}
   body.innerHTML=rrow+`<div class="jobs-list">${jobs.map(j=>jobCard(j)).join('')}</div>`;
 }
 function jobCard(j){
@@ -466,12 +417,11 @@ function jobCard(j){
   const jurl=j.job_url||'';
   const jt=e(j.title);
   const cn=e(activeCompany?.company_name||'');
-  const cid=activeCompany?.id||'null';
   const isSaved=!!saved[String(j.id)];
   return `<div class="job-card">
 <div class="jc-top"><div class="jc-title">${jt}</div>${j.remote?'<span class="jc-remote">REMOTE</span>':''}</div>
-<div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">📍 ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div>
-<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'♥ Saved':'♡ Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},${cid},'${cn}','${jt}','${e(jurl)}')">Apply →</button></div></div>
+<div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">&#128205; ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div>
+<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'&#9829; Saved':'&#9825; Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},'${cn}','${jt}','${e(jurl)}')">Apply &#8594;</button></div></div>
 </div>`;
 }
 function renderAboutTab(){
@@ -480,7 +430,6 @@ function renderAboutTab(){
   const founders=(c.founder_names||[]).map(f=>f.value).filter(Boolean);
   const tech=(c.tech_stack||[]).map(t=>t.value).filter(Boolean);
   const inv=(c.investors||[]).map(i=>i.value).filter(Boolean);
-  const date=c.announcement_date?new Date(c.announcement_date+'T12:00:00').toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'}):'—';
   const key=c.id||c.company_name;
   const pmRoles=(jobsCache[key]?.jobs||[]).length;
   body.innerHTML=`<div class="about-body">
@@ -492,13 +441,13 @@ ${tech.length?`<div class="about-section"><div class="about-label">Tech Stack</d
 ${c.company_url?`<div class="about-section"><div class="about-label">Website</div><a class="about-url" href="${e(c.company_url)}" target="_blank" rel="noopener">${e(c.company_url)}</a></div>`:''}
 </div>`;
 }
-async function trackAndOpen(evt,jobId,companyId,companyName,jobTitle,jobUrl){
+async function trackAndOpen(evt,jobId,companyName,jobTitle,jobUrl){
   evt.preventDefault();if(!jobUrl)return;
   window.open(jobUrl,'_blank','noopener');
   try{
     let token=null;
     if(clerk?.session){try{token=await clerk.session.getToken();}catch(e){}}
-    fetch('/api/track-click',{method:'POST',headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},body:JSON.stringify({job_posting_id:jobId||null,company_id:companyId||null,company_name:companyName,job_title:jobTitle,job_url:jobUrl,referrer_page:'companies'})});
+    fetch('/api/track-click',{method:'POST',headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},body:JSON.stringify({job_posting_id:jobId||null,company_name:companyName,job_title:jobTitle,job_url:jobUrl,referrer_page:'companies'})});
   }catch(e){}
 }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDrawer(); closeSignIn(); } });

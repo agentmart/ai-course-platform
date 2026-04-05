@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Platform Analytics — becomeaipm.com</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
+<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+<style>
+:root{
+  --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
+  --rule:#d4cdc4;--amber:#c8590a;--teal:#0d6e6e;--card:#faf7f2;--border:#ccc4b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;}
+.nav-sp{flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:4px 11px;border:1px solid rgba(255,255,255,.1);border-radius:2px;transition:all .15s;}
+.nav-link:hover{color:var(--amber);border-color:var(--amber);}
+.hero{padding:60px 40px 40px;max-width:1100px;margin:0 auto;}
+.label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:16px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.5vw,56px);font-weight:900;line-height:1.05;margin-bottom:14px;}
+h1 em{color:var(--amber);font-style:italic;}
+.sub{font-size:16px;color:var(--ink2);max-width:640px;line-height:1.7;margin-bottom:40px;}
+.privacy-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(13,110,110,.08);border:1px solid rgba(13,110,110,.2);padding:7px 16px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);margin-bottom:48px;}
+.section{padding:0 40px 60px;max-width:1100px;margin:0 auto;}
+.sec-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:24px;}
+.sec-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;}
+@media(max-width:900px){.grid3{grid-template-columns:1fr 1fr;}.grid4{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}.section,.hero{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px;}
+.sc-n{font-family:'Fraunces',serif;font-size:40px;font-weight:900;color:var(--amber);line-height:1;margin-bottom:6px;}
+.sc-l{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.sc-sub{font-size:12px;color:var(--muted);margin-top:6px;}
+.event-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.ev-name{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:.1em;margin-bottom:6px;}
+.ev-desc{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:10px;}
+.ev-props{display:flex;gap:6px;flex-wrap:wrap;}
+.ev-prop{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(200,89,10,.08);color:#9a4008;border:1px solid rgba(200,89,10,.15);}
+.arch-card{background:var(--ink);border-radius:8px;padding:40px;margin-bottom:40px;}
+.arch-inner{max-width:700px;}
+.arch-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+.arch-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#f0ebe2;margin-bottom:14px;}
+.arch-body{font-size:14px;color:rgba(240,235,226,.5);line-height:1.8;}
+.arch-body p{margin-bottom:12px;}
+.arch-body strong{color:rgba(240,235,226,.8);}
+.pipe-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
+.pipe-step{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:6px 14px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);}
+.pipe-arrow{color:rgba(255,255,255,.2);font-size:14px;}
+.principles-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:600px){.principles-grid{grid-template-columns:1fr;}}
+.principle{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px;}
+.pr-icon{font-size:20px;margin-bottom:10px;}
+.pr-title{font-size:14px;font-weight:700;margin-bottom:6px;}
+.pr-body{font-size:13px;color:var(--muted);line-height:1.6;}
+.divider{height:1px;background:var(--rule);margin:0 40px 60px;}
+.cta-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 40px;margin-bottom:60px;}
+.cta-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.cta-text h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.cta-text p{font-size:14px;color:var(--muted);}
+.cta-btn{padding:11px 26px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;white-space:nowrap;}
+.cta-btn:hover{background:var(--amber);}
+footer{background:var(--ink);color:rgba(255,255,255,.25);padding:28px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+footer a{color:rgba(255,255,255,.3);text-decoration:none;}
+footer a:hover{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/">// AI.PL.60</a>
+  <div class="nav-sp"></div>
+  <a class="nav-link" href="/course.html">Course</a>
+  <a class="nav-link" href="/companies.html">Companies</a>
+  <a class="nav-link" href="/contact.html">Contact</a>
+</nav>
+
+<div class="hero">
+  <div class="label">Platform Analytics — Aggregate &amp; Privacy-First</div>
+  <h1>User behavior,<br><em>without the surveillance</em></h1>
+  <p class="sub">This platform tracks aggregate usage patterns using Plausible Analytics — no cookies, no cross-site tracking, no personal data. What’s shown here is how PMs design data systems: with privacy as the default, not an afterthought.</p>
+  <div class="privacy-badge">&#10003; No cookies &middot; No personal data &middot; GDPR compliant &middot; Plausible Analytics</div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Live Platform Metrics — 30 Day Rolling</div>
+  <div class="grid4">
+    <div class="stat-card">
+      <div class="sc-n" id="stat-pv">—</div>
+      <div class="sc-l">Page Views</div>
+      <div class="sc-sub">Across all pages</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-n" id="stat-uv">—</div>
+      <div class="sc-l">Unique Visitors</div>
+      <div class="sc-sub">IP-hashed, no PII</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-n" id="stat-days">—</div>
+      <div class="sc-l">Days Completed</div>
+      <div class="sc-sub">Custom event total</div>
+    </div>
+    <div class="stat-card">
+      <div class="sc-n" id="stat-co">—</div>
+      <div class="sc-l">Companies Viewed</div>
+      <div class="sc-sub">Job board engagement</div>
+    </div>
+  </div>
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 24px;display:flex;align-items:center;gap:12px;">
+    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Live data is available in the Plausible dashboard. These counters update when the public API is configured.</div>
+    <a href="https://plausible.io/becomeaipm.com" target="_blank" rel="noopener" style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);text-decoration:none;white-space:nowrap;padding:5px 12px;border:1px solid rgba(200,89,10,.3);border-radius:3px;">Plausible Dashboard &#8599;</a>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Custom Events Tracked</div>
+  <div class="sec-title">What we measure — and why</div>
+  <div class="grid3">
+    <div class="event-card">
+      <div class="ev-name">Day Completed</div>
+      <div class="ev-desc">Fired when a user marks a course day complete. Measures curriculum engagement and learning velocity.</div>
+      <div class="ev-props"><span class="ev-prop">day: number</span></div>
+    </div>
+    <div class="event-card">
+      <div class="ev-name">Checkout Started</div>
+      <div class="ev-desc">Fired when a user initiates a Stripe checkout. Tracks conversion funnel entry point.</div>
+      <div class="ev-props"><span class="ev-prop">tier: monthly | annual | team</span></div>
+    </div>
+    <div class="event-card">
+      <div class="ev-name">Contact Click</div>
+      <div class="ev-desc">Fired when a visitor clicks a contact method. Measures which channels drive outreach.</div>
+      <div class="ev-props"><span class="ev-prop">channel: linkedin | email | github</span></div>
+    </div>
+    <div class="event-card">
+      <div class="ev-name">Pageview</div>
+      <div class="ev-desc">Standard Plausible pageview. Automatically tracked on every page load, no extra code required.</div>
+      <div class="ev-props"><span class="ev-prop">url: path</span><span class="ev-prop">referrer</span><span class="ev-prop">device</span></div>
+    </div>
+    <div class="event-card">
+      <div class="ev-name">Outbound Link</div>
+      <div class="ev-desc">Auto-tracked by Plausible on all external links. Shows which resources users click through to.</div>
+      <div class="ev-props"><span class="ev-prop">url: destination</span></div>
+    </div>
+    <div class="event-card">
+      <div class="ev-name">File Download</div>
+      <div class="ev-desc">Tracked if users download any resources linked from course days. Measures resource utility.</div>
+      <div class="ev-props"><span class="ev-prop">file: name</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="arch-card">
+    <div class="arch-inner">
+      <div class="arch-tag">Architecture</div>
+      <div class="arch-title">How the analytics pipeline works</div>
+      <div class="arch-body">
+        <p>This platform uses <strong>Plausible Analytics</strong> — an open-source, privacy-respecting alternative to Google Analytics. The script is ~1KB, loads async, and doesn’t set any cookies.</p>
+        <p>Custom events are fired via <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(200,89,10,.9);">plausible('Event Name', {props: {...}})</code> at meaningful interaction points. No third-party SDKs, no data brokers.</p>
+        <p>The job board uses <strong>GitHub Actions</strong> workflows — a weekly company discovery cron and a daily ATS status check. All job metadata flows into Supabase, which also stores user progress. No user data is shared with analytics.</p>
+      </div>
+      <div class="pipe-row">
+        <div class="pipe-step">User Action</div>
+        <div class="pipe-arrow">&#8594;</div>
+        <div class="pipe-step">Plausible Script</div>
+        <div class="pipe-arrow">&#8594;</div>
+        <div class="pipe-step">Plausible EU Servers</div>
+        <div class="pipe-arrow">&#8594;</div>
+        <div class="pipe-step">Aggregate Dashboard</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Design Principles</div>
+  <div class="sec-title">How a PM thinks about analytics</div>
+  <div class="principles-grid">
+    <div class="principle">
+      <div class="pr-icon">&#128274;</div>
+      <div class="pr-title">Privacy by default</div>
+      <div class="pr-body">No cookies, no fingerprinting, no cross-site tracking. Data is aggregated at collection — there’s nothing to leak because nothing identifiable is stored.</div>
+    </div>
+    <div class="principle">
+      <div class="pr-icon">&#127919;</div>
+      <div class="pr-title">Instrument what matters</div>
+      <div class="pr-body">Three custom events cover the full user journey: engagement (Day Completed), conversion (Checkout Started), and reach (Contact Click). Everything else is noise.</div>
+    </div>
+    <div class="principle">
+      <div class="pr-icon">&#9889;</div>
+      <div class="pr-title">Performance first</div>
+      <div class="pr-body">The Plausible script is ~1KB and loads asynchronously. It doesn’t block rendering, doesn’t add GDPR banners, and doesn’t slow down the course experience.</div>
+    </div>
+    <div class="principle">
+      <div class="pr-icon">&#128202;</div>
+      <div class="pr-title">Separate product data from analytics</div>
+      <div class="pr-body">User progress, job applications, and notes live in Supabase — not in analytics. Analytics answers “what happened”; the product database answers “who did it.”</div>
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-text">
+      <h2>See this thinking applied to a real product</h2>
+      <p>The same PM instincts behind this analytics design run through the entire 60-day curriculum.</p>
+    </div>
+    <a class="cta-btn" href="/course.html">Explore the Course &#8594;</a>
+  </div>
+</div>
+
+<footer>
+  <p>&copy; 2025 Stavan Mehta &middot; <a href="/">becomeaipm.com</a> &middot; <a href="mailto:hello@agentmart.ai">hello@agentmart.ai</a></p>
+</footer>
+
+<script>
+// Attempt to load live stats from Plausible API if available
+// Falls back gracefully if endpoint isn't configured
+(async function loadStats() {
+  try {
+    const r = await fetch('/api/analytics-stats', { signal: AbortSignal.timeout(4000) });
+    if (!r.ok) return;
+    const d = await r.json();
+    if (d.pageviews) document.getElementById('stat-pv').textContent = fmt(d.pageviews);
+    if (d.visitors) document.getElementById('stat-uv').textContent = fmt(d.visitors);
+    if (d.daysCompleted) document.getElementById('stat-days').textContent = fmt(d.daysCompleted);
+    if (d.companiesViewed) document.getElementById('stat-co').textContent = fmt(d.companiesViewed);
+  } catch(e) {
+    // Silently fail — stats endpoint may not be configured yet
+  }
+})();
+
+function fmt(n) {
+  if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'k';
+  return String(n);
+}
+</script>
+</body>
+</html>
