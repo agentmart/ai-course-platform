@@ -27,7 +27,7 @@ const DRY_RUN  = process.env.DRY_RUN === 'true';
 const GH_TOKEN = process.env.GITHUB_TOKEN;       // auto-injected by Actions
 const supabase  = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
 
-const report = { sources: {}, added: 0, updated: 0, errors: [], companies: [] };
+const report = { sources: {}, upserted: 0, updated: 0, errors: [], companies: [] };
 
 // ─────────────────────────────────────────────────────────
 // GitHub Models: OpenAI-compatible chat completions
@@ -112,14 +112,16 @@ async function fetchYCCompanies() {
   const batches = ['W26', 'W25', 'S25'];
   const companies = [];
 
+  const algoliaKey = process.env.YC_ALGOLIA_API_KEY || 'Gy9bmiXhDiTBl4NCbLJv3iYGBuGQmSJRlQFf1gms';
+  const algoliaAppId = process.env.YC_ALGOLIA_APP_ID || '45BWZJ1SGC';
   for (const batch of batches) {
     try {
-      const res = await fetch('https://45bwzj1sgc-dsn.algolia.net/1/indexes/*/queries', {
+      const res = await fetch(`https://${algoliaAppId.toLowerCase()}-dsn.algolia.net/1/indexes/*/queries`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'X-Algolia-API-Key': 'Gy9bmiXhDiTBl4NCbLJv3iYGBuGQmSJRlQFf1gms',
-          'X-Algolia-Application-Id': '45BWZJ1SGC',
+          'X-Algolia-API-Key': algoliaKey,
+          'X-Algolia-Application-Id': algoliaAppId,
         },
         body: JSON.stringify({
           requests: [{
@@ -245,7 +247,7 @@ ${rawText}`,
 // 4. UPSERT TO SUPABASE
 // ─────────────────────────────────────────────────────────
 async function upsertCompanies(companies) {
-  if (!companies.length) { console.log('  No companies to upsert'); return { added: 0 }; }
+  if (!companies.length) { console.log('  No companies to upsert'); return { upserted: 0 }; }
 
   // Deduplicate by lowercase company name — latest entry wins
   const seen = new Map();
@@ -259,10 +261,10 @@ async function upsertCompanies(companies) {
   if (DRY_RUN) {
     console.log('  DRY RUN — no writes performed');
     report.companies = deduped.map(c => c.company_name);
-    return { added: 0 };
+    return { upserted: 0 };
   }
 
-  let added = 0;
+  let upserted = 0;
   // Batch in groups of 20 to stay within Supabase payload limits
   for (let i = 0; i < deduped.length; i += 20) {
     const chunk = deduped.slice(i, i + 20);
@@ -275,23 +277,23 @@ async function upsertCompanies(companies) {
       console.error(`  Batch ${Math.floor(i / 20) + 1} error:`, error.message);
       report.errors.push({ source: 'supabase', error: error.message });
     } else {
-      added += (data || []).length;
+      upserted += (data || []).length;
       console.log(`  Batch ${Math.floor(i / 20) + 1}: ${(data || []).length} rows`);
     }
   }
 
   report.companies = deduped.map(c => c.company_name);
-  return { added };
+  return { upserted };
 }
 
 // ─────────────────────────────────────────────────────────
 // 5. LOG SYNC RUN
 // ─────────────────────────────────────────────────────────
-async function logRun(added) {
+async function logRun(upserted) {
   if (DRY_RUN) return;
   await supabase.from('sync_log').insert({
     source: 'github-actions-weekly',
-    added,
+    added: upserted,
     errors: report.errors.length,
     notes: Object.entries(report.sources).map(([k, v]) => `${k}=${v}`).join(', '),
   });
@@ -333,13 +335,13 @@ async function main() {
   const all = [...ycCompanies, ...hnCompanies];
   console.log(`\n📊 Total candidates: ${all.length} (YC: ${ycCompanies.length}, HN: ${hnCompanies.length})`);
 
-  const { added } = await upsertCompanies(all);
-  await logRun(added);
+  const { upserted } = await upsertCompanies(all);
+  await logRun(upserted);
 
-  report.added = added;
+  report.upserted = upserted;
   writeFileSync('sync-report.json', JSON.stringify(report, null, 2));
 
-  console.log(`\n✅ Done — added/updated: ${added}, errors: ${report.errors.length}`);
+  console.log(`\n✅ Done — upserted: ${upserted}, errors: ${report.errors.length}`);
   if (report.errors.length > 0) {
     console.error('Errors:', JSON.stringify(report.errors, null, 2));
     process.exitCode = 1;

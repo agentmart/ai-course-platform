@@ -11,35 +11,42 @@ export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method not allowed' });
 
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Cache-Control', 'private, no-store');
 
   try {
-    // Fetch all users with progress data
-    const { data: users, error } = await supabase
-      .from('user_access')
-      .select('clerk_user_id, first_name, last_name, progress_data, subscription_type, updated_at')
-      .not('progress_data', 'is', null);
+    // Paginated fetch to avoid loading entire table into memory
+    const pageSize = 1000;
+    let from = 0;
+    let allUsers = [];
 
-    if (error) throw error;
+    while (true) {
+      const { data: batch, error } = await supabase
+        .from('user_access')
+        .select('clerk_user_id, progress_data, subscription_type, updated_at')
+        .not('progress_data', 'is', null)
+        .order('clerk_user_id', { ascending: true })
+        .range(from, from + pageSize - 1);
+
+      if (error) throw error;
+      if (!batch || batch.length === 0) break;
+      allUsers = allUsers.concat(batch);
+      if (batch.length < pageSize) break;
+      from += pageSize;
+    }
 
     // Aggregate stats
-    let totalUsers = users?.length || 0;
+    let totalUsers = allUsers.length;
     let totalDaysCompleted = 0;
     const dayCounts = {};
 
-    const leaderboard = (users || [])
+    const leaderboard = allUsers
       .map(u => {
         const completed = u.progress_data?.completed || [];
         const count = completed.length;
         totalDaysCompleted += count;
         completed.forEach(d => { dayCounts[d] = (dayCounts[d] || 0) + 1; });
 
-        // Privacy: first name + last initial only
-        const firstName = u.first_name || 'Anonymous';
-        const lastInitial = u.last_name ? u.last_name[0] + '.' : '';
-
         return {
-          displayName: lastInitial ? `${firstName} ${lastInitial}` : firstName,
+          displayName: 'User',
           daysCompleted: count,
           tier: u.subscription_type || 'free',
         };
@@ -71,16 +78,17 @@ export default async function handler(req, res) {
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '');
     if (token) {
+      res.setHeader('Cache-Control', 'private, no-store');
       try {
         const claims = await verifyClerkToken(token);
         const userId = claims.sub;
-        const me = users?.find(u => u.clerk_user_id === userId);
+        const me = allUsers.find(u => u.clerk_user_id === userId);
         if (me) {
           const myCompleted = me.progress_data?.completed || [];
           const myCount = myCompleted.length;
 
           // Calculate percentile rank
-          const allCounts = (users || []).map(u => (u.progress_data?.completed || []).length);
+          const allCounts = allUsers.map(u => (u.progress_data?.completed || []).length);
           const below = allCounts.filter(c => c < myCount).length;
           const percentile = totalUsers > 0 ? Math.round((below / totalUsers) * 100) : 0;
 
@@ -105,6 +113,8 @@ export default async function handler(req, res) {
       } catch(e) {
         // Token invalid — skip personal stats
       }
+    } else {
+      res.setHeader('Cache-Control', 'public, max-age=60');
     }
 
     return res.status(200).json(result);

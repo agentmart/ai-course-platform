@@ -176,15 +176,15 @@ var turnstileSiteKey = '';
     var res = await fetch('/api/config');
     var cfg = await res.json();
 
-    // Initialize Turnstile captcha
+    // Initialize Turnstile captcha — store widgetId for getResponse()/reset()
     turnstileSiteKey = cfg.turnstileSiteKey || '';
     if (turnstileSiteKey && window.turnstile) {
-      window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
+      window.turnstileWidgetId = window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
     } else if (turnstileSiteKey) {
       var checkTurnstile = setInterval(function() {
         if (window.turnstile) {
           clearInterval(checkTurnstile);
-          window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
+          window.turnstileWidgetId = window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
         }
       }, 200);
       setTimeout(function() { clearInterval(checkTurnstile); }, 10000);
@@ -217,8 +217,8 @@ async function submitContact(evt) {
 
   try {
     var turnstileResponse = '';
-    if (window.turnstile) {
-      turnstileResponse = window.turnstile.getResponse('#cf-turnstile') || '';
+    if (window.turnstile && window.turnstileWidgetId != null) {
+      turnstileResponse = window.turnstile.getResponse(window.turnstileWidgetId) || '';
     }
 
     var body = {
@@ -241,7 +241,7 @@ async function submitContact(evt) {
       msg.textContent = 'Message sent! We\'ll get back to you within 24 hours.';
       msg.style.display = 'block';
       document.getElementById('contact-form').reset();
-      if (window.turnstile) window.turnstile.reset('#cf-turnstile');
+      if (window.turnstile && window.turnstileWidgetId != null) window.turnstile.reset(window.turnstileWidgetId);
       if (window.pendo && pendo.track) pendo.track('Contact Form Submitted', { subject: body.subject });
     } else {
       msg.className = 'form-msg error';

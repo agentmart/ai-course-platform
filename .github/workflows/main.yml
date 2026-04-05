@@ -37,7 +37,7 @@ jobs:
         env:
           # Use a Personal Access Token with repo and PR permissions 
           # instead of the default GITHUB_TOKEN to bypass default restrictions.
-          GH_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
         run: |
           # Requires branch protection rules to be enabled on `main` branch to effectively merge
           # Automatically select merge or squash or rebase based on your workflow

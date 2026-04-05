@@ -22,7 +22,12 @@ export default async function handler(req, res) {
     return res.status(401).json({ error: 'Authentication required' });
   }
   const token = authHeader.replace('Bearer ', '');
-  const clerkUser = await verifyClerkToken(token);
+  let clerkUser;
+  try {
+    clerkUser = await verifyClerkToken(token);
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid token' });
+  }
   if (!clerkUser) {
     return res.status(401).json({ error: 'Invalid token' });
   }
@@ -41,7 +46,7 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'Invalid category.' });
   }
 
-  const ghToken = process.env.GITHUB_TOKEN;
+  const ghToken = process.env.GH_PAT_TOKEN;
   if (!ghToken) {
     return res.status(500).json({ error: 'Feedback system not configured.' });
   }
