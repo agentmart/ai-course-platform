@@ -5,11 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact — becomeaipm.com</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<!-- Pendo Analytics (initialized after Clerk auth loads) -->
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 <style>
 :root{
   --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
   --rule:#d4cdc4;--amber:#c8590a;--amber-light:#f4e4d4;--teal:#0d6e6e;--card:#faf7f2;--border:#ccc4b8;
+  --green:#16a34a;--red:#dc2626;
 }
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
@@ -24,15 +25,27 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 h1{font-family:'Fraunces',serif;font-size:clamp(36px,5vw,64px);font-weight:900;line-height:1.05;margin-bottom:20px;}
 h1 em{color:var(--amber);font-style:italic;}
 .sub{font-size:18px;color:var(--ink2);max-width:580px;line-height:1.7;margin-bottom:48px;}
-.contact-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;max-width:900px;margin:0 auto;padding:0 40px 80px;}
-@media(max-width:700px){.contact-grid{grid-template-columns:1fr;}.hero,.contact-grid,.faq-section{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
-.contact-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px;}
-.cc-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
-.cc-title{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:10px;}
-.cc-body{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:24px;}
+.content-grid{display:grid;grid-template-columns:1.2fr 1fr;gap:40px;max-width:900px;margin:0 auto;padding:0 40px 80px;align-items:start;}
+@media(max-width:700px){.content-grid{grid-template-columns:1fr;}.hero,.content-grid,.faq-section{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
+.form-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px;}
+.form-card h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:20px;}
+.form-group{margin-bottom:16px;}
+.form-group label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--ink);font:14px 'DM Sans',sans-serif;outline:none;transition:border-color .15s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--amber);}
+.form-group textarea{min-height:120px;resize:vertical;}
+.form-submit{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;width:100%;justify-content:center;}
+.form-submit:hover{background:var(--amber);}
+.form-submit:disabled{opacity:.5;cursor:not-allowed;}
+.form-msg{margin-top:12px;padding:10px 14px;border-radius:4px;font-size:13px;display:none;}
+.form-msg.success{display:block;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);color:var(--green);}
+.form-msg.error{display:block;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:var(--red);}
+.sidebar{display:flex;flex-direction:column;gap:20px;}
+.contact-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;}
+.cc-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:12px;}
+.cc-title{font-family:'Fraunces',serif;font-size:20px;font-weight:700;margin-bottom:8px;}
+.cc-body{font-size:14px;color:var(--ink2);line-height:1.7;margin-bottom:16px;}
 .cc-link{display:inline-flex;align-items:center;gap:8px;padding:10px 22px;border-radius:3px;font-size:13px;font-weight:600;text-decoration:none;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;}
-.cc-link-primary{background:var(--ink);color:white;}
-.cc-link-primary:hover{background:var(--amber);}
 .cc-link-ghost{background:transparent;border:1px solid var(--border);color:var(--ink2);}
 .cc-link-ghost:hover{border-color:var(--amber);color:var(--amber);}
 .faq-section{padding:0 40px 80px;max-width:900px;margin:0 auto;}
@@ -64,27 +77,58 @@ footer a:hover{color:var(--amber);}
 <div class="hero">
   <div class="label">Support &amp; Feedback</div>
   <h1>Get in <em>touch</em></h1>
-  <p class="sub">Have a question about the course, need help with your account, or want to share feedback? We’d love to hear from you.</p>
+  <p class="sub">Have a question about the course, need help, or want to share feedback? We'd love to hear from you.</p>
 </div>
 
-<div class="contact-grid">
-  <div class="contact-card">
-    <div class="cc-label">Support</div>
-    <div class="cc-title">Email</div>
-    <div class="cc-body">For questions about the course, billing, account access, or general feedback. We respond within 24 hours.</div>
-    <a class="cc-link cc-link-primary" href="mailto:hello@becomeaipm.com" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'email'})">hello@becomeaipm.com &#8594;</a>
+<div class="content-grid">
+  <!-- CONTACT FORM -->
+  <div class="form-card">
+    <h2>Send a Message</h2>
+    <form id="contact-form" onsubmit="return submitContact(event)">
+      <div class="form-group">
+        <label for="cf-name">Name</label>
+        <input type="text" id="cf-name" name="name" required placeholder="Your name" maxlength="100">
+      </div>
+      <div class="form-group">
+        <label for="cf-email">Email</label>
+        <input type="email" id="cf-email" name="email" required placeholder="you@example.com" maxlength="200">
+      </div>
+      <div class="form-group">
+        <label for="cf-subject">Subject</label>
+        <select id="cf-subject" name="subject" required>
+          <option value="">Select a topic…</option>
+          <option value="bug">Bug Report</option>
+          <option value="feature">Feature Request</option>
+          <option value="content">Course Content Issue</option>
+          <option value="partnership">Partnership Inquiry</option>
+          <option value="general">General Question</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="cf-message">Message</label>
+        <textarea id="cf-message" name="message" required placeholder="Tell us more…" maxlength="5000"></textarea>
+      </div>
+      <div class="cf-turnstile" id="cf-turnstile"></div>
+      <div style="height:16px"></div>
+      <button type="submit" class="form-submit" id="cf-submit">Send Message &#8594;</button>
+      <div class="form-msg" id="cf-msg"></div>
+    </form>
   </div>
-  <div class="contact-card">
-    <div class="cc-label">Updates</div>
-    <div class="cc-title">LinkedIn</div>
-    <div class="cc-body">Follow for course updates, new content announcements, and AI product management insights.</div>
-    <a class="cc-link cc-link-ghost" href="https://linkedin.com/in/stavanmehta" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'linkedin'})">Follow on LinkedIn &#8594;</a>
-  </div>
-  <div class="contact-card">
-    <div class="cc-label">Open Source</div>
-    <div class="cc-title">GitHub</div>
-    <div class="cc-body">Found a bug? Want to suggest an improvement? Open an issue or contribute to the platform on GitHub.</div>
-    <a class="cc-link cc-link-ghost" href="https://github.com/agentmart" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'github'})">github.com/agentmart &#8594;</a>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="contact-card">
+      <div class="cc-label">Updates</div>
+      <div class="cc-title">LinkedIn</div>
+      <div class="cc-body">Follow our company page for course updates, new content, and AI product management insights.</div>
+      <a class="cc-link cc-link-ghost" href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'linkedin'})">Follow on LinkedIn &#8594;</a>
+    </div>
+    <div class="contact-card">
+      <div class="cc-label">Report a Bug</div>
+      <div class="cc-title">GitHub</div>
+      <div class="cc-body">Found a bug? Submit it via the form and we'll create a tracked issue automatically — or open one directly on GitHub.</div>
+      <a class="cc-link cc-link-ghost" href="https://github.com/orgs/agentmart/projects/1/views/1" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'github'})">View Bug Tracker &#8594;</a>
+    </div>
   </div>
 </div>
 
@@ -94,51 +138,126 @@ footer a:hover{color:var(--amber);}
 
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">Is the course really free?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Yes — the first 15 days are completely free with no credit card required. Paid plans unlock all 60 days, the job board, community access, and more.</div>
+    <div class="faq-a">Yes — all 60 days are completely free. Sign in with Google, Apple, LinkedIn, or email and get instant access to the full course. No credit card required, ever.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">Who is this course for?<span class="faq-chevron">&#9660;</span></div>
+    <div class="faq-a">Anyone working in or transitioning into AI product management. Whether you're a PM at a tech company, an aspiring AI PM, or an engineer looking to understand the PM perspective — this course covers everything from MCP and A2A protocols to Claude Code, evals, and red-teaming.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">What do I need to get started?<span class="faq-chevron">&#9660;</span></div>
     <div class="faq-a">Just a browser. The code labs run Python and JavaScript directly in your browser via WebAssembly — no local setup, no installs, no API keys required.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Can I cancel my subscription anytime?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Absolutely. You can cancel from your billing portal at any time. Your access continues through the end of your current billing period.</div>
+    <div class="faq-q">Can I track my progress?<span class="faq-chevron">&#9660;</span></div>
+    <div class="faq-a">Yes — once you sign in, your progress is saved automatically. Complete days, check off tasks, and add personal notes. Your progress syncs across devices.</div>
+  </div>
+  <div class="faq-item" onclick="this.classList.toggle('open')">
+    <div class="faq-q">I found a bug or have a suggestion. How do I report it?<span class="faq-chevron">&#9660;</span></div>
+    <div class="faq-a">Use the contact form above — select "Bug Report" or "Feature Request" as the subject. Reports are automatically tracked in our GitHub project board for fast resolution.</div>
   </div>
   <div class="faq-item" onclick="this.classList.toggle('open')">
     <div class="faq-q">How long does each day take?<span class="faq-chevron">&#9660;</span></div>
     <div class="faq-a">Each day is designed for about 60&ndash;90 minutes of focused work: reading the context, completing 4 tasks (15&ndash;30 min each), running the code lab, and reviewing the interview question.</div>
   </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">What are PM OS, RIA OS, and ML OS?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">These are AI operating systems we’re building for specific roles — product managers (PM OS), registered investment advisors (RIA OS), and ML engineers (ML OS). They’re currently in development and will be available soon.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">I have a technical issue. How do I report it?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Email us at hello@becomeaipm.com with details of the issue (browser, what you were doing, any error messages), or open a GitHub issue for faster resolution.</div>
-  </div>
+
+
 </div>
 
 <footer>
-  <p>&copy; 2025 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a></p>
+  <p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener">LinkedIn</a></p>
 </footer>
 
 <script>
-(async function initContactPendo() {
+var turnstileSiteKey = '';
+
+(async function initContactPage() {
   try {
     var res = await fetch('/api/config');
     var cfg = await res.json();
+
+    // Initialize Turnstile captcha
+    turnstileSiteKey = cfg.turnstileSiteKey || '';
+    if (turnstileSiteKey && window.turnstile) {
+      window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
+    } else if (turnstileSiteKey) {
+      var checkTurnstile = setInterval(function() {
+        if (window.turnstile) {
+          clearInterval(checkTurnstile);
+          window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
+        }
+      }, 200);
+      setTimeout(function() { clearInterval(checkTurnstile); }, 10000);
+    }
+
+    // Initialize Pendo
     var apiKey = cfg.pendoApiKey;
-    if (!apiKey) return;
-    (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-    v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-    y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-    z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
-    pendo.initialize({
-      visitor: { id: 'ANONYMOUS' },
-      account: { id: 'becomeaipm' }
-    });
-  } catch(e) { /* Pendo init failed silently */ }
+    if (apiKey) {
+      (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+      v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+      y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+      z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+      var anonId = 'anon-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
+      pendo.initialize({
+        visitor: { id: anonId },
+        account: { id: 'becomeaipm' }
+      });
+    }
+  } catch(e) { /* config/pendo init failed silently */ }
 })();
+
+async function submitContact(evt) {
+  evt.preventDefault();
+  var btn = document.getElementById('cf-submit');
+  var msg = document.getElementById('cf-msg');
+  msg.className = 'form-msg';
+  msg.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Sending\u2026';
+
+  try {
+    var turnstileResponse = '';
+    if (window.turnstile) {
+      turnstileResponse = window.turnstile.getResponse('#cf-turnstile') || '';
+    }
+
+    var body = {
+      name: document.getElementById('cf-name').value.trim(),
+      email: document.getElementById('cf-email').value.trim(),
+      subject: document.getElementById('cf-subject').value,
+      message: document.getElementById('cf-message').value.trim(),
+      turnstileToken: turnstileResponse
+    };
+
+    var res = await fetch('/api/contact', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    var data = await res.json();
+
+    if (res.ok) {
+      msg.className = 'form-msg success';
+      msg.textContent = 'Message sent! We\'ll get back to you within 24 hours.';
+      msg.style.display = 'block';
+      document.getElementById('contact-form').reset();
+      if (window.turnstile) window.turnstile.reset('#cf-turnstile');
+      if (window.pendo && pendo.track) pendo.track('Contact Form Submitted', { subject: body.subject });
+    } else {
+      msg.className = 'form-msg error';
+      msg.textContent = data.error || 'Something went wrong. Please try again.';
+      msg.style.display = 'block';
+    }
+  } catch(e) {
+    msg.className = 'form-msg error';
+    msg.textContent = 'Network error. Please check your connection and try again.';
+    msg.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Send Message \u2192';
+  }
+  return false;
+}
 </script>
 
 </body>

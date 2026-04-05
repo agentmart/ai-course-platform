@@ -13,5 +13,6 @@ export default function handler(req, res) {
     supabaseUrl:         process.env.SUPABASE_URL || '',
     supabaseAnonKey:     process.env.SUPABASE_ANON_KEY || '',
     pendoApiKey:         process.env.PENDO_API_KEY || '',
+    turnstileSiteKey:    process.env.TURNSTILE_SITE_KEY || '',
   });
 }

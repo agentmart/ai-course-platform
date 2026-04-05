@@ -191,7 +191,7 @@ h1 em{color:var(--amber);font-style:italic;}
       <span class="glbl">Show</span>
       <button class="chip"    data-f="all"    onclick="setF('all',this)">All</button>
       <button class="chip on" data-f="hiring" onclick="setF('hiring',this)">&#9679; Has PM Roles</button>
-      <button class="chip"    data-f="saved"  onclick="setF('saved',this)">&#9829; Saved</button>
+      <button class="chip"    data-f="saved"  onclick="setF('saved',this)">Saved</button>
       <button class="chip"    data-f="yc"     onclick="setF('yc',this)">YC Backed</button>
       <button class="chip"    data-f="big"    onclick="setF('big',this)">$500M+ Raise</button>
       <div class="sep"></div>
@@ -326,11 +326,12 @@ function toggleSave(jobId, jobTitle, companyName, e){
   if(saved[key]) delete saved[key];
   else saved[key]={jobTitle,companyName,savedAt:Date.now()};
   localStorage.setItem('saved_roles',JSON.stringify(saved));
+  if(window.pendo&&pendo.track) pendo.track(saved[key]?'Job Saved':'Job Unsaved',{company_name:companyName,job_title:jobTitle});
   updateSavedBanner();
   const btn=document.getElementById('save-'+key);
   if(btn){
     btn.classList.toggle('saved',!!saved[key]);
-    btn.textContent=saved[key]?'&#9829; Saved':'&#9825; Save';
+    btn.textContent=saved[key]?'Saved':'Save';
   }
 }
 function clearSaved(){ saved={}; localStorage.setItem('saved_roles','{}'); updateSavedBanner(); if(f==='saved')render(); }
@@ -340,7 +341,7 @@ function updateSavedBanner(){
   banner.classList.toggle('show',count>0);
   document.getElementById('saved-txt').textContent=`${count} role${count===1?'':'s'} saved`;
   const chip=document.querySelector('.chip[data-f="saved"]');
-  if(chip) chip.textContent=count>0?`&#9829; Saved (${count})`:'&#9829; Saved';
+  if(chip) chip.textContent=count>0?`Saved (${count})`:'Saved';
 }
 
 function setF(v,el){f=v;document.querySelectorAll('.chip[data-f]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
@@ -386,7 +387,9 @@ function badge(src){if(!src)return{bc:'sb-vc',bt:'VC'};const l=src.toLowerCase()
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 function openDrawer(jsonStr){
-  const company=JSON.parse(jsonStr);activeCompany=company;activeTab='jobs';
+  const company=JSON.parse(jsonStr);
+  if(!user){ openSignIn(); return; }
+  activeCompany=company;activeTab='jobs';
   document.getElementById('dh-company').textContent=company.company_name;
   document.getElementById('dh-funding').textContent=company.funding_amount||'';
   document.getElementById('dh-src').textContent=company.source||'';
@@ -395,6 +398,7 @@ function openDrawer(jsonStr){
   document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');
   document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');
   document.body.style.overflow='hidden';
+  if(window.pendo&&pendo.track) pendo.track('Company Viewed',{company_name:company.company_name});
   loadJobs(company);
 }
 function closeDrawer(){document.getElementById('dr-overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';activeCompany=null;}
@@ -437,7 +441,7 @@ function jobCard(j){
   return `<div class="job-card">
 <div class="jc-top"><div class="jc-title">${jt}</div>${j.remote?'<span class="jc-remote">REMOTE</span>':''}</div>
 <div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">&#128205; ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div>
-<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'&#9829; Saved':'&#9825; Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},'${cn}','${jt}','${e(jurl)}')">Apply &#8594;</button></div></div>
+<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'Saved':'Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},'${cn}','${jt}','${e(jurl)}')">Apply &#8594;</button></div></div>
 </div>`;
 }
 function renderAboutTab(){
@@ -459,7 +463,15 @@ ${c.company_url?`<div class="about-section"><div class="about-label">Website</di
 }
 async function trackAndOpen(evt,jobId,companyName,jobTitle,jobUrl){
   evt.preventDefault();if(!jobUrl)return;
-  window.open(jobUrl,'_blank','noopener');
+  // Add UTM parameters for attribution
+  try{
+    var url=new URL(jobUrl);
+    url.searchParams.set('utm_source','becomeaipm');
+    url.searchParams.set('utm_medium','job_board');
+    url.searchParams.set('utm_campaign','ai_pm_jobs');
+    window.open(url.toString(),'_blank','noopener');
+  }catch(e){ window.open(jobUrl,'_blank','noopener'); }
+  if(window.pendo&&pendo.track) pendo.track('Job Applied',{company_name:companyName,job_title:jobTitle,job_url:jobUrl});
   try{
     let token=null;
     if(clerk?.session){try{token=await clerk.session.getToken();}catch(e){}}
