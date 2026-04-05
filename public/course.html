@@ -5,9 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>60-Day AI PM Course</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-<!-- Plausible Analytics -->
-<script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
-<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+<!-- Pendo Analytics (initialized after Clerk auth loads) -->
 <style>
 :root{--bg:#f5f0e8;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -127,7 +125,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 <div id="topbar" style="display:none">
   <a class="tb-home" href="/">&larr; Home</a>
   <a class="tb-home" href="/companies.html">Companies</a>
-  <a class="tb-home" href="/analytics.html">Analytics</a>
+  <a class="tb-home" href="/analytics.html">Leaderboard</a>
   <a class="tb-home" href="/contact.html">Contact</a>
   <div class="tb-logo">AI.PL.60</div>
   <div class="tb-day-label" id="tb-day-label">Day &mdash;</div>
@@ -371,7 +369,7 @@ function toggleTask(day,i){
 
 function markDayComplete(day){
   completed.add(day);
-  plausible('Day Completed', {props: {day: day}});
+  if(window.pendo && pendo.track) pendo.track('Day Completed', {day: day});
   const btn=document.getElementById('complete-btn');
   if(btn){ btn.innerHTML='&#10003; Day Completed'; btn.className='day-complete-btn done'; }
   syncSidebar(); saveProgress();
