@@ -90,8 +90,8 @@ async function fetchHNHiringThread() {
     // Filter to AI/ML job posts only
     const aiComments = comments.filter(c => {
       const t = (c.comment_text || '').toLowerCase();
-      return t.includes('ai') || t.includes('llm') || t.includes('machine learning') ||
-             t.includes('agent') || t.includes('foundation model') || t.includes('ml ');
+      return /\bai\b/.test(t) || t.includes('llm') || t.includes('machine learning') ||
+             t.includes('agent') || t.includes('foundation model') || /\bml\b/.test(t);
     });
 
     console.log(`  ${aiComments.length} AI-related posts found`);
