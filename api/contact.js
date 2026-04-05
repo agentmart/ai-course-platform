@@ -39,10 +39,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Please complete the captcha verification.' });
     }
     try {
+      const forwardedFor = req.headers['x-forwarded-for'];
+      const clientIp = Array.isArray(forwardedFor)
+        ? forwardedFor[0]
+        : typeof forwardedFor === 'string'
+          ? forwardedFor.split(',')[0].trim()
+          : req.headers['x-real-ip'] || req.socket?.remoteAddress;
+      const formData = new URLSearchParams({
+        secret: turnstileSecret,
+        response: turnstileToken,
+      });
+      if (clientIp) {
+        formData.append('remoteip', clientIp);
+      }
       const verifyRes = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ secret: turnstileSecret, response: turnstileToken }),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: formData,
       });
       const verifyData = await verifyRes.json();
       if (!verifyData.success) {
