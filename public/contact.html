@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Contact — becomeaipm.com</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+<script src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit" async defer></script>
 <style>
 :root{
   --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
@@ -108,7 +108,7 @@ footer a:hover{color:var(--amber);}
         <label for="cf-message">Message</label>
         <textarea id="cf-message" name="message" required placeholder="Tell us more…" maxlength="5000"></textarea>
       </div>
-      <div class="cf-turnstile" id="cf-turnstile"></div>
+      <div id="cf-turnstile"></div>
       <div style="height:16px"></div>
       <button type="submit" class="form-submit" id="cf-submit">Send Message &#8594;</button>
       <div class="form-msg" id="cf-msg"></div>
