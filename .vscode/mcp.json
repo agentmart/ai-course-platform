@@ -6,6 +6,13 @@
       "env": {
         "SUPABASE_ACCESS_TOKEN": "${input:supabaseAccessToken}"
       }
+    },
+    "vercel": {
+      "command": "npx",
+      "args": ["-y", "vercel-platform-mcp-server"],
+      "env": {
+        "VERCEL_TOKEN": "${input:vercelToken}"
+      }
     }
   },
   "inputs": [
@@ -13,6 +20,12 @@
       "id": "supabaseAccessToken",
       "type": "promptString",
       "description": "Supabase Personal Access Token (from https://supabase.com/dashboard/account/tokens)",
+      "password": true
+    },
+    {
+      "id": "vercelToken",
+      "type": "promptString",
+      "description": "Vercel API Token (from https://vercel.com/account/tokens)",
       "password": true
     }
   ]
