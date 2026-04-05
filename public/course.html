@@ -236,6 +236,23 @@ let clerk=null,cfg={},completed=new Set(),taskStates={},notes={},currentDay=1,py
 // All 60 days open to signed-in users — no subscription required
 let maxDayUnlocked=60,userTier='open',userFeatures={progressTracking:true,saveJobs:true,slackCommunity:false,certification:false};
 
+function initPendo(apiKey, user) {
+  if (!apiKey) return;
+  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+  var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+  var visitorFirst = user ? (user.firstName || '') : '';
+  var visitorLast = user ? (user.lastName || '') : '';
+  pendo.initialize({
+    visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
+    account: { id: 'becomeaipm' }
+  });
+}
+
 (async function boot(){
   try{ const r=await fetch('/api/config'); cfg=await r.json(); }
   catch(e){ showLdErr('Could not reach /api/config.'); return; }
@@ -260,6 +277,7 @@ let maxDayUnlocked=60,userTier='open',userFeatures={progressTracking:true,saveJo
     document.getElementById('pb-wrap').style.display='block';
     document.getElementById('app').style.display='flex';
     updateProgress(); hideLoader();
+    initPendo(cfg.pendoApiKey, clerk.user);
   };
 })();
 

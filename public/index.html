@@ -419,14 +419,17 @@ for name, s in models.items():
     // ── PENDO INIT ──
     function initPendo(apiKey, user) {
       if (!apiKey) return;
+      if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
       (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-      v=['initialize','identify','updateOptions','pageLoad','track'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+      v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
       y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
       z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
       var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
       var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+      var visitorFirst = user ? (user.firstName || '') : '';
+      var visitorLast = user ? (user.lastName || '') : '';
       pendo.initialize({
-        visitor: { id: visitorId, email: visitorEmail },
+        visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
         account: { id: 'becomeaipm' }
       });
     }

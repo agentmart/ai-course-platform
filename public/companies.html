@@ -250,6 +250,7 @@ let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
       if(clerk.user) user=clerk.user;
       updateAuthUI();
       loadCompanies();
+      initPendo(cfg.pendoApiKey, clerk.user);
       clerk.addListener(e=>{
         if(e.user&&!user){ user=e.user; closeSignIn(); updateAuthUI(); }
         if(!e.user&&user){ user=null; updateAuthUI(); }
@@ -288,6 +289,23 @@ function closeSignIn(){
   if(clerkMounted&&clerk){ try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){} clerkMounted=false; }
 }
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('overlay'))closeSignIn(); });
+
+function initPendo(apiKey, user) {
+  if (!apiKey) return;
+  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+  var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+  var visitorFirst = user ? (user.firstName || '') : '';
+  var visitorLast = user ? (user.lastName || '') : '';
+  pendo.initialize({
+    visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
+    account: { id: 'becomeaipm' }
+  });
+}
 
 async function loadCompanies(){
   try{
