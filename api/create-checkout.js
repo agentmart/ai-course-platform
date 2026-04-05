@@ -1,22 +1,31 @@
 // api/create-checkout.js
+// Supports both subscription (monthly/annual) and one-time (basic/full/team) checkout
 import Stripe from 'stripe';
 import { verifyClerkToken } from '../lib/clerk.js';
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
-const PRICE_IDS = {
+// One-time payment price IDs (legacy tiers)
+const ONE_TIME_PRICES = {
   basic: process.env.STRIPE_PRICE_BASIC,
-  full: process.env.STRIPE_PRICE_FULL,
-  team: process.env.STRIPE_PRICE_TEAM,
+  full:  process.env.STRIPE_PRICE_FULL,
+  team:  process.env.STRIPE_PRICE_TEAM,
 };
 
-// Derive the app's base URL reliably.
-// Priority: NEXT_PUBLIC_APP_URL env var → request Host header.
-// This avoids "deployment unavailable" when the env var contains an old preview URL.
+// Subscription price IDs (new tiers)
+const SUBSCRIPTION_PRICES = {
+  monthly: process.env.STRIPE_PRICE_MONTHLY,   // e.g. $9/month recurring
+  annual:  process.env.STRIPE_PRICE_ANNUAL,     // e.g. $84/year recurring
+};
+
+const ALL_PRICES = { ...ONE_TIME_PRICES, ...SUBSCRIPTION_PRICES };
+
+// Tiers that use Stripe 'subscription' mode
+const SUBSCRIPTION_TIERS = new Set(['monthly', 'annual']);
+
 function getAppUrl(req) {
   const envUrl = (process.env.NEXT_PUBLIC_APP_URL || '').trim().replace(/\/$/, '');
   if (envUrl) return envUrl;
-  // Fall back to the Host header of the current request
   const host = req.headers['x-forwarded-host'] || req.headers.host || '';
   const proto = req.headers['x-forwarded-proto'] || 'https';
   return `${proto}://${host}`;
@@ -40,15 +49,16 @@ export default async function handler(req, res) {
     if (!clerkUser) return res.status(401).json({ error: 'Invalid token' });
 
     const { tier, promoCode } = req.body;
-    if (!PRICE_IDS[tier]) return res.status(400).json({ error: 'Invalid tier' });
+    if (!ALL_PRICES[tier]) return res.status(400).json({ error: 'Invalid tier' });
+
+    const isSubscription = SUBSCRIPTION_TIERS.has(tier);
 
     const sessionParams = {
-      mode: 'payment',
-      line_items: [{ price: PRICE_IDS[tier], quantity: 1 }],
+      mode: isSubscription ? 'subscription' : 'payment',
+      line_items: [{ price: ALL_PRICES[tier], quantity: 1 }],
       client_reference_id: clerkUser.sub,
       customer_email: clerkUser.email,
       allow_promotion_codes: true,
-      // Uses request-derived URL — never stale
       success_url: `${appUrl}/course.html?session_id={CHECKOUT_SESSION_ID}&access=granted`,
       cancel_url: `${appUrl}/?checkout=cancelled`,
       metadata: {
@@ -57,6 +67,17 @@ export default async function handler(req, res) {
         email: clerkUser.email,
       },
     };
+
+    // For subscriptions, also attach metadata to the subscription itself
+    if (isSubscription) {
+      sessionParams.subscription_data = {
+        metadata: {
+          clerk_user_id: clerkUser.sub,
+          tier,
+          email: clerkUser.email,
+        },
+      };
+    }
 
     if (promoCode) {
       const promotionCodes = await stripe.promotionCodes.list({ code: promoCode, active: true, limit: 1 });

@@ -4,10 +4,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>60-Day AI Product Leadership Program</title>
-  <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap"
-    rel="stylesheet">
+  <title>Stavan Mehta — Principal AI Product Manager</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+  <script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
+  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
   <style>
     :root {
       --bg: #f5f0e8;
@@ -22,760 +22,149 @@
       --card: #faf7f2;
       --border: #ccc4b8;
     }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; }
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      background: var(--bg);
-      color: var(--ink);
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    /* INIT LOADER */
+    /* ── LOADER ── */
     #init-loader {
-      position: fixed;
-      inset: 0;
-      background: var(--ink);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      z-index: 9999;
-      transition: opacity .4s;
+      position: fixed; inset: 0; background: var(--ink);
+      display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+      z-index: 9999; transition: opacity .4s;
     }
+    #init-loader.hidden { opacity: 0; pointer-events: none; }
+    .init-spin { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--amber); border-radius: 50%; animation: spin .8s linear infinite; }
+    .init-text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,.3); letter-spacing: .12em; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    #init-loader.hidden {
-      opacity: 0;
-      pointer-events: none;
-    }
-
-    .init-spin {
-      width: 36px;
-      height: 36px;
-      border: 3px solid rgba(255, 255, 255, .1);
-      border-top-color: #c8590a;
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-
-    .init-text {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: rgba(255, 255, 255, .3);
-      letter-spacing: .12em;
-    }
-
-    .init-err {
-      color: #f87171;
-      font-size: 13px;
-      text-align: center;
-      max-width: 360px;
-      line-height: 1.6;
-      display: none;
-    }
-
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    /* NAV */
+    /* ── NAV ── */
     nav {
-      background: var(--ink);
-      padding: 14px 40px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      background: var(--ink); padding: 0 40px;
+      display: flex; align-items: stretch;
+      position: sticky; top: 0; z-index: 100;
     }
-
     .nav-logo {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      color: #c8590a;
-      letter-spacing: .15em;
-    }
-
-    .nav-right {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .btn {
-      padding: 8px 20px;
-      border-radius: 3px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      font-family: 'DM Sans', sans-serif;
-      transition: all .15s;
-    }
-
-    .btn-ghost {
-      background: transparent;
-      border: 1px solid rgba(255, 255, 255, .2);
-      color: rgba(255, 255, 255, .7);
-    }
-
-    .btn-ghost:hover {
-      border-color: #c8590a;
-      color: #c8590a;
-    }
-
-    .btn-amber {
-      background: #c8590a;
-      color: white;
-    }
-
-    .btn-amber:hover {
-      background: #a84a06;
-    }
-
-    #user-menu {
-      display: none;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .u-avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: #c8590a;
-      color: white;
-      font-size: 12px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .u-info {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-    }
-
-    .u-name {
-      font-size: 13px;
-      color: rgba(255, 255, 255, .75);
-      font-family: 'IBM Plex Mono', monospace;
-      line-height: 1.2;
-    }
-
-    .u-email {
-      font-size: 10px;
-      color: rgba(255, 255, 255, .35);
-      font-family: 'IBM Plex Mono', monospace;
-      line-height: 1.2;
-    }
-
-    /* HERO */
-    .hero {
-      padding: 80px 40px 60px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      letter-spacing: .18em;
-      color: #c8590a;
-      text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-
-    h1 {
-      font-family: 'Fraunces', serif;
-      font-size: clamp(38px, 5.5vw, 70px);
-      font-weight: 900;
-      line-height: 1.05;
-      margin-bottom: 20px;
-    }
-
-    h1 em {
-      color: #c8590a;
-      font-style: italic;
-    }
-
-    .sub {
-      font-size: 18px;
-      color: var(--ink2);
-      max-width: 600px;
-      line-height: 1.7;
-      margin-bottom: 40px;
-    }
-
-    .pills {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      margin-bottom: 48px;
-    }
-
-    .pill {
-      background: var(--card);
-      border: 1px solid var(--border);
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-size: 13px;
-      color: var(--ink2);
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 64px;
-    }
-
-    @media(max-width:700px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    .stat {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 20px;
-    }
-
-    .stat-n {
-      font-family: 'Fraunces', serif;
-      font-size: 36px;
-      font-weight: 900;
-      color: #c8590a;
-    }
-
-    .stat-l {
-      font-size: 11px;
-      color: var(--muted);
-      font-family: 'IBM Plex Mono', monospace;
-      margin-top: 4px;
-      text-transform: uppercase;
-      letter-spacing: .1em;
-    }
-
-    /* SECTION */
-    .sec {
-      padding: 60px 40px;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .sec-title {
-      font-family: 'Fraunces', serif;
-      font-size: 32px;
-      font-weight: 700;
-      color: var(--ink);
-      margin-bottom: 32px;
-    }
-
-    .grid3 {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    @media(max-width:900px) {
-      .grid3 {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    @media(max-width:600px) {
-      .grid3 {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .fcard {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      padding: 24px;
-    }
-
-    .fcard-icon {
-      font-size: 24px;
-      margin-bottom: 12px;
-    }
-
-    .fcard-title {
-      font-weight: 700;
-      font-size: 15px;
-      color: var(--ink);
-      margin-bottom: 6px;
-    }
-
-    .fcard-desc {
-      font-size: 13px;
-      color: var(--muted);
-      line-height: 1.6;
-    }
-
-    /* TOPICS */
-    .tgrid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-    }
-
-    @media(max-width:700px) {
-      .tgrid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    .topic {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 12px 14px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 4px;
-      font-size: 13px;
-      color: var(--ink2);
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      flex-shrink: 0;
-    }
-
-    .da {
-      background: #c8590a;
-    }
-
-    .dt {
-      background: #0d6e6e;
-    }
-
-    .dp {
-      background: #5c1f6e;
-    }
-
-    /* CODE DEMO */
-    .demo-wrap {
-      padding: 60px 40px;
-      background: var(--bg2);
-      border-top: 1px solid var(--border);
-    }
-
-    .demo-inner {
-      max-width: 900px;
-      margin: 0 auto;
-    }
-
-    .editor {
-      background: var(--ink);
-      border-radius: 8px;
-      overflow: hidden;
-      margin-top: 24px;
-    }
-
-    .e-bar {
-      background: rgba(255, 255, 255, .04);
-      padding: 10px 16px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, .08);
-    }
-
-    .e-dot {
-      width: 11px;
-      height: 11px;
-      border-radius: 50%;
-    }
-
-    .e-r {
-      background: #ff5f57;
-    }
-
-    .e-y {
-      background: #ffbd2e;
-    }
-
-    .e-g {
-      background: #28c840;
-    }
-
-    .e-badge {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      color: rgba(255, 255, 255, .25);
-      margin-left: auto;
-    }
-
-    .e-ta {
-      width: 100%;
-      background: transparent;
-      border: none;
-      outline: none;
-      color: #d4c5b0;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 13px;
-      line-height: 1.7;
-      resize: vertical;
-      min-height: 130px;
-      padding: 16px 20px;
-    }
-
-    .e-foot {
-      padding: 10px 16px;
-      border-top: 1px solid rgba(255, 255, 255, .06);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .e-sel {
-      background: rgba(255, 255, 255, .06);
-      border: 1px solid rgba(255, 255, 255, .1);
-      color: rgba(255, 255, 255, .55);
-      padding: 6px 10px;
-      border-radius: 3px;
-      font-size: 12px;
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    .e-run {
-      background: #c8590a;
-      color: white;
-      border: none;
-      padding: 8px 22px;
-      border-radius: 3px;
-      font-size: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      font-family: 'IBM Plex Mono', monospace;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .e-spin {
-      width: 12px;
-      height: 12px;
-      border: 2px solid rgba(255, 255, 255, .2);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin .7s linear infinite;
-      display: none;
-    }
-
-    .e-spin.on {
-      display: inline-block;
-    }
-
-    .e-out {
-      background: rgba(0, 0, 0, .35);
-      border-top: 1px solid rgba(255, 255, 255, .05);
-      padding: 14px 20px;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 12px;
-      color: #90b878;
-      min-height: 50px;
-      white-space: pre-wrap;
-      word-break: break-all;
-    }
-
-    .e-out.err {
-      color: #f87171;
-    }
-
-    .e-status {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 9px;
-      color: rgba(255, 255, 255, .2);
-      padding: 5px 16px;
-      text-align: right;
-    }
-
-    /* PRICING */
-    .pricing {
-      padding: 80px 40px;
-      background: var(--ink);
-    }
-
-    .p-inner {
-      max-width: 960px;
-      margin: 0 auto;
-    }
-
-    .p-label {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 10px;
-      letter-spacing: .18em;
-      color: #c8590a;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .p-title {
-      font-family: 'Fraunces', serif;
-      font-size: 36px;
-      font-weight: 700;
-      color: #f0ebe2;
-      margin-bottom: 8px;
-    }
-
-    .p-sub {
-      font-size: 15px;
-      color: rgba(240, 235, 226, .45);
-      margin-bottom: 48px;
-    }
-
-    .pgrid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
-    }
-
-    @media(max-width:900px) {
-      .pgrid {
-        grid-template-columns: 1fr;
-        max-width: 420px;
-      }
-    }
-
-    .pcard {
-      background: rgba(255, 255, 255, .04);
-      border: 1px solid rgba(255, 255, 255, .1);
-      border-radius: 8px;
-      padding: 32px 28px;
-      position: relative;
-    }
-
-    .pcard.hot {
-      background: rgba(200, 89, 10, .12);
-      border-color: rgba(200, 89, 10, .4);
-    }
-
-    .hot-badge {
-      position: absolute;
-      top: -12px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: #c8590a;
-      color: white;
-      font-size: 10px;
-      font-family: 'IBM Plex Mono', monospace;
-      padding: 3px 14px;
-      border-radius: 20px;
-      text-transform: uppercase;
-      white-space: nowrap;
-    }
-
-    .p-name {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: rgba(240, 235, 226, .35);
-      letter-spacing: .15em;
-      text-transform: uppercase;
-      margin-bottom: 12px;
-    }
-
-    .p-amt {
-      font-family: 'Fraunces', serif;
-      font-size: 48px;
-      font-weight: 900;
-      color: #f0ebe2;
-      line-height: 1;
-    }
-
-    .p-was {
-      font-size: 13px;
-      color: rgba(240, 235, 226, .25);
-      text-decoration: line-through;
-      margin-left: 8px;
-    }
-
-    .p-period {
-      font-size: 13px;
-      color: rgba(240, 235, 226, .35);
-      margin-top: 4px;
-      margin-bottom: 20px;
-    }
-
-    .p-feats {
-      list-style: none;
-      margin-bottom: 28px;
-    }
-
-    .p-feats li {
-      font-size: 13px;
-      color: rgba(240, 235, 226, .6);
-      padding: 7px 0;
-      border-bottom: 1px solid rgba(255, 255, 255, .05);
-      display: flex;
-      gap: 8px;
-    }
-
-    .p-feats li::before {
-      content: '✓';
-      color: #c8590a;
-      flex-shrink: 0;
-    }
-
-    .p-btn {
-      width: 100%;
-      padding: 13px;
-      border-radius: 4px;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      border: none;
-      font-family: 'DM Sans', sans-serif;
-    }
-
-    .p-btn-g {
-      background: rgba(255, 255, 255, .06);
-      color: rgba(240, 235, 226, .75);
-      border: 1px solid rgba(255, 255, 255, .12);
-    }
-
-    .p-btn-g:hover {
-      background: rgba(255, 255, 255, .1);
-    }
-
-    .p-btn-a {
-      background: #c8590a;
-      color: white;
-    }
-
-    .p-btn-a:hover {
-      background: #a84a06;
-    }
-
-    /* GUARANTEE */
-    .gbox {
-      background: rgba(255, 255, 255, .04);
-      border: 1px solid rgba(255, 255, 255, .1);
-      border-radius: 6px;
-      padding: 24px 28px;
-      display: flex;
-      gap: 20px;
-      align-items: flex-start;
-      margin-top: 40px;
-    }
-
-    .gbox-icon {
-      font-size: 28px;
-      flex-shrink: 0;
-    }
-
-    .gbox-title {
-      font-weight: 700;
-      font-size: 15px;
-      color: #f0ebe2;
-      margin-bottom: 4px;
-    }
-
-    .gbox-text {
-      font-size: 13px;
-      color: rgba(240, 235, 226, .5);
-      line-height: 1.6;
-    }
-
-    /* ── SIGN-IN OVERLAY (Clerk embedded) ── */
-    .overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, .65);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      backdrop-filter: blur(4px);
-    }
-
-    .overlay.open {
-      display: flex;
-    }
-
-    .clerk-modal-wrap {
-      position: relative;
-      max-width: 480px;
-      width: 90%;
-    }
-
-    /* Close button sits above the Clerk component */
-    .m-close {
-      position: absolute;
-      top: -14px;
-      right: -14px;
-      z-index: 10;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      background: var(--ink);
-      border: none;
-      color: rgba(255, 255, 255, .6);
-      font-size: 18px;
-      line-height: 1;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all .15s;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, .4);
-    }
-
-    .m-close:hover {
-      color: #c8590a;
-    }
-
-    /* Clerk mounts a shadow DOM — we just need a container */
-    #clerk-sign-in-mount {
-      min-height: 200px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    #clerk-sign-in-mount .clerk-loading {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 11px;
-      color: var(--muted);
-      letter-spacing: .1em;
-    }
-
-    footer {
-      background: var(--ink);
-      color: rgba(255, 255, 255, .3);
-      padding: 32px 40px;
-      text-align: center;
-      font-size: 12px;
-      font-family: 'IBM Plex Mono', monospace;
-      line-height: 1.8;
-    }
-
-    footer a {
-      color: rgba(255, 255, 255, .35);
-      text-decoration: none;
-    }
-
-    footer a:hover {
-      color: #c8590a;
-    }
+      font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); letter-spacing: .15em;
+      text-decoration: none; display: flex; align-items: center; padding: 14px 0; margin-right: 24px;
+    }
+    .nav-links { display: flex; align-items: stretch; gap: 2px; flex: 1; }
+    .nav-link {
+      font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+      color: rgba(255,255,255,.4); text-decoration: none;
+      padding: 0 14px; display: flex; align-items: center;
+      border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap;
+    }
+    .nav-link:hover { color: rgba(255,255,255,.8); border-bottom-color: rgba(255,255,255,.2); }
+    .nav-link.active { color: var(--amber); border-bottom-color: var(--amber); }
+    .nav-right { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+    .btn { padding: 7px 18px; border-radius: 3px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.6); }
+    .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+    .btn-amber { background: var(--amber); color: white; }
+    .btn-amber:hover { background: #a84a06; }
+    #user-menu { display: none; align-items: center; gap: 10px; }
+    .u-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+    .u-name { font-size: 12px; color: rgba(255,255,255,.6); font-family: 'IBM Plex Mono', monospace; }
+    .nav-sep { width: 1px; height: 20px; background: rgba(255,255,255,.1); margin: 0 4px; }
+
+    /* ── HERO ── */
+    .hero { padding: 80px 40px 60px; max-width: 1100px; margin: 0 auto; }
+    .hero-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .eyebrow-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; }
+    .live-dot { display: flex; align-items: center; gap: 6px; background: var(--ink); padding: 3px 11px; border-radius: 20px; }
+    .ldot { width: 5px; height: 5px; border-radius: 50%; background: #4ade80; animation: glow 2s infinite; }
+    @keyframes glow { 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(74,222,128,.4); } 50%{ opacity:.5; box-shadow:0 0 0 4px rgba(74,222,128,0); } }
+    .ltxt { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(255,255,255,.4); }
+    h1 { font-family: 'Fraunces', serif; font-size: clamp(38px, 5.5vw, 70px); font-weight: 900; line-height: 1.05; margin-bottom: 20px; }
+    h1 em { color: var(--amber); font-style: italic; }
+    .hero-sub { font-size: 18px; color: var(--ink2); max-width: 620px; line-height: 1.7; margin-bottom: 36px; }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+    .cta-primary { padding: 13px 30px; background: var(--ink); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: background .15s; }
+    .cta-primary:hover { background: var(--amber); }
+    .cta-sec { padding: 13px 30px; background: transparent; border: 1px solid var(--border); color: var(--ink2); border-radius: 4px; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: all .15s; }
+    .cta-sec:hover { border-color: var(--amber); color: var(--amber); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media(max-width:700px){ .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+    .stat-n { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 900; color: var(--amber); }
+    .stat-l { font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; margin-top: 4px; text-transform: uppercase; letter-spacing: .1em; }
+
+    /* ── SECTIONS ── */
+    .sec { padding: 60px 40px; max-width: 1100px; margin: 0 auto; }
+    .sec-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; margin-bottom: 12px; }
+    .sec-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 32px; }
+    .divider { border: none; border-top: 1px solid var(--rule); margin: 0 40px; }
+
+    /* ── PROJECTS ── */
+    .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media(max-width:900px){ .projects { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:600px){ .projects { grid-template-columns: 1fr; } }
+    .project-card {
+      background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 28px;
+      display: flex; flex-direction: column; gap: 12px;
+      transition: box-shadow .15s, border-color .15s, transform .1s;
+      position: relative; overflow: hidden;
+    }
+    .project-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(200,89,10,.04), transparent); pointer-events: none; }
+    .project-card:hover { border-color: rgba(200,89,10,.3); box-shadow: 0 8px 32px rgba(26,21,18,.08); transform: translateY(-2px); }
+    .pc-tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .16em; color: var(--amber); text-transform: uppercase; }
+    .pc-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 900; color: var(--ink); line-height: 1.1; }
+    .pc-desc { font-size: 14px; color: var(--ink2); line-height: 1.65; }
+    .pc-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .pc-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 8px; border-radius: 3px; background: rgba(200,89,10,.07); color: #9a4008; border: 1px solid rgba(200,89,10,.15); }
+    .pc-link { margin-top: auto; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding-top: 8px; border-top: 1px solid var(--rule); }
+    .pc-link:hover { color: #a84a06; }
+
+    /* ── STACK STRIP ── */
+    .stack-strip { background: var(--ink); padding: 32px 40px; }
+    .ss-inner { max-width: 1100px; margin: 0 auto; }
+    .ss-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; color: rgba(255,255,255,.25); text-transform: uppercase; margin-bottom: 16px; }
+    .ss-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ss-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 13px; border-radius: 3px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.45); transition: all .15s; cursor: default; }
+    .ss-tag:hover { background: rgba(200,89,10,.15); border-color: rgba(200,89,10,.3); color: rgba(200,89,10,.9); }
+
+    /* ── COURSE SECTION ── */
+    .course-band { background: var(--bg2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 60px 40px; }
+    .cb-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: start; }
+    @media(max-width:800px){ .cb-inner { grid-template-columns: 1fr; } }
+    .cb-left .sec-title { margin-bottom: 16px; }
+    .cb-sub { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .topic { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--ink2); }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .da { background: var(--amber); } .dt { background: var(--teal); } .dp { background: #5c1f6e; }
+
+    /* ── CODE DEMO ── */
+    .demo-wrap { padding: 60px 40px; background: var(--bg2); border-top: 1px solid var(--border); }
+    .demo-inner { max-width: 900px; margin: 0 auto; }
+    .editor { background: var(--ink); border-radius: 8px; overflow: hidden; margin-top: 24px; }
+    .e-bar { background: rgba(255,255,255,.04); padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .e-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .e-r { background: #ff5f57; } .e-y { background: #ffbd2e; } .e-g { background: #28c840; }
+    .e-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(255,255,255,.25); margin-left: auto; }
+    .e-ta { width: 100%; background: transparent; border: none; outline: none; color: #d4c5b0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.7; resize: vertical; min-height: 130px; padding: 16px 20px; }
+    .e-foot { padding: 10px 16px; border-top: 1px solid rgba(255,255,255,.06); display: flex; align-items: center; justify-content: space-between; }
+    .e-sel { background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.55); padding: 6px 10px; border-radius: 3px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+    .e-run { background: var(--amber); color: white; border: none; padding: 8px 22px; border-radius: 3px; font-size: 12px; font-weight: 700; cursor: pointer; font-family: 'IBM Plex Mono', monospace; display: flex; align-items: center; gap: 6px; }
+    .e-spin { width: 12px; height: 12px; border: 2px solid rgba(255,255,255,.2); border-top-color: white; border-radius: 50%; animation: spin .7s linear infinite; display: none; }
+    .e-spin.on { display: inline-block; }
+    .e-out { background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.05); padding: 14px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #90b878; min-height: 50px; white-space: pre-wrap; word-break: break-all; }
+    .e-out.err { color: #f87171; }
+    .e-status { font-family: 'IBM Plex Mono', monospace; font-size: 9px; color: rgba(255,255,255,.2); padding: 5px 16px; text-align: right; }
+
+    /* ── SIGN-IN OVERLAY ── */
+    .overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,.65); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .overlay.open { display: flex; }
+    .clerk-modal-wrap { position: relative; max-width: 480px; width: 90%; }
+    .m-close { position: absolute; top: -14px; right: -14px; z-index: 10; width: 32px; height: 32px; border-radius: 50%; background: var(--ink); border: none; color: rgba(255,255,255,.6); font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; }
+    .m-close:hover { color: var(--amber); }
+    #clerk-sign-in-mount { min-height: 200px; display: flex; align-items: center; justify-content: center; }
+
+    footer { background: var(--ink); color: rgba(255,255,255,.25); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+    footer a { color: rgba(255,255,255,.3); text-decoration: none; }
+    footer a:hover { color: var(--amber); }
+    .footer-links { display: flex; gap: 20px; }
+
+    @media(max-width:700px) { .hero { padding: 48px 20px 40px; } .sec { padding: 48px 20px; } .demo-wrap { padding: 48px 20px; } .stack-strip { padding: 24px 20px; } .course-band { padding: 48px 20px; } footer { padding: 24px 20px; } .nav-links { display: none; } nav { padding: 0 20px; } .hero-ctas { flex-direction: column; } }
   </style>
 </head>
 
@@ -784,140 +173,137 @@
   <div id="init-loader">
     <div class="init-spin"></div>
     <div class="init-text">INITIALIZING...</div>
-    <div class="init-err" id="init-err"></div>
   </div>
 
   <nav>
-    <div class="nav-logo">// AI.PL.60 — Product Leadership Track</div>
-    <div class="nav-links" style="display:flex;align-items:center;gap:8px;">
-      <a href="/companies.html" class="btn btn-ghost" style="font-size:12px;padding:6px 14px;">Companies</a>
+    <a href="/" class="nav-logo">// AI.PL.60</a>
+    <div class="nav-links">
+      <a class="nav-link" href="/course.html">Course</a>
+      <a class="nav-link" href="/companies.html">Companies</a>
+      <a class="nav-link" href="/analytics.html">Analytics</a>
+      <a class="nav-link" href="/contact.html">Contact</a>
     </div>
     <div class="nav-right">
       <div id="user-menu">
         <div class="u-avatar" id="u-avatar">?</div>
-        <div class="u-info">
-          <span class="u-name" id="u-name"></span>
-          <span class="u-email" id="u-email"></span>
-        </div>
-        <button class="btn btn-amber" onclick="location.href='/course.html'">Open Course →</button>
-        <button class="btn btn-ghost" style="font-size:11px" onclick="doSignOut()">Sign Out</button>
+        <span class="u-name" id="u-name"></span>
+        <div class="nav-sep"></div>
+        <a class="btn btn-amber" href="/course.html">Open Course &rarr;</a>
+        <button class="btn btn-ghost" onclick="doSignOut()" style="font-size:11px;">Sign Out</button>
       </div>
       <div id="auth-btns">
         <button class="btn btn-ghost" onclick="openSignIn()">Sign In</button>
-        <button class="btn btn-amber" onclick="scrollToPricing()">Get Access</button>
+        <a class="btn btn-amber" href="/course.html">Explore Free &rarr;</a>
       </div>
     </div>
   </nav>
 
+  <!-- HERO -->
   <div class="hero">
-    <div class="label">The Complete AI PM Preparation Program</div>
-    <h1>60 Days to Land Your<br><em>AI Product Manager</em> Role</h1>
-    <p class="sub">Every day fully written. Every concept explained. MCP, A2A, ACP, Claude Code, Azure AI Foundry, Agent
-      Skills — all covered with zero Googling required.</p>
-    <div class="pills">
-      <div class="pill"><strong>◆</strong> Frontier AI Product Manager</div>
-      <div class="pill"><strong>⬡</strong> AI-Native PM at Top Labs</div>
-      <div class="pill"><strong>◈</strong> AI-First Product Leader</div>
+    <div class="hero-eyebrow">
+      <span class="eyebrow-label">Principal AI Product Manager &middot; Proof of Work</span>
+      <div class="live-dot"><div class="ldot"></div><span class="ltxt">3 products in production</span></div>
+    </div>
+    <h1>I don’t just study AI.<br><em>I ship with it.</em></h1>
+    <p class="hero-sub">This platform is a live demonstration — 60-day AI PM curriculum, a real-time job board powered by GitHub Actions, and analytics designed for privacy. All built with Claude Code, MCP, Supabase, and Vercel.</p>
+    <div class="hero-ctas">
+      <a class="cta-primary" href="/course.html">Explore the 60-Day Course &rarr;</a>
+      <a class="cta-sec" href="/contact.html">Let’s Talk</a>
     </div>
     <div class="stats">
-      <div class="stat">
-        <div class="stat-n">60</div>
-        <div class="stat-l">Days fully written</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n">240+</div>
-        <div class="stat-l">Specific tasks</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n">15+</div>
-        <div class="stat-l">Protocols covered</div>
-      </div>
-      <div class="stat">
-        <div class="stat-n">0</div>
-        <div class="stat-l">Days of googling</div>
-      </div>
+      <div class="stat"><div class="stat-n">60</div><div class="stat-l">Days of curriculum</div></div>
+      <div class="stat"><div class="stat-n">3</div><div class="stat-l">Production systems</div></div>
+      <div class="stat"><div class="stat-n">241+</div><div class="stat-l">PM roles tracked</div></div>
+      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Days of Googling</div></div>
     </div>
   </div>
 
+  <hr class="divider">
+
+  <!-- WHAT I BUILT -->
   <div class="sec">
-    <div class="label">What You Get</div>
-    <div class="sec-title">Everything in one place</div>
-    <div class="grid3">
-      <div class="fcard">
-        <div class="fcard-icon">📖</div>
-        <div class="fcard-title">60 Fully-Written Daily Lessons</div>
-        <div class="fcard-desc">Complete context and concepts every day. No research needed.</div>
-      </div>
-      <div class="fcard">
-        <div class="fcard-icon">✅</div>
-        <div class="fcard-title">240+ Specific Tasks</div>
-        <div class="fcard-desc">Exact, timed deliverables — not "learn MCP" but "build a filesystem MCP server and
-          connect it to Claude Desktop."</div>
-      </div>
-      <div class="fcard">
-        <div class="fcard-icon">💬</div>
-        <div class="fcard-title">Interview Q&A Bank</div>
-        <div class="fcard-desc">Every day: the interview question you'll face, plus a complete model answer to adapt.
+    <div class="sec-label">Shipped &mdash; In Production</div>
+    <div class="sec-title">What I built</div>
+    <div class="projects">
+      <div class="project-card">
+        <div class="pc-tag">Live Platform</div>
+        <div class="pc-title">becomeaipm.com</div>
+        <div class="pc-desc">This site. 60-day AI PM curriculum, a live job board powered by GitHub Actions ATS crawlers, Plausible analytics, Clerk auth, Stripe payments, and Supabase persistence. Every piece in production.</div>
+        <div class="pc-stack">
+          <span class="pc-chip">Claude Code</span><span class="pc-chip">GitHub Actions</span><span class="pc-chip">Supabase</span><span class="pc-chip">Clerk</span><span class="pc-chip">Stripe</span><span class="pc-chip">Plausible</span><span class="pc-chip">Vercel</span>
         </div>
+        <a class="pc-link" href="/course.html">Explore the course &#8594;</a>
       </div>
-      <div class="fcard">
-        <div class="fcard-icon">⚡</div>
-        <div class="fcard-title">In-Browser Code Execution</div>
-        <div class="fcard-desc">Python via Pyodide WebAssembly — no server, no rate limits, no API key. JavaScript runs
-          in a native sandbox.</div>
+      <div class="project-card">
+        <div class="pc-tag">AI Operating System</div>
+        <div class="pc-title">RIA OS</div>
+        <div class="pc-desc">An AI operating system for Registered Investment Advisors built on Claude Code’s .claude/ architecture. 13 slash commands, specialist sub-agents (CCO, portfolio analyst, tax strategist), and a revenue model that works without custodian API integration.</div>
+        <div class="pc-stack">
+          <span class="pc-chip">Claude Code</span><span class="pc-chip">MCP</span><span class="pc-chip">A2A</span><span class="pc-chip">Sub-agents</span><span class="pc-chip">Slash commands</span>
+        </div>
+        <a class="pc-link" href="/contact.html">Learn more &#8594;</a>
       </div>
-      <div class="fcard">
-        <div class="fcard-icon">🔗</div>
-        <div class="fcard-title">Pre-Selected Resources</div>
-        <div class="fcard-desc">The exact docs and repos you need — annotated so you know what to read and why.</div>
-      </div>
-      <div class="fcard">
-        <div class="fcard-icon">🧭</div>
-        <div class="fcard-title">Progress Tracking</div>
-        <div class="fcard-desc">Per-day completion, task checkboxes, and streak monitoring across all 60 days.</div>
+      <div class="project-card">
+        <div class="pc-tag">Agentic OS</div>
+        <div class="pc-title">PM OS</div>
+        <div class="pc-desc">A 27-file Claude Code operating system for product managers. Structured slash commands, specialist agents, and agentic file systems — all within the .claude/ architecture. A template for AI-native product management.</div>
+        <div class="pc-stack">
+          <span class="pc-chip">Claude Code</span><span class="pc-chip">CLAUDE.md</span><span class="pc-chip">Slash commands</span><span class="pc-chip">27 files</span>
+        </div>
+        <a class="pc-link" href="/contact.html">Learn more &#8594;</a>
       </div>
     </div>
   </div>
 
-  <div class="sec" style="padding-top:0">
-    <div class="label">Curriculum Preview</div>
-    <div class="sec-title">What you'll master</div>
-    <div class="tgrid">
-      <div class="topic">
-        <div class="dot da"></div>Model Context Protocol (MCP)
+  <!-- STACK STRIP -->
+  <div class="stack-strip">
+    <div class="ss-inner">
+      <div class="ss-label">Production Stack</div>
+      <div class="ss-tags">
+        <span class="ss-tag">Claude Code</span>
+        <span class="ss-tag">Model Context Protocol</span>
+        <span class="ss-tag">Agent-to-Agent (A2A)</span>
+        <span class="ss-tag">Agent Communication Protocol</span>
+        <span class="ss-tag">Supabase (Postgres)</span>
+        <span class="ss-tag">Vercel Edge</span>
+        <span class="ss-tag">Clerk Auth</span>
+        <span class="ss-tag">Stripe</span>
+        <span class="ss-tag">Plausible Analytics</span>
+        <span class="ss-tag">GitHub Actions</span>
+        <span class="ss-tag">Pyodide WASM</span>
+        <span class="ss-tag">Piston API</span>
+        <span class="ss-tag">OpenAI Agents SDK</span>
+        <span class="ss-tag">LangChain</span>
+        <span class="ss-tag">CrewAI</span>
+        <span class="ss-tag">AutoGen</span>
       </div>
-      <div class="topic">
-        <div class="dot da"></div>Agent-to-Agent Protocol (A2A)
+    </div>
+  </div>
+
+  <!-- COURSE SECTION -->
+  <div class="course-band">
+    <div class="cb-inner">
+      <div class="cb-left">
+        <div class="sec-label">Free &mdash; All 60 Days</div>
+        <div class="sec-title">The 60-Day AI PM Curriculum</div>
+        <p class="cb-sub">Every day fully written. Every concept explained. MCP, A2A, ACP, Claude Code, Azure AI Foundry, Constitutional AI, Evals, Red-Teaming — all covered with zero Googling required. Sign in and get started immediately.</p>
+        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start the Course Free &rarr;</a>
       </div>
-      <div class="topic">
-        <div class="dot da"></div>Agent Communication Protocol (ACP)
-      </div>
-      <div class="topic">
-        <div class="dot dt"></div>Constitutional AI & RLHF
-      </div>
-      <div class="topic">
-        <div class="dot dt"></div>Frontier Reasoning Models
-      </div>
-      <div class="topic">
-        <div class="dot dt"></div>OpenAI Agents SDK
-      </div>
-      <div class="topic">
-        <div class="dot dp"></div>Claude Code (Agentic CLI)
-      </div>
-      <div class="topic">
-        <div class="dot dp"></div>GitHub Copilot Ecosystem
-      </div>
-      <div class="topic">
-        <div class="dot dp"></div>Azure AI Foundry & AutoGen
-      </div>
-      <div class="topic">
-        <div class="dot da"></div>Agent Skills & Registries
-      </div>
-      <div class="topic">
-        <div class="dot dt"></div>RAG, Fine-tuning & Evals
-      </div>
-      <div class="topic">
-        <div class="dot dp"></div>Red-Teaming & Adversarial Evals
+      <div class="cb-right">
+        <div class="tgrid">
+          <div class="topic"><div class="dot da"></div>Model Context Protocol</div>
+          <div class="topic"><div class="dot da"></div>Agent-to-Agent (A2A)</div>
+          <div class="topic"><div class="dot da"></div>Agent Comm Protocol</div>
+          <div class="topic"><div class="dot dt"></div>Constitutional AI & RLHF</div>
+          <div class="topic"><div class="dot dt"></div>Frontier Reasoning Models</div>
+          <div class="topic"><div class="dot dt"></div>OpenAI Agents SDK</div>
+          <div class="topic"><div class="dot dp"></div>Claude Code (Agentic CLI)</div>
+          <div class="topic"><div class="dot dp"></div>GitHub Copilot Ecosystem</div>
+          <div class="topic"><div class="dot dp"></div>Azure AI Foundry</div>
+          <div class="topic"><div class="dot da"></div>RAG & Fine-tuning</div>
+          <div class="topic"><div class="dot dt"></div>Evals & Benchmarks</div>
+          <div class="topic"><div class="dot dp"></div>Red-Teaming & Adversarial</div>
+        </div>
       </div>
     </div>
   </div>
@@ -925,19 +311,15 @@
   <!-- CODE DEMO -->
   <div class="demo-wrap">
     <div class="demo-inner">
-      <div class="label">Built-In Code Runner</div>
-      <div class="sec-title" style="color:var(--ink)">Python & JavaScript — right in your browser</div>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:0">Python runs via Pyodide WebAssembly — entirely in
-        your browser, no server, no quotas. JavaScript runs in a sandboxed iframe. Both work offline after first load.
-      </p>
+      <div class="sec-label">Built-In Code Runner</div>
+      <div class="sec-title" style="color:var(--ink);font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-bottom:12px;">Python & JavaScript — right in your browser</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:0">Python runs via Pyodide WebAssembly — entirely in your browser, no server, no quotas. JavaScript runs in a sandboxed iframe. This is Day 1 of the course.</p>
       <div class="editor">
         <div class="e-bar">
-          <div class="e-dot e-r"></div>
-          <div class="e-dot e-y"></div>
-          <div class="e-dot e-g"></div>
-          <div class="e-badge" id="demo-badge">PYTHON · WASM</div>
+          <div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div>
+          <div class="e-badge" id="demo-badge">PYTHON &middot; WASM</div>
         </div>
-        <textarea class="e-ta" id="demo-code" spellcheck="false"># Day 1: Frontier model cost comparison (press Ctrl+Enter to run)
+        <textarea class="e-ta" id="demo-code" spellcheck="false"># Day 1: Frontier model cost comparison (Ctrl+Enter to run)
 models = {
     "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0},
     "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0},
@@ -945,10 +327,10 @@ models = {
     "o3":                {"ctx":"128K","in":10.0,"out":40.0},
 }
 print(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}")
-print("─"*53)
+print("\u2500"*53)
 for name,s in models.items():
     print(f"{name:<22}{s['ctx']:>8}  ${s['in']:>6.2f}   ${s['out']:>6.2f}")
-print("\n── Cost: 1,000 calls × 500 input + 300 output tokens ──")
+print("\n\u2500\u2500 Cost: 1,000 calls \u00d7 500 input + 300 output tokens \u2500\u2500")
 for name,s in models.items():
     cost=(500/1e6*s['in']+300/1e6*s['out'])*1000
     print(f"{name:<22}  ${cost:.4f}")</textarea>
@@ -957,136 +339,51 @@ for name,s in models.items():
             <option value="python">Python 3 (Pyodide WASM)</option>
             <option value="js">JavaScript (sandbox)</option>
           </select>
-          <button class="e-run" onclick="runDemo()">
-            <span class="e-spin" id="demo-spin"></span>▶ Run
-          </button>
+          <button class="e-run" onclick="runDemo()"><span class="e-spin" id="demo-spin"></span>&#9654; Run</button>
         </div>
-        <div class="e-out" id="demo-out">// Press Run · Python loads via WebAssembly (~10MB, once)</div>
+        <div class="e-out" id="demo-out">// Press Run &middot; Python loads via WebAssembly (~10MB, once)</div>
         <div class="e-status" id="py-status">Pyodide: not loaded</div>
       </div>
     </div>
   </div>
 
-  <!-- PRICING -->
-  <div class="pricing" id="pricing">
-    <div class="p-inner">
-      <div class="p-label">Pricing</div>
-      <div class="p-title">One payment. Lifetime access.</div>
-      <div class="p-sub">No subscription. All future updates included. 7-day money-back guarantee.</div>
-      <div class="pgrid">
-        <div class="pcard">
-          <div class="p-name">Self-Paced</div>
-          <div><span class="p-amt" id="p-basic">$147</span><span class="p-was">$247</span></div>
-          <div class="p-period">one-time · lifetime</div>
-          <ul class="p-feats">
-            <li>All 60 days of content</li>
-            <li>240+ specific tasks</li>
-            <li>Interview Q&A bank</li>
-            <li>Pre-selected resources</li>
-          </ul>
-          <button class="p-btn p-btn-g" onclick="checkout('basic')">Get Self-Paced →</button>
-        </div>
-        <div class="pcard hot">
-          <div class="hot-badge">Most Popular</div>
-          <div class="p-name">Full Access</div>
-          <div><span class="p-amt" id="p-full">$297</span><span class="p-was">$497</span></div>
-          <div class="p-period">one-time · lifetime</div>
-          <ul class="p-feats">
-            <li>Everything in Self-Paced</li>
-            <li>In-browser code execution</li>
-            <li>Progress tracking & streaks</li>
-            <li>All future updates</li>
-            <li>Direct Q&A with instructor</li>
-          </ul>
-          <button class="p-btn p-btn-a" onclick="checkout('full')">Get Full Access →</button>
-        </div>
-        <div class="pcard">
-          <div class="p-name">Team · 5 Seats</div>
-          <div><span class="p-amt" id="p-team">$997</span></div>
-          <div class="p-period">one-time · 5 seats</div>
-          <ul class="p-feats">
-            <li>Full Access × 5</li>
-            <li>Team progress dashboard</li>
-            <li>60-min cohort kick-off call</li>
-            <li>Private Slack channel</li>
-          </ul>
-          <button class="p-btn p-btn-g" onclick="checkout('team')">Get Team Access →</button>
-        </div>
-      </div>
-      <div class="gbox">
-        <div class="gbox-icon">🛡️</div>
-        <div>
-          <div class="gbox-title">7-Day Money-Back Guarantee</div>
-          <div class="gbox-text">Complete the first 7 days and don't feel better prepared — email us for a full refund.
-            No questions asked.</div>
-        </div>
-      </div>
+  <!-- SIGN-IN OVERLAY -->
+  <div class="overlay" id="overlay">
+    <div class="clerk-modal-wrap">
+      <button class="m-close" onclick="closeSignIn()">&#215;</button>
+      <div id="clerk-sign-in-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
     </div>
   </div>
 
   <footer>
-    <p>© 2025 AI Product Leadership Track · The 60-Day AI PM Program</p>
-    <p style="margin-top:8px"><a href="mailto:hello@agentmart.ai">hello@agentmart.ai</a></p>
+    <span>&copy; 2025 Stavan Mehta &middot; becomeaipm.com</span>
+    <div class="footer-links">
+      <a href="/course.html">Course</a>
+      <a href="/companies.html">Companies</a>
+      <a href="/analytics.html">Analytics</a>
+      <a href="/contact.html">Contact</a>
+      <a href="mailto:hello@agentmart.ai">hello@agentmart.ai</a>
+    </div>
   </footer>
 
-  <!-- ── SIGN-IN OVERLAY — Clerk embedded directly ── -->
-  <div class="overlay" id="overlay">
-    <div class="clerk-modal-wrap">
-      <button class="m-close" onclick="closeSignIn()" aria-label="Close">×</button>
-      <!-- Clerk mounts its full SignIn component here — no custom buttons needed -->
-      <div id="clerk-sign-in-mount">
-        <span class="clerk-loading">LOADING...</span>
-      </div>
-    </div>
-  </div>
-
   <script>
-    // ════════════════════════════════════════
-    // STATE
-    // ════════════════════════════════════════
-    let clerk = null;
-    let cfg = {};
-    let clerkMounted = false;
-    let pyodide = null;
-    let pyLoading = false;
+    let clerk = null, cfg = {}, clerkMounted = false, pyodide = null, pyLoading = false;
 
-    // ════════════════════════════════════════
-    // BOOT
-    // ════════════════════════════════════════
     (async function boot() {
-      try {
-        const r = await fetch('/api/config');
-        cfg = await r.json();
-      } catch (e) {
-        showInitErr('Could not load config. Check /api/config is deployed.');
-        return;
-      }
-
-      if (!cfg.clerkPublishableKey || !cfg.clerkDomain) {
-        showInitErr('Clerk keys missing in environment variables.<br>Add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_DOMAIN in Vercel → Settings → Environment Variables, then redeploy.');
-        return;
-      }
-
+      try { const r = await fetch('/api/config'); cfg = await r.json(); } catch(e) { hideLoader(); return; }
+      if (!cfg.clerkPublishableKey || !cfg.clerkDomain) { hideLoader(); return; }
       const s = document.createElement('script');
       s.src = `https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
       s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
       s.crossOrigin = 'anonymous';
       document.head.appendChild(s);
-
       s.onload = async () => {
-        try {
-          clerk = window.Clerk;
-          await clerk.load();
-          refreshUI();
-          clerk.addListener(refreshUI);
-        } catch (e) {
-          showInitErr('Clerk failed to initialize: ' + e.message);
-          return;
-        }
+        try { clerk = window.Clerk; await clerk.load(); } catch(e) { hideLoader(); return; }
+        refreshUI();
+        clerk.addListener(refreshUI);
         hideLoader();
-        handleScrollParam();
       };
-      s.onerror = () => showInitErr('Failed to load Clerk script. Check your CLERK_DOMAIN environment variable.');
+      s.onerror = () => hideLoader();
     })();
 
     function hideLoader() {
@@ -1094,31 +391,7 @@ for name,s in models.items():
       l.classList.add('hidden');
       setTimeout(() => l.style.display = 'none', 500);
     }
-    function showInitErr(html) {
-      document.querySelector('.init-spin').style.display = 'none';
-      document.querySelector('.init-text').style.display = 'none';
-      const e = document.getElementById('init-err');
-      e.innerHTML = html;
-      e.style.display = 'block';
-    }
 
-    // ════════════════════════════════════════
-    // SCROLL
-    // ════════════════════════════════════════
-    function scrollToPricing() {
-      document.getElementById('pricing').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-    function handleScrollParam() {
-      const params = new URLSearchParams(window.location.search);
-      if (params.get('scrollto') === 'pricing') {
-        setTimeout(scrollToPricing, 300);
-        history.replaceState({}, '', window.location.pathname);
-      }
-    }
-
-    // ════════════════════════════════════════
-    // AUTH UI
-    // ════════════════════════════════════════
     function refreshUI() {
       const user = clerk?.user;
       document.getElementById('auth-btns').style.display = user ? 'none' : 'flex';
@@ -1126,81 +399,29 @@ for name,s in models.items():
       if (user) {
         const init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
         document.getElementById('u-avatar').textContent = init;
-        document.getElementById('u-name').textContent =
-          user.firstName || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || '';
-        document.getElementById('u-email').textContent =
-          user.emailAddresses?.[0]?.emailAddress || '';
-        // Auto-close modal if user just signed in
-        if (document.getElementById('overlay').classList.contains('open')) {
-          closeSignIn();
-        }
+        document.getElementById('u-name').textContent = user.firstName || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || '';
+        if (document.getElementById('overlay').classList.contains('open')) closeSignIn();
       }
     }
 
-    // ─── Sign-in: mount Clerk component directly ───
     function openSignIn() {
-      if (!clerk) return;
+      if (!clerk) { location.href = '/course.html'; return; }
       document.getElementById('overlay').classList.add('open');
-
       if (!clerkMounted) {
         const mountEl = document.getElementById('clerk-sign-in-mount');
-        mountEl.innerHTML = ''; // clear loading spinner
-        clerk.mountSignIn(mountEl, {
-          afterSignInUrl: '/course.html',
-          afterSignUpUrl: '/course.html',
-          // routing: 'hash' keeps everything in one page
-          routing: 'hash',
-        });
+        mountEl.innerHTML = '';
+        clerk.mountSignIn(mountEl, { afterSignInUrl: '/course.html', afterSignUpUrl: '/course.html', routing: 'hash' });
         clerkMounted = true;
       }
     }
-
     function closeSignIn() {
       document.getElementById('overlay').classList.remove('open');
-      // Unmount so it re-mounts fresh next time (avoids stale state)
-      if (clerkMounted) {
-        try {
-          clerk.unmountSignIn(document.getElementById('clerk-sign-in-mount'));
-        } catch (e) { /* ignore if already unmounted */ }
-        clerkMounted = false;
-      }
+      if (clerkMounted) { try { clerk.unmountSignIn(document.getElementById('clerk-sign-in-mount')); } catch(e){} clerkMounted = false; }
     }
+    document.getElementById('overlay').addEventListener('click', function(e) { if (e.target === this) closeSignIn(); });
+    async function doSignOut() { await clerk?.signOut(); refreshUI(); }
 
-    // Close overlay on backdrop click
-    document.getElementById('overlay').addEventListener('click', function (e) {
-      if (e.target === this) closeSignIn();
-    });
-
-    // ─── Sign-out ───
-    async function doSignOut() {
-      await clerk?.signOut();
-      refreshUI();
-    }
-
-    // ════════════════════════════════════════
-    // CHECKOUT — prompts sign-in if not authed
-    // ════════════════════════════════════════
-    async function checkout(tier) {
-      if (!clerk?.user) {
-        openSignIn();
-        return;
-      }
-      try {
-        const token = await clerk.session.getToken();
-        const r = await fetch('/api/create-checkout', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-          body: JSON.stringify({ tier })
-        });
-        const { url, error } = await r.json();
-        if (error) { alert('Checkout error: ' + error); return; }
-        location.href = url;
-      } catch (e) { alert('Something went wrong. Try again.'); }
-    }
-
-    // ════════════════════════════════════════
-    // CODE RUNNER
-    // ════════════════════════════════════════
+    // ── CODE RUNNER ──
     const PY_CODE = `# Day 1: Frontier model cost comparison (Ctrl+Enter to run)
 models = {
     "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0},
@@ -1209,10 +430,10 @@ models = {
     "o3":                {"ctx":"128K","in":10.0,"out":40.0},
 }
 print(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}")
-print("─"*53)
+print("\u2500"*53)
 for name,s in models.items():
     print(f"{name:<22}{s['ctx']:>8}  \${s['in']:>6.2f}   \${s['out']:>6.2f}")
-print("\\n── 1,000 calls × 500 in + 300 out tokens ──")
+print("\\n\u2500\u2500 1,000 calls \u00d7 500 in + 300 out tokens \u2500\u2500")
 for name,s in models.items():
     cost=(500/1e6*s['in']+300/1e6*s['out'])*1000
     print(f"{name:<22}  \${cost:.4f}")`;
@@ -1225,11 +446,11 @@ const models = [
   { name:"o3",                ctx:"128K", costIn:10.0, costOut:40.0 },
 ];
 console.log("Model              Context  $/1M in  $/1M out");
-console.log("─".repeat(48));
+console.log("\u2500".repeat(48));
 models.forEach(m => {
   console.log(\`\${m.name.padEnd(22)} \${m.ctx.padStart(5)}   \$\${m.costIn.toFixed(2).padStart(5)}   \$\${m.costOut.toFixed(2).padStart(5)}\`);
 });
-console.log("\\n── 1,000 calls × 500 in + 300 out tokens ──");
+console.log("\\n\u2500\u2500 1,000 calls \u00d7 500 in + 300 out tokens \u2500\u2500");
 models.forEach(m => {
   const cost = ((500/1e6)*m.costIn + (300/1e6)*m.costOut) * 1000;
   console.log(\`\${m.name.padEnd(22)}  \$\${cost.toFixed(4)}\`);
@@ -1237,11 +458,9 @@ models.forEach(m => {
 
     function switchLang() {
       const lang = document.getElementById('demo-lang').value;
-      document.getElementById('demo-badge').textContent = lang === 'python' ? 'PYTHON · WASM' : 'JAVASCRIPT · SANDBOX';
+      document.getElementById('demo-badge').textContent = lang === 'python' ? 'PYTHON \u00b7 WASM' : 'JAVASCRIPT \u00b7 SANDBOX';
       document.getElementById('demo-code').value = lang === 'python' ? PY_CODE : JS_CODE;
-      document.getElementById('demo-out').textContent = lang === 'python'
-        ? '// Press Run  ·  Python loads via WebAssembly (~10MB, once)'
-        : '// Press Run  ·  JavaScript runs in a sandboxed iframe';
+      document.getElementById('demo-out').textContent = lang === 'python' ? '// Press Run  \u00b7  Python loads via WebAssembly (~10MB, once)' : '// Press Run  \u00b7  JavaScript runs in a sandboxed iframe';
     }
 
     async function runDemo() {
@@ -1250,8 +469,7 @@ models.forEach(m => {
       const out = document.getElementById('demo-out');
       const spin = document.getElementById('demo-spin');
       spin.classList.add('on');
-      if (lang === 'python') { await runPython(code, out); }
-      else { runJS(code, out); }
+      if (lang === 'python') { await runPython(code, out); } else { runJS(code, out); }
       spin.classList.remove('on');
     }
 
@@ -1262,54 +480,26 @@ models.forEach(m => {
           pyLoading = true;
           outEl.textContent = 'Loading Pyodide WebAssembly runtime (~10MB, one-time download)...';
           status.textContent = 'Pyodide: downloading...';
-          const s = document.createElement('script');
-          s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js';
-          document.head.appendChild(s);
+          const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'; document.head.appendChild(s);
           await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN load failed')); });
           pyodide = await window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
-          status.textContent = 'Pyodide: ready ✓';
-          pyLoading = false;
-        } else if (pyLoading) {
-          outEl.textContent = 'Python runtime still loading, please wait...';
-          return;
-        }
+          status.textContent = 'Pyodide: ready \u2713'; pyLoading = false;
+        } else if (pyLoading) { outEl.textContent = 'Python runtime still loading, please wait...'; return; }
         let out = '';
         pyodide.setStdout({ batched: s => out += s + '\n' });
-        pyodide.setStderr({ batched: s => out += '⚠ ' + s + '\n' });
+        pyodide.setStderr({ batched: s => out += '\u26a0 ' + s + '\n' });
         await pyodide.runPythonAsync(code);
-        outEl.textContent = out.trimEnd() || '(no output)';
-        outEl.className = 'e-out';
-      } catch (e) {
-        outEl.textContent = String(e);
-        outEl.className = 'e-out err';
-        status.textContent = 'Pyodide: error';
-        pyLoading = false;
-      }
+        outEl.textContent = out.trimEnd() || '(no output)'; outEl.className = 'e-out';
+      } catch(e) { outEl.textContent = String(e); outEl.className = 'e-out err'; status.textContent = 'Pyodide: error'; pyLoading = false; }
     }
 
     function runJS(code, outEl) {
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.sandbox = 'allow-scripts';
-      document.body.appendChild(iframe);
-      const logs = [];
-      const w = iframe.contentWindow;
-      w.console = {
-        log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x, null, 2) : String(x)).join(' ')),
-        error: (...a) => logs.push('⚠ ' + a.map(String).join(' ')),
-        warn: (...a) => logs.push('⚠ ' + a.map(String).join(' ')),
-        table: (...a) => logs.push(JSON.stringify(a, null, 2)),
-      };
-      try {
-        w.eval(code);
-        outEl.textContent = logs.join('\n') || '(no output)';
-        outEl.className = 'e-out';
-      } catch (e) {
-        outEl.textContent = e.toString();
-        outEl.className = 'e-out err';
-      } finally {
-        document.body.removeChild(iframe);
-      }
+      const iframe = document.createElement('iframe'); iframe.style.display = 'none'; iframe.sandbox = 'allow-scripts'; document.body.appendChild(iframe);
+      const logs = [], w = iframe.contentWindow;
+      w.console = { log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' ')), error: (...a) => logs.push('\u26a0 '+a.map(String).join(' ')), warn: (...a) => logs.push('\u26a0 '+a.map(String).join(' ')), table: (...a) => logs.push(JSON.stringify(a,null,2)) };
+      try { w.eval(code); outEl.textContent = logs.join('\n') || '(no output)'; outEl.className = 'e-out'; }
+      catch(e) { outEl.textContent = e.toString(); outEl.className = 'e-out err'; }
+      finally { document.body.removeChild(iframe); }
     }
 
     document.getElementById('demo-code').addEventListener('keydown', e => {
@@ -1317,5 +507,4 @@ models.forEach(m => {
     });
   </script>
 </body>
-
 </html>
