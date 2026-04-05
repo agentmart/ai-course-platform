@@ -3,10 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Platform Analytics — becomeaipm.com</title>
+<title>Leaderboard — becomeaipm.com</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
-<script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+<!-- Pendo Analytics (initialized after Clerk auth loads) -->
 <style>
 :root{
   --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
@@ -19,47 +18,47 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 .nav-sp{flex:1;}
 .nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:4px 11px;border:1px solid rgba(255,255,255,.1);border-radius:2px;transition:all .15s;}
 .nav-link:hover{color:var(--amber);border-color:var(--amber);}
+.nav-link.active{color:var(--amber);border-color:var(--amber);}
 .hero{padding:60px 40px 40px;max-width:1100px;margin:0 auto;}
 .label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:16px;}
 h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.5vw,56px);font-weight:900;line-height:1.05;margin-bottom:14px;}
 h1 em{color:var(--amber);font-style:italic;}
 .sub{font-size:16px;color:var(--ink2);max-width:640px;line-height:1.7;margin-bottom:40px;}
-.privacy-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(13,110,110,.08);border:1px solid rgba(13,110,110,.2);padding:7px 16px;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);margin-bottom:48px;}
 .section{padding:0 40px 60px;max-width:1100px;margin:0 auto;}
 .sec-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:24px;}
 .sec-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
-.grid2{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;}
-.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-bottom:40px;}
 .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;}
-@media(max-width:900px){.grid3{grid-template-columns:1fr 1fr;}.grid4{grid-template-columns:1fr 1fr;}}
-@media(max-width:600px){.grid2,.grid3,.grid4{grid-template-columns:1fr;}.section,.hero{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.grid4{grid-template-columns:1fr;}.section,.hero{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
 .stat-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px;}
 .sc-n{font-family:'Fraunces',serif;font-size:40px;font-weight:900;color:var(--amber);line-height:1;margin-bottom:6px;}
 .sc-l{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
 .sc-sub{font-size:12px;color:var(--muted);margin-top:6px;}
-.event-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
-.ev-name{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:.1em;margin-bottom:6px;}
-.ev-desc{font-size:13px;color:var(--ink2);line-height:1.6;margin-bottom:10px;}
-.ev-props{display:flex;gap:6px;flex-wrap:wrap;}
-.ev-prop{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(200,89,10,.08);color:#9a4008;border:1px solid rgba(200,89,10,.15);}
-.arch-card{background:var(--ink);border-radius:8px;padding:40px;margin-bottom:40px;}
-.arch-inner{max-width:700px;}
-.arch-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
-.arch-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#f0ebe2;margin-bottom:14px;}
-.arch-body{font-size:14px;color:rgba(240,235,226,.5);line-height:1.8;}
-.arch-body p{margin-bottom:12px;}
-.arch-body strong{color:rgba(240,235,226,.8);}
-.pipe-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:20px;}
-.pipe-step{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);padding:6px 14px;border-radius:3px;font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.5);}
-.pipe-arrow{color:rgba(255,255,255,.2);font-size:14px;}
-.principles-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
-@media(max-width:600px){.principles-grid{grid-template-columns:1fr;}}
-.principle{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px;}
-.pr-icon{font-size:20px;margin-bottom:10px;}
-.pr-title{font-size:14px;font-weight:700;margin-bottom:6px;}
-.pr-body{font-size:13px;color:var(--muted);line-height:1.6;}
-.divider{height:1px;background:var(--rule);margin:0 40px 60px;}
-.cta-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 40px;margin-bottom:60px;}
+.my-progress{background:var(--ink);border-radius:8px;padding:40px;margin-bottom:40px;display:none;}
+.my-progress.show{display:block;}
+.mp-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+.mp-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#f0ebe2;margin-bottom:20px;}
+.mp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:600px){.mp-stats{grid-template-columns:1fr;}}
+.mp-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:20px;text-align:center;}
+.mp-stat-n{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--amber);}
+.mp-stat-l{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;text-transform:uppercase;letter-spacing:.1em;}
+.mp-bar-wrap{margin-top:20px;}
+.mp-bar-label{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px;display:flex;justify-content:space-between;}
+.mp-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+.mp-bar-fill{height:100%;background:var(--amber);border-radius:4px;transition:width .6s ease;}
+.lb-table{width:100%;border-collapse:collapse;margin-bottom:40px;}
+.lb-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:2px solid var(--rule);}
+.lb-table td{padding:12px 16px;border-bottom:1px solid var(--rule);font-size:14px;}
+.lb-rank{font-family:'Fraunces',serif;font-weight:700;color:var(--amber);font-size:18px;width:50px;}
+.lb-name{color:var(--ink);}
+.lb-days{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);}
+.lb-tier{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.08em;}
+.lb-tier.free{background:rgba(140,127,116,.1);color:var(--muted);border:1px solid rgba(140,127,116,.2);}
+.lb-tier.paid{background:rgba(200,89,10,.08);color:var(--amber);border:1px solid rgba(200,89,10,.2);}
+.lb-empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+.lb-me{background:rgba(200,89,10,.04);}
+.cta-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 40px;}
 .cta-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
 .cta-text h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
 .cta-text p{font-size:14px;color:var(--muted);}
@@ -68,6 +67,7 @@ h1 em{color:var(--amber);font-style:italic;}
 footer{background:var(--ink);color:rgba(255,255,255,.25);padding:28px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
 footer a{color:rgba(255,255,255,.3);text-decoration:none;}
 footer a:hover{color:var(--amber);}
+.loading-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);padding:40px 0;text-align:center;}
 </style>
 </head>
 <body>
@@ -77,167 +77,221 @@ footer a:hover{color:var(--amber);}
   <div class="nav-sp"></div>
   <a class="nav-link" href="/course.html">Course</a>
   <a class="nav-link" href="/companies.html">Companies</a>
+  <a class="nav-link active" href="/analytics.html">Leaderboard</a>
   <a class="nav-link" href="/contact.html">Contact</a>
 </nav>
 
 <div class="hero">
-  <div class="label">Platform Analytics — Aggregate &amp; Privacy-First</div>
-  <h1>User behavior,<br><em>without the surveillance</em></h1>
-  <p class="sub">This platform tracks aggregate usage patterns using Plausible Analytics — no cookies, no cross-site tracking, no personal data. What’s shown here is how PMs design data systems: with privacy as the default, not an afterthought.</p>
-  <div class="privacy-badge">&#10003; No cookies &middot; No personal data &middot; GDPR compliant &middot; Plausible Analytics</div>
+  <div class="label">Community Progress</div>
+  <h1>See how everyone is <em>progressing</em></h1>
+  <p class="sub">Track your progress through the 60-day curriculum and see how the community is advancing. All data is anonymized &mdash; no personal details shared.</p>
 </div>
 
+<!-- Your Progress (auth required) -->
 <div class="section">
-  <div class="sec-label">Live Platform Metrics — 30 Day Rolling</div>
+  <div class="my-progress" id="my-progress">
+    <div class="mp-tag">Your Progress</div>
+    <div class="mp-title" id="mp-title">Keep going &mdash; you're doing great</div>
+    <div class="mp-stats">
+      <div class="mp-stat">
+        <div class="mp-stat-n" id="mp-days">0</div>
+        <div class="mp-stat-l">Days Completed</div>
+      </div>
+      <div class="mp-stat">
+        <div class="mp-stat-n" id="mp-streak">0</div>
+        <div class="mp-stat-l">Day Streak</div>
+      </div>
+      <div class="mp-stat">
+        <div class="mp-stat-n" id="mp-percentile">&mdash;</div>
+        <div class="mp-stat-l">Percentile</div>
+      </div>
+    </div>
+    <div class="mp-bar-wrap">
+      <div class="mp-bar-label">
+        <span>Course progress</span>
+        <span id="mp-pct-label">0%</span>
+      </div>
+      <div class="mp-bar"><div class="mp-bar-fill" id="mp-bar-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div id="my-progress-anon" style="display:none;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:40px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:14px;color:var(--ink2);">Sign in to see your personal progress and ranking</span>
+      <a class="cta-btn" href="/course.html" style="margin-left:auto;">Sign In &amp; Start Learning &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<!-- Platform Stats -->
+<div class="section">
+  <div class="sec-label">Platform Stats</div>
   <div class="grid4">
     <div class="stat-card">
-      <div class="sc-n" id="stat-pv">—</div>
-      <div class="sc-l">Page Views</div>
-      <div class="sc-sub">Across all pages</div>
+      <div class="sc-n" id="stat-users">&mdash;</div>
+      <div class="sc-l">Total Learners</div>
+      <div class="sc-sub">Enrolled in the course</div>
     </div>
     <div class="stat-card">
-      <div class="sc-n" id="stat-uv">—</div>
-      <div class="sc-l">Unique Visitors</div>
-      <div class="sc-sub">IP-hashed, no PII</div>
-    </div>
-    <div class="stat-card">
-      <div class="sc-n" id="stat-days">—</div>
+      <div class="sc-n" id="stat-days">&mdash;</div>
       <div class="sc-l">Days Completed</div>
-      <div class="sc-sub">Custom event total</div>
+      <div class="sc-sub">Across all learners</div>
     </div>
     <div class="stat-card">
-      <div class="sc-n" id="stat-co">—</div>
-      <div class="sc-l">Companies Viewed</div>
-      <div class="sc-sub">Job board engagement</div>
+      <div class="sc-n" id="stat-avg">&mdash;</div>
+      <div class="sc-l">Avg Days / User</div>
+      <div class="sc-sub">Community average</div>
     </div>
-  </div>
-  <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:20px 24px;display:flex;align-items:center;gap:12px;">
-    <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">Live data is available in the Plausible dashboard. These counters update when the public API is configured.</div>
-    <a href="https://plausible.io/becomeaipm.com" target="_blank" rel="noopener" style="margin-left:auto;font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);text-decoration:none;white-space:nowrap;padding:5px 12px;border:1px solid rgba(200,89,10,.3);border-radius:3px;">Plausible Dashboard &#8599;</a>
-  </div>
-</div>
-
-<div class="section">
-  <div class="sec-label">Custom Events Tracked</div>
-  <div class="sec-title">What we measure — and why</div>
-  <div class="grid3">
-    <div class="event-card">
-      <div class="ev-name">Day Completed</div>
-      <div class="ev-desc">Fired when a user marks a course day complete. Measures curriculum engagement and learning velocity.</div>
-      <div class="ev-props"><span class="ev-prop">day: number</span></div>
-    </div>
-    <div class="event-card">
-      <div class="ev-name">Checkout Started</div>
-      <div class="ev-desc">Fired when a user initiates a Stripe checkout. Tracks conversion funnel entry point.</div>
-      <div class="ev-props"><span class="ev-prop">tier: monthly | annual | team</span></div>
-    </div>
-    <div class="event-card">
-      <div class="ev-name">Contact Click</div>
-      <div class="ev-desc">Fired when a visitor clicks a contact method. Measures which channels drive outreach.</div>
-      <div class="ev-props"><span class="ev-prop">channel: linkedin | email | github</span></div>
-    </div>
-    <div class="event-card">
-      <div class="ev-name">Pageview</div>
-      <div class="ev-desc">Standard Plausible pageview. Automatically tracked on every page load, no extra code required.</div>
-      <div class="ev-props"><span class="ev-prop">url: path</span><span class="ev-prop">referrer</span><span class="ev-prop">device</span></div>
-    </div>
-    <div class="event-card">
-      <div class="ev-name">Outbound Link</div>
-      <div class="ev-desc">Auto-tracked by Plausible on all external links. Shows which resources users click through to.</div>
-      <div class="ev-props"><span class="ev-prop">url: destination</span></div>
-    </div>
-    <div class="event-card">
-      <div class="ev-name">File Download</div>
-      <div class="ev-desc">Tracked if users download any resources linked from course days. Measures resource utility.</div>
-      <div class="ev-props"><span class="ev-prop">file: name</span></div>
+    <div class="stat-card">
+      <div class="sc-n" id="stat-popular">&mdash;</div>
+      <div class="sc-l">Most Popular Day</div>
+      <div class="sc-sub">Most completed by learners</div>
     </div>
   </div>
 </div>
 
+<!-- Community Leaderboard -->
 <div class="section">
-  <div class="arch-card">
-    <div class="arch-inner">
-      <div class="arch-tag">Architecture</div>
-      <div class="arch-title">How the analytics pipeline works</div>
-      <div class="arch-body">
-        <p>This platform uses <strong>Plausible Analytics</strong> — an open-source, privacy-respecting alternative to Google Analytics. The script is ~1KB, loads async, and doesn’t set any cookies.</p>
-        <p>Custom events are fired via <code style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(200,89,10,.9);">plausible('Event Name', {props: {...}})</code> at meaningful interaction points. No third-party SDKs, no data brokers.</p>
-        <p>The job board uses <strong>GitHub Actions</strong> workflows — a weekly company discovery cron and a daily ATS status check. All job metadata flows into Supabase, which also stores user progress. No user data is shared with analytics.</p>
-      </div>
-      <div class="pipe-row">
-        <div class="pipe-step">User Action</div>
-        <div class="pipe-arrow">&#8594;</div>
-        <div class="pipe-step">Plausible Script</div>
-        <div class="pipe-arrow">&#8594;</div>
-        <div class="pipe-step">Plausible EU Servers</div>
-        <div class="pipe-arrow">&#8594;</div>
-        <div class="pipe-step">Aggregate Dashboard</div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="sec-label">Design Principles</div>
-  <div class="sec-title">How a PM thinks about analytics</div>
-  <div class="principles-grid">
-    <div class="principle">
-      <div class="pr-icon">&#128274;</div>
-      <div class="pr-title">Privacy by default</div>
-      <div class="pr-body">No cookies, no fingerprinting, no cross-site tracking. Data is aggregated at collection — there’s nothing to leak because nothing identifiable is stored.</div>
-    </div>
-    <div class="principle">
-      <div class="pr-icon">&#127919;</div>
-      <div class="pr-title">Instrument what matters</div>
-      <div class="pr-body">Three custom events cover the full user journey: engagement (Day Completed), conversion (Checkout Started), and reach (Contact Click). Everything else is noise.</div>
-    </div>
-    <div class="principle">
-      <div class="pr-icon">&#9889;</div>
-      <div class="pr-title">Performance first</div>
-      <div class="pr-body">The Plausible script is ~1KB and loads asynchronously. It doesn’t block rendering, doesn’t add GDPR banners, and doesn’t slow down the course experience.</div>
-    </div>
-    <div class="principle">
-      <div class="pr-icon">&#128202;</div>
-      <div class="pr-title">Separate product data from analytics</div>
-      <div class="pr-body">User progress, job applications, and notes live in Supabase — not in analytics. Analytics answers “what happened”; the product database answers “who did it.”</div>
-    </div>
+  <div class="sec-label">Community Leaderboard</div>
+  <div class="sec-title">Top Learners</div>
+  <div id="lb-loading" class="loading-msg">Loading leaderboard...</div>
+  <table class="lb-table" id="lb-table" style="display:none;">
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Learner</th>
+        <th>Days Completed</th>
+        <th>Tier</th>
+      </tr>
+    </thead>
+    <tbody id="lb-body"></tbody>
+  </table>
+  <div id="lb-empty" class="lb-empty" style="display:none;">
+    No one has completed any days yet. Be the first!
   </div>
 </div>
 
 <div class="cta-section">
   <div class="cta-inner">
     <div class="cta-text">
-      <h2>See this thinking applied to a real product</h2>
-      <p>The same PM instincts behind this analytics design run through the entire 60-day curriculum.</p>
+      <h2>Ready to climb the leaderboard?</h2>
+      <p>Start the 60-day course and track your progress alongside the community.</p>
     </div>
-    <a class="cta-btn" href="/course.html">Explore the Course &#8594;</a>
+    <a class="cta-btn" href="/course.html">Start the Course &rarr;</a>
   </div>
 </div>
 
 <footer>
-  <p>&copy; 2025 Stavan Mehta &middot; <a href="/">becomeaipm.com</a> &middot; <a href="mailto:hello@agentmart.ai">hello@agentmart.ai</a></p>
+  <p>&copy; 2025 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a></p>
 </footer>
 
 <script>
-// Attempt to load live stats from Plausible API if available
-// Falls back gracefully if endpoint isn't configured
-(async function loadStats() {
+(async function loadLeaderboard() {
+  var loading = document.getElementById('lb-loading');
+  var table = document.getElementById('lb-table');
+  var tbody = document.getElementById('lb-body');
+  var empty = document.getElementById('lb-empty');
+
   try {
-    const r = await fetch('/api/analytics-stats', { signal: AbortSignal.timeout(4000) });
-    if (!r.ok) return;
-    const d = await r.json();
-    if (d.pageviews) document.getElementById('stat-pv').textContent = fmt(d.pageviews);
-    if (d.visitors) document.getElementById('stat-uv').textContent = fmt(d.visitors);
-    if (d.daysCompleted) document.getElementById('stat-days').textContent = fmt(d.daysCompleted);
-    if (d.companiesViewed) document.getElementById('stat-co').textContent = fmt(d.companiesViewed);
+    // Get auth token if available
+    var headers = {};
+    try {
+      var cfgRes = await fetch('/api/config');
+      var cfg = await cfgRes.json();
+      if (cfg.clerkPublishableKey && cfg.clerkDomain) {
+        var s = document.createElement('script');
+        s.src = 'https://' + cfg.clerkDomain + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+        s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
+        s.crossOrigin = 'anonymous';
+        document.head.appendChild(s);
+        await new Promise(function(res) { s.onload = res; s.onerror = res; });
+        if (window.Clerk) {
+          await window.Clerk.load();
+          var session = window.Clerk.session;
+          if (session) {
+            var token = await session.getToken();
+            if (token) headers['Authorization'] = 'Bearer ' + token;
+          }
+        }
+      }
+    } catch(e) { /* proceed without auth */ }
+
+    var res = await fetch('/api/leaderboard', { headers: headers });
+    if (!res.ok) throw new Error('Failed to load');
+    var data = await res.json();
+
+    // Populate stats
+    var st = data.stats || {};
+    document.getElementById('stat-users').textContent = fmt(st.totalUsers || 0);
+    document.getElementById('stat-days').textContent = fmt(st.totalDaysCompleted || 0);
+    document.getElementById('stat-avg').textContent = st.avgDaysPerUser || 0;
+    document.getElementById('stat-popular').textContent = st.mostPopularDay ? 'Day ' + st.mostPopularDay : '\u2014';
+
+    // Personal progress
+    if (data.me) {
+      var mp = document.getElementById('my-progress');
+      mp.classList.add('show');
+      document.getElementById('mp-days').textContent = data.me.daysCompleted;
+      document.getElementById('mp-streak').textContent = data.me.streak;
+      document.getElementById('mp-percentile').textContent = data.me.percentile + '%';
+      var pct = Math.round((data.me.daysCompleted / 60) * 100);
+      document.getElementById('mp-pct-label').textContent = pct + '%';
+      document.getElementById('mp-bar-fill').style.width = pct + '%';
+    } else {
+      document.getElementById('my-progress-anon').style.display = 'block';
+    }
+
+    // Leaderboard
+    loading.style.display = 'none';
+    if (data.leaderboard && data.leaderboard.length > 0) {
+      table.style.display = 'table';
+      data.leaderboard.forEach(function(u, i) {
+        var tr = document.createElement('tr');
+        var tierClass = u.tier === 'free' ? 'free' : 'paid';
+        var tierLabel = u.tier === 'free' ? 'Free' : u.tier === 'annual' ? 'Annual' : u.tier === 'monthly' ? 'Monthly' : 'Pro';
+        tr.innerHTML =
+          '<td class="lb-rank">' + (i + 1) + '</td>' +
+          '<td class="lb-name">' + escHtml(u.displayName) + '</td>' +
+          '<td class="lb-days">' + u.daysCompleted + ' / 60</td>' +
+          '<td><span class="lb-tier ' + tierClass + '">' + tierLabel + '</span></td>';
+        tbody.appendChild(tr);
+      });
+    } else {
+      empty.style.display = 'block';
+    }
   } catch(e) {
-    // Silently fail — stats endpoint may not be configured yet
+    loading.textContent = 'Could not load leaderboard. Try refreshing.';
   }
+
+  // Initialize Pendo analytics
+  initPendo(cfg ? cfg.pendoApiKey : '', window.Clerk ? window.Clerk.user : null);
 })();
+
+function initPendo(apiKey, user) {
+  if (!apiKey) return;
+  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+  var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+  var visitorFirst = user ? (user.firstName || '') : '';
+  var visitorLast = user ? (user.lastName || '') : '';
+  pendo.initialize({
+    visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
+    account: { id: 'becomeaipm' }
+  });
+}
 
 function fmt(n) {
   if (n >= 1000) return (n/1000).toFixed(1).replace(/\.0$/,'') + 'k';
   return String(n);
+}
+
+function escHtml(s) {
+  var d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
 }
 </script>
 </body>

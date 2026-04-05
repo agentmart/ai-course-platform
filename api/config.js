@@ -12,5 +12,7 @@ export default function handler(req, res) {
     appUrl:              process.env.NEXT_PUBLIC_APP_URL || '',
     supabaseUrl:         process.env.SUPABASE_URL || '',
     supabaseAnonKey:     process.env.SUPABASE_ANON_KEY || '',
+    pendoApiKey:         process.env.PENDO_API_KEY || '',
+    turnstileSiteKey:    process.env.TURNSTILE_SITE_KEY || '',
   });
 }

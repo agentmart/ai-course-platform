@@ -1,0 +1,169 @@
+name: QA Validation Agent
+
+on:
+  pull_request:
+    types: [labeled]
+
+permissions:
+  pull-requests: write
+  issues: write
+  contents: read
+
+jobs:
+  qa-validate:
+    if: github.event.label.name == 'needs-qa'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm ci --ignore-scripts 2>/dev/null || true
+
+      - name: Run QA checks
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const { execSync } = require('child_process');
+            const fs = require('fs');
+            const prNumber = context.payload.pull_request.number;
+            const checks = [];
+            let allPassed = true;
+
+            function addCheck(name, passed, details) {
+              checks.push({ name, passed, details });
+              if (!passed) allPassed = false;
+            }
+
+            // 1. Get changed files
+            let changedFiles = [];
+            try {
+              const diff = execSync('git diff --name-only origin/main...HEAD', { encoding: 'utf8' });
+              changedFiles = diff.trim().split('\n').filter(Boolean);
+              addCheck('Changed files detected', changedFiles.length > 0, 
+                changedFiles.length > 0 ? changedFiles.map(f => '`' + f + '`').join(', ') : 'No files changed');
+            } catch (e) {
+              addCheck('Changed files detected', false, 'Could not determine changed files');
+            }
+
+            // 2. Validate JavaScript syntax for changed .js and .mjs files
+            const jsFiles = changedFiles.filter(f => f.endsWith('.js') || f.endsWith('.mjs'));
+            for (const file of jsFiles) {
+              if (!fs.existsSync(file)) continue;
+              try {
+                execSync(`node --check ${file}`, { encoding: 'utf8', stdio: 'pipe' });
+                addCheck(`JS syntax: ${file}`, true, 'Valid syntax');
+              } catch (e) {
+                addCheck(`JS syntax: ${file}`, false, e.stderr || 'Syntax error');
+              }
+            }
+
+            // 3. Validate HTML files (basic structure check)
+            const htmlFiles = changedFiles.filter(f => f.endsWith('.html'));
+            for (const file of htmlFiles) {
+              if (!fs.existsSync(file)) continue;
+              const content = fs.readFileSync(file, 'utf8');
+              const hasDoctype = content.includes('<!DOCTYPE html>') || content.includes('<!doctype html>');
+              const hasClosingHtml = content.includes('</html>');
+              const hasClosingBody = content.includes('</body>');
+              const passed = hasDoctype && hasClosingHtml && hasClosingBody;
+              addCheck(`HTML structure: ${file}`, passed,
+                passed ? 'Valid structure' : 'Missing DOCTYPE, </html>, or </body>');
+            }
+
+            // 4. Validate course day files structure
+            const dayFiles = changedFiles.filter(f => f.match(/public\/days\/day-\d+\.js$/));
+            for (const file of dayFiles) {
+              if (!fs.existsSync(file)) continue;
+              const content = fs.readFileSync(file, 'utf8');
+              const hasWindowAssign = /window\.COURSE_DAY_DATA\[\d+\]\s*=/.test(content);
+              const hasSubtitle = content.includes('subtitle:');
+              const hasContext = content.includes('context:');
+              const hasTasks = content.includes('tasks:');
+              const hasCodeExample = content.includes('codeExample:');
+              const hasInterview = content.includes('interview:');
+              const hasPmAngle = content.includes('pmAngle:');
+              const hasResources = content.includes('resources:');
+              const allFields = hasWindowAssign && hasSubtitle && hasContext && hasTasks && hasCodeExample && hasInterview && hasPmAngle && hasResources;
+              addCheck(`Day file structure: ${file}`, allFields,
+                allFields ? 'All required fields present' : 
+                `Missing: ${[!hasWindowAssign && 'window assignment', !hasSubtitle && 'subtitle', !hasContext && 'context', !hasTasks && 'tasks', !hasCodeExample && 'codeExample', !hasInterview && 'interview', !hasPmAngle && 'pmAngle', !hasResources && 'resources'].filter(Boolean).join(', ')}`);
+            }
+
+            // 5. Check for common issues
+            for (const file of changedFiles) {
+              if (!fs.existsSync(file)) continue;
+              const content = fs.readFileSync(file, 'utf8');
+              
+              // Check for leaked secrets patterns
+              const secretPatterns = [/sk_test_\w+/, /sk_live_\w+/, /whsec_\w+/, /eyJhbGci\w{20,}/];
+              for (const pattern of secretPatterns) {
+                if (pattern.test(content)) {
+                  addCheck(`Secret leak check: ${file}`, false, 'Possible secret/key detected in file');
+                  break;
+                }
+              }
+
+              // Check for hardcoded pricing
+              if (file.match(/public\/days\//) && /\$\d+\.?\d*\s*(per|\/)\s*(month|year|token|1[KkMm])/i.test(content)) {
+                addCheck(`Hardcoded pricing: ${file}`, false, 'Possible hardcoded pricing found — should link to live pricing pages');
+              }
+            }
+
+            // Generate QA report
+            const passCount = checks.filter(c => c.passed).length;
+            const failCount = checks.filter(c => !c.passed).length;
+            const report = [
+              `# QA Validation Report`,
+              '',
+              `**Result:** ${allPassed ? '✅ All checks passed' : '❌ Some checks failed'}`,
+              `**Passed:** ${passCount} | **Failed:** ${failCount}`,
+              '',
+              '## Checks',
+              '',
+              ...checks.map(c => `${c.passed ? '✅' : '❌'} **${c.name}**: ${c.details}`),
+              '',
+              '---',
+              '*Auto-generated by QA validation agent*',
+            ].join('\n');
+
+            // Post report as PR comment
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: report,
+            });
+
+            // Add label based on result
+            if (allPassed) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['qa-passed'],
+              });
+              // Remove needs-qa label
+              try {
+                await github.rest.issues.removeLabel({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: prNumber,
+                  name: 'needs-qa',
+                });
+              } catch (e) { /* label might not exist */ }
+            } else {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: ['qa-failed'],
+              });
+            }

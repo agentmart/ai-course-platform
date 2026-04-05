@@ -70,11 +70,12 @@ This activates the `/api/billing-portal` endpoint.
 
 ---
 
-## Step 5 — Plausible Analytics
+## Step 5 — Pendo Analytics
 
-1. Go to **plausible.io** → Create account → Add site `becomeaipm.com`
-2. Script is already embedded in `index.html`, `course.html`, `companies.html` — no code changes needed
-3. Verify events show up: **Checkout Started** (with tier), **Day Completed** (with day + tier)
+1. Go to **pendo.io** → Create account → Create app for `becomeaipm.com`
+2. Copy the **API Key** from Install Settings → Add to `.env` as `PENDO_API_KEY=<your-key>`
+3. Pendo is initialized automatically after Clerk auth loads (visitor ID = Clerk user ID)
+4. Verify events show up: **Day Completed** (with day), **Contact Click** (with channel)
 
 ---
 

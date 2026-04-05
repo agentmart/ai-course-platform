@@ -4,10 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stavan Mehta — Principal AI Product Manager</title>
+  <title>becomeaipm.com — 60-Day AI Product Management Course</title>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-  <script defer data-domain="becomeaipm.com" src="https://plausible.io/js/script.tagged-events.js"></script>
-  <script>window.plausible = window.plausible || function() { (window.plausible.q = window.plausible.q || []).push(arguments) }</script>
+  <!-- Pendo Analytics (initialized after Clerk auth loads) -->
   <style>
     :root {
       --bg: #f5f0e8;
@@ -129,7 +128,14 @@
     .cb-left .sec-title { margin-bottom: 16px; }
     .cb-sub { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
     .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-    .topic { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--ink2); }
+    .topic { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--ink2); cursor: pointer; transition: all .15s; flex-wrap: wrap; }
+    .topic:hover { border-color: rgba(200,89,10,.3); }
+    .topic .chevron { margin-left: auto; font-size: 10px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+    .topic.open .chevron { transform: rotate(180deg); }
+    .topic.open { border-color: var(--amber); background: rgba(200,89,10,.04); }
+    .topic-summary { display: none; width: 100%; font-size: 12px; color: var(--muted); line-height: 1.6; padding-top: 8px; border-top: 1px solid var(--rule); margin-top: 6px; }
+    .topic-summary .topic-days { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); margin-top: 4px; }
+    .topic.open .topic-summary { display: block; }
     .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
     .da { background: var(--amber); } .dt { background: var(--teal); } .dp { background: #5c1f6e; }
 
@@ -180,7 +186,7 @@
     <div class="nav-links">
       <a class="nav-link" href="/course.html">Course</a>
       <a class="nav-link" href="/companies.html">Companies</a>
-      <a class="nav-link" href="/analytics.html">Analytics</a>
+      <a class="nav-link" href="/analytics.html">Leaderboard</a>
       <a class="nav-link" href="/contact.html">Contact</a>
     </div>
     <div class="nav-right">
@@ -201,56 +207,80 @@
   <!-- HERO -->
   <div class="hero">
     <div class="hero-eyebrow">
-      <span class="eyebrow-label">Principal AI Product Manager &middot; Proof of Work</span>
-      <div class="live-dot"><div class="ldot"></div><span class="ltxt">3 products in production</span></div>
+      <span class="eyebrow-label">60-Day AI Product Management Course</span>
+      <div class="live-dot"><div class="ldot"></div><span class="ltxt">Platform live</span></div>
     </div>
-    <h1>I don’t just study AI.<br><em>I ship with it.</em></h1>
-    <p class="hero-sub">This platform is a live demonstration — 60-day AI PM curriculum, a real-time job board powered by GitHub Actions, and analytics designed for privacy. All built with Claude Code, MCP, Supabase, and Vercel.</p>
+    <h1>Build real AI products.<br><em>Not just read about them.</em></h1>
+    <p class="hero-sub">A hands-on, 60-day curriculum that teaches you to ship AI products — with real code labs, frontier model APIs, and the PM frameworks top companies actually use. Python &amp; JavaScript run right in your browser.</p>
     <div class="hero-ctas">
-      <a class="cta-primary" href="/course.html">Explore the 60-Day Course &rarr;</a>
-      <a class="cta-sec" href="/contact.html">Let’s Talk</a>
+      <a class="cta-primary" href="/course.html">Start the 60-Day Course Free &rarr;</a>
+      <a class="cta-sec" href="/companies.html">Browse AI PM Jobs</a>
     </div>
     <div class="stats">
       <div class="stat"><div class="stat-n">60</div><div class="stat-l">Days of curriculum</div></div>
-      <div class="stat"><div class="stat-n">3</div><div class="stat-l">Production systems</div></div>
-      <div class="stat"><div class="stat-n">241+</div><div class="stat-l">PM roles tracked</div></div>
-      <div class="stat"><div class="stat-n">0</div><div class="stat-l">Days of Googling</div></div>
+      <div class="stat"><div class="stat-n">240</div><div class="stat-l">Hands-on tasks</div></div>
+      <div class="stat"><div class="stat-n">60</div><div class="stat-l">Code labs</div></div>
+      <div class="stat"><div class="stat-n">241+</div><div class="stat-l">AI PM roles tracked</div></div>
     </div>
   </div>
 
   <hr class="divider">
 
-  <!-- WHAT I BUILT -->
+  <!-- PLATFORM FEATURES -->
   <div class="sec">
-    <div class="sec-label">Shipped &mdash; In Production</div>
-    <div class="sec-title">What I built</div>
+    <div class="sec-label">What You Get</div>
+    <div class="sec-title">Everything you need to become an AI PM</div>
     <div class="projects">
       <div class="project-card">
-        <div class="pc-tag">Live Platform</div>
-        <div class="pc-title">becomeaipm.com</div>
-        <div class="pc-desc">This site. 60-day AI PM curriculum, a live job board powered by GitHub Actions ATS crawlers, Plausible analytics, Clerk auth, Stripe payments, and Supabase persistence. Every piece in production.</div>
+        <div class="pc-tag">Curriculum</div>
+        <div class="pc-title">60-Day Structured Course</div>
+        <div class="pc-desc">Day-by-day guided learning covering MCP, A2A, RAG, Constitutional AI, Evals, and more. Each day includes context, 4 hands-on tasks, a code lab, an interview question, and PM-specific angles.</div>
         <div class="pc-stack">
-          <span class="pc-chip">Claude Code</span><span class="pc-chip">GitHub Actions</span><span class="pc-chip">Supabase</span><span class="pc-chip">Clerk</span><span class="pc-chip">Stripe</span><span class="pc-chip">Plausible</span><span class="pc-chip">Vercel</span>
+          <span class="pc-chip">60 Days</span><span class="pc-chip">240 Tasks</span><span class="pc-chip">Interview Prep</span><span class="pc-chip">PM Angles</span>
         </div>
-        <a class="pc-link" href="/course.html">Explore the course &#8594;</a>
+        <a class="pc-link" href="/course.html">Start learning &#8594;</a>
       </div>
       <div class="project-card">
-        <div class="pc-tag">AI Operating System</div>
-        <div class="pc-title">RIA OS</div>
-        <div class="pc-desc">An AI operating system for Registered Investment Advisors built on Claude Code’s .claude/ architecture. 13 slash commands, specialist sub-agents (CCO, portfolio analyst, tax strategist), and a revenue model that works without custodian API integration.</div>
+        <div class="pc-tag">Code Labs</div>
+        <div class="pc-title">Python &amp; JavaScript in Browser</div>
+        <div class="pc-desc">Every day includes a runnable code example. Python executes via Pyodide WebAssembly and JavaScript runs in a sandboxed iframe — no setup, no installs, no API keys needed to start.</div>
         <div class="pc-stack">
-          <span class="pc-chip">Claude Code</span><span class="pc-chip">MCP</span><span class="pc-chip">A2A</span><span class="pc-chip">Sub-agents</span><span class="pc-chip">Slash commands</span>
+          <span class="pc-chip">Pyodide WASM</span><span class="pc-chip">Python 3</span><span class="pc-chip">JavaScript</span><span class="pc-chip">Zero Setup</span>
         </div>
-        <a class="pc-link" href="/contact.html">Learn more &#8594;</a>
+        <a class="pc-link" href="/course.html">Try a code lab &#8594;</a>
       </div>
       <div class="project-card">
-        <div class="pc-tag">Agentic OS</div>
-        <div class="pc-title">PM OS</div>
-        <div class="pc-desc">A 27-file Claude Code operating system for product managers. Structured slash commands, specialist agents, and agentic file systems — all within the .claude/ architecture. A template for AI-native product management.</div>
+        <div class="pc-tag">Job Board</div>
+        <div class="pc-title">Live AI PM Job Tracker</div>
+        <div class="pc-desc">241+ AI PM roles from top companies, updated daily via automated ATS crawlers powered by GitHub Actions. Filter by company, role level, and location — all in one place.</div>
         <div class="pc-stack">
-          <span class="pc-chip">Claude Code</span><span class="pc-chip">CLAUDE.md</span><span class="pc-chip">Slash commands</span><span class="pc-chip">27 files</span>
+          <span class="pc-chip">241+ Roles</span><span class="pc-chip">Daily Updates</span><span class="pc-chip">ATS Crawlers</span><span class="pc-chip">GitHub Actions</span>
         </div>
-        <a class="pc-link" href="/contact.html">Learn more &#8594;</a>
+        <a class="pc-link" href="/companies.html">Browse jobs &#8594;</a>
+      </div>
+    </div>
+    <!-- Coming Soon -->
+    <div style="margin-top:24px;">
+      <div class="sec-label" style="margin-bottom:16px;">Coming Soon</div>
+      <div class="projects">
+        <div class="project-card" style="opacity:.7;">
+          <div class="pc-tag" style="display:flex;align-items:center;gap:8px;">AI Operating System <span style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);">Coming Soon</span></div>
+          <div class="pc-title">PM OS</div>
+          <div class="pc-desc">A Claude Code operating system for product managers. Structured slash commands, specialist agents, and agentic file systems — all within the .claude/ architecture.</div>
+          <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">Slash Commands</span></div>
+        </div>
+        <div class="project-card" style="opacity:.7;">
+          <div class="pc-tag" style="display:flex;align-items:center;gap:8px;">AI Operating System <span style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);">Coming Soon</span></div>
+          <div class="pc-title">RIA OS</div>
+          <div class="pc-desc">An AI operating system for Registered Investment Advisors. Specialist sub-agents for compliance, portfolio analysis, and tax strategy built on Claude Code.</div>
+          <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">MCP</span><span class="pc-chip">Sub-agents</span></div>
+        </div>
+        <div class="project-card" style="opacity:.7;">
+          <div class="pc-tag" style="display:flex;align-items:center;gap:8px;">AI Operating System <span style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);">Coming Soon</span></div>
+          <div class="pc-title">ML OS</div>
+          <div class="pc-desc">An AI operating system for ML engineers. Agentic workflows for model training, evaluation, deployment, and monitoring — built on Claude Code architecture.</div>
+          <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">ML Workflows</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -258,24 +288,14 @@
   <!-- STACK STRIP -->
   <div class="stack-strip">
     <div class="ss-inner">
-      <div class="ss-label">Production Stack</div>
+      <div class="ss-label">Built With</div>
       <div class="ss-tags">
-        <span class="ss-tag">Claude Code</span>
-        <span class="ss-tag">Model Context Protocol</span>
-        <span class="ss-tag">Agent-to-Agent (A2A)</span>
-        <span class="ss-tag">Agent Communication Protocol</span>
         <span class="ss-tag">Supabase (Postgres)</span>
         <span class="ss-tag">Vercel Edge</span>
         <span class="ss-tag">Clerk Auth</span>
-        <span class="ss-tag">Stripe</span>
-        <span class="ss-tag">Plausible Analytics</span>
+        <span class="ss-tag">Pendo Analytics</span>
         <span class="ss-tag">GitHub Actions</span>
         <span class="ss-tag">Pyodide WASM</span>
-        <span class="ss-tag">Piston API</span>
-        <span class="ss-tag">OpenAI Agents SDK</span>
-        <span class="ss-tag">LangChain</span>
-        <span class="ss-tag">CrewAI</span>
-        <span class="ss-tag">AutoGen</span>
       </div>
     </div>
   </div>
@@ -291,58 +311,75 @@
       </div>
       <div class="cb-right">
         <div class="tgrid">
-          <div class="topic"><div class="dot da"></div>Model Context Protocol</div>
-          <div class="topic"><div class="dot da"></div>Agent-to-Agent (A2A)</div>
-          <div class="topic"><div class="dot da"></div>Agent Comm Protocol</div>
-          <div class="topic"><div class="dot dt"></div>Constitutional AI & RLHF</div>
-          <div class="topic"><div class="dot dt"></div>Frontier Reasoning Models</div>
-          <div class="topic"><div class="dot dt"></div>OpenAI Agents SDK</div>
-          <div class="topic"><div class="dot dp"></div>Claude Code (Agentic CLI)</div>
-          <div class="topic"><div class="dot dp"></div>GitHub Copilot Ecosystem</div>
-          <div class="topic"><div class="dot dp"></div>Azure AI Foundry</div>
-          <div class="topic"><div class="dot da"></div>RAG & Fine-tuning</div>
-          <div class="topic"><div class="dot dt"></div>Evals & Benchmarks</div>
-          <div class="topic"><div class="dot dp"></div>Red-Teaming & Adversarial</div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Model Context Protocol<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Learn what MCP is and how it lets LLMs connect to external tools, databases, and APIs through a standardized protocol. Build your first MCP integration.<div class="topic-days">Day 12</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent-to-Agent (A2A)<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Understand how autonomous AI agents discover, negotiate with, and delegate tasks to each other using Google's A2A protocol. Compare with ACP and MCP.<div class="topic-days">Days 27, 31, 47</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent Comm Protocol<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Deep dive into Cisco/LangChain's Agent Communication Protocol. Learn when to choose ACP vs A2A, and how agent interoperability standards are evolving.<div class="topic-days">Day 27</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Constitutional AI &amp; RLHF<span class="chevron">&#9660;</span>
+            <div class="topic-summary">How frontier models are aligned with human values. Understand RLHF reward modeling, Constitutional AI principles, and why safety alignment is a PM-critical skill.<div class="topic-days">Day 3</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Frontier Reasoning Models<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Explore o1, o3, o4-mini, and Claude's extended thinking. Learn chain-of-thought reasoning, when to use reasoning models vs standard ones, and cost trade-offs.<div class="topic-days">Day 6</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>OpenAI Agents SDK<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Master the OpenAI API ecosystem: Chat Completions, Assistants API v2, and the Responses API. Build agents with tool use, threads, and structured outputs.<div class="topic-days">Day 10</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Claude Code (Agentic CLI)<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Build with Claude Code's .claude/ architecture: slash commands, CLAUDE.md configuration, specialist sub-agents, and file-based agentic systems for real-world use.<div class="topic-days">Day 43</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>GitHub Copilot Ecosystem<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Navigate the Copilot platform: extensions, workspace agents, MCP integration, Copilot Chat customization, and how to evaluate developer productivity tools as a PM.<div class="topic-days">Day 44</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Azure AI Foundry<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Deploy and manage AI models on Azure: model catalog, prompt flow, responsible AI dashboards, and enterprise-grade evaluation and monitoring pipelines.<div class="topic-days">Day 45</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>RAG &amp; Fine-tuning<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Build retrieval-augmented generation pipelines and understand when to fine-tune vs prompt-engineer. Covers vector databases, embeddings, chunking, and distillation strategies.<div class="topic-days">Days 13-14</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Evals &amp; Benchmarks<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Design evaluation suites that measure what matters. Learn benchmark design, automated scoring, regression testing, and how to build eval-driven development workflows.<div class="topic-days">Day 18</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Red-Teaming &amp; Adversarial<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Test AI systems for vulnerabilities: prompt injection, jailbreaks, data extraction attacks, and systematic red-teaming methodologies for production safety.<div class="topic-days">Day 53</div></div>
+          </div>
         </div>
       </div>
     </div>
   </div>
 
-  <!-- CODE DEMO -->
+  <!-- CODE PREVIEW -->
   <div class="demo-wrap">
     <div class="demo-inner">
       <div class="sec-label">Built-In Code Runner</div>
-      <div class="sec-title" style="color:var(--ink);font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-bottom:12px;">Python & JavaScript — right in your browser</div>
-      <p style="color:var(--muted);font-size:14px;margin-bottom:0">Python runs via Pyodide WebAssembly — entirely in your browser, no server, no quotas. JavaScript runs in a sandboxed iframe. This is Day 1 of the course.</p>
+      <div class="sec-title" style="color:var(--ink);font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-bottom:12px;">Python &amp; JavaScript — right in your browser</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Every course day includes a runnable code lab. Python executes via Pyodide WebAssembly and JavaScript runs in a sandboxed iframe. No setup, no installs, no API keys.</p>
       <div class="editor">
         <div class="e-bar">
           <div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div>
-          <div class="e-badge" id="demo-badge">PYTHON &middot; WASM</div>
+          <div class="e-badge">PYTHON · WASM</div>
         </div>
-        <textarea class="e-ta" id="demo-code" spellcheck="false"># Day 1: Frontier model cost comparison (Ctrl+Enter to run)
+        <pre class="e-ta" style="cursor:default;resize:none;min-height:auto;padding:16px 20px;margin:0;overflow-x:auto;"><code># Day 1: Frontier model cost comparison
 models = {
     "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0},
     "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0},
     "Gemini 1.5 Pro":    {"ctx":"1M",  "in":3.5,"out":10.5},
     "o3":                {"ctx":"128K","in":10.0,"out":40.0},
 }
-print(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}")
-print("\u2500"*53)
-for name,s in models.items():
-    print(f"{name:<22}{s['ctx']:>8}  ${s['in']:>6.2f}   ${s['out']:>6.2f}")
-print("\n\u2500\u2500 Cost: 1,000 calls \u00d7 500 input + 300 output tokens \u2500\u2500")
-for name,s in models.items():
-    cost=(500/1e6*s['in']+300/1e6*s['out'])*1000
-    print(f"{name:<22}  ${cost:.4f}")</textarea>
-        <div class="e-foot">
-          <select class="e-sel" id="demo-lang" onchange="switchLang()">
-            <option value="python">Python 3 (Pyodide WASM)</option>
-            <option value="js">JavaScript (sandbox)</option>
-          </select>
-          <button class="e-run" onclick="runDemo()"><span class="e-spin" id="demo-spin"></span>&#9654; Run</button>
+for name, s in models.items():
+    cost = (500/1e6*s['in'] + 300/1e6*s['out']) * 1000
+    print(f"{name:<22}  ${cost:.4f}")</code></pre>
+        <div class="e-out" style="color:var(--amber);font-size:13px;padding:16px 20px;">
+          ▶ Sign in to run code in the full course editor
         </div>
-        <div class="e-out" id="demo-out">// Press Run &middot; Python loads via WebAssembly (~10MB, once)</div>
-        <div class="e-status" id="py-status">Pyodide: not loaded</div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start coding in the course →</a>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">60 code labs · Python &amp; JavaScript · Zero setup</span>
       </div>
     </div>
   </div>
@@ -356,18 +393,36 @@ for name,s in models.items():
   </div>
 
   <footer>
-    <span>&copy; 2025 Stavan Mehta &middot; becomeaipm.com</span>
+    <span>&copy; 2025 becomeaipm.com</span>
     <div class="footer-links">
       <a href="/course.html">Course</a>
       <a href="/companies.html">Companies</a>
-      <a href="/analytics.html">Analytics</a>
+      <a href="/analytics.html">Leaderboard</a>
       <a href="/contact.html">Contact</a>
-      <a href="mailto:hello@agentmart.ai">hello@agentmart.ai</a>
+      <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a>
     </div>
   </footer>
 
   <script>
-    let clerk = null, cfg = {}, clerkMounted = false, pyodide = null, pyLoading = false;
+    let clerk = null, cfg = {}, clerkMounted = false;
+
+    // ── PENDO INIT ──
+    function initPendo(apiKey, user) {
+      if (!apiKey) return;
+      if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
+      (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+      v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+      y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+      z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+      var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+      var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+      var visitorFirst = user ? (user.firstName || '') : '';
+      var visitorLast = user ? (user.lastName || '') : '';
+      pendo.initialize({
+        visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
+        account: { id: 'becomeaipm' }
+      });
+    }
 
     (async function boot() {
       try { const r = await fetch('/api/config'); cfg = await r.json(); } catch(e) { hideLoader(); return; }
@@ -380,7 +435,8 @@ for name,s in models.items():
       s.onload = async () => {
         try { clerk = window.Clerk; await clerk.load(); } catch(e) { hideLoader(); return; }
         refreshUI();
-        clerk.addListener(refreshUI);
+        initPendo(cfg.pendoApiKey, clerk.user);
+        clerk.addListener(() => { refreshUI(); initPendo(cfg.pendoApiKey, clerk.user); });
         hideLoader();
       };
       s.onerror = () => hideLoader();
@@ -421,90 +477,12 @@ for name,s in models.items():
     document.getElementById('overlay').addEventListener('click', function(e) { if (e.target === this) closeSignIn(); });
     async function doSignOut() { await clerk?.signOut(); refreshUI(); }
 
-    // ── CODE RUNNER ──
-    const PY_CODE = `# Day 1: Frontier model cost comparison (Ctrl+Enter to run)
-models = {
-    "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0},
-    "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0},
-    "Gemini 1.5 Pro":    {"ctx":"1M",  "in":3.5,"out":10.5},
-    "o3":                {"ctx":"128K","in":10.0,"out":40.0},
-}
-print(f"{'Model':<22}{'Context':>8}{'$/1M in':>10}{'$/1M out':>11}")
-print("\u2500"*53)
-for name,s in models.items():
-    print(f"{name:<22}{s['ctx']:>8}  \${s['in']:>6.2f}   \${s['out']:>6.2f}")
-print("\\n\u2500\u2500 1,000 calls \u00d7 500 in + 300 out tokens \u2500\u2500")
-for name,s in models.items():
-    cost=(500/1e6*s['in']+300/1e6*s['out'])*1000
-    print(f"{name:<22}  \${cost:.4f}")`;
-
-    const JS_CODE = `// Day 1: Model comparison in JavaScript (Ctrl+Enter to run)
-const models = [
-  { name:"Claude 3.5 Sonnet", ctx:"200K", costIn:3.0,  costOut:15.0 },
-  { name:"GPT-4o",            ctx:"128K", costIn:5.0,  costOut:15.0 },
-  { name:"Gemini 1.5 Pro",    ctx:"1M",   costIn:3.5,  costOut:10.5 },
-  { name:"o3",                ctx:"128K", costIn:10.0, costOut:40.0 },
-];
-console.log("Model              Context  $/1M in  $/1M out");
-console.log("\u2500".repeat(48));
-models.forEach(m => {
-  console.log(\`\${m.name.padEnd(22)} \${m.ctx.padStart(5)}   \$\${m.costIn.toFixed(2).padStart(5)}   \$\${m.costOut.toFixed(2).padStart(5)}\`);
-});
-console.log("\\n\u2500\u2500 1,000 calls \u00d7 500 in + 300 out tokens \u2500\u2500");
-models.forEach(m => {
-  const cost = ((500/1e6)*m.costIn + (300/1e6)*m.costOut) * 1000;
-  console.log(\`\${m.name.padEnd(22)}  \$\${cost.toFixed(4)}\`);
-});`;
-
-    function switchLang() {
-      const lang = document.getElementById('demo-lang').value;
-      document.getElementById('demo-badge').textContent = lang === 'python' ? 'PYTHON \u00b7 WASM' : 'JAVASCRIPT \u00b7 SANDBOX';
-      document.getElementById('demo-code').value = lang === 'python' ? PY_CODE : JS_CODE;
-      document.getElementById('demo-out').textContent = lang === 'python' ? '// Press Run  \u00b7  Python loads via WebAssembly (~10MB, once)' : '// Press Run  \u00b7  JavaScript runs in a sandboxed iframe';
+    // ── TOPIC TOGGLE ──
+    function toggleTopic(el) {
+      const wasOpen = el.classList.contains('open');
+      document.querySelectorAll('.topic.open').forEach(t => t.classList.remove('open'));
+      if (!wasOpen) el.classList.add('open');
     }
-
-    async function runDemo() {
-      const lang = document.getElementById('demo-lang').value;
-      const code = document.getElementById('demo-code').value;
-      const out = document.getElementById('demo-out');
-      const spin = document.getElementById('demo-spin');
-      spin.classList.add('on');
-      if (lang === 'python') { await runPython(code, out); } else { runJS(code, out); }
-      spin.classList.remove('on');
-    }
-
-    async function runPython(code, outEl) {
-      const status = document.getElementById('py-status');
-      try {
-        if (!pyodide && !pyLoading) {
-          pyLoading = true;
-          outEl.textContent = 'Loading Pyodide WebAssembly runtime (~10MB, one-time download)...';
-          status.textContent = 'Pyodide: downloading...';
-          const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'; document.head.appendChild(s);
-          await new Promise((res, rej) => { s.onload = res; s.onerror = () => rej(new Error('CDN load failed')); });
-          pyodide = await window.loadPyodide({ indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/' });
-          status.textContent = 'Pyodide: ready \u2713'; pyLoading = false;
-        } else if (pyLoading) { outEl.textContent = 'Python runtime still loading, please wait...'; return; }
-        let out = '';
-        pyodide.setStdout({ batched: s => out += s + '\n' });
-        pyodide.setStderr({ batched: s => out += '\u26a0 ' + s + '\n' });
-        await pyodide.runPythonAsync(code);
-        outEl.textContent = out.trimEnd() || '(no output)'; outEl.className = 'e-out';
-      } catch(e) { outEl.textContent = String(e); outEl.className = 'e-out err'; status.textContent = 'Pyodide: error'; pyLoading = false; }
-    }
-
-    function runJS(code, outEl) {
-      const iframe = document.createElement('iframe'); iframe.style.display = 'none'; iframe.sandbox = 'allow-scripts'; document.body.appendChild(iframe);
-      const logs = [], w = iframe.contentWindow;
-      w.console = { log: (...a) => logs.push(a.map(x => typeof x === 'object' ? JSON.stringify(x,null,2) : String(x)).join(' ')), error: (...a) => logs.push('\u26a0 '+a.map(String).join(' ')), warn: (...a) => logs.push('\u26a0 '+a.map(String).join(' ')), table: (...a) => logs.push(JSON.stringify(a,null,2)) };
-      try { w.eval(code); outEl.textContent = logs.join('\n') || '(no output)'; outEl.className = 'e-out'; }
-      catch(e) { outEl.textContent = e.toString(); outEl.className = 'e-out err'; }
-      finally { document.body.removeChild(iframe); }
-    }
-
-    document.getElementById('demo-code').addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') { e.preventDefault(); runDemo(); }
-    });
   </script>
 </body>
 </html>
