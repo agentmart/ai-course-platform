@@ -288,7 +288,7 @@ function setLdText(t){ document.querySelector('.ld-text').textContent=t; }
 async function loadProgress(){
   try{
     const token=await clerk.session.getToken();
-    const r=await fetch('/api/get-progress',{headers:{'Authorization':'Bearer '+token}});
+    const r=await fetch('/api/progress',{headers:{'Authorization':'Bearer '+token}});
     if(r.ok){
       const d=await r.json();
       completed=new Set(d.completed||[]); taskStates=d.taskStates||{}; notes=d.notes||{};
@@ -301,7 +301,7 @@ async function loadProgress(){
 async function saveProgress(){
   try{
     const token=await clerk.session.getToken();
-    await fetch('/api/save-progress',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({completed:[...completed],taskStates,notes})});
+    await fetch('/api/progress',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({completed:[...completed],taskStates,notes})});
   }catch(e){}
 }
 
