@@ -4,17 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Interview Prep with Lenny — becomeaipm.com</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;--purple:#7c3aed;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;display:flex;flex-direction:column;}
-nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:100;flex-shrink:0;}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;}
-.nav-sep{color:rgba(255,255,255,.15);}
-.nav-page{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
-.nav-sp{flex:1;}
-.nav-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:4px 11px;border:1px solid rgba(255,255,255,.1);border-radius:2px;transition:all .15s;white-space:nowrap;}
-.nav-pill:hover{color:var(--amber);border-color:var(--amber);}
+nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
+.nav-right{display:flex;align-items:center;gap:10px;padding:10px 0;margin-left:auto;}
+.nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
+.nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
+.nav-signout:hover{color:var(--amber);}
+.nav-signin{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);background:none;border:1px solid rgba(255,255,255,.15);border-radius:2px;padding:4px 12px;cursor:pointer;transition:all .15s;text-decoration:none;}
+.nav-signin:hover{color:var(--amber);border-color:var(--amber);}
 /* LAYOUT */
 .app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 57px);}
 /* SIDEBAR */
@@ -98,12 +104,20 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 </head>
 <body>
 <nav>
-  <a class="nav-logo" href="/">AI.PL.60</a>
-  <span class="nav-sep">/</span>
-  <span class="nav-page">Interview Prep</span>
-  <div class="nav-sp"></div>
-  <a class="nav-pill" href="/companies.html">Companies</a>
-  <a class="nav-pill" href="/course.html">Course →</a>
+  <a class="nav-logo" href="/">becomeaipm</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/course.html">Course</a>
+    <a class="nav-link" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div id="nav-user" style="display:none">
+      <div class="nav-avatar" id="nav-avatar">?</div>
+      <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+    <a class="nav-signin" id="nav-signin" href="/course.html" style="display:none">Sign In</a>
+  </div>
 </nav>
 
 <div class="app">
@@ -154,6 +168,39 @@ nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:
 </div>
 
 <script>
+function updateAuthUI() {
+  var user = window.Clerk && window.Clerk.user;
+  document.getElementById('nav-user').style.display = user ? 'flex' : 'none';
+  document.getElementById('nav-signin').style.display = user ? 'none' : 'inline-block';
+  if (user) {
+    var init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
+    document.getElementById('nav-avatar').textContent = init;
+  }
+}
+async function doSignOut() { if (window.Clerk) { await window.Clerk.signOut(); updateAuthUI(); } }
+
+// Load Clerk for auth UI
+(async function loadAuth() {
+  try {
+    var res = await fetch('/api/config');
+    var cfg = await res.json();
+    if (cfg.clerkPublishableKey && cfg.clerkDomain) {
+      var s = document.createElement('script');
+      s.src = 'https://' + cfg.clerkDomain + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+      s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
+      s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
+      s.onload = async function() {
+        try { await window.Clerk.load(); } catch(e) {}
+        updateAuthUI();
+      };
+      s.onerror = function() { updateAuthUI(); };
+    } else {
+      updateAuthUI();
+    }
+  } catch(e) { updateAuthUI(); }
+})();
+
 const LENNY_BASE = 'https://raw.githubusercontent.com/LennysNewsletter/lennys-newsletterpodcastdata/main/';
 const INDEX_URL  = LENNY_BASE + 'index.json';
 

@@ -5,6 +5,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>becomeaipm.com — 60-Day AI Product Management Course</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <meta property="og:title" content="becomeaipm.com — 60-Day AI Product Management Course">
+  <meta property="og:description" content="Build real AI products. A hands-on, 60-day curriculum with code labs, frontier model APIs, and PM frameworks.">
+  <meta property="og:url" content="https://becomeaipm.com">
+  <meta property="og:type" content="website">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
   <!-- Pendo Analytics (initialized after Clerk auth loads) -->
   <style>
@@ -182,7 +187,7 @@
   </div>
 
   <nav>
-    <a href="/" class="nav-logo">// AI.PL.60</a>
+    <a href="/" class="nav-logo">becomeaipm</a>
     <div class="nav-links">
       <a class="nav-link" href="/course.html">Course</a>
       <a class="nav-link" href="/companies.html">Companies</a>
@@ -190,16 +195,13 @@
       <a class="nav-link" href="/contact.html">Contact</a>
     </div>
     <div class="nav-right">
-      <div id="user-menu">
+      <div id="user-menu" style="display:none">
         <div class="u-avatar" id="u-avatar">?</div>
         <span class="u-name" id="u-name"></span>
-        <div class="nav-sep"></div>
-        <a class="btn btn-amber" href="/course.html">Open Course &rarr;</a>
         <button class="btn btn-ghost" onclick="doSignOut()" style="font-size:11px;">Sign Out</button>
       </div>
       <div id="auth-btns">
         <button class="btn btn-ghost" onclick="openSignIn()">Sign In</button>
-        <a class="btn btn-amber" href="/course.html">Explore Free &rarr;</a>
       </div>
     </div>
   </nav>
@@ -483,6 +485,14 @@ for name, s in models.items():
       document.querySelectorAll('.topic.open').forEach(t => t.classList.remove('open'));
       if (!wasOpen) el.classList.add('open');
     }
+
+    // ── ACTIVE NAV ──
+    (function() {
+      var path = location.pathname;
+      document.querySelectorAll('.nav-link').forEach(function(a) {
+        if (a.getAttribute('href') === path || (path === '/' && a.getAttribute('href') === '/')) a.classList.add('active');
+      });
+    })();
   </script>
 </body>
 </html>

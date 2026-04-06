@@ -4,6 +4,11 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>60-Day AI PM Course</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="Become AI PM — 60-Day Course">
+<meta property="og:description" content="Master AI Product Management in 60 days with hands-on code labs and real-world PM frameworks.">
+<meta property="og:url" content="https://becomeaipm.com/course.html">
+<meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <!-- Pendo Analytics (initialized after Clerk auth loads) -->
 <style>
@@ -18,19 +23,17 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .ld-err{color:#f87171;font-size:14px;text-align:center;max-width:400px;line-height:1.7;display:none;}
 .ld-err a{color:#fca87a;text-decoration:underline;cursor:pointer;}
 @keyframes spin{to{transform:rotate(360deg);}}
-#topbar{background:var(--ink);padding:12px 32px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:100;flex-shrink:0;}
-.tb-home{color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace;font-size:11px;text-decoration:none;padding:4px 10px;border:1px solid rgba(255,255,255,.12);border-radius:2px;transition:all .15s;white-space:nowrap;}
-.tb-home:hover{color:#c8590a;border-color:#c8590a;}
-.tb-logo{font-family:'IBM Plex Mono',monospace;font-size:11px;color:#c8590a;letter-spacing:.15em;white-space:nowrap;}
+#topbar{background:var(--ink);padding:0 32px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;flex-shrink:0;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#c8590a;letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:#c8590a;border-bottom-color:#c8590a;}
+.nav-right{display:flex;align-items:center;gap:12px;padding:10px 0;margin-left:auto;}
 .tb-day-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
-.tb-spacer{flex:1;}
 .tb-streak{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:6px;}
 .streak-fire{font-size:14px;}
-.tb-user{display:flex;align-items:center;gap:10px;}
-.tb-avatar{width:30px;height:30px;border-radius:50%;background:#c8590a;color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.tb-user-info{display:flex;flex-direction:column;gap:1px;}
-.tb-name{font-size:12px;color:rgba(255,255,255,.65);font-family:'IBM Plex Mono',monospace;line-height:1.2;}
-.tb-email{font-size:10px;color:rgba(255,255,255,.3);font-family:'IBM Plex Mono',monospace;line-height:1.2;}
+.tb-avatar{width:28px;height:28px;border-radius:50%;background:#c8590a;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
 .tb-signout{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
 .tb-signout:hover{border-color:#c8590a;color:#c8590a;}
 .app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 57px);}
@@ -113,6 +116,25 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .progress-bar-wrap{height:3px;background:rgba(255,255,255,.08);margin-top:1px;}
 .progress-bar-fill{height:3px;background:#c8590a;transition:width .4s ease;}
 @media(max-width:768px){#sidebar{display:none;}#content{padding:20px;}}
+/* SHARE MODAL */
+.share-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.share-overlay.open{display:flex;}
+.share-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:36px;max-width:420px;width:90%;text-align:center;}
+.share-emoji{font-size:48px;margin-bottom:12px;}
+.share-title{font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--ink);margin-bottom:8px;}
+.share-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.share-btns{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;text-decoration:none;color:white;}
+.share-btn.linkedin{background:#0077B5;}
+.share-btn.linkedin:hover{background:#005e93;}
+.share-btn.xcom{background:#1a1512;}
+.share-btn.xcom:hover{background:var(--amber);}
+.share-btn.copy{background:var(--card);color:var(--ink);border:1px solid var(--border);}
+.share-btn.copy:hover{border-color:var(--amber);color:var(--amber);}
+.share-skip{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:8px;}
+.share-skip:hover{color:var(--amber);}
+.share-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 20px;border-radius:4px;font-size:13px;font-family:'IBM Plex Mono',monospace;opacity:0;transition:opacity .3s;pointer-events:none;z-index:1001;}
+.share-toast.show{opacity:1;}
 </style>
 </head>
 <body>
@@ -122,24 +144,21 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <div class="ld-err" id="ld-err"></div>
 </div>
 
-<div id="topbar" style="display:none">
-  <a class="tb-home" href="/">&larr; Home</a>
-  <a class="tb-home" href="/companies.html">Companies</a>
-  <a class="tb-home" href="/analytics.html">Leaderboard</a>
-  <a class="tb-home" href="/contact.html">Contact</a>
-  <div class="tb-logo">AI.PL.60</div>
-  <div class="tb-day-label" id="tb-day-label">Day &mdash;</div>
-  <div class="tb-spacer"></div>
-  <div class="tb-streak"><span class="streak-fire">&#x1F525;</span><span id="tb-streak">0 days done</span></div>
-  <div class="tb-user">
+<nav id="topbar" style="display:none">
+  <a class="nav-logo" href="/">becomeaipm</a>
+  <div class="nav-links">
+    <a class="nav-link active" href="/course.html">Course</a>
+    <a class="nav-link" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
+  </div>
+  <div class="nav-right">
+    <div class="tb-day-label" id="tb-day-label">Day &mdash;</div>
+    <div class="tb-streak"><span class="streak-fire">&#x1F525;</span><span id="tb-streak">0 days done</span></div>
     <div class="tb-avatar" id="tb-avatar">?</div>
-    <div class="tb-user-info">
-      <span class="tb-name" id="tb-name"></span>
-      <span class="tb-email" id="tb-email"></span>
-    </div>
     <button class="tb-signout" onclick="doSignOut()">Sign Out</button>
   </div>
-</div>
+</nav>
 <div class="progress-bar-wrap" id="pb-wrap" style="display:none">
   <div class="progress-bar-fill" id="pb-fill" style="width:0%"></div>
 </div>
@@ -148,6 +167,22 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <div id="sidebar"><div class="sb-phases" id="sb-phases"></div></div>
   <div id="content"><div class="day-view" id="day-view"></div></div>
 </div>
+
+<!-- SHARE MODAL -->
+<div class="share-overlay" id="share-overlay" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-card">
+    <div class="share-emoji">&#127881;</div>
+    <div class="share-title" id="share-title">Day 1 Complete!</div>
+    <div class="share-sub">Share your progress and inspire others to start their AI PM journey.</div>
+    <div class="share-btns">
+      <a class="share-btn linkedin" id="share-linkedin" href="#" target="_blank" rel="noopener" onclick="trackShare('LinkedIn')">&#x1F310; Share on LinkedIn</a>
+      <a class="share-btn xcom" id="share-xcom" href="#" target="_blank" rel="noopener" onclick="trackShare('X')">&#x1D54F; Share on X</a>
+      <button class="share-btn copy" onclick="copyShareText()">&#128203; Copy for Instagram</button>
+    </div>
+    <button class="share-skip" onclick="closeShareModal()">Skip</button>
+  </div>
+</div>
+<div class="share-toast" id="share-toast">Copied! Paste on Instagram</div>
 
 <script src="/days/day-01.js"></script>
 <script src="/days/day-02.js"></script>
@@ -309,8 +344,6 @@ function renderNav(){
   const user=clerk.user;
   const init=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
   document.getElementById('tb-avatar').textContent=init;
-  document.getElementById('tb-name').textContent=user.firstName||user.emailAddresses?.[0]?.emailAddress?.split('@')[0]||'';
-  document.getElementById('tb-email').textContent=user.emailAddresses?.[0]?.emailAddress||'';
   updateStreak();
 }
 function updateStreak(){ const s=completed.size; document.getElementById('tb-streak').textContent=s+' day'+(s===1?'':'s')+' done'; }
@@ -391,7 +424,34 @@ function markDayComplete(day){
   const btn=document.getElementById('complete-btn');
   if(btn){ btn.innerHTML='&#10003; Day Completed'; btn.className='day-complete-btn done'; }
   syncSidebar(); saveProgress();
-  if(day<60){ setTimeout(()=>{ currentDay=day+1; renderDay(day+1); syncSidebar(); },800); }
+  showShareModal(day);
+  if(day<60){ setTimeout(()=>{ currentDay=day+1; renderDay(day+1); syncSidebar(); },1200); }
+}
+
+var shareDay = 1;
+function showShareModal(day) {
+  shareDay = day;
+  document.getElementById('share-title').textContent = 'Day ' + day + ' Complete!';
+  var text = 'I just completed Day ' + day + '/60 of Become AI PM! #BecomeAIPM';
+  var url = 'https://becomeaipm.com/course.html';
+  document.getElementById('share-linkedin').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+  document.getElementById('share-xcom').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+  document.getElementById('share-overlay').classList.add('open');
+}
+function closeShareModal() {
+  document.getElementById('share-overlay').classList.remove('open');
+}
+function trackShare(platform) {
+  if (window.pendo && pendo.track) pendo.track('Day Share', { day: shareDay, platform: platform });
+}
+function copyShareText() {
+  var text = 'I just completed Day ' + shareDay + '/60 of Become AI PM! \uD83D\uDE80 #BecomeAIPM\nhttps://becomeaipm.com/course.html';
+  navigator.clipboard.writeText(text).then(function() {
+    var toast = document.getElementById('share-toast');
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2500);
+  });
+  trackShare('Instagram');
 }
 
 function saveNote(day){

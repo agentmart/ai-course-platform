@@ -1,0 +1,27 @@
+name: Daily Inactivity Reminders
+on:
+  schedule:
+    - cron: '0 15 * * *'  # 3 PM UTC / 8 AM PT daily
+  workflow_dispatch: {}
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger reminder endpoint
+        env:
+          APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://becomeaipm.com' }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          response=$(curl -s -w "\n%{http_code}" -X POST \
+            "${APP_URL}/api/send-reminders" \
+            -H "Authorization: Bearer ${CRON_SECRET}" \
+            -H "Content-Type: application/json")
+          http_code=$(echo "$response" | tail -1)
+          body=$(echo "$response" | head -n -1)
+          echo "Status: $http_code"
+          echo "Response: $body"
+          if [ "$http_code" -ge 400 ]; then
+            echo "::error::Reminder job failed with status $http_code"
+            exit 1
+          fi

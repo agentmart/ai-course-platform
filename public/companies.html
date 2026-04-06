@@ -4,18 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AI Companies Hiring — becomeaipm.com</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="AI Companies Hiring PM Roles">
+<meta property="og:description" content="Live directory of AI companies with open Product Manager roles. Updated daily.">
+<meta property="og:url" content="https://becomeaipm.com/companies.html">
+<meta property="og:type" content="website">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <!-- Pendo Analytics (initialized after Clerk auth loads) -->
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;--purple:#7c3aed;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
-nav{background:var(--ink);padding:14px 40px;display:flex;align-items:center;gap:14px;position:sticky;top:0;z-index:200;}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;}
-.nav-sep{color:rgba(255,255,255,.15);}
-.nav-page{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
-.nav-sp{flex:1;}
-.nav-pill{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:4px 11px;border:1px solid rgba(255,255,255,.1);border-radius:2px;transition:all .15s;white-space:nowrap;}
-.nav-pill:hover{color:var(--amber);border-color:var(--amber);}
+nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:200;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
+.nav-right{display:flex;align-items:center;gap:10px;padding:10px 0;margin-left:auto;}
 .nav-user{display:flex;align-items:center;gap:8px;}
 .nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
 .nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
@@ -153,18 +158,20 @@ h1 em{color:var(--amber);font-style:italic;}
 </div>
 
 <nav id="main-nav">
-  <a class="nav-logo" href="/">AI.PL.60</a>
-  <span class="nav-sep">/</span>
-  <span class="nav-page">Companies</span>
-  <div class="nav-sp"></div>
-  <a class="nav-pill" href="/course.html">Course</a>
-  <a class="nav-pill" href="/analytics.html">Leaderboard</a>
-  <a class="nav-pill" href="/contact.html">Contact</a>
-  <div class="nav-user" id="nav-user" style="display:none">
-    <div class="nav-avatar" id="nav-avatar">?</div>
-    <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
+  <a class="nav-logo" href="/">becomeaipm</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/course.html">Course</a>
+    <a class="nav-link active" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
   </div>
-  <a class="nav-pill" id="signin-pill" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
+  <div class="nav-right">
+    <div class="nav-user" id="nav-user" style="display:none">
+      <div class="nav-avatar" id="nav-avatar">?</div>
+      <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+    <a class="nav-link" id="signin-pill" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
+  </div>
 </nav>
 
 <div id="saved-banner" class="saved-banner">
