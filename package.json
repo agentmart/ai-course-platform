@@ -4,14 +4,15 @@
   "description": "60-Day AI Product Leadership Course Platform",
   "type": "module",
   "scripts": {
-    "sync:dry":   "DRY_RUN=true node scripts/sync-companies.mjs",
-    "sync:live":  "node scripts/sync-companies.mjs",
+    "sync:dry": "DRY_RUN=true node scripts/sync-companies.mjs",
+    "sync:live": "node scripts/sync-companies.mjs",
     "jobs:check": "node scripts/daily-jobs-check.mjs"
   },
   "dependencies": {
-    "stripe":                "^14.0.0",
     "@supabase/supabase-js": "^2.39.0",
-    "jose":                  "^5.2.0"
+    "jose": "^5.2.0",
+    "resend": "^6.10.0",
+    "stripe": "^14.0.0"
   },
   "engines": {
     "node": ">=18.0.0"
