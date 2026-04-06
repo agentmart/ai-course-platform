@@ -145,6 +145,16 @@ h1 em{color:var(--amber);font-style:italic;}
 .saved-clear{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;margin-left:auto;}
 .saved-clear:hover{color:var(--amber);}
 @media(max-width:768px){nav{padding:12px 20px;}.hero,.grid-area{padding-left:20px;padding-right:20px;}.controls{padding:12px 20px;top:53px;}.drawer{width:100vw;}}
+/* COOKIE CONSENT */
+.cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.cookie-banner.show{display:flex;}
+.cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
+.cookie-text a{color:var(--amber);text-decoration:underline;}
+.cookie-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;border-radius:3px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.cookie-accept{background:var(--amber);color:white;}
+.cookie-accept:hover{background:#a84a06;}
+.cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
 </style>
 </head>
 <body>
@@ -257,7 +267,8 @@ let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
       if(clerk.user) user=clerk.user;
       updateAuthUI();
       loadCompanies();
-      initPendo(cfg.pendoApiKey, clerk.user);
+      if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
+      checkCookieConsent();
       clerk.addListener(e=>{
         if(e.user&&!user){ user=e.user; closeSignIn(); updateAuthUI(); }
         if(!e.user&&user){ user=null; updateAuthUI(); }
@@ -486,6 +497,19 @@ async function trackAndOpen(evt,jobId,companyName,jobTitle,jobUrl){
   }catch(e){}
 }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDrawer(); closeSignIn(); } });
+
+// ── COOKIE CONSENT ──
+function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(clerk&&clerk.user) initPendo(cfg.pendoApiKey,clerk.user); }
+function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
+function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
+function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
 </script>
+
+<div class="cookie-banner" id="cookie-banner">
+  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+  <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+</div>
+
 </body>
 </html>
