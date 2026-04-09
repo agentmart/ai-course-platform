@@ -328,7 +328,7 @@
             <div class="topic-summary">Learn what MCP is and how it lets LLMs connect to external tools, databases, and APIs through a standardized protocol. Build your first MCP integration.<div class="topic-days">Day 12</div></div>
           </div>
           <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent-to-Agent (A2A)<span class="chevron">&#9660;</span>
-            <div class="topic-summary">Understand how autonomous AI agents discover, negotiate with, and delegate tasks to each other using Google's A2A protocol. Compare with ACP and MCP.<div class="topic-days">Days 27, 31, 47</div></div>
+            <div class="topic-summary">Understand how autonomous AI agents discover, negotiate with, and delegate tasks to each other using Google's A2A protocol. Compare with ACP and MCP.<div class="topic-days">Days 26, 27, 47</div></div>
           </div>
           <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent Comm Protocol<span class="chevron">&#9660;</span>
             <div class="topic-summary">Deep dive into Cisco/LangChain's Agent Communication Protocol. Learn when to choose ACP vs A2A, and how agent interoperability standards are evolving.<div class="topic-days">Day 27</div></div>
@@ -387,11 +387,11 @@ for name, s in models.items():
     cost = (500/1e6*s['in'] + 300/1e6*s['out']) * 1000
     print(f"{name:<22}  ${cost:.4f}")</code></pre>
         <div class="e-out" style="color:var(--amber);font-size:13px;padding:16px 20px;">
-          ▶ Sign in to run code in the full course editor
+          &#9654; Sign in to run code in the full course editor
         </div>
       </div>
       <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start coding in the course →</a>
+        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start coding in the course &rarr;</a>
         <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">60 code labs · Python &amp; JavaScript · Zero setup</span>
       </div>
     </div>
@@ -480,7 +480,15 @@ for name, s in models.items():
       if (!clerkMounted) {
         const mountEl = document.getElementById('clerk-sign-in-mount');
         mountEl.innerHTML = '';
-        clerk.mountSignIn(mountEl, { afterSignInUrl: '/course.html', afterSignUpUrl: '/course.html', routing: 'hash' });
+        // Fix: use routing:'virtual' (not 'hash') to prevent the internal Clerk
+        // 'block ariana' error that breaks the sign-up flow in modal context.
+        // Fix: replace deprecated afterSignInUrl/afterSignUpUrl with the current
+        // fallbackRedirectUrl / signUpFallbackRedirectUrl properties.
+        clerk.mountSignIn(mountEl, {
+          fallbackRedirectUrl: '/course.html',
+          signUpFallbackRedirectUrl: '/course.html',
+          routing: 'virtual'
+        });
         clerkMounted = true;
       }
     }

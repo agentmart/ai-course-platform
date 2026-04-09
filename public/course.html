@@ -49,7 +49,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .sb-day.active .sb-day-num{color:#c8590a;}
 .sb-day-title{font-size:12px;color:var(--ink2);line-height:1.3;flex:1;}
 .sb-day.active .sb-day-title{color:var(--ink);font-weight:600;}
-.sb-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;}
+.sb-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:font-size:9px;}
 .sb-day.done .sb-check{background:#c8590a;border-color:#c8590a;color:white;}
 #content{flex:1;overflow-y:auto;padding:40px;}
 .day-view{max-width:860px;margin:0 auto;}
@@ -145,6 +145,12 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .cookie-accept:hover{background:#a84a06;}
 .cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
 .cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+/* SIGN-IN PROMPT (unauthenticated redirect to Clerk) */
+#signin-prompt{display:none;position:fixed;inset:0;background:var(--ink);z-index:10000;align-items:center;justify-content:center;}
+#signin-prompt.open{display:flex;}
+.sp-inner{text-align:center;}
+.sp-spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+.sp-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.12em;}
 </style>
 </head>
 <body>
@@ -152,6 +158,14 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <div class="ld-spin"></div>
   <div class="ld-text">LOADING COURSE...</div>
   <div class="ld-err" id="ld-err"></div>
+</div>
+
+<!-- Sign-in prompt overlay for unauthenticated CTA visitors -->
+<div id="signin-prompt">
+  <div class="sp-inner">
+    <div class="sp-spin"></div>
+    <div class="sp-text">OPENING SIGN IN...</div>
+  </div>
 </div>
 
 <nav id="topbar" style="display:none">
@@ -314,7 +328,15 @@ function initPendo(apiKey, user) {
   s.onload=async()=>{
     try{ clerk=window.Clerk; await clerk.load(); }
     catch(e){ showLdErr('Auth init failed: '+e.message); return; }
-    if(!clerk.user){ hideLoader(); window.location.href='/'; return; }
+    if(!clerk.user){
+      // Fix: instead of silently redirecting to '/', open Clerk sign-in directly
+      // so users arriving via the 'Start the 60-Day Course Free' CTA see the
+      // sign-in flow immediately rather than being bounced with no explanation.
+      hideLoader();
+      document.getElementById('signin-prompt').classList.add('open');
+      clerk.openSignIn({ fallbackRedirectUrl: window.location.href });
+      return;
+    }
     setLdText('LOADING PROGRESS...');
     await loadProgress();
     renderNav(); renderSidebar(); renderDay(currentDay);
