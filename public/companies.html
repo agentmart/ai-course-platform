@@ -332,9 +332,9 @@ function initPendo(apiKey, user) {
 
 async function loadCompanies(){
   try{
-    const[cr,sr]=await Promise.all([fetch('/api/companies'),fetch('/api/sync-status')]);
+    const cr=await fetch('/api/companies');
     const{companies}=await cr.json(); all=companies||[];
-    if(sr.ok){const{last_sync}=await sr.json();if(last_sync){const ago=Math.floor((Date.now()-new Date(last_sync))/86400000);document.getElementById('sync-txt').textContent=ago===0?'updated today':`updated ${ago}d ago`;}else document.getElementById('sync-txt').textContent='updated weekly';}
+    document.getElementById('sync-txt').textContent='updated weekly';
     document.getElementById('skeleton').style.display='none';
     document.getElementById('grid').style.display='grid';
     updateSavedBanner();
