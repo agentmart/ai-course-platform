@@ -1,7 +1,7 @@
-const { createClient } = require('@supabase/supabase-js');
-const { Resend } = require('resend');
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL || '*');
   if (req.method === 'OPTIONS') return res.status(204).end();
@@ -96,4 +96,4 @@ module.exports = async function handler(req, res) {
     console.error('Reminder job failed:', err);
     return res.status(500).json({ error: 'Internal error' });
   }
-};
+}
