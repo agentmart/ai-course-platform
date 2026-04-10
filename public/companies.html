@@ -249,12 +249,12 @@ h1 em{color:var(--amber);font-style:italic;}
 </div>
 
 <script>
-let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null;
+let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null,cfg=null;
 let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
 
 (async()=>{
   try{
-    const cfg = await fetch('/api/config').then(r=>r.json());
+    cfg = await fetch('/api/config').then(r=>r.json());
     if(!cfg.clerkPublishableKey||!cfg.clerkDomain){ loadCompanies(); updateAuthUI(); return; }
     const s=document.createElement('script');
     s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
@@ -308,17 +308,22 @@ function closeSignIn(){
 }
 document.getElementById('overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('overlay'))closeSignIn(); });
 
+var pendoInitialized = false;
 function initPendo(apiKey, user) {
   if (!apiKey) return;
-  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
-  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
   var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
   var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
   var visitorFirst = user ? (user.firstName || '') : '';
   var visitorLast = user ? (user.lastName || '') : '';
+  if (pendoInitialized) {
+    if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast }, account: { id: 'becomeaipm' } });
+    return;
+  }
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  pendoInitialized = true;
   pendo.initialize({
     visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
     account: { id: 'becomeaipm' }

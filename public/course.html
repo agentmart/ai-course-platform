@@ -151,6 +151,13 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .sp-inner{text-align:center;}
 .sp-spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
 .sp-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.12em;}
+.sp-actions{display:none;margin-top:24px;}
+.sp-actions.show{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.sp-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:10px 24px;border-radius:4px;cursor:pointer;border:none;transition:all .15s;}
+.sp-btn-primary{background:#c8590a;color:white;}
+.sp-btn-primary:hover{background:#a84a06;}
+.sp-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.sp-btn-ghost:hover{border-color:#c8590a;color:#c8590a;}
 </style>
 </head>
 <body>
@@ -163,8 +170,12 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 <!-- Sign-in prompt overlay for unauthenticated CTA visitors -->
 <div id="signin-prompt">
   <div class="sp-inner">
-    <div class="sp-spin"></div>
-    <div class="sp-text">OPENING SIGN IN...</div>
+    <div class="sp-spin" id="sp-spin"></div>
+    <div class="sp-text" id="sp-text">OPENING SIGN IN...</div>
+    <div class="sp-actions" id="sp-actions">
+      <button class="sp-btn sp-btn-primary" onclick="retrySignIn()">Try Again</button>
+      <a class="sp-btn sp-btn-ghost" href="/">Return to Homepage</a>
+    </div>
   </div>
 </div>
 
@@ -295,17 +306,22 @@ let clerk=null,cfg={},completed=new Set(),taskStates={},notes={},currentDay=1,py
 // All 60 days open to signed-in users — no subscription required
 let maxDayUnlocked=60,userTier='open',userFeatures={progressTracking:true,saveJobs:true,slackCommunity:false,certification:false};
 
+var pendoInitialized = false;
 function initPendo(apiKey, user) {
   if (!apiKey) return;
-  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
-  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
   var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
   var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
   var visitorFirst = user ? (user.firstName || '') : '';
   var visitorLast = user ? (user.lastName || '') : '';
+  if (pendoInitialized) {
+    if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast }, account: { id: 'becomeaipm' } });
+    return;
+  }
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  pendoInitialized = true;
   pendo.initialize({
     visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
     account: { id: 'becomeaipm' }
@@ -329,12 +345,37 @@ function initPendo(apiKey, user) {
     try{ clerk=window.Clerk; await clerk.load(); }
     catch(e){ showLdErr('Auth init failed: '+e.message); return; }
     if(!clerk.user){
-      // Fix: instead of silently redirecting to '/', open Clerk sign-in directly
-      // so users arriving via the 'Start the 60-Day Course Free' CTA see the
-      // sign-in flow immediately rather than being bounced with no explanation.
       hideLoader();
       document.getElementById('signin-prompt').classList.add('open');
       clerk.openSignIn({ fallbackRedirectUrl: window.location.href });
+      // Show fallback actions after a delay in case user cancels the modal
+      setTimeout(function(){
+        if(!clerk.user){
+          document.getElementById('sp-spin').style.display='none';
+          document.getElementById('sp-text').textContent='SIGN IN REQUIRED TO ACCESS THE COURSE';
+          document.getElementById('sp-actions').classList.add('show');
+        }
+      }, 2000);
+      // Listen for auth state changes — if user signs in via modal, proceed to load course
+      clerk.addListener(function onAuthChange(){
+        if(clerk.user){
+          document.getElementById('signin-prompt').classList.remove('open');
+          document.getElementById('loader').style.display='flex';
+          document.getElementById('loader').classList.remove('gone');
+          setLdText('LOADING PROGRESS...');
+          document.querySelector('.ld-spin').style.display='block';
+          (async function(){
+            await loadProgress();
+            renderNav(); renderSidebar(); renderDay(currentDay);
+            document.getElementById('topbar').style.display='flex';
+            document.getElementById('pb-wrap').style.display='block';
+            document.getElementById('app').style.display='flex';
+            updateProgress(); hideLoader();
+            if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
+            checkCookieConsent();
+          })();
+        }
+      });
       return;
     }
     setLdText('LOADING PROGRESS...');
@@ -352,6 +393,13 @@ function initPendo(apiKey, user) {
 function hideLoader(){ const l=document.getElementById('loader'); l.classList.add('gone'); setTimeout(()=>l.style.display='none',500); }
 function showLdErr(html){ document.querySelector('.ld-spin').style.display='none'; document.querySelector('.ld-text').style.display='none'; const el=document.getElementById('ld-err'); el.innerHTML=html; el.style.display='block'; }
 function setLdText(t){ document.querySelector('.ld-text').textContent=t; }
+function retrySignIn(){
+  document.getElementById('sp-spin').style.display='block';
+  document.getElementById('sp-text').textContent='OPENING SIGN IN...';
+  document.getElementById('sp-actions').classList.remove('show');
+  clerk.openSignIn({ fallbackRedirectUrl: window.location.href });
+  setTimeout(function(){ if(!clerk.user){ document.getElementById('sp-spin').style.display='none'; document.getElementById('sp-text').textContent='SIGN IN REQUIRED TO ACCESS THE COURSE'; document.getElementById('sp-actions').classList.add('show'); } }, 2000);
+}
 
 async function loadProgress(){
   try{
@@ -376,12 +424,14 @@ async function sendWelcomeEmail(){
     const email=clerk.user.emailAddresses?.[0]?.emailAddress||'';
     const firstName=clerk.user.firstName||'';
     if(!email) return;
-    await fetch('/api/welcome-email',{
+    const resp=await fetch('/api/welcome-email',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify({email,firstName})
     });
-  }catch(e){}
+    if(!resp.ok) console.error('Welcome email API error:', resp.status, await resp.text().catch(()=>''));
+    else { const d=await resp.json().catch(()=>({})); if(!d.sent) console.warn('Welcome email not sent:', d.reason); }
+  }catch(e){ console.error('Welcome email failed:', e); }
 }
 
 async function saveProgress(){
@@ -447,6 +497,7 @@ function renderDay(day){
     <div class="section"><div class="section-title">Your Notes</div><textarea class="notes-area" id="notes-area" placeholder="Your notes for Day ${day}...">${notes['day'+day]||''}</textarea><button class="notes-save" onclick="saveNote(${day})">Save Note</button><span class="notes-saved" id="notes-saved">Saved &#10003;</span></div>
   `;
   document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
+  if(window.pendo && pendo.pageLoad) pendo.pageLoad();
 }
 
 function renderTask(day,i,task){

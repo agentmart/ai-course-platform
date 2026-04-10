@@ -273,7 +273,7 @@ nav{background:var(--ink);padding:0 28px;display:flex;align-items:stretch;positi
       <div class="nav-avatar" id="nav-avatar">?</div>
       <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
     </div>
-    <a class="nav-signin" id="nav-signin" href="/course.html" style="display:none">Sign In</a>
+    <a class="nav-signin" id="nav-signin" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
   </div>
 </nav>
 
@@ -361,7 +361,12 @@ nav{background:var(--ink);padding:0 28px;display:flex;align-items:stretch;positi
 // ── AUTH ──
 function updateAuthUI(){var u=window.Clerk&&window.Clerk.user;document.getElementById('nav-user').style.display=u?'flex':'none';document.getElementById('nav-signin').style.display=u?'none':'inline-block';if(u){var i=(u.firstName?.[0]||u.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();document.getElementById('nav-avatar').textContent=i;}}
 async function doSignOut(){if(window.Clerk){await window.Clerk.signOut();updateAuthUI();}}
-(async function(){try{var r=await fetch('/api/config');var c=await r.json();if(c.clerkPublishableKey&&c.clerkDomain){var s=document.createElement('script');s.src='https://'+c.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';s.setAttribute('data-clerk-publishable-key',c.clerkPublishableKey);s.crossOrigin='anonymous';document.head.appendChild(s);s.onload=async function(){try{await window.Clerk.load();}catch(e){}updateAuthUI();};s.onerror=function(){updateAuthUI();};}else{updateAuthUI();}}catch(e){updateAuthUI();}})();
+function openSignIn(){
+  if(!window.Clerk){location.href='/course.html';return;}
+  window.Clerk.openSignIn({fallbackRedirectUrl:window.location.href,signUpFallbackRedirectUrl:'/course.html'});
+}
+var lennyCfg=null;
+(async function(){try{var r=await fetch('/api/config');var c=await r.json();lennyCfg=c;if(c.clerkPublishableKey&&c.clerkDomain){var s=document.createElement('script');s.src='https://'+c.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';s.setAttribute('data-clerk-publishable-key',c.clerkPublishableKey);s.crossOrigin='anonymous';document.head.appendChild(s);s.onload=async function(){try{await window.Clerk.load();}catch(e){}updateAuthUI();if(canUsePendo())initPendo(c.pendoApiKey,window.Clerk.user);};s.onerror=function(){updateAuthUI();};}else{updateAuthUI();}}catch(e){updateAuthUI();}})();
 
 // ── WIKI DATA (Karpathy LLM Wiki: pre-compiled, persistent, cross-linked knowledge) ──
 const WIKI = [
@@ -1099,8 +1104,23 @@ function fmt(t) {
 function x(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ── COOKIE ──
-function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');}
+function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');if(lennyCfg&&lennyCfg.pendoApiKey)initPendo(lennyCfg.pendoApiKey,window.Clerk?window.Clerk.user:null);}
 function declineCookies(){localStorage.setItem('cookie_consent','declined');document.getElementById('cookie-banner').classList.remove('show');}
+function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted';}
+var pendoInitialized=false;
+function initPendo(apiKey,user){
+  if(!apiKey)return;
+  var visitorId=user?user.id:'VISITOR-UNIQUE-ID';
+  var visitorEmail=user?(user.emailAddresses?.[0]?.emailAddress||''):'';
+  var visitorFirst=user?(user.firstName||''):'';
+  if(pendoInitialized){if(window.pendo&&pendo.identify)pendo.identify({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst},account:{id:'becomeaipm'}});return;}
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  pendoInitialized=true;
+  pendo.initialize({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst},account:{id:'becomeaipm'}});
+}
 if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banner').classList.add('show');
 
 // ── INIT ──
