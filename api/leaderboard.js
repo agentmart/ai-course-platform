@@ -109,6 +109,9 @@ export default async function handler(req, res) {
             streak,
             completed: myCompleted,
           };
+        } else {
+          // Authenticated user with no progress yet — show zeroed stats instead of anon prompt
+          result.me = { daysCompleted: 0, percentile: 0, streak: 0, completed: [] };
         }
       } catch(e) {
         // Token invalid — skip personal stats

@@ -423,15 +423,18 @@ async function sendWelcomeEmail(){
     const token=await clerk.session.getToken();
     const email=clerk.user.emailAddresses?.[0]?.emailAddress||'';
     const firstName=clerk.user.firstName||'';
-    if(!email) return;
+    console.log('[welcome-email] attempting:', {email: email ? email.substring(0,3)+'***' : '(empty)', firstName, hasToken: !!token});
+    if(!email){ console.warn('[welcome-email] no email found on clerk.user'); return; }
     const resp=await fetch('/api/welcome-email',{
       method:'POST',
       headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
       body:JSON.stringify({email,firstName})
     });
-    if(!resp.ok) console.error('Welcome email API error:', resp.status, await resp.text().catch(()=>''));
-    else { const d=await resp.json().catch(()=>({})); if(!d.sent) console.warn('Welcome email not sent:', d.reason); }
-  }catch(e){ console.error('Welcome email failed:', e); }
+    const d=await resp.json().catch(()=>({}));
+    console.log('[welcome-email] response:', resp.status, d);
+    if(!resp.ok) console.error('[welcome-email] API error:', resp.status);
+    else if(!d.sent) console.warn('[welcome-email] not sent:', d.reason, d.detail||'');
+  }catch(e){ console.error('[welcome-email] failed:', e); }
 }
 
 async function saveProgress(){

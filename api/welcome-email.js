@@ -11,6 +11,7 @@ export default async function handler(req, res) {
 
   // If Resend is not configured, return success silently — welcome email is non-critical
   if (!process.env.RESEND_API_KEY) {
+    console.warn('RESEND_API_KEY is not set');
     return res.status(200).json({ sent: false, reason: 'email_not_configured' });
   }
 
@@ -22,7 +23,9 @@ export default async function handler(req, res) {
     userId = claims.sub;
     userEmail = req.body?.email;
     firstName = req.body?.firstName || '';
+    console.log('Welcome email request:', JSON.stringify({ userId, hasEmail: !!userEmail, hasBody: !!req.body, bodyKeys: req.body ? Object.keys(req.body) : [] }));
   } catch (e) {
+    console.error('Welcome email auth failed:', e?.message || e);
     return res.status(401).json({ error: 'Unauthorized' });
   }
 
