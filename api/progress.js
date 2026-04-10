@@ -17,13 +17,22 @@ export default async function handler(req, res) {
   const authHeader = req.headers.authorization || '';
   const token = authHeader.replace('Bearer ', '');
 
-  let userId;
+  let userId, userEmail;
   try {
     const claims = await verifyClerkToken(token);
     userId = claims.sub;
+    userEmail = claims.email || null;
   } catch(e) {
     return res.status(401).json({ error: 'Unauthorized' });
   }
+
+  // Ensure user_access row exists — creates one if missing (e.g. first visit)
+  await supabase
+    .from('user_access')
+    .upsert(
+      { clerk_user_id: userId, email: userEmail, tier: 'free', access_level: 2, granted_at: new Date().toISOString() },
+      { onConflict: 'clerk_user_id', ignoreDuplicates: true }
+    );
 
   // GET — fetch progress
   if (req.method === 'GET') {
