@@ -1,7 +1,8 @@
-const { createClient } = require('@supabase/supabase-js');
-const { Resend } = require('resend');
+import { createClient } from '@supabase/supabase-js';
+import { Resend } from 'resend';
+import { verifyClerkToken } from '../lib/clerk.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', process.env.NEXT_PUBLIC_APP_URL || '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
@@ -15,7 +16,6 @@ module.exports = async function handler(req, res) {
 
   let userId, userEmail, firstName;
   try {
-    const { verifyClerkToken } = require('../lib/clerk.js');
     const authHeader = req.headers.authorization || '';
     const token = authHeader.replace('Bearer ', '');
     const claims = await verifyClerkToken(token);
@@ -83,4 +83,4 @@ module.exports = async function handler(req, res) {
     console.error('Welcome email error:', err?.message || err);
     return res.status(200).json({ sent: false, reason: 'send_error' });
   }
-};
+}
