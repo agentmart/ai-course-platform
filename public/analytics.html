@@ -102,7 +102,7 @@ footer a:hover{color:var(--amber);}
       <div class="nav-avatar" id="nav-avatar">?</div>
       <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
     </div>
-    <a class="nav-signin" id="nav-signin" href="/course.html" style="display:none">Sign In</a>
+    <a class="nav-signin" id="nav-signin" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
   </div>
 </nav>
 
@@ -142,7 +142,7 @@ footer a:hover{color:var(--amber);}
   <div id="my-progress-anon" style="display:none;">
     <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:40px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
       <span style="font-size:14px;color:var(--ink2);">Sign in to see your personal progress and ranking</span>
-      <a class="cta-btn" href="/course.html" style="margin-left:auto;">Sign In &amp; Start Learning &rarr;</a>
+      <a class="cta-btn" href="#" onclick="openSignIn();return false;" style="margin-left:auto;">Sign In &amp; Track Progress &rarr;</a>
     </div>
   </div>
 </div>
@@ -220,6 +220,12 @@ function updateAuthUI() {
   }
 }
 async function doSignOut() { if (window.Clerk) { await window.Clerk.signOut(); updateAuthUI(); } }
+function openSignIn() {
+  if (!window.Clerk) { location.href = '/course.html'; return; }
+  window.Clerk.openSignIn({ fallbackRedirectUrl: window.location.href, signUpFallbackRedirectUrl: '/course.html' });
+}
+
+var cfg = null;
 
 (async function loadLeaderboard() {
   var loading = document.getElementById('lb-loading');
@@ -232,7 +238,7 @@ async function doSignOut() { if (window.Clerk) { await window.Clerk.signOut(); u
     var headers = {};
     try {
       var cfgRes = await fetch('/api/config');
-      var cfg = await cfgRes.json();
+      cfg = await cfgRes.json();
       if (cfg.clerkPublishableKey && cfg.clerkDomain) {
         var s = document.createElement('script');
         s.src = 'https://' + cfg.clerkDomain + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
@@ -304,17 +310,22 @@ async function doSignOut() { if (window.Clerk) { await window.Clerk.signOut(); u
   checkCookieConsent();
 })();
 
+var pendoInitialized = false;
 function initPendo(apiKey, user) {
   if (!apiKey) return;
-  if (window.pendo && window.pendo.isReady && window.pendo.isReady()) return;
-  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
   var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
   var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
   var visitorFirst = user ? (user.firstName || '') : '';
   var visitorLast = user ? (user.lastName || '') : '';
+  if (pendoInitialized) {
+    if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast }, account: { id: 'becomeaipm' } });
+    return;
+  }
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  pendoInitialized = true;
   pendo.initialize({
     visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
     account: { id: 'becomeaipm' }

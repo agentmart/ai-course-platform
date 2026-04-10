@@ -200,6 +200,7 @@ footer a:hover{color:var(--amber);}
 <script>
 var turnstileSiteKey = '';
 var clerk = null;
+var contactCfg = null;
 
 function updateAuthUI() {
   var user = clerk && clerk.user;
@@ -216,6 +217,7 @@ async function doSignOut() { if (clerk) { await clerk.signOut(); updateAuthUI();
   try {
     var res = await fetch('/api/config');
     var cfg = await res.json();
+    contactCfg = cfg;
 
     // Load Clerk for auth UI
     if (cfg.clerkPublishableKey && cfg.clerkDomain) {
@@ -250,19 +252,27 @@ async function doSignOut() { if (clerk) { await clerk.signOut(); updateAuthUI();
     // Initialize Pendo (only with consent)
     var apiKey = cfg.pendoApiKey;
     if (apiKey && canUsePendo()) {
-      (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-      v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-      y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-      z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
-      var anonId = 'anon-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
-      pendo.initialize({
-        visitor: { id: anonId },
-        account: { id: 'becomeaipm' }
-      });
+      initContactPendo(apiKey);
     }
     checkCookieConsent();
   } catch(e) { /* config/pendo init failed silently */ }
 })();
+
+var contactPendoInitialized = false;
+function initContactPendo(apiKey) {
+  if (!apiKey || contactPendoInitialized) return;
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  contactPendoInitialized = true;
+  var anonId = localStorage.getItem('pendo_anon_id');
+  if (!anonId) { anonId = 'anon-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); localStorage.setItem('pendo_anon_id', anonId); }
+  pendo.initialize({
+    visitor: { id: anonId },
+    account: { id: 'becomeaipm' }
+  });
+}
 
 async function submitContact(evt) {
   evt.preventDefault();
@@ -318,7 +328,7 @@ async function submitContact(evt) {
 }
 
 // ── COOKIE CONSENT ──
-function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); }
+function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(contactCfg&&contactCfg.pendoApiKey)initContactPendo(contactCfg.pendoApiKey); }
 function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
 function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
 function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
