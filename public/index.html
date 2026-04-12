@@ -324,6 +324,10 @@ for name, s in models.items():
 
   <script>
     let clerk = null, cfg = {};
+    // Track whether Clerk was in a signed-out state when the page loaded.
+    // We use this to detect a fresh sign-in/sign-up event on this page
+    // (as opposed to a user who was already authenticated on page load).
+    let wasSignedOut = true;
 
     var pendoInitialized = false;
     function initPendo(apiKey, user) {
@@ -346,6 +350,30 @@ for name, s in models.items():
       });
     }
 
+    // Send welcome email — fires on first sign-up from any page.
+    // Uses localStorage so it only fires once per browser across sessions.
+    async function sendWelcomeEmail(user) {
+      const lsKey = 'welcome_sent_' + user.id;
+      if (localStorage.getItem(lsKey)) return; // already sent for this user
+      localStorage.setItem(lsKey, '1');
+      try {
+        const token = await clerk.session.getToken();
+        const email = user.emailAddresses?.[0]?.emailAddress || '';
+        const firstName = user.firstName || '';
+        if (!email) return;
+        console.log('[welcome-email] sending from index.html for', email.substring(0,3) + '***');
+        const resp = await fetch('/api/welcome-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ email, firstName })
+        });
+        const d = await resp.json().catch(() => ({}));
+        console.log('[welcome-email] response:', resp.status, d);
+      } catch(e) {
+        console.error('[welcome-email] failed:', e);
+      }
+    }
+
     (async function boot() {
       try { const r = await fetch('/api/config'); cfg = await r.json(); } catch(e) { hideLoader(); return; }
       if (!cfg.clerkPublishableKey || !cfg.clerkDomain) { hideLoader(); return; }
@@ -356,9 +384,24 @@ for name, s in models.items():
       document.head.appendChild(s);
       s.onload = async () => {
         try { clerk = window.Clerk; await clerk.load(); } catch(e) { hideLoader(); return; }
+        // Record initial auth state — if user is already signed in on page load,
+        // we do NOT want to fire the welcome email (they're a returning user).
+        wasSignedOut = !clerk.user;
         refreshUI();
         if (canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
-        clerk.addListener(() => { refreshUI(); if (canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user); });
+        clerk.addListener(() => {
+          const user = clerk.user;
+          // Only fire welcome email if:
+          // 1. User just signed in/up on THIS page (wasSignedOut was true)
+          // 2. There is now an authenticated user
+          if (wasSignedOut && user) {
+            wasSignedOut = false;
+            sendWelcomeEmail(user);
+          }
+          if (!user) wasSignedOut = true; // reset if they sign out
+          refreshUI();
+          if (canUsePendo()) initPendo(cfg.pendoApiKey, user);
+        });
         hideLoader();
         checkCookieConsent();
       };
@@ -382,9 +425,6 @@ for name, s in models.items():
       }
     }
 
-    // Use clerk.openSignIn() so Clerk owns the entire modal DOM and aria tree.
-    // This eliminates the aria-hidden-on-focused-element error that occurs
-    // when mountSignIn() is nested inside a custom div we control.
     function openSignIn() {
       if (!clerk) { location.href = '/course.html'; return; }
       clerk.openSignIn({

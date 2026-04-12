@@ -9,7 +9,6 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  // If Resend is not configured, return success silently — welcome email is non-critical
   if (!process.env.RESEND_API_KEY) {
     console.warn('RESEND_API_KEY is not set');
     return res.status(200).json({ sent: false, reason: 'email_not_configured' });
@@ -23,7 +22,7 @@ export default async function handler(req, res) {
     userId = claims.sub;
     userEmail = req.body?.email;
     firstName = req.body?.firstName || '';
-    console.log('Welcome email request:', JSON.stringify({ userId, hasEmail: !!userEmail, hasBody: !!req.body, bodyKeys: req.body ? Object.keys(req.body) : [] }));
+    console.log('Welcome email request:', JSON.stringify({ userId, hasEmail: !!userEmail, firstName: firstName || '(none)' }));
   } catch (e) {
     console.error('Welcome email auth failed:', e?.message || e);
     return res.status(401).json({ error: 'Unauthorized' });
@@ -42,12 +41,16 @@ export default async function handler(req, res) {
       .eq('clerk_user_id', userId)
       .single();
 
-    // Skip welcome email for returning users who already have progress
-    if (existing && existing.progress_data && Object.keys(existing.progress_data).length > 0) {
+    // Only skip if the user has actually completed at least one day.
+    // A brand-new row (progress_data null or empty completed array) should
+    // still receive the welcome email.
+    const completedDays = existing?.progress_data?.completed;
+    if (Array.isArray(completedDays) && completedDays.length > 0) {
+      console.log('Welcome email skipped: existing user with progress', { userId, completedDays: completedDays.length });
       return res.status(200).json({ sent: false, reason: 'existing_user' });
     }
 
-    // Create user_access row for brand-new users
+    // Ensure user_access row exists for brand-new users
     if (!existing) {
       await supabase
         .from('user_access')
@@ -80,9 +83,6 @@ export default async function handler(req, res) {
     return res.status(200).json({ sent: true });
 
   } catch (err) {
-    // Welcome email is non-critical — log the error but never surface a 500 to
-    // the user who just successfully signed up. Return 200 with sent:false so
-    // the client treats this as a silent no-op rather than a failure.
     console.error('Welcome email error:', err?.message || err);
     return res.status(200).json({ sent: false, reason: 'send_error' });
   }
