@@ -1,4 +1,4 @@
-name: Stage Branch Workflow
+name: Stage — Validate & Hold
 
 on:
   push:
@@ -6,12 +6,11 @@ on:
       - stage
 
 jobs:
-  test-build-pr:
+  validate:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
-    
+      contents: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,52 +18,21 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18' # Based on package.json engines
+          node-version: '18'
           cache: 'npm'
 
       - name: Install dependencies
         run: npm ci || npm install
 
-      # Note: We add placeholders for tests and build.
-      # You should replace these with actual commands if you add them to package.json
-      - name: Run Tests
-        id: run_tests
+      - name: Validate JS syntax
         run: |
-          echo "Running tests..."
-          # npm test
+          echo "Checking api/ files for syntax errors..."
+          for f in api/*.js lib/*.js; do
+            node --input-type=module < "$f" 2>&1 | grep -i 'error' && echo "SYNTAX ERROR in $f" && exit 1 || true
+          done
+          echo "All files passed syntax check"
 
-      - name: Build Project
-        id: build_project
+      - name: Summary
         run: |
-          echo "Building project..."
-          # npm run build
-
-      - name: Create Pull Request to Main
-        id: create_pr
-        env:
-          # Use a Personal Access Token with repo and PR permissions 
-          # instead of the default GITHUB_TOKEN to bypass default restrictions.
-          GH_TOKEN: ${{ secrets.GH_PAT_TOKEN }}
-        run: |
-          gh pr create \
-            --base main \
-            --head stage \
-            --title "Automated PR from Stage to Main" \
-            --body "This PR was automatically created after a successful push to the \`stage\` branch." || echo "PR may already exist or there are no changes."
-
-      - name: Send Email Notification on Failure
-        if: failure()
-        uses: dawidd6/action-send-mail@v3
-        with:
-          server_address: smtp.gmail.com # Replace with your SMTP server
-          server_port: 465 # Replace if necessary
-          secure: true
-          username: ${{ secrets.SMTP_USERNAME }}
-          password: ${{ secrets.SMTP_PASSWORD }}
-          subject: Stage Workflow Failed
-          to: ${{ secrets.NOTIFICATION_EMAIL }} # Add this secret or hardcode your email
-          from: GitHub Actions <no-reply@github.actions.com>
-          body: |
-            The workflow for the stage branch failed.
-            Repository: ${{ github.repository }}
-            Run URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          echo "✅ Stage validated. Vercel preview is deploying."
+          echo "When ready to promote to prod, tell Claude: 'promote stage to prod'"
