@@ -18,7 +18,7 @@ jobs:
             -X POST \
             -H "x-cron-secret: ${CRON_SECRET}" \
             -H "User-Agent: becomeaipm-cron/1.0" \
-            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/update-models")
+            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/models")
           echo "HTTP status: $RESPONSE"
           cat /tmp/resp.json
           if [ "$RESPONSE" != "200" ]; then
