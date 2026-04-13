@@ -10,15 +10,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Trigger price update
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
           RESPONSE=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
             -X POST \
-            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
-            "https://becomeaipm.com/api/update-models")
+            -H "x-cron-secret: ${CRON_SECRET}" \
+            -H "User-Agent: becomeaipm-cron/1.0" \
+            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/update-models")
           echo "HTTP status: $RESPONSE"
           cat /tmp/resp.json
           if [ "$RESPONSE" != "200" ]; then
-            echo "Price check failed with status $RESPONSE"
+            echo "::error::Price check failed with status $RESPONSE"
             exit 1
           fi
           ERRORS=$(cat /tmp/resp.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('errors',0))")
