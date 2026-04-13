@@ -1,0 +1,28 @@
+name: Daily LLM Price Check
+
+on:
+  schedule:
+    - cron: '0 6 * * *'   # 06:00 UTC daily
+  workflow_dispatch:       # allow manual trigger
+
+jobs:
+  check-prices:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger price update
+        run: |
+          RESPONSE=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
+            -X POST \
+            -H "x-cron-secret: ${{ secrets.CRON_SECRET }}" \
+            "https://becomeaipm.com/api/update-models")
+          echo "HTTP status: $RESPONSE"
+          cat /tmp/resp.json
+          if [ "$RESPONSE" != "200" ]; then
+            echo "Price check failed with status $RESPONSE"
+            exit 1
+          fi
+          ERRORS=$(cat /tmp/resp.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('errors',0))")
+          if [ "$ERRORS" -gt "0" ]; then
+            echo "WARNING: $ERRORS model update errors — check logs"
+          fi
+          echo "Done — $(cat /tmp/resp.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('upserted',0))") models refreshed"
