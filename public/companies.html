@@ -25,14 +25,12 @@ nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;positi
 .nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
 .nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
 .nav-signout:hover{color:var(--amber);}
-/* SIGN-IN OVERLAY */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
 .overlay.open{display:flex;}
 .clerk-wrap{position:relative;max-width:480px;width:90%;}
 .m-close{position:absolute;top:-14px;right:-14px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--ink);border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .m-close:hover{color:var(--amber);}
 #clerk-mount{min-height:200px;display:flex;align-items:center;justify-content:center;}
-/* HERO */
 .hero{padding:48px 40px 32px;max-width:1200px;margin:0 auto;}
 .eyebrow{display:flex;align-items:center;gap:14px;margin-bottom:14px;flex-wrap:wrap;}
 .eyebrow-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;}
@@ -83,7 +81,6 @@ h1 em{color:var(--amber);font-style:italic;}
 .empty-wrap{text-align:center;padding:60px 20px;color:var(--muted);}
 .empty-ico{font-size:32px;margin-bottom:12px;}
 .empty-h{font-family:'Fraunces',serif;font-size:20px;font-weight:700;color:var(--ink);margin-bottom:6px;}
-/* DRAWER */
 .drawer-overlay{position:fixed;inset:0;background:rgba(26,21,18,.45);z-index:300;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(2px);}
 .drawer-overlay.open{opacity:1;pointer-events:all;}
 .drawer{position:fixed;top:0;right:0;bottom:0;width:min(560px,100vw);background:var(--card);z-index:301;display:flex;flex-direction:column;transform:translateX(100%);transition:transform .3s cubic-bezier(.4,0,.2,1);box-shadow:-8px 0 40px rgba(26,21,18,.15);border-left:1px solid var(--border);}
@@ -145,7 +142,6 @@ h1 em{color:var(--amber);font-style:italic;}
 .saved-clear{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);background:none;border:none;cursor:pointer;margin-left:auto;}
 .saved-clear:hover{color:var(--amber);}
 @media(max-width:768px){nav{padding:12px 20px;}.hero,.grid-area{padding-left:20px;padding-right:20px;}.controls{padding:12px 20px;top:53px;}.drawer{width:100vw;}}
-/* COOKIE CONSENT */
 .cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
 .cookie-banner.show{display:flex;}
 .cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
@@ -159,7 +155,6 @@ h1 em{color:var(--amber);font-style:italic;}
 </head>
 <body>
 
-<!-- SIGN-IN OVERLAY -->
 <div class="overlay" id="overlay">
   <div class="clerk-wrap">
     <button class="m-close" onclick="closeSignIn()">&#215;</button>
@@ -172,6 +167,7 @@ h1 em{color:var(--amber);font-style:italic;}
   <div class="nav-links">
     <a class="nav-link" href="/course.html">Course</a>
     <a class="nav-link active" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/pricing.html">Pricing</a>
     <a class="nav-link" href="/analytics.html">Leaderboard</a>
     <a class="nav-link" href="/contact.html">Contact</a>
   </div>
@@ -250,264 +246,53 @@ h1 em{color:var(--amber);font-style:italic;}
 
 <script>
 let all=[],f='hiring',s='roles',q='',activeCompany=null,activeTab='jobs',jobsCache={},clerk=null,clerkMounted=false,user=null,cfg=null;
-let saved = JSON.parse(localStorage.getItem('saved_roles')||'{}');
-
+let saved=JSON.parse(localStorage.getItem('saved_roles')||'{}');
 (async()=>{
   try{
-    cfg = await fetch('/api/config').then(r=>r.json());
-    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){ loadCompanies(); updateAuthUI(); return; }
-    const s=document.createElement('script');
-    s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
-    s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
-    s.crossOrigin='anonymous';
-    document.head.appendChild(s);
-    s.onload=async()=>{
-      clerk=window.Clerk;
-      await clerk.load();
-      if(clerk.user) user=clerk.user;
-      updateAuthUI();
-      loadCompanies();
-      if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
-      checkCookieConsent();
-      clerk.addListener(e=>{
-        if(e.user&&!user){ user=e.user; closeSignIn(); updateAuthUI(); }
-        if(!e.user&&user){ user=null; updateAuthUI(); }
-      });
-    };
-    s.onerror=()=>{ loadCompanies(); updateAuthUI(); };
-  }catch(e){ loadCompanies(); updateAuthUI(); }
+    cfg=await fetch('/api/config').then(r=>r.json());
+    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){loadCompanies();updateAuthUI();return;}
+    const s=document.createElement('script');s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);s.crossOrigin='anonymous';document.head.appendChild(s);
+    s.onload=async()=>{clerk=window.Clerk;await clerk.load();if(clerk.user)user=clerk.user;updateAuthUI();loadCompanies();if(canUsePendo())initPendo(cfg.pendoApiKey,clerk.user);checkCookieConsent();clerk.addListener(e=>{if(e.user&&!user){user=e.user;closeSignIn();updateAuthUI();}if(!e.user&&user){user=null;updateAuthUI();}});};
+    s.onerror=()=>{loadCompanies();updateAuthUI();};
+  }catch(e){loadCompanies();updateAuthUI();}
 })();
-
-function updateAuthUI(){
-  const nu=document.getElementById('nav-user');
-  const sp=document.getElementById('signin-pill');
-  if(user){
-    const av=document.getElementById('nav-avatar');
-    av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
-    nu.style.display='flex';
-    if(sp) sp.style.display='none';
-  } else {
-    nu.style.display='none';
-    if(sp) sp.style.display='inline-flex';
-  }
-}
-async function doSignOut(){ await clerk?.signOut(); user=null; updateAuthUI(); }
-
-function openSignIn(){
-  document.getElementById('overlay').classList.add('open');
-  if(!clerkMounted&&clerk){
-    const el=document.getElementById('clerk-mount');
-    el.innerHTML='';
-    clerk.mountSignIn(el,{routing:'hash'});
-    clerkMounted=true;
-  }
-}
-function closeSignIn(){
-  document.getElementById('overlay').classList.remove('open');
-  if(clerkMounted&&clerk){ try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){} clerkMounted=false; }
-}
-document.getElementById('overlay').addEventListener('click',e=>{ if(e.target===document.getElementById('overlay'))closeSignIn(); });
-
-var pendoInitialized = false;
-function initPendo(apiKey, user) {
-  if (!apiKey) return;
-  var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
-  var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
-  var visitorFirst = user ? (user.firstName || '') : '';
-  var visitorLast = user ? (user.lastName || '') : '';
-  if (pendoInitialized) {
-    if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast }, account: { id: 'becomeaipm' } });
-    return;
-  }
-  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
-  pendoInitialized = true;
-  pendo.initialize({
-    visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
-    account: { id: 'becomeaipm' }
-  });
-}
-
-async function loadCompanies(){
-  try{
-    const cr=await fetch('/api/companies');
-    const{companies}=await cr.json(); all=companies||[];
-    document.getElementById('sync-txt').textContent='updated weekly';
-    document.getElementById('skeleton').style.display='none';
-    document.getElementById('grid').style.display='grid';
-    updateSavedBanner();
-    render();
-  }catch(e){ document.getElementById('skeleton').style.display='none'; document.getElementById('empty').style.display='block'; }
-}
-
-// Save roles — open to all users (stored in localStorage)
-function toggleSave(jobId, jobTitle, companyName, e){
-  e.stopPropagation();
-  const key=String(jobId);
-  if(saved[key]) delete saved[key];
-  else saved[key]={jobTitle,companyName,savedAt:Date.now()};
-  localStorage.setItem('saved_roles',JSON.stringify(saved));
-  if(window.pendo&&pendo.track) pendo.track(saved[key]?'Job Saved':'Job Unsaved',{company_name:companyName,job_title:jobTitle});
-  updateSavedBanner();
-  const btn=document.getElementById('save-'+key);
-  if(btn){
-    btn.classList.toggle('saved',!!saved[key]);
-    btn.textContent=saved[key]?'Saved':'Save';
-  }
-}
-function clearSaved(){ saved={}; localStorage.setItem('saved_roles','{}'); updateSavedBanner(); if(f==='saved')render(); }
-function updateSavedBanner(){
-  const count=Object.keys(saved).length;
-  const banner=document.getElementById('saved-banner');
-  banner.classList.toggle('show',count>0);
-  document.getElementById('saved-txt').textContent=`${count} role${count===1?'':'s'} saved`;
-  const chip=document.querySelector('.chip[data-f="saved"]');
-  if(chip) chip.textContent=count>0?`Saved (${count})`:'Saved';
-}
-
+function updateAuthUI(){const nu=document.getElementById('nav-user');const sp=document.getElementById('signin-pill');if(user){const av=document.getElementById('nav-avatar');av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();nu.style.display='flex';if(sp)sp.style.display='none';}else{nu.style.display='none';if(sp)sp.style.display='inline-flex';}}
+async function doSignOut(){await clerk?.signOut();user=null;updateAuthUI();}
+function openSignIn(){document.getElementById('overlay').classList.add('open');if(!clerkMounted&&clerk){const el=document.getElementById('clerk-mount');el.innerHTML='';clerk.mountSignIn(el,{routing:'hash'});clerkMounted=true;}}
+function closeSignIn(){document.getElementById('overlay').classList.remove('open');if(clerkMounted&&clerk){try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){}clerkMounted=false;}}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeSignIn();});
+var pendoInitialized=false;
+function initPendo(apiKey,user){if(!apiKey)return;var visitorId=user?user.id:'VISITOR-UNIQUE-ID';var visitorEmail=user?(user.emailAddresses?.[0]?.emailAddress||''):'';var visitorFirst=user?(user.firstName||''):'';var visitorLast=user?(user.lastName||''):'';if(pendoInitialized){if(window.pendo&&pendo.identify)pendo.identify({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst,lastName:visitorLast},account:{id:'becomeaipm'}});return;}(function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');pendoInitialized=true;pendo.initialize({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst,lastName:visitorLast},account:{id:'becomeaipm'}});}
+async function loadCompanies(){try{const cr=await fetch('/api/companies');const{companies}=await cr.json();all=companies||[];document.getElementById('sync-txt').textContent='updated weekly';document.getElementById('skeleton').style.display='none';document.getElementById('grid').style.display='grid';updateSavedBanner();render();}catch(e){document.getElementById('skeleton').style.display='none';document.getElementById('empty').style.display='block';}}
+function toggleSave(jobId,jobTitle,companyName,e){e.stopPropagation();const key=String(jobId);if(saved[key])delete saved[key];else saved[key]={jobTitle,companyName,savedAt:Date.now()};localStorage.setItem('saved_roles',JSON.stringify(saved));if(window.pendo&&pendo.track)pendo.track(saved[key]?'Job Saved':'Job Unsaved',{company_name:companyName,job_title:jobTitle});updateSavedBanner();const btn=document.getElementById('save-'+key);if(btn){btn.classList.toggle('saved',!!saved[key]);btn.textContent=saved[key]?'Saved':'Save';}}
+function clearSaved(){saved={};localStorage.setItem('saved_roles','{}');updateSavedBanner();if(f==='saved')render();}
+function updateSavedBanner(){const count=Object.keys(saved).length;const banner=document.getElementById('saved-banner');banner.classList.toggle('show',count>0);document.getElementById('saved-txt').textContent=`${count} role${count===1?'':'s'} saved`;const chip=document.querySelector('.chip[data-f="saved"]');if(chip)chip.textContent=count>0?`Saved (${count})`:'Saved';}
 function setF(v,el){f=v;document.querySelectorAll('.chip[data-f]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
 function setS(v,el){s=v;document.querySelectorAll('.chip[data-s]').forEach(c=>c.classList.remove('on'));el.classList.add('on');render();}
 let dt;document.getElementById('q').addEventListener('input',function(){clearTimeout(dt);dt=setTimeout(()=>{q=this.value.trim().toLowerCase();render();},160);});
-
-function getList(){
-  let list=all;
-  if(q)list=list.filter(c=>c.company_name.toLowerCase().includes(q)||(c.tech_stack||[]).some(t=>t.value?.toLowerCase().includes(q))||(c.investors||[]).some(i=>i.value?.toLowerCase().includes(q)));
-  if(f==='hiring')list=list.filter(c=>(c.open_roles||0)>0);
-  if(f==='saved'){const savedCompanies=new Set(Object.values(saved).map(s=>s.companyName));list=list.filter(c=>savedCompanies.has(c.company_name));}
-  if(f==='yc')list=list.filter(c=>(c.investors||[]).some(i=>/y combinator|yc/i.test(i.value||'')));
-  if(f==='big')list=list.filter(c=>parseFund(c.funding_amount)>=500e6);
-  if(s==='date')list=[...list].sort((a,b)=>(b.announcement_date||'')>(a.announcement_date||'')?1:-1);
-  if(s==='funding')list=[...list].sort((a,b)=>parseFund(b.funding_amount)-parseFund(a.funding_amount));
-  if(s==='roles')list=[...list].sort((a,b)=>(b.open_roles||0)-(a.open_roles||0));
-  return list;
-}
+function getList(){let list=all;if(q)list=list.filter(c=>c.company_name.toLowerCase().includes(q)||(c.tech_stack||[]).some(t=>t.value?.toLowerCase().includes(q))||(c.investors||[]).some(i=>i.value?.toLowerCase().includes(q)));if(f==='hiring')list=list.filter(c=>(c.open_roles||0)>0);if(f==='saved'){const savedCompanies=new Set(Object.values(saved).map(s=>s.companyName));list=list.filter(c=>savedCompanies.has(c.company_name));}if(f==='yc')list=list.filter(c=>(c.investors||[]).some(i=>/y combinator|yc/i.test(i.value||'')));if(f==='big')list=list.filter(c=>parseFund(c.funding_amount)>=500e6);if(s==='date')list=[...list].sort((a,b)=>(b.announcement_date||'')>(a.announcement_date||'')?1:-1);if(s==='funding')list=[...list].sort((a,b)=>parseFund(b.funding_amount)-parseFund(a.funding_amount));if(s==='roles')list=[...list].sort((a,b)=>(b.open_roles||0)-(a.open_roles||0));return list;}
 function parseFund(s){if(!s)return 0;const n=parseFloat((s.replace(/,/g,'').match(/([\d.]+)/)||[0,0])[1]);if(/billion|B\b/i.test(s))return n*1e9;if(/million|M\b/i.test(s)||/\$[\d.]+[Mm]/.test(s))return n*1e6;if(/thousand|K\b/i.test(s))return n*1e3;return n;}
-function render(){
-  const list=getList(),grid=document.getElementById('grid'),empty=document.getElementById('empty');
-  document.getElementById('cnt').textContent=list.length+(list.length===1?' company':' companies');
-  if(!list.length){grid.innerHTML='';empty.style.display='block';return;}
-  empty.style.display='none';grid.innerHTML=list.map(mkCard).join('');
-}
-function mkCard(c){
-  const inv=(c.investors||[]).map(x=>x.value).filter(Boolean);
-  const{bc,bt}=badge(c.source);
-  const roles=c.open_roles||0;
-  const rolesCls=c.roles_updated_at?(roles>0?'has':'zero'):'unk';
-  const rolesLabel=c.roles_updated_at?(roles>0?`&#9679; ${roles} PM role${roles===1?'':'s'}`:'&#9675; No PM roles'):'&#9675; Not checked yet';
-  const fund=c.funding_amount?c.funding_amount:'ATS TRACKED';
-  const fundCls=c.funding_amount?'cfund':'cfund nil';
-  return `<div class="card" onclick='openDrawer(${JSON.stringify(JSON.stringify(c))})'>
+function render(){const list=getList(),grid=document.getElementById('grid'),empty=document.getElementById('empty');document.getElementById('cnt').textContent=list.length+(list.length===1?' company':' companies');if(!list.length){grid.innerHTML='';empty.style.display='block';return;}empty.style.display='none';grid.innerHTML=list.map(mkCard).join('');}
+function mkCard(c){const inv=(c.investors||[]).map(x=>x.value).filter(Boolean);const{bc,bt}=badge(c.source);const roles=c.open_roles||0;const rolesCls=c.roles_updated_at?(roles>0?'has':'zero'):'unk';const rolesLabel=c.roles_updated_at?(roles>0?`&#9679; ${roles} PM role${roles===1?'':'s'}`:'&#9675; No PM roles'):'&#9675; Not checked yet';const fund=c.funding_amount?c.funding_amount:'ATS TRACKED';const fundCls=c.funding_amount?'cfund':'cfund nil';return `<div class="card" onclick='openDrawer(${JSON.stringify(JSON.stringify(c))})'>
 <div class="chead"><div class="cname">${e(c.company_name)}</div><span class="sbadge ${bc}">${bt}</span></div>
-<div class="${fundCls}">${e(fund)}</div>
-<hr class="crule">
+<div class="${fundCls}">${e(fund)}</div><hr class="crule">
 ${inv.length?`<div style="margin-bottom:8px"><div style="font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:4px">Investors</div><div class="tags">${inv.slice(0,3).map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
-<div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles &#8594;</span></div>
-</div>`;
-}
+<div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles &#8594;</span></div></div>`;}
 function badge(src){if(!src)return{bc:'sb-vc',bt:'VC'};const l=src.toLowerCase();if(l.includes('yc')||l.includes('startup track'))return{bc:'sb-yc',bt:'YC'};if(l.includes('hn')||l.includes('hiring'))return{bc:'sb-hn',bt:'HN'};return{bc:'sb-vc',bt:'VC'};}
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-
-function openDrawer(jsonStr){
-  const company=JSON.parse(jsonStr);
-  if(!user){ openSignIn(); return; }
-  activeCompany=company;activeTab='jobs';
-  document.getElementById('dh-company').textContent=company.company_name;
-  document.getElementById('dh-funding').textContent=company.funding_amount||'';
-  document.getElementById('dh-src').textContent=company.source||'';
-  const invs=(company.investors||[]).map(i=>i.value).filter(Boolean);
-  document.getElementById('dh-investors').innerHTML=invs.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}" style="font-size:10px">${e(v)}</span>`).join('');
-  document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');
-  document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');
-  document.body.style.overflow='hidden';
-  if(window.pendo&&pendo.track) pendo.track('Company Viewed',{company_name:company.company_name});
-  loadJobs(company);
-}
+function openDrawer(jsonStr){const company=JSON.parse(jsonStr);if(!user){openSignIn();return;}activeCompany=company;activeTab='jobs';document.getElementById('dh-company').textContent=company.company_name;document.getElementById('dh-funding').textContent=company.funding_amount||'';document.getElementById('dh-src').textContent=company.source||'';const invs=(company.investors||[]).map(i=>i.value).filter(Boolean);document.getElementById('dh-investors').innerHTML=invs.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}" style="font-size:10px">${e(v)}</span>`).join('');document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');document.body.style.overflow='hidden';if(window.pendo&&pendo.track)pendo.track('Company Viewed',{company_name:company.company_name});loadJobs(company);}
 function closeDrawer(){document.getElementById('dr-overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';activeCompany=null;}
-function switchTab(tab){
-  activeTab=tab;
-  document.getElementById('tab-jobs').classList.toggle('on',tab==='jobs');
-  document.getElementById('tab-about').classList.toggle('on',tab==='about');
-  if(tab==='jobs')renderJobsTab();
-  if(tab==='about')renderAboutTab();
-}
-async function loadJobs(company){
-  const body=document.getElementById('drawer-body');
-  const key=company.id||company.company_name;
-  if(jobsCache[key]){renderJobsTab();return;}
-  body.innerHTML='<div class="jobs-loading">Loading PM roles…</div>';
-  try{
-    const p=company.id?`company_id=${company.id}`:`company_name=${encodeURIComponent(company.company_name)}`;
-    const{jobs,company:c}=await fetch(`/api/company-jobs?${p}`).then(r=>r.json());
-    jobsCache[key]={jobs:jobs||[],meta:c||company};
-    if(c)activeCompany={...company,...c};
-  }catch(err){jobsCache[key]={jobs:[],meta:company};}
-  renderJobsTab();
-}
-function renderJobsTab(){
-  const body=document.getElementById('drawer-body');
-  const key=activeCompany?.id||activeCompany?.company_name;
-  const jobs=(jobsCache[key]?.jobs)||[];
-  const lr=activeCompany?.roles_updated_at?new Date(activeCompany.roles_updated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):null;
-  const rrow=lr?`<div class="refresh-row"><div class="refresh-dot"></div><span class="refresh-txt">Refreshed ${lr}</span></div>`:'';
-  if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">&#128301;</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now. Check back tomorrow.</div></div>`;return;}
-  body.innerHTML=rrow+`<div class="jobs-list">${jobs.map(j=>jobCard(j)).join('')}</div>`;
-}
-function jobCard(j){
-  const ls=j.last_seen_at?new Date(j.last_seen_at).toLocaleDateString('en-US',{month:'short',day:'numeric'}):'—';
-  const fs=j.first_seen_at?new Date(j.first_seen_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';
-  const jurl=j.job_url||'';
-  const jt=e(j.title);
-  const cn=e(activeCompany?.company_name||'');
-  const isSaved=!!saved[String(j.id)];
-  return `<div class="job-card">
-<div class="jc-top"><div class="jc-title">${jt}</div>${j.remote?'<span class="jc-remote">REMOTE</span>':''}</div>
-<div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">&#128205; ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div>
-<div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'Saved':'Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},'${cn}','${jt}','${e(jurl)}')">Apply &#8594;</button></div></div>
-</div>`;
-}
-function renderAboutTab(){
-  const body=document.getElementById('drawer-body');
-  const c=activeCompany||{};
-  const founders=(c.founder_names||[]).map(f=>f.value).filter(Boolean);
-  const tech=(c.tech_stack||[]).map(t=>t.value).filter(Boolean);
-  const inv=(c.investors||[]).map(i=>i.value).filter(Boolean);
-  const key=c.id||c.company_name;
-  const pmRoles=(jobsCache[key]?.jobs||[]).length;
-  body.innerHTML=`<div class="about-body">
-<div class="about-stat"><div><div class="stat-n">${pmRoles}</div><div class="stat-l">PM Roles</div></div><div><div class="stat-n">${c.open_roles||0}</div><div class="stat-l">Total Open</div></div></div>
-${c.funding_amount?`<div class="about-section"><div class="about-label">Funding</div><div style="font-size:13px;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:600">${e(c.funding_amount)}</div></div>`:''}
-${founders.length?`<div class="about-section"><div class="about-label">Founders</div><div style="font-size:13px;color:var(--ink2)">${founders.map(e).join(' · ')}</div></div>`:''}
-${inv.length?`<div class="about-section"><div class="about-label">Investors</div><div class="tags">${inv.map(v=>`<span class="tag ti${/yc|y combinator/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}
-${tech.length?`<div class="about-section"><div class="about-label">Tech Stack</div><div class="tags">${tech.map(v=>`<span class="tag tt">${e(v)}</span>`).join('')}</div></div>`:''}
-${c.company_url?`<div class="about-section"><div class="about-label">Website</div><a class="about-url" href="${e(c.company_url)}" target="_blank" rel="noopener">${e(c.company_url)}</a></div>`:''}
-</div>`;
-}
-async function trackAndOpen(evt,jobId,companyName,jobTitle,jobUrl){
-  evt.preventDefault();if(!jobUrl)return;
-  // Add UTM parameters for attribution
-  try{
-    var url=new URL(jobUrl);
-    url.searchParams.set('utm_source','becomeaipm');
-    url.searchParams.set('utm_medium','job_board');
-    url.searchParams.set('utm_campaign','ai_pm_jobs');
-    window.open(url.toString(),'_blank','noopener');
-  }catch(e){ window.open(jobUrl,'_blank','noopener'); }
-  if(window.pendo&&pendo.track) pendo.track('Job Applied',{company_name:companyName,job_title:jobTitle,job_url:jobUrl});
-  try{
-    let token=null;
-    if(clerk?.session){try{token=await clerk.session.getToken();}catch(e){}}
-    fetch('/api/track-click',{method:'POST',headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},body:JSON.stringify({job_posting_id:jobId||null,company_name:companyName,job_title:jobTitle,job_url:jobUrl,referrer_page:'companies'})});
-  }catch(e){}
-}
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'){ closeDrawer(); closeSignIn(); } });
-
-// ── COOKIE CONSENT ──
-function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(clerk&&clerk.user) initPendo(cfg.pendoApiKey,clerk.user); }
-function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
-function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
-function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
+function switchTab(tab){activeTab=tab;document.getElementById('tab-jobs').classList.toggle('on',tab==='jobs');document.getElementById('tab-about').classList.toggle('on',tab==='about');if(tab==='jobs')renderJobsTab();if(tab==='about')renderAboutTab();}
+async function loadJobs(company){const body=document.getElementById('drawer-body');const key=company.id||company.company_name;if(jobsCache[key]){renderJobsTab();return;}body.innerHTML='<div class="jobs-loading">Loading PM roles…</div>';try{const p=company.id?`company_id=${company.id}`:`company_name=${encodeURIComponent(company.company_name)}`;const{jobs,company:c}=await fetch(`/api/company-jobs?${p}`).then(r=>r.json());jobsCache[key]={jobs:jobs||[],meta:c||company};if(c)activeCompany={...company,...c};}catch(err){jobsCache[key]={jobs:[],meta:company};}renderJobsTab();}
+function renderJobsTab(){const body=document.getElementById('drawer-body');const key=activeCompany?.id||activeCompany?.company_name;const jobs=(jobsCache[key]?.jobs)||[];const lr=activeCompany?.roles_updated_at?new Date(activeCompany.roles_updated_at).toLocaleString('en-US',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}):null;const rrow=lr?`<div class="refresh-row"><div class="refresh-dot"></div><span class="refresh-txt">Refreshed ${lr}</span></div>`:'';if(!jobs.length){body.innerHTML=rrow+`<div class="jobs-empty"><div class="jobs-empty-ico">&#128301;</div><div class="jobs-empty-title">No PM roles found</div><div class="jobs-empty-sub">No open PM roles right now. Check back tomorrow.</div></div>`;return;}body.innerHTML=rrow+`<div class="jobs-list">${jobs.map(j=>jobCard(j)).join('')}</div>`;}
+function jobCard(j){const fs=j.first_seen_at?new Date(j.first_seen_at).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}):'—';const jurl=j.job_url||'';const jt=e(j.title);const cn=e(activeCompany?.company_name||'');const isSaved=!!saved[String(j.id)];return `<div class="job-card"><div class="jc-top"><div class="jc-title">${jt}</div>${j.remote?'<span class="jc-remote">REMOTE</span>':''}</div><div class="jc-meta">${j.department?`<span class="jc-dept">${e(j.department)}</span>`:''} ${j.location?`<span class="jc-loc">&#128205; ${e(j.location)}</span>`:''}<span class="jc-ats">${(j.ats_source||'').toUpperCase()}</span></div><div class="jc-footer"><span class="jc-date">Listed ${fs}</span><div style="display:flex;gap:6px"><button id="save-${j.id}" class="save-btn${isSaved?' saved':''}" onclick="toggleSave(${j.id},'${jt}','${cn}',event)">${isSaved?'Saved':'Save'}</button><button class="apply-btn" onclick="trackAndOpen(event,${j.id},'${cn}','${jt}','${e(jurl)}')">Apply &#8594;</button></div></div></div>`;}
+function renderAboutTab(){const body=document.getElementById('drawer-body');const c=activeCompany||{};const founders=(c.founder_names||[]).map(f=>f.value).filter(Boolean);const tech=(c.tech_stack||[]).map(t=>t.value).filter(Boolean);const inv=(c.investors||[]).map(i=>i.value).filter(Boolean);const key=c.id||c.company_name;const pmRoles=(jobsCache[key]?.jobs||[]).length;body.innerHTML=`<div class="about-body"><div class="about-stat"><div><div class="stat-n">${pmRoles}</div><div class="stat-l">PM Roles</div></div><div><div class="stat-n">${c.open_roles||0}</div><div class="stat-l">Total Open</div></div></div>${c.funding_amount?`<div class="about-section"><div class="about-label">Funding</div><div style="font-size:13px;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:600">${e(c.funding_amount)}</div></div>`:''}${founders.length?`<div class="about-section"><div class="about-label">Founders</div><div style="font-size:13px;color:var(--ink2)">${founders.map(e).join(' · ')}</div></div>`:''}${inv.length?`<div class="about-section"><div class="about-label">Investors</div><div class="tags">${inv.map(v=>`<span class="tag ti${/yc|y combinator/i.test(v)?' yc':''}">${e(v)}</span>`).join('')}</div></div>`:''}${tech.length?`<div class="about-section"><div class="about-label">Tech Stack</div><div class="tags">${tech.map(v=>`<span class="tag tt">${e(v)}</span>`).join('')}</div></div>`:''}${c.company_url?`<div class="about-section"><div class="about-label">Website</div><a class="about-url" href="${e(c.company_url)}" target="_blank" rel="noopener">${e(c.company_url)}</a></div>`:''}</div>`;}
+async function trackAndOpen(evt,jobId,companyName,jobTitle,jobUrl){evt.preventDefault();if(!jobUrl)return;try{var url=new URL(jobUrl);url.searchParams.set('utm_source','becomeaipm');url.searchParams.set('utm_medium','job_board');url.searchParams.set('utm_campaign','ai_pm_jobs');window.open(url.toString(),'_blank','noopener');}catch(e){window.open(jobUrl,'_blank','noopener');}if(window.pendo&&pendo.track)pendo.track('Job Applied',{company_name:companyName,job_title:jobTitle,job_url:jobUrl});try{let token=null;if(clerk?.session){try{token=await clerk.session.getToken();}catch(e){}}fetch('/api/track-click',{method:'POST',headers:{'Content-Type':'application/json',...(token?{'Authorization':`Bearer ${token}`}:{})},body:JSON.stringify({job_posting_id:jobId||null,company_name:companyName,job_title:jobTitle,job_url:jobUrl,referrer_page:'companies'})});}catch(e){}}
+document.addEventListener('keydown',e=>{if(e.key==='Escape'){closeDrawer();closeSignIn();}});
+function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');if(clerk&&clerk.user)initPendo(cfg.pendoApiKey,clerk.user);}
+function declineCookies(){localStorage.setItem('cookie_consent','declined');document.getElementById('cookie-banner').classList.remove('show');}
+function checkCookieConsent(){if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banner').classList.add('show');}
+function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted';}
 </script>
 
 <div class="cookie-banner" id="cookie-banner">
