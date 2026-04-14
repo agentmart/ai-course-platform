@@ -4,6 +4,8 @@ on:
     - cron: '0 15 * * *'  # 3 PM UTC / 8 AM PT daily
   workflow_dispatch: {}
 
+permissions: {}
+
 jobs:
   send-reminders:
     runs-on: ubuntu-latest
@@ -11,11 +13,12 @@ jobs:
       - name: Trigger reminder endpoint
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app' }}
         run: |
           # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
           # becomeaipm.com sits behind Cloudflare which challenges server-to-server requests.
           response=$(curl -s -w "\n%{http_code}" -X POST \
-            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/send-reminders" \
+            "${APP_BASE_URL}/api/send-reminders" \
             -H "Authorization: Bearer ${CRON_SECRET}" \
             -H "Content-Type: application/json" \
             -H "User-Agent: becomeaipm-cron/1.0")

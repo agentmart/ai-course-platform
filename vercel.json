@@ -4,6 +4,7 @@
   "outputDirectory": "public",
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/pricing.html", "status": 301, "headers": { "Location": "/ai-calculator.html" } },
     { "src": "/course.html", "dest": "/public/course.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
   ],

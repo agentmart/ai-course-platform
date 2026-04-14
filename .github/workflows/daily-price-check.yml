@@ -5,6 +5,8 @@ on:
     - cron: '0 6 * * *'   # 06:00 UTC daily
   workflow_dispatch:       # allow manual trigger
 
+permissions: {}
+
 jobs:
   check-prices:
     runs-on: ubuntu-latest
@@ -12,21 +14,23 @@ jobs:
       - name: Trigger price update
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app' }}
         run: |
           # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
           RESPONSE=$(curl -s -o /tmp/resp.json -w "%{http_code}" \
             -X POST \
             -H "x-cron-secret: ${CRON_SECRET}" \
             -H "User-Agent: becomeaipm-cron/1.0" \
-            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/models")
+            "${APP_BASE_URL}/api/models")
           echo "HTTP status: $RESPONSE"
           cat /tmp/resp.json
           if [ "$RESPONSE" != "200" ]; then
             echo "::error::Price check failed with status $RESPONSE"
             exit 1
           fi
-          ERRORS=$(cat /tmp/resp.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('errors',0))")
+          ERRORS=$(python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("errors",0))' < /tmp/resp.json)
           if [ "$ERRORS" -gt "0" ]; then
             echo "WARNING: $ERRORS model update errors — check logs"
           fi
-          echo "Done — $(cat /tmp/resp.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('upserted',0))") models refreshed"
+          UPSERTED=$(python3 -c 'import sys,json; d=json.load(sys.stdin); print(d.get("upserted",0))' < /tmp/resp.json)
+          echo "Done — ${UPSERTED} models refreshed"
