@@ -134,6 +134,7 @@
     <div class="nav-links">
       <a class="nav-link" href="/course.html">Course</a>
       <a class="nav-link" href="/companies.html">Companies</a>
+      <a class="nav-link" href="/pricing.html">Pricing</a>
       <a class="nav-link" href="/analytics.html">Leaderboard</a>
       <a class="nav-link" href="/contact.html">Contact</a>
     </div>
@@ -258,7 +259,7 @@
             <div class="topic-summary">How frontier models are aligned with human values. Understand RLHF reward modeling and Constitutional AI principles.<div class="topic-days">Day 3</div></div>
           </div>
           <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Frontier Reasoning Models<span class="chevron">&#9660;</span>
-            <div class="topic-summary">Explore o1, o3, o4-mini, and Claude's extended thinking. Learn chain-of-thought reasoning and cost trade-offs.<div class="topic-days">Day 6</div></div>
+            <div class="topic-summary">Explore o3, o4-mini, and Claude's extended thinking. Learn chain-of-thought reasoning and cost trade-offs.<div class="topic-days">Day 6</div></div>
           </div>
           <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>OpenAI Agents SDK<span class="chevron">&#9660;</span>
             <div class="topic-summary">Master the OpenAI API ecosystem: Chat Completions, Assistants API v2, and the Responses API.<div class="topic-days">Day 10</div></div>
@@ -296,10 +297,10 @@
         <div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge">PYTHON · WASM</div></div>
         <pre class="e-ta" style="cursor:default;resize:none;min-height:auto;padding:16px 20px;margin:0;overflow-x:auto;"><code># Day 1: Frontier model cost comparison
 models = {
-    "Claude 3.5 Sonnet": {"ctx":"200K","in":3.0,"out":15.0},
-    "GPT-4o":            {"ctx":"128K","in":5.0,"out":15.0},
-    "Gemini 1.5 Pro":    {"ctx":"1M",  "in":3.5,"out":10.5},
-    "o3":                {"ctx":"128K","in":10.0,"out":40.0},
+    "Claude Sonnet 4.6":  {"ctx":"1M",  "in":3.0,  "out":15.0},
+    "GPT-5.4":            {"ctx":"1M",  "in":2.5,  "out":15.0},
+    "Gemini 2.5 Pro":     {"ctx":"1M",  "in":1.25, "out":10.0},
+    "DeepSeek R1":        {"ctx":"128K","in":0.55, "out":2.19},
 }
 for name, s in models.items():
     cost = (500/1e6*s['in'] + 300/1e6*s['out']) * 1000
@@ -317,16 +318,14 @@ for name, s in models.items():
     <span>&copy; 2025 becomeaipm.com</span>
     <div class="footer-links">
       <a href="/course.html">Course</a><a href="/companies.html">Companies</a>
-      <a href="/analytics.html">Leaderboard</a><a href="/contact.html">Contact</a>
+      <a href="/pricing.html">Pricing</a><a href="/analytics.html">Leaderboard</a>
+      <a href="/contact.html">Contact</a>
       <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a>
     </div>
   </footer>
 
   <script>
     let clerk = null, cfg = {};
-    // Track whether Clerk was in a signed-out state when the page loaded.
-    // We use this to detect a fresh sign-in/sign-up event on this page
-    // (as opposed to a user who was already authenticated on page load).
     let wasSignedOut = true;
 
     var pendoInitialized = false;
@@ -350,11 +349,9 @@ for name, s in models.items():
       });
     }
 
-    // Send welcome email — fires on first sign-up from any page.
-    // Uses localStorage so it only fires once per browser across sessions.
     async function sendWelcomeEmail(user) {
       const lsKey = 'welcome_sent_' + user.id;
-      if (localStorage.getItem(lsKey)) return; // already sent for this user
+      if (localStorage.getItem(lsKey)) return;
       localStorage.setItem(lsKey, '1');
       try {
         const token = await clerk.session.getToken();
@@ -384,21 +381,16 @@ for name, s in models.items():
       document.head.appendChild(s);
       s.onload = async () => {
         try { clerk = window.Clerk; await clerk.load(); } catch(e) { hideLoader(); return; }
-        // Record initial auth state — if user is already signed in on page load,
-        // we do NOT want to fire the welcome email (they're a returning user).
         wasSignedOut = !clerk.user;
         refreshUI();
         if (canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
         clerk.addListener(() => {
           const user = clerk.user;
-          // Only fire welcome email if:
-          // 1. User just signed in/up on THIS page (wasSignedOut was true)
-          // 2. There is now an authenticated user
           if (wasSignedOut && user) {
             wasSignedOut = false;
             sendWelcomeEmail(user);
           }
-          if (!user) wasSignedOut = true; // reset if they sign out
+          if (!user) wasSignedOut = true;
           refreshUI();
           if (canUsePendo()) initPendo(cfg.pendoApiKey, user);
         });

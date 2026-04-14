@@ -72,7 +72,6 @@ h1 em{color:var(--amber);font-style:italic;}
 footer{background:var(--ink);color:rgba(255,255,255,.25);padding:28px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
 footer a{color:rgba(255,255,255,.3);text-decoration:none;}
 footer a:hover{color:var(--amber);}
-/* COOKIE CONSENT */
 .cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
 .cookie-banner.show{display:flex;}
 .cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
@@ -91,6 +90,7 @@ footer a:hover{color:var(--amber);}
   <div class="nav-links">
     <a class="nav-link" href="/course.html">Course</a>
     <a class="nav-link" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/pricing.html">Pricing</a>
     <a class="nav-link" href="/analytics.html">Leaderboard</a>
     <a class="nav-link active" href="/contact.html">Contact</a>
   </div>
@@ -110,18 +110,11 @@ footer a:hover{color:var(--amber);}
 </div>
 
 <div class="content-grid">
-  <!-- CONTACT FORM -->
   <div class="form-card">
     <h2>Send a Message</h2>
     <form id="contact-form" onsubmit="return submitContact(event)">
-      <div class="form-group">
-        <label for="cf-name">Name</label>
-        <input type="text" id="cf-name" name="name" required placeholder="Your name" maxlength="100">
-      </div>
-      <div class="form-group">
-        <label for="cf-email">Email</label>
-        <input type="email" id="cf-email" name="email" required placeholder="you@example.com" maxlength="200">
-      </div>
+      <div class="form-group"><label for="cf-name">Name</label><input type="text" id="cf-name" name="name" required placeholder="Your name" maxlength="100"></div>
+      <div class="form-group"><label for="cf-email">Email</label><input type="email" id="cf-email" name="email" required placeholder="you@example.com" maxlength="200"></div>
       <div class="form-group">
         <label for="cf-subject">Subject</label>
         <select id="cf-subject" name="subject" required>
@@ -133,30 +126,25 @@ footer a:hover{color:var(--amber);}
           <option value="general">General Question</option>
         </select>
       </div>
-      <div class="form-group">
-        <label for="cf-message">Message</label>
-        <textarea id="cf-message" name="message" required placeholder="Tell us more…" maxlength="5000"></textarea>
-      </div>
+      <div class="form-group"><label for="cf-message">Message</label><textarea id="cf-message" name="message" required placeholder="Tell us more…" maxlength="5000"></textarea></div>
       <div id="cf-turnstile"></div>
       <div style="height:16px"></div>
       <button type="submit" class="form-submit" id="cf-submit">Send Message &#8594;</button>
       <div class="form-msg" id="cf-msg"></div>
     </form>
   </div>
-
-  <!-- SIDEBAR -->
   <div class="sidebar">
     <div class="contact-card">
       <div class="cc-label">Updates</div>
       <div class="cc-title">LinkedIn</div>
       <div class="cc-body">Follow our company page for course updates, new content, and AI product management insights.</div>
-      <a class="cc-link cc-link-ghost" href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'linkedin'})">Follow on LinkedIn &#8594;</a>
+      <a class="cc-link cc-link-ghost" href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener">Follow on LinkedIn &#8594;</a>
     </div>
     <div class="contact-card">
       <div class="cc-label">Report a Bug</div>
       <div class="cc-title">GitHub</div>
-      <div class="cc-body">Found a bug? Submit it via the form and we'll create a tracked issue automatically — or open one directly on GitHub.</div>
-      <a class="cc-link cc-link-ghost" href="https://github.com/orgs/agentmart/projects/1/views/1" target="_blank" rel="noopener" onclick="if(window.pendo&&pendo.track)pendo.track('Contact Click',{channel:'github'})">View Bug Tracker &#8594;</a>
+      <div class="cc-body">Found a bug? Submit it via the form and we'll create a tracked issue automatically.</div>
+      <a class="cc-link cc-link-ghost" href="https://github.com/orgs/agentmart/projects/1/views/1" target="_blank" rel="noopener">View Bug Tracker &#8594;</a>
     </div>
   </div>
 </div>
@@ -164,174 +152,52 @@ footer a:hover{color:var(--amber);}
 <div class="faq-section">
   <div class="faq-label">Frequently Asked Questions</div>
   <div class="faq-title">Common Questions</div>
-
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Is the course really free?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Yes — all 60 days are completely free. Sign in with Google, Apple, LinkedIn, or email and get instant access to the full course. No credit card required, ever.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Who is this course for?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Anyone working in or transitioning into AI product management. Whether you're a PM at a tech company, an aspiring AI PM, or an engineer looking to understand the PM perspective — this course covers everything from MCP and A2A protocols to Claude Code, evals, and red-teaming.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">What do I need to get started?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Just a browser. The code labs run Python and JavaScript directly in your browser via WebAssembly — no local setup, no installs, no API keys required.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">Can I track my progress?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Yes — once you sign in, your progress is saved automatically. Complete days, check off tasks, and add personal notes. Your progress syncs across devices.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">I found a bug or have a suggestion. How do I report it?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Use the contact form above — select "Bug Report" or "Feature Request" as the subject. Reports are automatically tracked in our GitHub project board for fast resolution.</div>
-  </div>
-  <div class="faq-item" onclick="this.classList.toggle('open')">
-    <div class="faq-q">How long does each day take?<span class="faq-chevron">&#9660;</span></div>
-    <div class="faq-a">Each day is designed for about 60&ndash;90 minutes of focused work: reading the context, completing 4 tasks (15&ndash;30 min each), running the code lab, and reviewing the interview question.</div>
-  </div>
-
-
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Is the course really free?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">Yes — all 60 days are completely free. Sign in with Google, Apple, LinkedIn, or email and get instant access. No credit card required, ever.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Who is this course for?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">Anyone working in or transitioning into AI product management. From MCP and A2A protocols to Claude Code, evals, and red-teaming.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">What do I need to get started?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">Just a browser. Code labs run Python and JavaScript via WebAssembly — no local setup, no installs, no API keys required.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">Can I track my progress?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">Yes — once you sign in, your progress is saved automatically. Complete days, check off tasks, and add personal notes across devices.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">I found a bug. How do I report it?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">Use the contact form above and select "Bug Report". Reports are tracked automatically in our GitHub project board.</div></div>
+  <div class="faq-item" onclick="this.classList.toggle('open')"><div class="faq-q">How long does each day take?<span class="faq-chevron">&#9660;</span></div><div class="faq-a">About 60–90 minutes: context reading, 4 tasks (15–30 min each), code lab, and the interview question.</div></div>
 </div>
 
-<footer>
-  <p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener">LinkedIn</a></p>
-</footer>
+<footer><p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="https://www.linkedin.com/company/becomeaipm" target="_blank" rel="noopener">LinkedIn</a></p></footer>
 
 <script>
-var turnstileSiteKey = '';
-var clerk = null;
-var contactCfg = null;
-
-function updateAuthUI() {
-  var user = clerk && clerk.user;
-  document.getElementById('nav-user').style.display = user ? 'flex' : 'none';
-  document.getElementById('nav-signin').style.display = user ? 'none' : 'inline-block';
-  if (user) {
-    var init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
-    document.getElementById('nav-avatar').textContent = init;
-  }
-}
-async function doSignOut() { if (clerk) { await clerk.signOut(); updateAuthUI(); } }
-
-(async function initContactPage() {
-  try {
-    var res = await fetch('/api/config');
-    var cfg = await res.json();
-    contactCfg = cfg;
-
-    // Load Clerk for auth UI
-    if (cfg.clerkPublishableKey && cfg.clerkDomain) {
-      var cs = document.createElement('script');
-      cs.src = 'https://' + cfg.clerkDomain + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
-      cs.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
-      cs.crossOrigin = 'anonymous';
-      document.head.appendChild(cs);
-      cs.onload = async function() {
-        try { clerk = window.Clerk; await clerk.load(); } catch(e) {}
-        updateAuthUI();
-      };
-      cs.onerror = function() { updateAuthUI(); };
-    } else {
-      updateAuthUI();
-    }
-
-    // Initialize Turnstile captcha — store widgetId for getResponse()/reset()
-    turnstileSiteKey = cfg.turnstileSiteKey || '';
-    if (turnstileSiteKey && window.turnstile) {
-      window.turnstileWidgetId = window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
-    } else if (turnstileSiteKey) {
-      var checkTurnstile = setInterval(function() {
-        if (window.turnstile) {
-          clearInterval(checkTurnstile);
-          window.turnstileWidgetId = window.turnstile.render('#cf-turnstile', { sitekey: turnstileSiteKey, theme: 'light' });
-        }
-      }, 200);
-      setTimeout(function() { clearInterval(checkTurnstile); }, 10000);
-    }
-
-    // Initialize Pendo (only with consent)
-    var apiKey = cfg.pendoApiKey;
-    if (apiKey && canUsePendo()) {
-      initContactPendo(apiKey);
-    }
+var turnstileSiteKey='';var clerk=null;var contactCfg=null;
+function updateAuthUI(){var user=clerk&&clerk.user;document.getElementById('nav-user').style.display=user?'flex':'none';document.getElementById('nav-signin').style.display=user?'none':'inline-block';if(user){var init=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();document.getElementById('nav-avatar').textContent=init;}}
+async function doSignOut(){if(clerk){await clerk.signOut();updateAuthUI();}}
+(async function initContactPage(){
+  try{
+    var res=await fetch('/api/config');var cfg=await res.json();contactCfg=cfg;
+    if(cfg.clerkPublishableKey&&cfg.clerkDomain){
+      var cs=document.createElement('script');cs.src='https://'+cfg.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';cs.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);cs.crossOrigin='anonymous';document.head.appendChild(cs);
+      cs.onload=async function(){try{clerk=window.Clerk;await clerk.load();}catch(e){}updateAuthUI();};
+      cs.onerror=function(){updateAuthUI();};
+    }else{updateAuthUI();}
+    turnstileSiteKey=cfg.turnstileSiteKey||'';
+    if(turnstileSiteKey&&window.turnstile){window.turnstileWidgetId=window.turnstile.render('#cf-turnstile',{sitekey:turnstileSiteKey,theme:'light'});}
+    else if(turnstileSiteKey){var ck=setInterval(function(){if(window.turnstile){clearInterval(ck);window.turnstileWidgetId=window.turnstile.render('#cf-turnstile',{sitekey:turnstileSiteKey,theme:'light'});}},200);setTimeout(function(){clearInterval(ck);},10000);}
+    if(cfg.pendoApiKey&&canUsePendo())initContactPendo(cfg.pendoApiKey);
     checkCookieConsent();
-  } catch(e) { /* config/pendo init failed silently */ }
+  }catch(e){}
 })();
-
-var contactPendoInitialized = false;
-function initContactPendo(apiKey) {
-  if (!apiKey || contactPendoInitialized) return;
-  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
-  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
-  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
-  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
-  contactPendoInitialized = true;
-  var anonId = localStorage.getItem('pendo_anon_id');
-  if (!anonId) { anonId = 'anon-' + (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2)); localStorage.setItem('pendo_anon_id', anonId); }
-  pendo.initialize({
-    visitor: { id: anonId },
-    account: { id: 'becomeaipm' }
-  });
-}
-
-async function submitContact(evt) {
-  evt.preventDefault();
-  var btn = document.getElementById('cf-submit');
-  var msg = document.getElementById('cf-msg');
-  msg.className = 'form-msg';
-  msg.style.display = 'none';
-  btn.disabled = true;
-  btn.textContent = 'Sending\u2026';
-
-  try {
-    var turnstileResponse = '';
-    if (window.turnstile && window.turnstileWidgetId != null) {
-      turnstileResponse = window.turnstile.getResponse(window.turnstileWidgetId) || '';
-    }
-
-    var body = {
-      name: document.getElementById('cf-name').value.trim(),
-      email: document.getElementById('cf-email').value.trim(),
-      subject: document.getElementById('cf-subject').value,
-      message: document.getElementById('cf-message').value.trim(),
-      turnstileToken: turnstileResponse
-    };
-
-    var res = await fetch('/api/contact', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    var data = await res.json();
-
-    if (res.ok) {
-      msg.className = 'form-msg success';
-      msg.textContent = 'Message sent! We\'ll get back to you within 24 hours.';
-      msg.style.display = 'block';
-      document.getElementById('contact-form').reset();
-      if (window.turnstile && window.turnstileWidgetId != null) window.turnstile.reset(window.turnstileWidgetId);
-      if (window.pendo && pendo.track) pendo.track('Contact Form Submitted', { subject: body.subject });
-    } else {
-      msg.className = 'form-msg error';
-      msg.textContent = data.error || 'Something went wrong. Please try again.';
-      msg.style.display = 'block';
-    }
-  } catch(e) {
-    msg.className = 'form-msg error';
-    msg.textContent = 'Network error. Please check your connection and try again.';
-    msg.style.display = 'block';
-  } finally {
-    btn.disabled = false;
-    btn.textContent = 'Send Message \u2192';
-  }
+var contactPendoInitialized=false;
+function initContactPendo(apiKey){if(!apiKey||contactPendoInitialized)return;(function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');contactPendoInitialized=true;var anonId=localStorage.getItem('pendo_anon_id');if(!anonId){anonId='anon-'+(crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2));localStorage.setItem('pendo_anon_id',anonId);}pendo.initialize({visitor:{id:anonId},account:{id:'becomeaipm'}});}
+async function submitContact(evt){
+  evt.preventDefault();var btn=document.getElementById('cf-submit');var msg=document.getElementById('cf-msg');msg.className='form-msg';msg.style.display='none';btn.disabled=true;btn.textContent='Sending…';
+  try{
+    var tr='';if(window.turnstile&&window.turnstileWidgetId!=null)tr=window.turnstile.getResponse(window.turnstileWidgetId)||'';
+    var body={name:document.getElementById('cf-name').value.trim(),email:document.getElementById('cf-email').value.trim(),subject:document.getElementById('cf-subject').value,message:document.getElementById('cf-message').value.trim(),turnstileToken:tr};
+    var res=await fetch('/api/contact',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});var data=await res.json();
+    if(res.ok){msg.className='form-msg success';msg.textContent="Message sent! We'll get back to you within 24 hours.";msg.style.display='block';document.getElementById('contact-form').reset();if(window.turnstile&&window.turnstileWidgetId!=null)window.turnstile.reset(window.turnstileWidgetId);if(window.pendo&&pendo.track)pendo.track('Contact Form Submitted',{subject:body.subject});}else{msg.className='form-msg error';msg.textContent=data.error||'Something went wrong. Please try again.';msg.style.display='block';}
+  }catch(e){msg.className='form-msg error';msg.textContent='Network error. Please check your connection and try again.';msg.style.display='block';}
+  finally{btn.disabled=false;btn.textContent='Send Message \u2192';}
   return false;
 }
-
-// ── COOKIE CONSENT ──
-function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(contactCfg&&contactCfg.pendoApiKey)initContactPendo(contactCfg.pendoApiKey); }
-function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
-function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
-function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
+function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');if(contactCfg&&contactCfg.pendoApiKey)initContactPendo(contactCfg.pendoApiKey);}
+function declineCookies(){localStorage.setItem('cookie_consent','declined');document.getElementById('cookie-banner').classList.remove('show');}
+function checkCookieConsent(){if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banner').classList.add('show');}
+function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted';}
 </script>
 
 <div class="cookie-banner" id="cookie-banner">

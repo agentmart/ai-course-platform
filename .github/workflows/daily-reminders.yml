@@ -10,13 +10,15 @@ jobs:
     steps:
       - name: Trigger reminder endpoint
         env:
-          APP_URL: ${{ vars.NEXT_PUBLIC_APP_URL || 'https://becomeaipm.com' }}
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
         run: |
+          # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
+          # becomeaipm.com sits behind Cloudflare which challenges server-to-server requests.
           response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${APP_URL}/api/send-reminders" \
+            "https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app/api/send-reminders" \
             -H "Authorization: Bearer ${CRON_SECRET}" \
-            -H "Content-Type: application/json")
+            -H "Content-Type: application/json" \
+            -H "User-Agent: becomeaipm-cron/1.0")
           http_code=$(echo "$response" | tail -1)
           body=$(echo "$response" | head -n -1)
           echo "Status: $http_code"
