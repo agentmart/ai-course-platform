@@ -26,9 +26,10 @@ jobs:
 
       - name: Validate JS syntax
         run: |
-          echo "Checking api/ files for syntax errors..."
+          echo "Checking api/ and lib/ files for syntax errors..."
           for f in api/*.js lib/*.js; do
-            node --input-type=module < "$f" 2>&1 | grep -i 'error' && echo "SYNTAX ERROR in $f" && exit 1 || true
+            echo "Checking $f"
+            node --check "$f"
           done
           echo "All files passed syntax check"
 

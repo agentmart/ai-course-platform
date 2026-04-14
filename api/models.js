@@ -49,7 +49,10 @@ const CURRENT_PRICING = [
 ];
 
 export default async function handler(req, res) {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  const allowedOrigin = process.env.NEXT_PUBLIC_APP_URL || '*';
+  res.setHeader('Access-Control-Allow-Origin', allowedOrigin);
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, x-cron-secret');
   if (req.method === 'OPTIONS') return res.status(204).end();
 
   const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY);
@@ -74,7 +77,7 @@ export default async function handler(req, res) {
 
   // POST — cron-secured pricing upsert
   if (req.method === 'POST') {
-    const secret = req.headers['x-cron-secret'] || req.query.secret;
+    const secret = req.headers['x-cron-secret'];
     if (secret !== process.env.CRON_SECRET) {
       return res.status(401).json({ error: 'Unauthorized' });
     }
