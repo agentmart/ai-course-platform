@@ -109,10 +109,16 @@ h1 em{color:var(--amber);font-style:italic;}
 .prompt-copy:hover{border-color:var(--amber);color:var(--amber);}
 .prompt-copy.copied{color:var(--green);border-color:var(--green);}
 
-/* ── Checklist ── */
+/* ── Checklist (validation step) ── */
 .checklist{margin:14px 0;}
 .check-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:14px;color:var(--ink2);line-height:1.6;}
 .check-ico{color:var(--green);font-size:14px;flex-shrink:0;margin-top:3px;}
+/* ── Auto-items (What happens automatically) ── */
+.auto-list{display:flex;flex-direction:column;gap:6px;margin:14px 0;}
+.auto-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:5px;}
+.ai-chk{color:var(--green);font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.ai-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(200,89,10,.08);color:var(--amber);padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.ai-desc{font-size:13px;color:var(--ink2);line-height:1.6;flex:1;}
 
 /* ── Whats Inside ── */
 .inside-section{max-width:740px;margin:0 auto;padding:0 40px 60px;}
@@ -272,11 +278,11 @@ claude</code>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
-      <div class="checklist">
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>CLAUDE.md</code> loads as the system brain with <code>@</code> imports that pull in SOUL.md and all context files</div>
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>.claude/rules/</code> auto-loads operating principles and output standards</div>
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>.claude/agents/</code> provides 12 specialist sub-agents (available via <code>/agents</code>)</div>
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>.claude/skills/</code> provides 15 skill routers — invoke via <code>/write-prd</code>, <code>/discover</code>, <code>/strategy</code>, etc.</div>
+      <div class="auto-list">
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">CLAUDE.md</span><span class="ai-desc">Loads as the system brain — @ imports pull in SOUL.md and all context files every session</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/rules/</span><span class="ai-desc">Auto-loads operating principles and output standards</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/agents/</span><span class="ai-desc">12 specialist sub-agents available via /agents</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/skills/</span><span class="ai-desc">15 skill routers — invoke via /write-prd, /discover, /strategy, and more</span></div>
       </div>
 
       <p><strong>Slash commands available:</strong></p>
@@ -300,10 +306,10 @@ code .</code>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
-      <div class="checklist">
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>.github/copilot-instructions.md</code> loads as repository-wide instructions (always active)</div>
-        <div class="check-item"><span class="check-ico">&#10003;</span> <code>CLAUDE.md</code> serves as agent instructions in <a href="https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot" target="_blank" rel="noopener" style="color:var(--teal)">Agent Mode</a></div>
-        <div class="check-item"><span class="check-ico">&#10003;</span> Path-specific instructions in <code>.github/instructions/</code> provide context when editing skills or context-library files</div>
+      <div class="auto-list">
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.github/copilot-instructions.md</span><span class="ai-desc">Repository-wide instructions — always active in every Copilot session</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">CLAUDE.md</span><span class="ai-desc">Serves as agent instructions in <a href="https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot" target="_blank" rel="noopener" style="color:var(--teal)">Agent Mode</a></span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.github/instructions/</span><span class="ai-desc">Path-specific instructions load when editing skills or context-library files</span></div>
       </div>
 
       <p><strong>How to use skills and commands:</strong></p>
@@ -416,7 +422,7 @@ code .</code>
   <div class="accordion" onclick="toggleAcc(this)">
     <button class="acc-trigger">
       Sub-Agents — Specialist Reviewers
-      <span class="acc-count">7 reviewers + 5 monitors</span>
+      <span class="acc-count">7 reviewers</span>
       <span class="acc-chevron">&#9660;</span>
     </button>
     <div class="acc-body">
@@ -430,8 +436,27 @@ code .</code>
         <tr><td>Legal/Privacy</td><td>Compliance risk, data handling, regulatory flags</td></tr>
         <tr><td>Competitor Watcher</td><td>Competitive gaps, differentiation, market timing</td></tr>
       </table>
-      <div style="padding:12px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--rule)">
-        Plus 5 proactive monitors: Metrics Tracker, Assumption Validator, Decision Logger, Context Updater, Risk Monitor
+    </div>
+  </div>
+
+  <!-- Proactive Monitors -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Proactive Monitors — Always-On Intelligence
+      <span class="acc-count">5 monitors</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Monitor</th><th>What they do</th></tr>
+        <tr><td>Metrics Tracker</td><td>Flags metric anomalies and trend shifts, suggests investigations</td></tr>
+        <tr><td>Assumption Validator</td><td>Tracks open assumptions, designs validation experiments</td></tr>
+        <tr><td>Decision Logger</td><td>Captures decisions with rationale and counter-arguments</td></tr>
+        <tr><td>Context Updater</td><td>Detects stale context-library entries, prompts updates</td></tr>
+        <tr><td>Risk Monitor</td><td>Scans for dependency risks, blockers, and emerging threats</td></tr>
+      </table>
+      <div style="padding:10px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--rule);">
+        Invoke in any session, or wire to Claude Code hooks / GitHub Actions for continuous monitoring.
       </div>
     </div>
   </div>
