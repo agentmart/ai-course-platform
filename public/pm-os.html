@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PM-OS — Your AI Product Management Partner</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<meta property="og:title" content="PM-OS — AI Product Management Operating System">
+<meta property="og:description" content="Turn your AI coding assistant into a dedicated product partner. Set up PM-OS in 10 minutes.">
+<meta property="og:url" content="https://becomeaipm.com/pm-os.html">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;}
+*{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* ── Nav ── */
+nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:200;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
+.nav-right{display:flex;align-items:center;gap:10px;padding:10px 0;margin-left:auto;}
+.nav-user{display:flex;align-items:center;gap:8px;}
+.nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
+.nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
+.nav-signout:hover{color:var(--amber);}
+
+/* ── Clerk overlay ── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.overlay.open{display:flex;}
+.clerk-wrap{position:relative;max-width:480px;width:90%;}
+.m-close{position:absolute;top:-14px;right:-14px;z-index:10;width:32px;height:32px;border-radius:50%;background:var(--ink);border:none;color:rgba(255,255,255,.6);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.m-close:hover{color:var(--amber);}
+#clerk-mount{min-height:200px;display:flex;align-items:center;justify-content:center;}
+
+/* ── Auth gate ── */
+#auth-gate{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;text-align:center;padding:60px 20px;}
+.gate-ico{font-size:48px;margin-bottom:16px;}
+.gate-h{font-family:'Fraunces',serif;font-size:28px;font-weight:900;color:var(--ink);margin-bottom:8px;}
+.gate-sub{font-size:15px;color:var(--muted);margin-bottom:24px;max-width:400px;line-height:1.7;}
+.gate-btn{padding:12px 28px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;}
+.gate-btn:hover{background:var(--amber);}
+
+/* ── Hero ── */
+.hero{padding:48px 40px 12px;max-width:900px;margin:0 auto;text-align:center;}
+.hero-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(28px,4vw,44px);font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:12px;}
+h1 em{color:var(--amber);font-style:italic;}
+.hero-sub{font-size:15px;color:var(--muted);max-width:560px;margin:0 auto 8px;line-height:1.7;}
+.hero-time{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--teal);margin-bottom:32px;}
+
+/* ── Tool Toggle ── */
+.tool-toggle{display:flex;max-width:420px;margin:0 auto 40px;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--bg2);}
+.tool-tab{flex:1;padding:12px 16px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.04em;}
+.tool-tab:hover{color:var(--ink);}
+.tool-tab.on{color:var(--amber);background:var(--card);font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.tool-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dot-claude{background:#6366f1;}
+.dot-copilot{background:#16a34a;}
+
+/* ── Stepper ── */
+.stepper{display:flex;align-items:center;justify-content:center;gap:0;max-width:480px;margin:0 auto 40px;padding:0 20px;}
+.step-circle{width:32px;height:32px;border-radius:50%;background:var(--bg2);border:2px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.step-circle.active{background:var(--amber);border-color:var(--amber);color:white;}
+.step-line{flex:1;height:2px;background:var(--border);min-width:20px;}
+.step-line.done{background:var(--amber);}
+
+/* ── Step Cards ── */
+.steps{max-width:740px;margin:0 auto;padding:0 40px 60px;}
+.step-card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px 32px;margin-bottom:24px;position:relative;}
+.step-card::before{content:attr(data-step);position:absolute;top:-12px;left:24px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:white;background:var(--amber);padding:2px 10px;border-radius:3px;text-transform:uppercase;}
+.step-title{font-family:'Fraunces',serif;font-size:20px;font-weight:900;color:var(--ink);margin-bottom:12px;margin-top:8px;}
+.step-body{font-size:14px;color:var(--ink2);line-height:1.75;}
+.step-body p{margin-bottom:12px;}
+.step-body strong{color:var(--ink);font-weight:600;}
+
+/* ── Code snippets ── */
+.code-snippet{position:relative;background:var(--ink);border-radius:6px;padding:14px 18px;margin:12px 0;overflow-x:auto;}
+.code-snippet code{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.85);line-height:1.7;white-space:pre-wrap;word-break:break-all;}
+.copy-btn{position:absolute;top:8px;right:8px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.4);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .15s;}
+.copy-btn:hover{color:rgba(255,255,255,.8);border-color:rgba(255,255,255,.3);}
+.copy-btn.copied{color:var(--green);border-color:var(--green);}
+
+/* ── Template button ── */
+.template-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:var(--ink);color:white;border:none;border-radius:5px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;text-decoration:none;margin:8px 0;}
+.template-btn:hover{background:var(--amber);}
+.template-btn svg{width:18px;height:18px;fill:currentColor;}
+.alt-method{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);margin-top:12px;}
+
+/* ── Context files ── */
+.ctx-files{display:flex;flex-direction:column;gap:8px;margin:14px 0;}
+.ctx-file{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:5px;}
+.ctx-name{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink);font-weight:600;min-width:130px;}
+.ctx-desc{font-size:13px;color:var(--muted);flex:1;}
+.ctx-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);white-space:nowrap;}
+
+/* ── Priority badge ── */
+.priority{display:inline-flex;align-items:center;gap:4px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;padding:2px 7px;border-radius:3px;text-transform:uppercase;}
+.p-high{background:rgba(200,89,10,.12);color:var(--amber);}
+.p-med{background:rgba(13,110,110,.08);color:var(--teal);}
+
+/* ── Validation prompt card ── */
+.prompt-card{background:linear-gradient(135deg,rgba(13,110,110,.06),rgba(200,89,10,.04));border:1px solid var(--border);border-radius:6px;padding:20px 24px;margin:14px 0;position:relative;}
+.prompt-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:8px;}
+.prompt-text{font-size:15px;color:var(--ink);line-height:1.6;font-style:italic;}
+.prompt-copy{position:absolute;top:12px;right:12px;background:var(--bg);border:1px solid var(--border);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;cursor:pointer;transition:all .15s;}
+.prompt-copy:hover{border-color:var(--amber);color:var(--amber);}
+.prompt-copy.copied{color:var(--green);border-color:var(--green);}
+
+/* ── Checklist (validation step) ── */
+.checklist{margin:14px 0;}
+.check-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;font-size:14px;color:var(--ink2);line-height:1.6;}
+.check-ico{color:var(--green);font-size:14px;flex-shrink:0;margin-top:3px;}
+/* ── Auto-items (What happens automatically) ── */
+.auto-list{display:flex;flex-direction:column;gap:6px;margin:14px 0;}
+.auto-item{display:flex;align-items:flex-start;gap:10px;padding:10px 14px;background:var(--bg);border:1px solid var(--border);border-radius:5px;}
+.ai-chk{color:var(--green);font-size:13px;font-weight:700;flex-shrink:0;margin-top:2px;}
+.ai-badge{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(200,89,10,.08);color:var(--amber);padding:2px 7px;border-radius:3px;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.ai-desc{font-size:13px;color:var(--ink2);line-height:1.6;flex:1;}
+
+/* ── Whats Inside ── */
+.inside-section{max-width:740px;margin:0 auto;padding:0 40px 60px;}
+.inside-header{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.accordion{border:1px solid var(--border);border-radius:6px;margin-bottom:10px;overflow:hidden;background:var(--card);}
+.acc-trigger{width:100%;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:600;color:var(--ink);transition:background .15s;}
+.acc-trigger:hover{background:rgba(200,89,10,.03);}
+.acc-chevron{font-size:12px;color:var(--muted);transition:transform .2s;}
+.accordion.open .acc-chevron{transform:rotate(180deg);}
+.acc-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;margin-right:12px;}
+.acc-body{max-height:0;overflow:hidden;transition:max-height .3s ease;}
+.accordion.open .acc-body{max-height:600px;}
+.acc-table{width:100%;border-collapse:collapse;font-size:13px;}
+.acc-table th{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.12em;color:var(--muted);text-transform:uppercase;text-align:left;padding:8px 18px;border-top:1px solid var(--rule);background:var(--bg);}
+.acc-table td{padding:8px 18px;color:var(--ink2);border-top:1px solid var(--rule);}
+.acc-table tr:last-child td{border-bottom:none;}
+.acc-table code{font-family:'IBM Plex Mono',monospace;font-size:11px;background:rgba(200,89,10,.08);color:var(--amber);padding:1px 5px;border-radius:2px;}
+
+/* ── Tips section ── */
+.tips{max-width:740px;margin:0 auto;padding:0 40px 80px;}
+.tips-card{background:linear-gradient(135deg,rgba(13,110,110,.06),rgba(200,89,10,.04));border:1px solid var(--border);border-radius:8px;padding:24px 28px;}
+.tips-title{font-family:'Fraunces',serif;font-size:18px;font-weight:900;color:var(--ink);margin-bottom:14px;}
+.tips-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.tip{text-align:center;}
+.tip-freq{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px;}
+.tip-what{font-size:13px;color:var(--ink2);line-height:1.5;}
+
+/* ── Tool-specific visibility ── */
+.for-claude{display:none;}
+.for-copilot{display:none;}
+body.tool-claude .for-claude{display:block;}
+body.tool-copilot .for-copilot{display:block;}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  nav{padding:0 16px;}
+  .hero,.steps,.inside-section,.tips{padding-left:20px;padding-right:20px;}
+  .step-card{padding:24px 20px;}
+  .tool-toggle{margin-left:20px;margin-right:20px;max-width:none;}
+  .tips-grid{grid-template-columns:1fr;gap:10px;}
+  .ctx-file{flex-direction:column;align-items:flex-start;gap:4px;}
+  .ctx-name{min-width:auto;}
+  .stepper{padding:0 40px;}
+  .nav-links{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+}
+
+/* ── Cookie banner ── */
+.cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.cookie-banner.show{display:flex;}
+.cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
+.cookie-text a{color:var(--amber);text-decoration:underline;}
+.cookie-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;border-radius:3px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.cookie-accept{background:var(--amber);color:white;}.cookie-accept:hover{background:#a84a06;}
+.cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}.cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+</style>
+</head>
+<body>
+
+<!-- Clerk Sign-In Overlay -->
+<div class="overlay" id="overlay">
+  <div class="clerk-wrap">
+    <button class="m-close" onclick="closeSignIn()">&#215;</button>
+    <div id="clerk-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
+  </div>
+</div>
+
+<!-- Navigation -->
+<nav id="main-nav">
+  <a class="nav-logo" href="/">becomeaipm</a>
+  <div class="nav-links">
+    <a class="nav-link" href="/course.html">Course</a>
+    <a class="nav-link" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
+    <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
+    <a class="nav-link active" href="/pm-os.html">PM-OS</a>
+  </div>
+  <div class="nav-right">
+    <div class="nav-user" id="nav-user" style="display:none">
+      <div class="nav-avatar" id="nav-avatar">?</div>
+      <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
+    </div>
+    <a class="nav-link" id="signin-pill" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
+  </div>
+</nav>
+
+<!-- Auth Gate (shown when not signed in) -->
+<div id="auth-gate" style="display:none">
+  <div class="gate-ico">&#128274;</div>
+  <div class="gate-h">Sign in to access PM-OS</div>
+  <div class="gate-sub">Get step-by-step instructions to set up your AI-powered product management operating system.</div>
+  <button class="gate-btn" onclick="openSignIn()">Sign In to Continue</button>
+</div>
+
+<!-- Main Content (shown after auth) -->
+<div id="main-content" style="display:none">
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">AI-Powered Product Management</div>
+  <h1>PM-OS — Your AI<br><em>Product Partner</em></h1>
+  <p class="hero-sub">Turn your AI coding assistant into a dedicated product partner that knows your product, users, strategy, and competitive position. It compounds over time.</p>
+  <div class="hero-time">&#9201; 10 minutes to launch</div>
+</div>
+
+<!-- Tool Toggle -->
+<div class="tool-toggle" id="tool-toggle">
+  <button class="tool-tab on" id="tab-claude" onclick="switchTool('claude')">
+    <span class="tool-dot dot-claude"></span>Claude Code
+  </button>
+  <button class="tool-tab" id="tab-copilot" onclick="switchTool('copilot')">
+    <span class="tool-dot dot-copilot"></span>GitHub Copilot
+  </button>
+</div>
+
+<!-- Stepper -->
+<div class="stepper">
+  <div class="step-circle active">1</div>
+  <div class="step-line done"></div>
+  <div class="step-circle active">2</div>
+  <div class="step-line done"></div>
+  <div class="step-circle active">3</div>
+  <div class="step-line done"></div>
+  <div class="step-circle active">4</div>
+</div>
+
+<!-- Steps -->
+<div class="steps">
+
+  <!-- Step 1 -->
+  <div class="step-card" data-step="Step 1">
+    <div class="step-title">Get PM-OS</div>
+    <div class="step-body">
+      <p>Create your own private copy of PM-OS using the GitHub template. This gives you a clean starting point that you own and control.</p>
+      <a class="template-btn" href="https://github.com/agentmart/pm-os/generate" target="_blank" rel="noopener">
+        <svg viewBox="0 0 16 16"><path d="M2 2.5A2.5 2.5 0 0 1 4.5 0h8.75a.75.75 0 0 1 .75.75v12.5a.75.75 0 0 1-.75.75h-2.5a.75.75 0 0 1 0-1.5h1.75v-2h-8a1 1 0 0 0-.714 1.7.75.75 0 1 1-1.072 1.05A2.495 2.495 0 0 1 2 11.5Zm10.5-1h-8a1 1 0 0 0-1 1v6.708A2.486 2.486 0 0 1 4.5 9h8ZM5 12.25a.25.25 0 0 1 .25-.25h3.5a.25.25 0 0 1 .25.25v3.25a.25.25 0 0 1-.4.2l-1.45-1.087a.249.249 0 0 0-.3 0L5.4 15.7a.25.25 0 0 1-.4-.2Z"/></svg>
+        Use this template
+      </a>
+      <div class="alt-method">Or clone directly:</div>
+      <div class="code-snippet">
+        <code>git clone https://github.com/agentmart/pm-os.git
+cd pm-os</code>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 2: Claude Code -->
+  <div class="step-card for-claude" data-step="Step 2 · Claude Code">
+    <div class="step-title">Open in Claude Code</div>
+    <div class="step-body">
+      <p>Navigate to your PM-OS folder and start Claude Code:</p>
+      <div class="code-snippet">
+        <code>cd pm-os
+claude</code>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+
+      <p><strong>What happens automatically:</strong></p>
+      <div class="auto-list">
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">CLAUDE.md</span><span class="ai-desc">Loads as the system brain — @ imports pull in SOUL.md and all context files every session</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/rules/</span><span class="ai-desc">Auto-loads operating principles and output standards</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/agents/</span><span class="ai-desc">12 specialist sub-agents available via /agents</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.claude/skills/</span><span class="ai-desc">15 skill routers — invoke via /write-prd, /discover, /strategy, and more</span></div>
+      </div>
+
+      <p><strong>Slash commands available:</strong></p>
+      <p style="font-size:13px;color:var(--muted);line-height:1.8;">
+        <code>/discover</code> <code>/strategy</code> <code>/write-prd</code> <code>/roadmap</code> <code>/competitive</code> <code>/north-star</code> <code>/plg-audit</code> <code>/interview-prep</code> <code>/launch-plan</code> <code>/retro</code> <code>/stakeholder-update</code> <code>/growth-experiment</code> <code>/setup-routine</code> <code>/log-decision</code> <code>/review-prd</code>
+      </p>
+
+      <p style="margin-top:8px"><strong>No extra configuration needed.</strong> Claude Code reads everything automatically from the file structure.</p>
+    </div>
+  </div>
+
+  <!-- Step 2: GitHub Copilot -->
+  <div class="step-card for-copilot" data-step="Step 2 · GitHub Copilot">
+    <div class="step-title">Open in VS Code</div>
+    <div class="step-body">
+      <p>Open your PM-OS folder in VS Code with GitHub Copilot enabled:</p>
+      <div class="code-snippet">
+        <code>cd pm-os
+code .</code>
+        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+      </div>
+
+      <p><strong>What happens automatically:</strong></p>
+      <div class="auto-list">
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.github/copilot-instructions.md</span><span class="ai-desc">Repository-wide instructions — always active in every Copilot session</span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">CLAUDE.md</span><span class="ai-desc">Serves as agent instructions in <a href="https://docs.github.com/en/copilot/customizing-copilot/adding-repository-custom-instructions-for-github-copilot" target="_blank" rel="noopener" style="color:var(--teal)">Agent Mode</a></span></div>
+        <div class="auto-item"><span class="ai-chk">&#10003;</span><span class="ai-badge">.github/instructions/</span><span class="ai-desc">Path-specific instructions load when editing skills or context-library files</span></div>
+      </div>
+
+      <p><strong>How to use skills and commands:</strong></p>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.8;">Copilot doesn't have native slash commands, but you can type the same trigger words as natural language in Copilot Chat (Agent Mode). For example, type <strong>"write a PRD for [feature]"</strong> or <strong>"run competitive analysis on [competitor]"</strong> and Copilot will follow the routing in <code>CLAUDE.md</code> to load the right skill file.</p>
+
+      <p><strong>Reference context files with <code>@workspace</code>:</strong></p>
+      <p style="font-size:13px;color:var(--ink2);line-height:1.8;">
+        Use <code>@workspace</code> in Copilot Chat to reference context-library files. For example: <em>"@workspace read context-library/product.md and suggest roadmap priorities."</em>
+      </p>
+
+      <p style="margin-top:8px"><strong>No extensions or plugins required</strong> beyond GitHub Copilot itself.</p>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card" data-step="Step 3">
+    <div class="step-title">Fill Your Context Library</div>
+    <div class="step-body">
+      <p>This is the highest-leverage 30 minutes you'll spend. The better your context, the smarter PM-OS becomes. Open each file in <code>context-library/</code> and fill in your actual product context.</p>
+
+      <div class="ctx-files">
+        <div class="ctx-file">
+          <span class="ctx-name">company.md</span>
+          <span class="ctx-desc">Business model, mission, revenue, stage</span>
+          <span class="ctx-time"><span class="priority p-high">Start here</span> ~5 min</span>
+        </div>
+        <div class="ctx-file">
+          <span class="ctx-name">product.md</span>
+          <span class="ctx-desc">Product overview, tech stack, current state</span>
+          <span class="ctx-time"><span class="priority p-high">Priority</span> ~10 min</span>
+        </div>
+        <div class="ctx-file">
+          <span class="ctx-name">users.md</span>
+          <span class="ctx-desc">Personas, JTBD, pain points, research</span>
+          <span class="ctx-time"><span class="priority p-high">Priority</span> ~10 min</span>
+        </div>
+        <div class="ctx-file">
+          <span class="ctx-name">metrics.md</span>
+          <span class="ctx-desc">North Star, AARRR funnel, OKRs</span>
+          <span class="ctx-time"><span class="priority p-med">Important</span> ~5 min</span>
+        </div>
+        <div class="ctx-file">
+          <span class="ctx-name">competitors.md</span>
+          <span class="ctx-desc">Competitive landscape, positioning</span>
+          <span class="ctx-time">~10 min</span>
+        </div>
+        <div class="ctx-file">
+          <span class="ctx-name">team.md</span>
+          <span class="ctx-desc">Team structure, stakeholders, dynamics</span>
+          <span class="ctx-time">~5 min</span>
+        </div>
+      </div>
+
+      <p>Each file has guidance comments explaining what to fill and why it matters. Out of the box they are placeholders — <strong>filling them in is what turns the template into <em>your</em> PM-OS.</strong></p>
+    </div>
+  </div>
+
+  <!-- Step 4 -->
+  <div class="step-card" data-step="Step 4">
+    <div class="step-title">Validate Your Setup</div>
+    <div class="step-body">
+      <p>Run this prompt to confirm everything is working. Copy it, paste it into your AI tool, and check the response:</p>
+
+      <div class="prompt-card">
+        <div class="prompt-label">Your first prompt</div>
+        <div class="prompt-text">"I need to prioritize our Q3 roadmap. Our biggest challenge is [describe your biggest challenge]. What should we focus on and what should we cut?"</div>
+        <button class="prompt-copy" onclick="copyPrompt(this)">Copy</button>
+      </div>
+
+      <p><strong>A good response should:</strong></p>
+      <div class="checklist">
+        <div class="check-item"><span class="check-ico">&#10003;</span> Reference your specific product context (not generic advice)</div>
+        <div class="check-item"><span class="check-ico">&#10003;</span> Mention your users, metrics, or competitive landscape by name</div>
+        <div class="check-item"><span class="check-ico">&#10003;</span> Provide structured prioritization with explicit tradeoffs</div>
+        <div class="check-item"><span class="check-ico">&#10003;</span> Push back on assumptions and ask clarifying questions</div>
+      </div>
+
+      <p style="font-size:13px;color:var(--muted);margin-top:8px;">If the response feels generic, go back to Step 3 and add more detail to your context files. PM-OS is only as sharp as the context you give it.</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- What's Inside -->
+<div class="inside-section">
+  <div class="inside-header">What's Inside PM-OS</div>
+
+  <!-- Skills -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Skills — PM Frameworks
+      <span class="acc-count">7 categories</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Category</th><th>Includes</th><th>Triggered by</th></tr>
+        <tr><td>Discovery</td><td>Opportunity Solution Tree, User Interviews</td><td><code>discovery</code> <code>research</code></td></tr>
+        <tr><td>Strategy</td><td>Product Strategy Canvas</td><td><code>strategy</code> <code>vision</code></td></tr>
+        <tr><td>Execution</td><td>PRD Writing, Roadmapping, Stakeholder Comms</td><td><code>PRD</code> <code>roadmap</code></td></tr>
+        <tr><td>Growth</td><td>North Star, PLG Strategy, Launch Planning</td><td><code>growth</code> <code>launch</code></td></tr>
+        <tr><td>Research</td><td>Competitive Research</td><td><code>competitor</code> <code>market</code></td></tr>
+        <tr><td>Design</td><td>Product Design Review</td><td><code>design</code> <code>UX</code></td></tr>
+        <tr><td>Automation</td><td>Routine Setup</td><td><code>routine</code> <code>automate</code></td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sub-Agents -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Sub-Agents — Specialist Reviewers
+      <span class="acc-count">7 reviewers</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Agent</th><th>What they critique</th></tr>
+        <tr><td>Engineer</td><td>Feasibility, tech debt, implementation risk</td></tr>
+        <tr><td>Designer</td><td>UX quality, design system, user flow gaps</td></tr>
+        <tr><td>Executive</td><td>Strategic alignment, business impact, board-readiness</td></tr>
+        <tr><td>User Researcher</td><td>Evidence quality, assumption risk, user empathy</td></tr>
+        <tr><td>Data Analyst</td><td>Metric validity, measurement plan, statistical rigor</td></tr>
+        <tr><td>Legal/Privacy</td><td>Compliance risk, data handling, regulatory flags</td></tr>
+        <tr><td>Competitor Watcher</td><td>Competitive gaps, differentiation, market timing</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Proactive Monitors -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Proactive Monitors — Always-On Intelligence
+      <span class="acc-count">5 monitors</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Monitor</th><th>What they do</th></tr>
+        <tr><td>Metrics Tracker</td><td>Flags metric anomalies and trend shifts, suggests investigations</td></tr>
+        <tr><td>Assumption Validator</td><td>Tracks open assumptions, designs validation experiments</td></tr>
+        <tr><td>Decision Logger</td><td>Captures decisions with rationale and counter-arguments</td></tr>
+        <tr><td>Context Updater</td><td>Detects stale context-library entries, prompts updates</td></tr>
+        <tr><td>Risk Monitor</td><td>Scans for dependency risks, blockers, and emerging threats</td></tr>
+      </table>
+      <div style="padding:10px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--rule);">
+        Invoke in any session, or wire to Claude Code hooks / GitHub Actions for continuous monitoring.
+      </div>
+    </div>
+  </div>
+
+  <!-- Templates -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Templates — Ready-to-use Documents
+      <span class="acc-count">4 templates</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Template</th><th>Use for</th></tr>
+        <tr><td>PRD Template</td><td>New feature or initiative briefs</td></tr>
+        <tr><td>Experiment Template</td><td>A/B tests and growth experiments</td></tr>
+        <tr><td>Decision Template</td><td>Product decision records with rationale</td></tr>
+        <tr><td>Routine Template</td><td>Custom PM automation routines</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <!-- Routines -->
+  <div class="accordion" onclick="toggleAcc(this)">
+    <button class="acc-trigger">
+      Routines — Recurring PM Tasks
+      <span class="acc-count">6 routines</span>
+      <span class="acc-chevron">&#9660;</span>
+    </button>
+    <div class="acc-body">
+      <table class="acc-table">
+        <tr><th>Routine</th><th>Suggested schedule</th></tr>
+        <tr><td>Weekly Metrics Digest</td><td>Monday 8am</td></tr>
+        <tr><td>Competitive Pulse</td><td>Monday 9am</td></tr>
+        <tr><td>Backlog Grooming</td><td>Weeknights 10pm</td></tr>
+        <tr><td>Stakeholder Update Draft</td><td>Friday 3pm</td></tr>
+        <tr><td>Sprint Retro Prep</td><td>Bi-weekly</td></tr>
+        <tr><td>User Feedback Synthesis</td><td>Wednesday 10am</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- Tips -->
+<div class="tips">
+  <div class="tips-card">
+    <div class="tips-title">Keep Your PM-OS Sharp</div>
+    <div class="tips-grid">
+      <div class="tip">
+        <div class="tip-freq">Weekly</div>
+        <div class="tip-what">Update metrics, log experiment results</div>
+      </div>
+      <div class="tip">
+        <div class="tip-freq">Monthly</div>
+        <div class="tip-what">Refresh competitive context and positioning</div>
+      </div>
+      <div class="tip">
+        <div class="tip-freq">Quarterly</div>
+        <div class="tip-what">Review and update all context files</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main-content -->
+
+<script>
+let clerk=null,clerkMounted=false,user=null,cfg=null;
+let currentTool=localStorage.getItem('pmos_tool')||'claude';
+
+// ── Init ──
+(async()=>{
+  try{
+    cfg=await fetch('/api/config').then(r=>r.json());
+    if(!cfg.clerkPublishableKey||!cfg.clerkDomain){showAuthGate();return;}
+    const s=document.createElement('script');
+    s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+    s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
+    s.crossOrigin='anonymous';
+    document.head.appendChild(s);
+    s.onload=async()=>{
+      clerk=window.Clerk;
+      await clerk.load();
+      if(clerk.user){
+        user=clerk.user;
+        showContent();
+      }else{
+        showAuthGate();
+      }
+      updateAuthUI();
+      clerk.addListener(e=>{
+        if(e.user&&!user){user=e.user;closeSignIn();showContent();updateAuthUI();}
+        if(!e.user&&user){user=null;showAuthGate();updateAuthUI();}
+      });
+    };
+    s.onerror=()=>showAuthGate();
+  }catch(e){showAuthGate();}
+})();
+
+function showContent(){
+  document.getElementById('auth-gate').style.display='none';
+  document.getElementById('main-content').style.display='block';
+  switchTool(currentTool);
+}
+function showAuthGate(){
+  document.getElementById('auth-gate').style.display='flex';
+  document.getElementById('main-content').style.display='none';
+}
+function updateAuthUI(){
+  const nu=document.getElementById('nav-user');
+  const sp=document.getElementById('signin-pill');
+  if(user){
+    document.getElementById('nav-avatar').textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
+    nu.style.display='flex';
+    if(sp)sp.style.display='none';
+  }else{
+    nu.style.display='none';
+    if(sp)sp.style.display='inline-flex';
+  }
+}
+function openSignIn(){
+  document.getElementById('overlay').classList.add('open');
+  if(!clerkMounted&&clerk){
+    const el=document.getElementById('clerk-mount');
+    el.innerHTML='';
+    clerk.mountSignIn(el,{routing:'hash'});
+    clerkMounted=true;
+  }
+}
+function closeSignIn(){
+  document.getElementById('overlay').classList.remove('open');
+  if(clerkMounted&&clerk){try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){}clerkMounted=false;}
+}
+async function doSignOut(){await clerk?.signOut();user=null;showAuthGate();updateAuthUI();}
+document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeSignIn();});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignIn();});
+
+// ── Tool Toggle ──
+function switchTool(tool){
+  currentTool=tool;
+  localStorage.setItem('pmos_tool',tool);
+  document.body.classList.remove('tool-claude','tool-copilot');
+  document.body.classList.add('tool-'+tool);
+  document.getElementById('tab-claude').classList.toggle('on',tool==='claude');
+  document.getElementById('tab-copilot').classList.toggle('on',tool==='copilot');
+}
+
+// ── Accordion ──
+function toggleAcc(el){el.classList.toggle('open');}
+
+// ── Copy ──
+function copyCode(btn){
+  const code=btn.parentElement.querySelector('code').textContent;
+  navigator.clipboard.writeText(code).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+  });
+}
+function copyPrompt(btn){
+  const text=btn.parentElement.querySelector('.prompt-text').textContent;
+  navigator.clipboard.writeText(text).then(()=>{
+    btn.textContent='Copied!';btn.classList.add('copied');
+    setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+  });
+}
+</script>
+
+<div class="cookie-banner" id="cookie-banner">
+  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+  <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+</div>
+<script>
+function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');}
+function declineCookies(){localStorage.setItem('cookie_consent','declined');document.getElementById('cookie-banner').classList.remove('show');}
+if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banner').classList.add('show');
+</script>
+
+</body>
+</html>
