@@ -14,6 +14,7 @@
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 /* ── Nav ── */
 nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:200;}
 .nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
@@ -180,7 +181,7 @@ body.tool-copilot .for-copilot{display:block;}
 <!-- Clerk Sign-In Overlay -->
 <div class="overlay" id="overlay">
   <div class="clerk-wrap">
-    <button class="m-close" onclick="closeSignIn()">&#215;</button>
+    <button class="m-close" onclick="closeSignIn()" aria-label="Close sign-in">&#215;</button>
     <div id="clerk-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
   </div>
 </div>
@@ -226,10 +227,10 @@ body.tool-copilot .for-copilot{display:block;}
 
 <!-- Tool Toggle -->
 <div class="tool-toggle" id="tool-toggle">
-  <button class="tool-tab on" id="tab-claude" onclick="switchTool('claude')">
+  <button class="tool-tab on" id="tab-claude" onclick="switchTool('claude')" aria-pressed="true"><span class="sr-only">Select </span>
     <span class="tool-dot dot-claude"></span>Claude Code
   </button>
-  <button class="tool-tab" id="tab-copilot" onclick="switchTool('copilot')">
+  <button class="tool-tab" id="tab-copilot" onclick="switchTool('copilot')" aria-pressed="false"><span class="sr-only">Select </span>
     <span class="tool-dot dot-copilot"></span>GitHub Copilot
   </button>
 </div>
@@ -261,7 +262,7 @@ body.tool-copilot .for-copilot{display:block;}
       <div class="code-snippet">
         <code>git clone https://github.com/agentmart/pm-os.git
 cd pm-os</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy clone command">Copy</button>
       </div>
     </div>
   </div>
@@ -274,7 +275,7 @@ cd pm-os</code>
       <div class="code-snippet">
         <code>cd pm-os
 claude</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy Claude Code command">Copy</button>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
@@ -302,7 +303,7 @@ claude</code>
       <div class="code-snippet">
         <code>cd pm-os
 code .</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy VS Code command">Copy</button>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
@@ -398,8 +399,8 @@ code .</code>
   <div class="inside-header">What's Inside PM-OS</div>
 
   <!-- Skills -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Skills — PM Frameworks
       <span class="acc-count">7 categories</span>
       <span class="acc-chevron">&#9660;</span>
@@ -419,8 +420,8 @@ code .</code>
   </div>
 
   <!-- Sub-Agents -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Sub-Agents — Specialist Reviewers
       <span class="acc-count">7 reviewers</span>
       <span class="acc-chevron">&#9660;</span>
@@ -440,8 +441,8 @@ code .</code>
   </div>
 
   <!-- Proactive Monitors -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Proactive Monitors — Always-On Intelligence
       <span class="acc-count">5 monitors</span>
       <span class="acc-chevron">&#9660;</span>
@@ -462,8 +463,8 @@ code .</code>
   </div>
 
   <!-- Templates -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Templates — Ready-to-use Documents
       <span class="acc-count">4 templates</span>
       <span class="acc-chevron">&#9660;</span>
@@ -480,8 +481,8 @@ code .</code>
   </div>
 
   <!-- Routines -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Routines — Recurring PM Tasks
       <span class="acc-count">6 routines</span>
       <span class="acc-chevron">&#9660;</span>
@@ -552,8 +553,8 @@ let currentTool=localStorage.getItem('pmos_tool')||'claude';
         if(!e.user&&user){user=null;showAuthGate();updateAuthUI();}
       });
     };
-    s.onerror=()=>showAuthGate();
-  }catch(e){showAuthGate();}
+    s.onerror=()=>{showAuthGate();updateAuthUI();};
+  }catch(e){showAuthGate();updateAuthUI();}
 })();
 
 function showContent(){
@@ -596,16 +597,26 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignIn();});
 
 // ── Tool Toggle ──
 function switchTool(tool){
-  currentTool=tool;
-  localStorage.setItem('pmos_tool',tool);
+  const validTool=(tool==='claude'||tool==='copilot')?tool:'claude';
+  currentTool=validTool;
+  localStorage.setItem('pmos_tool',validTool);
   document.body.classList.remove('tool-claude','tool-copilot');
-  document.body.classList.add('tool-'+tool);
-  document.getElementById('tab-claude').classList.toggle('on',tool==='claude');
-  document.getElementById('tab-copilot').classList.toggle('on',tool==='copilot');
+  document.body.classList.add('tool-'+validTool);
+  const tabClaude=document.getElementById('tab-claude');
+  const tabCopilot=document.getElementById('tab-copilot');
+  tabClaude.classList.toggle('on',validTool==='claude');
+  tabClaude.setAttribute('aria-pressed',validTool==='claude');
+  tabCopilot.classList.toggle('on',validTool==='copilot');
+  tabCopilot.setAttribute('aria-pressed',validTool==='copilot');
 }
 
 // ── Accordion ──
-function toggleAcc(el){el.classList.toggle('open');}
+function toggleAcc(el,evt){
+  if(evt&&evt.target!==el&&evt.target.closest('.acc-body'))return;
+  el.classList.toggle('open');
+  const trigger=el.querySelector('.acc-trigger');
+  if(trigger)trigger.setAttribute('aria-expanded',el.classList.contains('open'));
+}
 
 // ── Copy ──
 function copyCode(btn){
@@ -625,7 +636,7 @@ function copyPrompt(btn){
 </script>
 
 <div class="cookie-banner" id="cookie-banner">
-  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <span class="cookie-text">We use analytics cookies to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
   <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>
