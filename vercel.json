@@ -5,8 +5,14 @@
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/pricing.html", "status": 301, "headers": { "Location": "/ai-calculator.html" } },
+    { "src": "/ai-pm-course/?$", "dest": "/public/ai-pm-course.html" },
+    { "src": "/how-to-become-ai-pm/?$", "dest": "/public/how-to-become-ai-pm.html" },
+    { "src": "/ai-pm-jobs/?$", "dest": "/public/ai-pm-jobs.html" },
     { "src": "/course.html", "dest": "/public/course.html" },
     { "src": "/(.*)", "dest": "/public/$1" }
+  ],
+  "redirects": [
+    { "source": "/(.*)", "has": [{ "type": "host", "value": "www.becomeaipm.com" }], "destination": "https://becomeaipm.com/$1", "permanent": true }
   ],
   "headers": [
     {
