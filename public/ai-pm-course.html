@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Product Manager Course — 60 Days, Hands-On, Free | becomeaipm</title>
+<meta name="description" content="The AI Product Manager course built by a working AI PM. 60 days, hands-on code labs, real LLM APIs, PRDs, evals, and AI PM interview prep. 100% free.">
+<meta name="keywords" content="AI product manager course, AI PM course, become AI PM, AI product management training, LLM PM course, AI PM curriculum">
+<meta name="author" content="Stavan Mehta">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/ai-pm-course">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="becomeaipm">
+<meta property="og:title" content="AI Product Manager Course — 60 Days, Hands-On, Free">
+<meta property="og:description" content="Built by a working AI PM. 60 days, code labs, real LLM APIs, PRDs, evals, and interview prep. 100% free.">
+<meta property="og:url" content="https://becomeaipm.com/ai-pm-course">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://becomeaipm.com/assets/becomeaipm-logo-dark.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Product Manager Course — 60 Days, Free">
+<meta name="twitter:description" content="Built by a working AI PM. Hands-on. 100% free.">
+<meta name="twitter:image" content="https://becomeaipm.com/assets/becomeaipm-logo-dark.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--rule:#d4cdc4;--amber:#c8590a;--teal:#0d6e6e;--card:#faf7f2;--border:#ccc4b8;--green:#16a34a;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.6;}
+nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
+.hero{padding:80px 40px 60px;max-width:1000px;margin:0 auto;}
+.eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:18px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(38px,5.5vw,68px);font-weight:900;line-height:1.05;margin-bottom:20px;}
+h1 em{color:var(--amber);font-style:italic;}
+.hero-sub{font-size:18px;color:var(--ink2);max-width:680px;margin-bottom:30px;}
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:40px;}
+.cta{padding:14px 28px;border-radius:4px;font-size:14px;font-weight:700;text-decoration:none;transition:all .15s;display:inline-flex;align-items:center;gap:6px;}
+.cta-primary{background:var(--ink);color:#fff;}
+.cta-primary:hover{background:var(--amber);}
+.cta-sec{background:transparent;border:1px solid var(--border);color:var(--ink2);}
+.cta-sec:hover{border-color:var(--amber);color:var(--amber);}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:0 40px;max-width:1000px;margin:0 auto 60px;}
+@media(max-width:700px){.stats{grid-template-columns:repeat(2,1fr);}}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;}
+.stat-n{font-family:'Fraunces',serif;font-size:30px;font-weight:900;color:var(--amber);}
+.stat-l{font-size:11px;color:var(--muted);font-family:'IBM Plex Mono',monospace;margin-top:4px;text-transform:uppercase;letter-spacing:.1em;}
+.sec{padding:60px 40px;max-width:1000px;margin:0 auto;}
+.sec-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:12px;}
+h2{font-family:'Fraunces',serif;font-size:34px;font-weight:700;margin-bottom:24px;line-height:1.15;}
+h3{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin:30px 0 12px;}
+p{color:var(--ink2);margin-bottom:16px;}
+.band{background:var(--bg2);border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:60px 40px;}
+.outcomes{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+@media(max-width:700px){.outcomes{grid-template-columns:1fr;}}
+.outcome{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:22px;}
+.outcome-ico{color:var(--green);font-size:16px;margin-bottom:8px;}
+.outcome-h{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+.outcome-d{font-size:14px;color:var(--ink2);}
+.phase-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+@media(max-width:800px){.phase-grid{grid-template-columns:1fr;}}
+.phase{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--amber);border-radius:4px;padding:22px;}
+.phase-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--amber);text-transform:uppercase;margin-bottom:6px;}
+.phase-h{font-family:'Fraunces',serif;font-size:18px;font-weight:700;margin-bottom:8px;}
+.phase-d{font-size:13px;color:var(--muted);line-height:1.6;}
+.faq-item{background:var(--card);border:1px solid var(--border);border-radius:5px;margin-bottom:10px;overflow:hidden;}
+.faq-q{padding:16px 20px;font-weight:600;font-size:15px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.faq-q:hover{background:var(--bg2);}
+.faq-a{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .25s,padding .25s;font-size:14px;color:var(--ink2);}
+.faq-item.open .faq-a{padding:0 20px 18px;max-height:400px;}
+.faq-chev{font-size:10px;color:var(--muted);transition:transform .2s;}
+.faq-item.open .faq-chev{transform:rotate(180deg);}
+.cta-big{background:var(--ink);color:#fff;padding:50px 40px;text-align:center;}
+.cta-big h2{color:#fff;margin-bottom:14px;}
+.cta-big p{color:rgba(255,255,255,.6);margin-bottom:22px;}
+footer{background:var(--ink);color:rgba(255,255,255,.4);padding:32px 40px;text-align:center;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+footer a{color:rgba(255,255,255,.6);text-decoration:none;margin:0 8px;}
+footer a:hover{color:var(--amber);}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Course","name":"AI Product Manager Course","description":"60-day hands-on AI product management course with code labs, LLM APIs, PRDs, evals, and AI PM interview prep.","url":"https://becomeaipm.com/ai-pm-course","provider":{"@type":"Organization","name":"becomeaipm","url":"https://becomeaipm.com/","sameAs":"https://www.linkedin.com/company/becomeaipm/about"},"inLanguage":"en-US","educationalLevel":"Intermediate","teaches":["AI product management","LLM fundamentals","Evals and observability","RAG and agents","LLM economics","AI PM interviews"],"hasCourseInstance":{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT60D","instructor":{"@type":"Person","name":"Stavan Mehta","sameAs":"https://www.linkedin.com/in/stavanmehta/"}},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://becomeaipm.com/ai-pm-course"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"What is the AI Product Manager course?","acceptedAnswer":{"@type":"Answer","text":"A 60-day structured course teaching AI product management with hands-on code labs, real LLM APIs (OpenAI, Anthropic, Google), PRDs, evals, and interview prep."}},
+  {"@type":"Question","name":"Is the course really free?","acceptedAnswer":{"@type":"Answer","text":"Yes, all 60 days are free. Sign in is required to track your progress."}},
+  {"@type":"Question","name":"How long does each day take?","acceptedAnswer":{"@type":"Answer","text":"Each day has 4 tasks totaling 60-120 minutes. You can move at your own pace."}},
+  {"@type":"Question","name":"Do I need to be a developer to take this course?","acceptedAnswer":{"@type":"Answer","text":"No. The course teaches enough Python and JavaScript to ship AI features. The focus is on PM thinking, evals, and AI product strategy — not software engineering."}},
+  {"@type":"Question","name":"Who is this for?","acceptedAnswer":{"@type":"Answer","text":"Current PMs transitioning to AI, aspiring AI PMs from adjacent roles (engineers, designers, analysts, founders), and product leaders who want to lead AI teams."}},
+  {"@type":"Question","name":"Who built this course?","acceptedAnswer":{"@type":"Answer","text":"Stavan Mehta, a working AI product manager. The curriculum reflects real AI PM work, not theory."}},
+  {"@type":"Question","name":"What tools and APIs do I need?","acceptedAnswer":{"@type":"Answer","text":"You can complete most of the course with free API credits from OpenAI, Anthropic, and Google. A modern browser is all you strictly need — code labs run in the browser."}},
+  {"@type":"Question","name":"Does the course cover AI PM interviews?","acceptedAnswer":{"@type":"Answer","text":"Yes. Each day ends with an interview-style question, and the final week is dedicated to AI PM interview loops, case studies, and behavioral prep."}}
+]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://becomeaipm.com/"},{"@type":"ListItem","position":2,"name":"AI PM Course","item":"https://becomeaipm.com/ai-pm-course"}]}
+</script>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-light.svg" alt="becomeaipm" height="22" style="display:block;"></a>
+  <div class="nav-links">
+    <a class="nav-link active" href="/ai-pm-course">AI PM Course</a>
+    <a class="nav-link" href="/course.html">Curriculum</a>
+    <a class="nav-link" href="/ai-pm-jobs">Jobs</a>
+    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
+    <a class="nav-link" href="/pm-os.html">PM-OS</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="eyebrow">The AI Product Manager Course · 60 Days · Free</div>
+  <h1>Become an <em>AI Product Manager</em> in 60 days.</h1>
+  <p class="hero-sub">Real code labs. Real LLM APIs. Real PRDs. Built by a working AI PM, not a bootcamp. Every day moves you from concept to shipped AI feature.</p>
+  <div class="cta-row">
+    <a class="cta cta-primary" href="/course.html">Start Day 1 →</a>
+    <a class="cta cta-sec" href="#curriculum">See curriculum</a>
+  </div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n">60</div><div class="stat-l">Days</div></div>
+  <div class="stat"><div class="stat-n">240+</div><div class="stat-l">Hands-on tasks</div></div>
+  <div class="stat"><div class="stat-n">15+</div><div class="stat-l">Live APIs</div></div>
+  <div class="stat"><div class="stat-n">$0</div><div class="stat-l">Cost</div></div>
+</div>
+
+<div class="band">
+  <div class="sec" style="padding:0;">
+    <div class="sec-label">Outcomes</div>
+    <h2>What you'll be able to do by Day 60.</h2>
+    <div class="outcomes">
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Write AI PRDs that ship</div><div class="outcome-d">Write model-backed feature specs covering evals, fallback behavior, cost budgets, latency targets, and safety guardrails.</div></div>
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Build and run evals</div><div class="outcome-d">Design offline and online evaluation pipelines. Know when to trust a model metric and when to ship a human-label set.</div></div>
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Manage LLM economics</div><div class="outcome-d">Calculate cost-per-request, model-route for cost/quality tradeoffs, and forecast AI infrastructure spend.</div></div>
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Ship real AI features</div><div class="outcome-d">You'll have 10+ shipped AI labs in your portfolio — RAG, agents, evals, guardrails, fine-tuning.</div></div>
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Nail AI PM interviews</div><div class="outcome-d">Walk into any AI PM loop with structured answers for case studies, product thinking, and technical depth.</div></div>
+      <div class="outcome"><div class="outcome-ico">✓</div><div class="outcome-h">Build AI PM judgment</div><div class="outcome-d">Know when to use RAG vs fine-tuning, agents vs workflows, small models vs frontier — with economic reasoning.</div></div>
+    </div>
+  </div>
+</div>
+
+<div class="sec" id="curriculum">
+  <div class="sec-label">60-Day Curriculum</div>
+  <h2>Four phases. Built in public. Zero fluff.</h2>
+  <p>The curriculum mirrors a real AI PM onboarding at a modern AI company — fundamentals first, then hands-on building, then evals and economics, then interview prep.</p>
+  <div class="phase-grid" style="margin-top:28px;">
+    <div class="phase">
+      <div class="phase-tag">Phase 1 · Days 1–15</div>
+      <div class="phase-h">AI Foundations for PMs</div>
+      <div class="phase-d">LLM fundamentals, prompt engineering, the model landscape, tokenization, context windows, and writing your first AI PRDs.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Phase 2 · Days 16–30</div>
+      <div class="phase-h">Building AI Features</div>
+      <div class="phase-d">RAG systems, agents, tool use, function calling, structured outputs, and shipping real user-facing AI labs.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Phase 3 · Days 31–45</div>
+      <div class="phase-h">Evals & Economics</div>
+      <div class="phase-d">Eval design, LLM-as-judge, human-label workflows, cost modeling, model routing, and AI infrastructure decisions.</div>
+    </div>
+    <div class="phase">
+      <div class="phase-tag">Phase 4 · Days 46–60</div>
+      <div class="phase-h">Strategy & Interviews</div>
+      <div class="phase-d">AI product strategy, competitive analysis of frontier labs, AI PM case studies, and end-to-end interview loop prep.</div>
+    </div>
+  </div>
+  <p style="margin-top:24px;"><a class="cta cta-primary" href="/course.html">Explore the full curriculum →</a></p>
+</div>
+
+<div class="band">
+  <div class="sec" style="padding:0;">
+    <div class="sec-label">Why becomeaipm</div>
+    <h2>Built by a working AI PM.</h2>
+    <p>Most PM courses are written by career coaches. This one is written by someone doing the job. Every framework, code lab, and interview prompt was pressure-tested in real AI PM work at a modern AI company.</p>
+    <p>You get the patterns that actually show up in Monday standups — not the theory that sounds good on LinkedIn.</p>
+    <p style="margin-top:18px;"><a class="cta cta-sec" href="https://www.linkedin.com/in/stavanmehta/" target="_blank" rel="noopener">About Stavan on LinkedIn →</a></p>
+  </div>
+</div>
+
+<div class="sec">
+  <div class="sec-label">FAQ</div>
+  <h2>Questions, answered.</h2>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Is the course really free?<span class="faq-chev">▼</span></div><div class="faq-a">Yes, all 60 days. Sign in is required only to save your progress.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Do I need to be a developer?<span class="faq-chev">▼</span></div><div class="faq-a">No. The course teaches enough Python and JavaScript to ship AI features. The focus is on PM thinking, evals, and AI product strategy — not software engineering.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How long does each day take?<span class="faq-chev">▼</span></div><div class="faq-a">60–120 minutes. Each day has 4 tasks. You can go faster or slower — progress is saved.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What APIs will I use?<span class="faq-chev">▼</span></div><div class="faq-a">OpenAI, Anthropic, Google, and open-source models via hosted providers. Most labs fit within free-tier credits.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does this help with AI PM interviews?<span class="faq-chev">▼</span></div><div class="faq-a">Yes. Every day ends with an interview question, and Phase 4 (Days 46–60) is dedicated to case studies and loop prep.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can I get certified?<span class="faq-chev">▼</span></div><div class="faq-a">No certificates. The goal is real skill and a portfolio of shipped AI labs — which matter more in interviews than any certificate.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">How is this different from Reforge, Lenny's Newsletter, or Coursera?<span class="faq-chev">▼</span></div><div class="faq-a">Those are discussion-based. becomeaipm is build-based. You'll ship actual AI features, not just analyze case studies.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">What if I get stuck?<span class="faq-chev">▼</span></div><div class="faq-a">Every lab includes solutions and debugging notes. Community support via the leaderboard and contact form.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Can my company sponsor this for our PM team?<span class="faq-chev">▼</span></div><div class="faq-a">Yes — reach out via <a href="/contact.html" style="color:var(--teal)">the contact form</a> for team licensing and custom tracks.</div></div>
+  <div class="faq-item"><div class="faq-q" onclick="toggleFaq(this)">Does it cover AI agents, RAG, and evals?<span class="faq-chev">▼</span></div><div class="faq-a">Yes — all three get dedicated days, with code labs you can run immediately.</div></div>
+</div>
+
+<div class="cta-big">
+  <h2>Start Day 1 today.</h2>
+  <p>Free. 60 days. Real AI product management.</p>
+  <a class="cta cta-primary" style="background:var(--amber);" href="/course.html">Begin the course →</a>
+</div>
+
+<footer>
+  © 2026 becomeaipm · Built by <a href="https://www.linkedin.com/in/stavanmehta/" target="_blank" rel="noopener">Stavan Mehta</a> · <a href="/contact.html">Contact</a> · <a href="/pm-os.html">PM-OS</a> · <a href="/ai-pm-jobs">AI PM Jobs</a>
+</footer>
+
+<script>
+function toggleFaq(el){el.parentElement.classList.toggle('open');}
+</script>
+
+</body>
+</html>
