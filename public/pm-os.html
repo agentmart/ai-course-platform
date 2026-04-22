@@ -3,17 +3,35 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PM-OS — Your AI Product Management Partner</title>
-<link rel="icon" type="image/svg+xml" href="/favicon.svg">
-<meta property="og:title" content="PM-OS — AI Product Management Operating System">
-<meta property="og:description" content="Turn your AI coding assistant into a dedicated product partner. Set up PM-OS in 10 minutes.">
+<title>PM-OS — AI Product Management Partner for Claude Code & Copilot | becomeaipm</title>
+<meta name="description" content="Turn Claude Code or GitHub Copilot into a dedicated AI product manager. 15 PM skills, 12 sub-agents, 5 monitors. Open source. Set up in 10 minutes. Free.">
+<meta name="keywords" content="PM-OS, AI product management, Claude Code PM, Copilot PM, AI PM tools, product manager AI agent, sub-agents, PM automation">
+<meta name="author" content="Stavan Mehta">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/pm-os.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="becomeaipm">
+<meta property="og:title" content="PM-OS — AI Product Management Partner for Claude Code & Copilot">
+<meta property="og:description" content="Turn Claude Code or GitHub Copilot into a dedicated AI product manager. Open source. Set up in 10 minutes.">
 <meta property="og:url" content="https://becomeaipm.com/pm-os.html">
 <meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://becomeaipm.com/assets/becomeaipm-logo-dark.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PM-OS — AI Product Management Partner">
+<meta name="twitter:description" content="Turn Claude Code or Copilot into a dedicated AI PM. Free & open source.">
+<meta name="twitter:image" content="https://becomeaipm.com/assets/becomeaipm-logo-dark.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
 /* ── Nav ── */
 nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:200;}
 .nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
@@ -174,20 +192,34 @@ body.tool-copilot .for-copilot{display:block;}
 .cookie-accept{background:var(--amber);color:white;}.cookie-accept:hover{background:#a84a06;}
 .cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}.cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
 </style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"PM-OS","description":"Open-source AI product management operating system for Claude Code and GitHub Copilot. 15 PM skills, 12 sub-agents, 5 monitors.","url":"https://becomeaipm.com/pm-os.html","applicationCategory":"BusinessApplication","applicationSubCategory":"Product Management","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"author":{"@type":"Person","name":"Stavan Mehta","sameAs":"https://www.linkedin.com/in/stavanmehta/"},"publisher":{"@type":"Organization","name":"becomeaipm","url":"https://becomeaipm.com/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[
+  {"@type":"Question","name":"What is PM-OS?","acceptedAnswer":{"@type":"Answer","text":"PM-OS turns Claude Code or GitHub Copilot into a dedicated AI product manager. It provides 15 PM skills (PRD writing, discovery, strategy, etc.), 12 specialist sub-agent reviewers, and 5 proactive monitors."}},
+  {"@type":"Question","name":"Does PM-OS work with both Claude Code and Copilot?","acceptedAnswer":{"@type":"Answer","text":"Yes. The same repository drives both. Claude Code reads CLAUDE.md and .claude/ directories automatically. GitHub Copilot reads .github/copilot-instructions.md plus CLAUDE.md in Agent Mode."}},
+  {"@type":"Question","name":"How long does PM-OS take to set up?","acceptedAnswer":{"@type":"Answer","text":"About 10 minutes. Clone the repo, open in your AI tool of choice, and the instructions load automatically."}},
+  {"@type":"Question","name":"Is PM-OS free?","acceptedAnswer":{"@type":"Answer","text":"Yes. PM-OS is fully open source and free."}}
+]}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://becomeaipm.com/"},{"@type":"ListItem","position":2,"name":"PM-OS","item":"https://becomeaipm.com/pm-os.html"}]}
+</script>
 </head>
 <body>
 
 <!-- Clerk Sign-In Overlay -->
 <div class="overlay" id="overlay">
   <div class="clerk-wrap">
-    <button class="m-close" onclick="closeSignIn()">&#215;</button>
+    <button class="m-close" onclick="closeSignIn()" aria-label="Close sign-in">&#215;</button>
     <div id="clerk-mount"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted)">LOADING...</span></div>
   </div>
 </div>
 
 <!-- Navigation -->
 <nav id="main-nav">
-  <a class="nav-logo" href="/">becomeaipm</a>
+  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-light.svg" alt="becomeaipm" height="22" style="display:block;"></a>
   <div class="nav-links">
     <a class="nav-link" href="/course.html">Course</a>
     <a class="nav-link" href="/companies.html">Companies</a>
@@ -226,10 +258,10 @@ body.tool-copilot .for-copilot{display:block;}
 
 <!-- Tool Toggle -->
 <div class="tool-toggle" id="tool-toggle">
-  <button class="tool-tab on" id="tab-claude" onclick="switchTool('claude')">
+  <button class="tool-tab on" id="tab-claude" onclick="switchTool('claude')" aria-pressed="true"><span class="sr-only">Select </span>
     <span class="tool-dot dot-claude"></span>Claude Code
   </button>
-  <button class="tool-tab" id="tab-copilot" onclick="switchTool('copilot')">
+  <button class="tool-tab" id="tab-copilot" onclick="switchTool('copilot')" aria-pressed="false"><span class="sr-only">Select </span>
     <span class="tool-dot dot-copilot"></span>GitHub Copilot
   </button>
 </div>
@@ -261,7 +293,7 @@ body.tool-copilot .for-copilot{display:block;}
       <div class="code-snippet">
         <code>git clone https://github.com/agentmart/pm-os.git
 cd pm-os</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy clone command">Copy</button>
       </div>
     </div>
   </div>
@@ -274,7 +306,7 @@ cd pm-os</code>
       <div class="code-snippet">
         <code>cd pm-os
 claude</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy Claude Code command">Copy</button>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
@@ -302,7 +334,7 @@ claude</code>
       <div class="code-snippet">
         <code>cd pm-os
 code .</code>
-        <button class="copy-btn" onclick="copyCode(this)">Copy</button>
+        <button class="copy-btn" onclick="copyCode(this)" aria-label="Copy VS Code command">Copy</button>
       </div>
 
       <p><strong>What happens automatically:</strong></p>
@@ -398,8 +430,8 @@ code .</code>
   <div class="inside-header">What's Inside PM-OS</div>
 
   <!-- Skills -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Skills — PM Frameworks
       <span class="acc-count">7 categories</span>
       <span class="acc-chevron">&#9660;</span>
@@ -419,8 +451,8 @@ code .</code>
   </div>
 
   <!-- Sub-Agents -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Sub-Agents — Specialist Reviewers
       <span class="acc-count">7 reviewers</span>
       <span class="acc-chevron">&#9660;</span>
@@ -440,8 +472,8 @@ code .</code>
   </div>
 
   <!-- Proactive Monitors -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Proactive Monitors — Always-On Intelligence
       <span class="acc-count">5 monitors</span>
       <span class="acc-chevron">&#9660;</span>
@@ -462,8 +494,8 @@ code .</code>
   </div>
 
   <!-- Templates -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Templates — Ready-to-use Documents
       <span class="acc-count">4 templates</span>
       <span class="acc-chevron">&#9660;</span>
@@ -480,8 +512,8 @@ code .</code>
   </div>
 
   <!-- Routines -->
-  <div class="accordion" onclick="toggleAcc(this)">
-    <button class="acc-trigger">
+  <div class="accordion" onclick="toggleAcc(this,event)">
+    <button class="acc-trigger" aria-expanded="false">
       Routines — Recurring PM Tasks
       <span class="acc-count">6 routines</span>
       <span class="acc-chevron">&#9660;</span>
@@ -552,8 +584,8 @@ let currentTool=localStorage.getItem('pmos_tool')||'claude';
         if(!e.user&&user){user=null;showAuthGate();updateAuthUI();}
       });
     };
-    s.onerror=()=>showAuthGate();
-  }catch(e){showAuthGate();}
+    s.onerror=()=>{showAuthGate();updateAuthUI();};
+  }catch(e){showAuthGate();updateAuthUI();}
 })();
 
 function showContent(){
@@ -596,16 +628,26 @@ document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignIn();});
 
 // ── Tool Toggle ──
 function switchTool(tool){
-  currentTool=tool;
-  localStorage.setItem('pmos_tool',tool);
+  const validTool=(tool==='claude'||tool==='copilot')?tool:'claude';
+  currentTool=validTool;
+  localStorage.setItem('pmos_tool',validTool);
   document.body.classList.remove('tool-claude','tool-copilot');
-  document.body.classList.add('tool-'+tool);
-  document.getElementById('tab-claude').classList.toggle('on',tool==='claude');
-  document.getElementById('tab-copilot').classList.toggle('on',tool==='copilot');
+  document.body.classList.add('tool-'+validTool);
+  const tabClaude=document.getElementById('tab-claude');
+  const tabCopilot=document.getElementById('tab-copilot');
+  tabClaude.classList.toggle('on',validTool==='claude');
+  tabClaude.setAttribute('aria-pressed',validTool==='claude');
+  tabCopilot.classList.toggle('on',validTool==='copilot');
+  tabCopilot.setAttribute('aria-pressed',validTool==='copilot');
 }
 
 // ── Accordion ──
-function toggleAcc(el){el.classList.toggle('open');}
+function toggleAcc(el,evt){
+  if(evt&&evt.target!==el&&evt.target.closest('.acc-body'))return;
+  el.classList.toggle('open');
+  const trigger=el.querySelector('.acc-trigger');
+  if(trigger)trigger.setAttribute('aria-expanded',el.classList.contains('open'));
+}
 
 // ── Copy ──
 function copyCode(btn){
@@ -625,7 +667,7 @@ function copyPrompt(btn){
 </script>
 
 <div class="cookie-banner" id="cookie-banner">
-  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <span class="cookie-text">We use analytics cookies to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
   <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>

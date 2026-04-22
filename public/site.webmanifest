@@ -1,0 +1,14 @@
+{
+  "name": "becomeaipm",
+  "short_name": "becomeaipm",
+  "description": "AI Product Management course, tools, and jobs — Become AI PM",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f0e8",
+  "theme_color": "#1a1512",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    { "src": "/assets/becomeaipm-mark.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}
