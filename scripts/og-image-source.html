@@ -86,15 +86,34 @@ h1 em{color:#c8590a;font-style:italic;font-weight:300;}
 </head>
 <body>
   <div class="brand">becomeaipm</div>
-  <div class="dot">100+ AI companies hiring</div>
-  <div class="eyebrow">THE FREE 60-DAY COURSE FOR AI PRODUCT MANAGERS</div>
-  <h1>Become an <em>AI</em> Product<br>Manager.</h1>
-  <div class="sub">A free, end-to-end curriculum: from prompt design and<br>evals to AI economics, agentic systems, and live job tracking.</div>
-  <div class="stats">
+  <div class="dot" id="dot">100+ AI companies hiring</div>
+  <div class="eyebrow" id="eyebrow">THE FREE 60-DAY COURSE FOR AI PRODUCT MANAGERS</div>
+  <h1 id="title">Become an <em>AI</em> Product<br>Manager.</h1>
+  <div class="sub" id="sub">A free, end-to-end curriculum: from prompt design and<br>evals to AI economics, agentic systems, and live job tracking.</div>
+  <div class="stats" id="stats">
     <div class="stat-box"><div class="stat-n">60</div><div class="stat-l">Days</div></div>
     <div class="stat-box"><div class="stat-n">240+</div><div class="stat-l">Hours</div></div>
     <div class="stat-box"><div class="stat-n">15+</div><div class="stat-l">Projects</div></div>
     <div class="stat-box"><div class="stat-n">$0</div><div class="stat-l">Cost</div></div>
   </div>
+  <script>
+    // Parameterize via query string for per-page OG generation.
+    // Example: ?eyebrow=AI+PM+JOBS&title=AI+PM+<em>Jobs</em>&sub=100%2B+companies.+Live.+Daily.&badge=Live+job+tracker&stats=100%2B|Companies,4|ATS+sources,Daily|Updated,Free|Access
+    (function () {
+      const q = new URLSearchParams(location.search);
+      const set = (id, val) => { if (val != null && val !== '') document.getElementById(id).innerHTML = val; };
+      set('eyebrow', q.get('eyebrow'));
+      set('title', q.get('title'));
+      set('sub', q.get('sub'));
+      set('dot', q.get('badge'));
+      const stats = q.get('stats');
+      if (stats) {
+        document.getElementById('stats').innerHTML = stats.split(',').map(pair => {
+          const [n, l] = pair.split('|');
+          return '<div class="stat-box"><div class="stat-n">' + (n || '') + '</div><div class="stat-l">' + (l || '') + '</div></div>';
+        }).join('');
+      }
+    })();
+  </script>
 </body>
 </html>
