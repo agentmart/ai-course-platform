@@ -509,6 +509,18 @@ function runCalculation() {
   const panel = document.getElementById('results-panel');
   panel.style.display = 'block';
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Pendo: Calculator Used
+  if (window.pendo && pendo.track) {
+    pendo.track('Calculator Used', {
+      models_compared: results.length,
+      daily_requests: dailyReqs,
+      input_tokens: inputToks,
+      output_tokens: outputToks,
+      cheapest_model: results[0]?.m?.model_id || null,
+      cheapest_daily_cost: results[0]?.total ?? null
+    });
+  }
 }
 
 function fmt(n) {

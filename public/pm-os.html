@@ -644,13 +644,17 @@ function copyCode(btn){
   navigator.clipboard.writeText(code).then(()=>{
     btn.textContent='Copied!';btn.classList.add('copied');
     setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+    if(window.pendo&&pendo.track) pendo.track('PM-OS Copy',{kind:'code',length:code.length});
   });
 }
 function copyPrompt(btn){
-  const text=btn.parentElement.querySelector('.prompt-text').textContent;
+  const wrap=btn.parentElement;
+  const text=wrap.querySelector('.prompt-text').textContent;
+  const title=(wrap.querySelector('.prompt-title')||{}).textContent||'';
   navigator.clipboard.writeText(text).then(()=>{
     btn.textContent='Copied!';btn.classList.add('copied');
     setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('copied');},2000);
+    if(window.pendo&&pendo.track) pendo.track('PM-OS Copy',{kind:'prompt',title:title.trim(),length:text.length});
   });
 }
 </script>
