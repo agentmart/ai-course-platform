@@ -3,6 +3,12 @@ name: Auto-Fix Developer Agent
 on:
   issues:
     types: [labeled]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 'Issue number to auto-fix (must be approved + content-freshness labeled)'
+        required: true
+        type: string
 
 permissions:
   issues: write
@@ -12,7 +18,10 @@ permissions:
 
 jobs:
   auto-fix:
-    if: github.event.label.name == 'approved'
+    # Run if: (label add of 'approved') OR (manual dispatch)
+    if: |
+      (github.event_name == 'workflow_dispatch') ||
+      (github.event_name == 'issues' && github.event.label.name == 'approved')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,7 +43,18 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
-            const labels = (context.payload.issue.labels || []).map(l => l.name);
+            let issueNumber, labels;
+            if (context.eventName === 'workflow_dispatch') {
+              issueNumber = parseInt(context.payload.inputs.issue_number, 10);
+              const { data: issue } = await github.rest.issues.get({
+                owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber,
+              });
+              labels = (issue.labels || []).map(l => l.name);
+            } else {
+              issueNumber = context.payload.issue.number;
+              labels = (context.payload.issue.labels || []).map(l => l.name);
+            }
+            core.setOutput('issue_number', String(issueNumber));
             core.setOutput('is_freshness', labels.includes('content-freshness') ? 'true' : 'false');
 
       # ─────────────────────────────────────────────
@@ -43,7 +63,7 @@ jobs:
       - name: Freshness Auto-Fix
         if: steps.classify.outputs.is_freshness == 'true'
         env:
-          ISSUE_NUMBER:              ${{ github.event.issue.number }}
+          ISSUE_NUMBER:              ${{ steps.classify.outputs.issue_number }}
           GH_TOKEN:                  ${{ secrets.GH_PAT_TOKEN }}
           GH_MODELS_TOKEN:           ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY:         ${{ github.repository }}
