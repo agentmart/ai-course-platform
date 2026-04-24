@@ -159,12 +159,15 @@ async function fetchUrlWithTimeout(url, timeoutMs = 10000) {
 }
 
 function normalizeBody(html) {
-  // Strip scripts/styles, collapse whitespace, trim
+  // Strip scripts/styles, collapse whitespace, trim, and remove bytes Postgres text columns reject.
   return html
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<style\b[^<]*(?:(?!<\/style>)<[^<]*)*<\/style>/gi, '')
     .replace(/<[^>]+>/g, ' ')
     .replace(/\s+/g, ' ')
+    .replace(/\u0000/g, '')
+    .replace(/\\u0000/g, '')
+    .replace(/[\uD800-\uDFFF]/g, '')
     .trim();
 }
 
@@ -468,7 +471,7 @@ async function checkPricingClaims(days, llmModels) {
   console.log('💰 Pricing/spec claims (AI)...');
   const findings = [];
   const modelTable = llmModels.map(m =>
-    `${m.model_id}: input $${m.input_cost_per_1m}/1M, output $${m.output_cost_per_1m}/1M, ctx ${m.context_window}`).join('\n');
+    `${m.model_id}: input $${m.input_price_per_1m}/1M, output $${m.output_price_per_1m}/1M, ctx ${m.context_window}`).join('\n');
 
   for (const [nStr, day] of Object.entries(days)) {
     const n = +nStr;
@@ -675,7 +678,7 @@ async function main() {
   if (supabase) {
     const { data, error } = await supabase
       .from('llm_models')
-      .select('model_id, input_cost_per_1m, output_cost_per_1m, context_window');
+      .select('model_id, input_price_per_1m, output_price_per_1m, context_window');
     if (error) report.errors.push({ phase: 'load-models', message: error.message });
     else llmModels = data || [];
   }
