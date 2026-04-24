@@ -55,7 +55,7 @@ window.COURSE_DAY_DATA[8] = {
   resources: [
     { type: 'PRICING', title: 'Anthropic Pricing (live)', url: 'https://www.anthropic.com/pricing', note: 'Current API and plan pricing. Memorize the key tiers before interviews.' },
     { type: 'PRICING', title: 'OpenAI Pricing (live)', url: 'https://openai.com/pricing', note: 'Compare GPT-4o, o-series, and mini pricing tiers.' },
-    { type: 'BLOG', title: 'AI Business Models — a16z', url: 'https://a16z.com/ai-business-models/', note: 'Where AI margins live in the stack. Essential reading for AI PM economics.' },
+    { type: 'BLOG', title: 'AI Business Models — a16z', url: 'https://a16z.com/the-economic-case-for-generative-ai/', note: 'Where AI margins live in the stack. Essential reading for AI PM economics.' },
     { type: 'PAPER', title: 'DeepSeek-R1 Technical Report', url: 'https://arxiv.org/abs/2501.12948', note: 'The training cost inflection point. Read for competitive economics, not architecture.' },
     { type: 'BLOG', title: 'Meta Llama Strategy', url: 'https://ai.meta.com/blog/', note: 'Why Meta releases weights for free. The open-source business model rationale.' },
     { type: 'DOCS', title: 'AWS Bedrock — Claude', url: 'https://aws.amazon.com/bedrock/claude/', note: 'How enterprise Claude deployment via Bedrock works. Different economics than direct API.' }

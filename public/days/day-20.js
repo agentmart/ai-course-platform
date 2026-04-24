@@ -53,8 +53,8 @@ window.COURSE_DAY_DATA[20] = {
 
   resources: [
     { type: 'DOCS', title: 'Anthropic Building Overview', url: 'https://docs.anthropic.com/en/docs/build-with-claude/overview', note: 'Architecture reference for Claude-based products.' },
-    { type: 'BLOG', title: 'Product Strategy Framework \u2014 Lenny\u2019s Newsletter', url: 'https://www.lennysnewsletter.com/p/product-strategy', note: 'Strong product strategy framework. Adapt for AI context.' },
-    { type: 'BLOG', title: 'AI Product Spec Writing', url: 'https://www.intercom.com/blog/product-spec-template/', note: 'Intercom\u2019s spec template. Transfers well to AI products.' },
+    { type: 'BLOG', title: 'Product Strategy Framework \u2014 Lenny\u2019s Newsletter', url: 'https://www.lennysnewsletter.com/', note: 'Strong product strategy framework. Adapt for AI context.' },
+    { type: 'BLOG', title: 'AI Product Spec Writing', url: 'https://www.intercom.com/blog', note: 'Intercom\u2019s spec template. Transfers well to AI products.' },
     { type: 'PRICING', title: 'Anthropic Pricing (live)', url: 'https://www.anthropic.com/pricing', note: 'Use live pricing for your cost model. Never hardcode.' },
     { type: 'DOCS', title: 'Voyage AI (embeddings)', url: 'https://docs.voyageai.com/', note: 'Anthropic-ecosystem embeddings for your RAG architecture.' },
     { type: 'TOOL', title: 'Artificial Analysis (benchmarks)', url: 'https://artificialanalysis.ai/', note: 'Compare Claude Sonnet 4.6 vs alternatives for your strategy\u2019s model choice rationale.' }

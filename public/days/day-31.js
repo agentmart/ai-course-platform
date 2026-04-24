@@ -21,7 +21,7 @@ window.COURSE_DAY_DATA[31] = {
     { type: 'TOOL', title: 'RAGAS \u2014 RAG Evaluation Framework', url: 'https://docs.ragas.io/', note: 'Automated hallucination detection and RAG quality metrics.' },
     { type: 'TOOL', title: 'DeepEval \u2014 LLM Evaluation', url: 'https://docs.confident-ai.com/', note: 'Open-source framework for hallucination, relevance, and faithfulness metrics.' },
     { type: 'BLOG', title: 'Anthropic: Evaluating AI Systems', url: 'https://www.anthropic.com/research', note: 'Research on model evaluation and safety metrics.' },
-    { type: 'BLOG', title: 'GitHub Copilot Metrics', url: 'https://github.blog/news-insights/research/research-quantifying-github-copilots-impact-in-the-enterprise/', note: 'How GitHub measures acceptance rate and developer productivity.' },
+    { type: 'BLOG', title: 'GitHub Copilot Metrics', url: 'https://github.blog/news-insights/research/', note: 'How GitHub measures acceptance rate and developer productivity.' },
     { type: 'TOOL', title: 'Artificial Analysis', url: 'https://artificialanalysis.ai/', note: 'Independent benchmarks for TTFT, TTLT, and throughput across providers.' }
   ]
 };

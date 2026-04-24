@@ -22,7 +22,7 @@ window.COURSE_DAY_DATA[48] = {
   resources: [
     { type: 'RESEARCH', title: 'Scaling Monosemanticity', url: 'https://www.anthropic.com/research/mapping-mind-language-model', note: 'Landmark research on discovering interpretable features in large models.' },
     { type: 'RESEARCH', title: 'Alignment Faking in Large Language Models', url: 'https://www.anthropic.com/research/alignment-faking', note: 'Research showing models can strategically hide disagreement.' },
-    { type: 'RESEARCH', title: 'Toy Models of Superposition', url: 'https://www.anthropic.com/research/toy-models-superposition', note: 'Foundational research on polysemantic neurons and feature decomposition.' },
+    { type: 'RESEARCH', title: 'Toy Models of Superposition', url: 'https://www.anthropic.com/news/toy-models-of-superposition', note: 'Foundational research on polysemantic neurons and feature decomposition.' },
     { type: 'DOCS', title: 'Anthropic Interpretability Research', url: 'https://www.anthropic.com/research#702bfb4b-bb08-42ba-8cb7-bace657cc0a9', note: 'Full catalogue of Anthropic\u2019s interpretability publications.' },
     { type: 'BLOG', title: 'Anthropic: Core Views on AI Safety', url: 'https://www.anthropic.com/news/core-views-on-ai-safety', note: 'How interpretability fits into Anthropic\u2019s overall safety strategy.' }
   ]

@@ -1,0 +1,58 @@
+name: Weekly Content Freshness
+
+on:
+  schedule:
+    # Every Monday at 09:00 UTC (1h after weekly companies sync)
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode: full | backfill | dry'
+        required: false
+        default: 'full'
+      issue_cap:
+        description: 'Max new issues to file'
+        required: false
+        default: '20'
+
+jobs:
+  freshness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    permissions:
+      contents: read
+      issues: write
+      models: read   # GitHub Models API
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run content freshness agent
+        env:
+          GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:         ${{ github.repository }}
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          MODE:                      ${{ github.event.inputs.mode || 'full' }}
+          DRY_RUN:                   ${{ github.event.inputs.mode == 'dry' && 'true' || 'false' }}
+          ISSUE_CAP:                 ${{ github.event.inputs.issue_cap || '20' }}
+        run: node scripts/content-freshness-check.mjs
+
+      - name: Upload freshness report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: freshness-report-${{ github.run_id }}
+          path: freshness-report.json
+          retention-days: 90

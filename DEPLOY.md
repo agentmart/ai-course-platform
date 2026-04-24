@@ -209,3 +209,33 @@ Users enter codes on the Stripe-hosted Checkout page — no code needed on your 
 **Piston API rate limited:**
 → Self-host: `docker run -d -p 2000:2000 ghcr.io/engineer-man/piston`
 → Update PISTON_API in course.html to `http://localhost:2000/api/v2/piston`
+
+---
+
+## SCHEDULED AGENTS (GitHub Actions)
+
+| Workflow | Schedule | Purpose |
+|---|---|---|
+| `daily-price-check.yml` | 06:00 UTC daily | Refresh `llm_models` from LiteLLM → powers `/api/models` calculator |
+| `daily-jobs-check.yml` | 06:00 UTC daily | PM job listings across 4 ATS providers (Playwright+stealth for Ashby) |
+| `daily-reminders.yml` | 15:00 UTC daily | Inactivity email reminders via `/api/send-reminders` |
+| `daily-feedback-summary.yml` | 14:00 UTC daily | AI summary of new GitHub issues |
+| `weekly-companies-sync.yml` | Mon 08:00 UTC | AI company discovery into Supabase (HN + YC) |
+| `weekly-content-freshness.yml` | Mon 09:00 UTC | **Course content freshness audit** — URL health, deprecated model strings, pricing drift vs. `llm_models`, policy dates, resource recency, codeExample syntax, vendor announcements |
+
+### Content Freshness Agent
+
+Audits all 60 files in `public/days/day-NN.js` across 7 dimensions and files triage issues (label `content-freshness`, `drift:critical|major|minor`, `day-NN`). Label an issue `approved` to hand off to `auto-fix.yml` for automated patching.
+
+**Reference grounding store** — every external URL cited by course content is captured in Supabase tables `content_references` + `content_reference_snapshots` with sha256 hashes, 2k-char excerpts, and Wayback archive URLs. AI checks use these snapshots as grounding so verdicts are source-backed.
+
+**Before first run:** apply `scripts/migration-content-references.sql` in Supabase SQL Editor.
+
+**Local commands:**
+```bash
+npm run freshness:dry      # Deterministic checks only, no writes, no network writes to Supabase
+npm run freshness:check    # Full run (requires GITHUB_TOKEN + Supabase creds)
+npm run freshness:backfill # URL capture + reference store only; skips AI + issue filing
+```
+
+**workflow_dispatch inputs:** `mode=full|backfill|dry`, `issue_cap` (default 20, severity-sorted).

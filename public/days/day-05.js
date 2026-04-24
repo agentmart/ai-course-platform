@@ -53,7 +53,7 @@ window.COURSE_DAY_DATA[5] = {
 
   resources: [
     { type: 'DOCS', title: 'OpenAI Model Overview', url: 'https://platform.openai.com/docs/models', note: 'All current OpenAI models, capabilities, and pricing. Verify before any competitive analysis.' },
-    { type: 'BLOG', title: 'OpenAI o3 System Card', url: 'https://openai.com/index/openai-o3-system-card/', note: 'Safety and capability evaluation for the o-series reasoning models.' },
+    { type: 'BLOG', title: 'OpenAI o3 System Card', url: 'https://cdn.openai.com/pdf/2221c875-02dc-4789-800b-e7758f3722c1/o3-and-o4-mini-system-card.pdf', note: 'Safety and capability evaluation for the o-series reasoning models.' },
     { type: 'BLOG', title: 'OpenAI Operator', url: 'https://openai.com/index/introducing-operator/', note: 'OpenAI\u2019s agentic browser use product. Compare to Anthropic computer use (Day 25).' },
     { type: 'PAPER', title: 'DeepSeek-R1 Technical Report', url: 'https://arxiv.org/abs/2501.12948', note: 'The January 2025 competitive inflection point. Read abstract + results for competitive context.' },
     { type: 'BLOG', title: 'OpenAI Preparedness Framework', url: 'https://openai.com/preparedness/', note: 'OpenAI\u2019s equivalent of Anthropic\u2019s RSP. Compare approaches for enterprise sales knowledge.' },

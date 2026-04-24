@@ -116,18 +116,18 @@ console.log('='.repeat(70));
 
 scenarios.forEach(s => {
   const result = calcMonthlyCost('claude-sonnet-4-6', s.daily, 8000, 500, 300);
-  console.log('\n' + s.name);
+  console.log('\\n' + s.name);
   console.log('  Without caching: $' + result.withoutCaching + '/month');
   console.log('  With caching:    $' + result.withCaching + '/month');
   console.log('  Savings:         $' + result.savingsPerMonth + '/month (' + result.savingsPct + '% reduction)');
 });
 
-console.log('\n' + '='.repeat(70));
+console.log('\\n' + '='.repeat(70));
 console.log('CACHING ELIGIBILITY CHECK');
 console.log('Minimum cacheable block: 1024 tokens (Sonnet/Opus), 2048 (Haiku)');
 console.log('Cache TTL: 5 minutes (ephemeral)');
 console.log('ROI is highest when: large system prompt + high request volume');
-console.log('\nImplementation: add cache_control to system prompt block:');
+console.log('\\nImplementation: add cache_control to system prompt block:');
 console.log(JSON.stringify({
   type: 'text',
   text: 'Your system prompt here...',

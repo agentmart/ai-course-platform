@@ -57,6 +57,6 @@ window.COURSE_DAY_DATA[7] = {
     { type: 'DOCS', title: 'OpenAI Realtime API', url: 'https://platform.openai.com/docs/guides/realtime', note: 'Production-available low-latency voice conversations. The reference for voice AI products.' },
     { type: 'DOCS', title: 'Whisper API', url: 'https://platform.openai.com/docs/guides/speech-to-text', note: 'Best general-purpose speech-to-text API. Also available open-source.' },
     { type: 'TOOL', title: 'ElevenLabs', url: 'https://elevenlabs.io/', note: 'Leading voice generation and cloning. Major player in voice AI since 2024.' },
-    { type: 'DOCS', title: 'Gemini 2.5 Pro — Multimodal', url: 'https://ai.google.dev/gemini-api/docs/models/gemini', note: '1M+ token context supports hour-long video analysis natively.' }
+    { type: 'DOCS', title: 'Gemini 2.5 Pro — Multimodal', url: 'https://ai.google.dev/gemini-api/docs/models', note: '1M+ token context supports hour-long video analysis natively.' }
   ]
 };

@@ -22,7 +22,7 @@ window.COURSE_DAY_DATA[32] = {
     { type: 'BLOG', title: 'Anthropic: Building Effective AI Products', url: 'https://www.anthropic.com/research', note: 'How Anthropic thinks about product design with Claude.' },
     { type: 'BLOG', title: 'a16z: Who Owns the AI Value Chain?', url: 'https://a16z.com/who-owns-the-generative-ai-platform/', note: 'The application layer value capture debate.' },
     { type: 'TOOL', title: 'Artificial Analysis \u2014 Model Comparison', url: 'https://artificialanalysis.ai/', note: 'Compare model capabilities, pricing, and performance for strategy decisions.' },
-    { type: 'BLOG', title: 'Sequoia: AI\u2019s $200B Question', url: 'https://www.sequoiacap.com/article/ais-200b-question/', note: 'The gap between AI infrastructure investment and revenue.' },
+    { type: 'BLOG', title: 'Sequoia: AI\u2019s $200B Question', url: 'https://www.sequoiacap.com/article/ais-600b-question/', note: 'The gap between AI infrastructure investment and revenue.' },
     { type: 'DOCS', title: 'Hugging Face Open LLM Leaderboard', url: 'https://huggingface.co/spaces/open-llm-leaderboard/open_llm_leaderboard', note: 'Track open-source model capabilities for your strategy assessment.' }
   ]
 };

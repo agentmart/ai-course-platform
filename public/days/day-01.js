@@ -219,7 +219,7 @@ print("     Optimise prompts (input) AND response length (output) for cost contr
     { type: 'PRICING', title: 'Nvidia — NIM API Pricing',             url: 'https://build.nvidia.com/',                                                                           note: 'Nemotron and partner models via Nvidia’s hosted inference API.' },
     { type: 'DOCS',    title: 'Meta — Llama 4 Model Card',            url: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',                                          note: 'Llama 4 architecture and license. Understand open-weight strategy.' },
     { type: 'PAPER',   title: 'DeepSeek-R1 Technical Report',          url: 'https://arxiv.org/abs/2501.12948',                                                                    note: 'The model that signalled training cost compression. Read the abstract and executive summary.' },
-    { type: 'BLOG',    title: 'Nvidia Nemotron Model Family',           url: 'https://developer.nvidia.com/blog/nvidia-nemotron-4-340b-is-now-available/',                        note: 'Nvidia’s entry into the model-as-a-product space alongside their GPU business.' },
+    { type: 'BLOG',    title: 'Nvidia Nemotron Model Family',           url: 'https://developer.nvidia.com/blog/tag/nemotron/',                        note: 'Nvidia’s entry into the model-as-a-product space alongside their GPU business.' },
     { type: 'BLOG',    title: 'Microsoft MAI-DS-R1 Announcement',      url: 'https://azure.microsoft.com/en-us/blog/',                                                             note: 'Microsoft’s responsible-AI-tuned distillation of DeepSeek R1 on Azure.' },
   ]
 };

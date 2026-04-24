@@ -128,10 +128,10 @@ console.log("  HNSW:    more memory, ~95%+ recall (USE THIS IN PRODUCTION)");`
 
   resources: [
     { type: 'DOCS', title: 'Voyage AI Embeddings', url: 'https://docs.voyageai.com/', note: 'Anthropic-acquired. Recommended pairing for Claude-based products.' },
-    { type: 'DOCS', title: 'Voyage AI Reranking', url: 'https://docs.voyageai.com/docs/reranking', note: 'Cross-encoder reranking for production RAG quality improvement.' },
+    { type: 'DOCS', title: 'Voyage AI Reranking', url: 'https://docs.voyageai.com/docs/reranker', note: 'Cross-encoder reranking for production RAG quality improvement.' },
     { type: 'DOCS', title: 'pgvector Documentation', url: 'https://github.com/pgvector/pgvector', note: 'Postgres vector extension. Use HNSW index for production.' },
     { type: 'DOCS', title: 'Cohere Embed v3 + Reranking', url: 'https://docs.cohere.com/docs/reranking', note: 'Strong multilingual alternative. Excellent reranking model.' },
-    { type: 'DOCS', title: 'Supabase Vector', url: 'https://supabase.com/vector', note: 'Managed pgvector with HNSW. If you use Supabase, this is your vector DB.' },
+    { type: 'DOCS', title: 'Supabase Vector', url: 'https://supabase.com/modules/vector', note: 'Managed pgvector with HNSW. If you use Supabase, this is your vector DB.' },
     { type: 'PAPER', title: 'Hybrid Search Paper', url: 'https://arxiv.org/abs/2210.11610', note: 'Why combining dense and sparse retrieval outperforms either alone.' }
   ]
 };

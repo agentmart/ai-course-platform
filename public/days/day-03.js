@@ -52,10 +52,10 @@ window.COURSE_DAY_DATA[3] = {
 
   resources: [
     { type: 'PAPER', title: 'Constitutional AI Paper — Anthropic', url: 'https://arxiv.org/abs/2212.08073', note: 'The original CAI/RLAIF paper. Read abstract, intro, and section 2 — covers the core innovation.' },
-    { type: 'BLOG', title: 'Anthropic Model Spec', url: 'https://www.anthropic.com/research/model-spec', note: 'The primary document on Claude\u2019s values (2024). More actionable than the model card for product design.' },
+    { type: 'BLOG', title: 'Anthropic Model Spec', url: 'https://www.anthropic.com/news/claudes-constitution', note: 'The primary document on Claude\u2019s values (2024). More actionable than the model card for product design.' },
     { type: 'BLOG', title: 'The Claude Character', url: 'https://www.anthropic.com/research/claude-character', note: 'How Anthropic thinks about Claude\u2019s personality and values — predecessor to the Model Spec.' },
     { type: 'BLOG', title: 'Claude\u2019s Model Card', url: 'https://www.anthropic.com/model-card', note: 'Transparency document on Claude\u2019s training, capabilities, and safety evaluations.' },
-    { type: 'DOCS', title: 'Claude Usage Policy', url: 'https://www.anthropic.com/usage-policy', note: 'What Claude will and won\u2019t do — essential product documentation for building on Claude.' },
+    { type: 'DOCS', title: 'Claude Usage Policy', url: 'https://www.anthropic.com/legal/aup', note: 'What Claude will and won\u2019t do — essential product documentation for building on Claude.' },
     { type: 'DOCS', title: 'Anthropic Safety Research', url: 'https://www.anthropic.com/research', note: 'Interpretability and alignment research that informs why CAI works.' }
   ]
 };

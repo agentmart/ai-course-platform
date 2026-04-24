@@ -22,6 +22,6 @@ window.COURSE_DAY_DATA[55] = {
     { type: 'DOCS', title: 'Anthropic API Documentation', url: 'https://docs.anthropic.com/', note: 'Primary DX audit subject.' },
     { type: 'TOOL', title: 'Anthropic Workbench', url: 'https://console.anthropic.com/workbench', note: 'Interactive playground for testing API calls in the browser.' },
     { type: 'DOCS', title: 'OpenAI API Documentation', url: 'https://platform.openai.com/docs', note: 'Competitive benchmark: OpenAI DX.' },
-    { type: 'DOCS', title: 'Google Gemini API Documentation', url: 'https://ai.google.dev/docs', note: 'Competitive benchmark: Google Gemini DX.' }
+    { type: 'DOCS', title: 'Google Gemini API Documentation', url: 'https://ai.google.dev/gemini-api/docs', note: 'Competitive benchmark: Google Gemini DX.' }
   ]
 };

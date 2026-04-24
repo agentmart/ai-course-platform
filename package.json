@@ -6,7 +6,10 @@
   "scripts": {
     "sync:dry": "DRY_RUN=true node scripts/sync-companies.mjs",
     "sync:live": "node scripts/sync-companies.mjs",
-    "jobs:check": "node scripts/daily-jobs-check.mjs"
+    "jobs:check": "node scripts/daily-jobs-check.mjs",
+    "freshness:dry": "DRY_RUN=true SKIP_AI=true node scripts/content-freshness-check.mjs",
+    "freshness:check": "node scripts/content-freshness-check.mjs",
+    "freshness:backfill": "MODE=backfill node scripts/content-freshness-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

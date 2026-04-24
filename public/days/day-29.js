@@ -19,6 +19,6 @@ window.COURSE_DAY_DATA[29] = {
     { type: 'GITHUB', title: 'OASF Specification', url: 'https://github.com/agntcy/oasf', note: 'Agntcy/Cisco-backed schema standard. Verify current adoption.' },
     { type: 'GITHUB', title: 'A2A Specification', url: 'https://github.com/google/a2a', note: 'Compare Agent Cards with OASF schemas \u2014 they\u2019re complementary.' },
     { type: 'DOCS', title: 'OpenAPI Specification', url: 'https://swagger.io/specification/', note: 'The precedent: how API schema standardization drove API ecosystem growth.' },
-    { type: 'DOCS', title: 'Anthropic Security', url: 'https://www.anthropic.com/security', note: 'Example of certifications that would appear in an OASF compliance schema.' }
+    { type: 'DOCS', title: 'Anthropic Security', url: 'https://trust.anthropic.com', note: 'Example of certifications that would appear in an OASF compliance schema.' }
   ]
 };

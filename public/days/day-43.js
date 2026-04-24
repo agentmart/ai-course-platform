@@ -24,6 +24,6 @@ window.COURSE_DAY_DATA[43] = {
     { type: 'DOCS', title: 'Claude Code GitHub Actions', url: 'https://docs.anthropic.com/en/docs/claude-code/github-actions', note: 'CI/CD integration guide for automated workflows.' },
     { type: 'DOCS', title: 'Claude Code Best Practices', url: 'https://docs.anthropic.com/en/docs/claude-code/best-practices', note: 'How to write effective CLAUDE.md and optimize Claude Code usage.' },
     { type: 'DOCS', title: 'MCP in Claude Code', url: 'https://docs.anthropic.com/en/docs/claude-code/mcp', note: 'Configuring MCP servers for external tool access.' },
-    { type: 'BLOG', title: 'Anthropic: Claude Code Launch', url: 'https://www.anthropic.com/news/claude-code', note: 'Claude Code announcement and capability overview.' }
+    { type: 'BLOG', title: 'Anthropic: Claude Code Launch', url: 'https://www.anthropic.com/claude-code', note: 'Claude Code announcement and capability overview.' }
   ]
 };

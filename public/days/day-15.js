@@ -95,12 +95,12 @@ var orchestrationDecisions = [
 console.log('ORCHESTRATION DECISION FRAMEWORK — 2026');
 console.log('='.repeat(60));
 orchestrationDecisions.forEach(d => {
-  console.log('\nScenario:       ' + d.scenario);
+  console.log('\\nScenario:       ' + d.scenario);
   console.log('Recommendation: ' + d.recommendation);
   console.log('Reason:         ' + d.reason);
 });
 
-console.log('\n' + '='.repeat(60));
+console.log('\\n' + '='.repeat(60));
 console.log('CRITICAL CORRECTION:');
 console.log('LangSmith is a LANGCHAIN product, not an Anthropic product.');
 console.log('Anthropic and LangChain are separate companies.');

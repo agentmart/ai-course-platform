@@ -7,6 +7,21 @@ entry in the legacy phase files (`course-data-phase1.js`, `course-data-phase2.js
 **Model generation:** Claude 4.x (`claude-sonnet-4-6`, `claude-opus-4-6`, `claude-haiku-4-5-20251001`)  
 **Total files:** 60 individual day overrides (day-01.js through day-60.js)
 
+## April 2026 — Automated Freshness Monitoring
+
+Introduced the weekly Content Freshness agent (`.github/workflows/weekly-content-freshness.yml`
++ `scripts/content-freshness-check.mjs`). Runs every Monday 09:00 UTC and audits all 60
+day files across 7 dimensions: URL health, model-string consistency, hardcoded pricing/spec
+claims (AI), policy/regulation drift (AI), resource recency, tasks/codeExample smoke tests,
+and latest vendor announcements (AI + RSS fallback). Findings are filed as GitHub issues
+(labels `content-freshness`, `drift:*`, `day-NN`) for human triage; label `approved` to
+hand off to the auto-fix agent.
+
+Every external reference cited by course content is now persisted in Supabase
+(`content_references` + `content_reference_snapshots`) with sha256 hashes, 2k-char
+excerpts, and Wayback archive URLs — providing verifiable grounding for future AI
+audits and rewrites.
+
 ## Update Summary (March 2026)
 
 All 60 days updated based on the comprehensive course review. Key changes:

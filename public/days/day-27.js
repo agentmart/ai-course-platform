@@ -19,6 +19,6 @@ window.COURSE_DAY_DATA[27] = {
     { type: 'DOCS', title: 'ACP Specification', url: 'https://agentcommunicationprotocol.dev/', note: 'REST-first agent communication. Verify current status.' },
     { type: 'GITHUB', title: 'BeeAI Framework', url: 'https://github.com/i-am-bee/beeai', note: 'IBM\u2019s agent framework implementing ACP. Check for rebranding.' },
     { type: 'GITHUB', title: 'A2A Specification', url: 'https://github.com/google/a2a', note: 'Compare directly with ACP for your protocol decision.' },
-    { type: 'DOCS', title: 'MCP Specification', url: 'https://spec.modelcontextprotocol.io/', note: 'The one protocol you should adopt regardless of A2A vs ACP choice.' }
+    { type: 'DOCS', title: 'MCP Specification', url: 'https://modelcontextprotocol.io/specification', note: 'The one protocol you should adopt regardless of A2A vs ACP choice.' }
   ]
 };

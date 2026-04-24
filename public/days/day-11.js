@@ -151,7 +151,7 @@ console.log("See OWASP LLM Top 10 for mitigation patterns.");`
     { type: 'DOCS', title: 'OpenAI Function Calling', url: 'https://platform.openai.com/docs/guides/function-calling', note: 'Industry standard format. Structurally similar to Claude tools.' },
     { type: 'BLOG', title: 'Anthropic Tool Use Best Practices', url: 'https://docs.anthropic.com/en/docs/build-with-claude/tool-use/best-practices', note: 'Longer descriptions outperform shorter ones. Read before designing tools.' },
     { type: 'DOCS', title: 'OWASP LLM Top 10', url: 'https://owasp.org/www-project-top-10-for-large-language-model-applications/', note: 'Prompt injection via tool results is a top-10 LLM security risk.' },
-    { type: 'DOCS', title: 'MCP Specification', url: 'https://spec.modelcontextprotocol.io/', note: 'Preview: tomorrow\u2019s lesson. MCP = tool use made reusable across applications.' },
+    { type: 'DOCS', title: 'MCP Specification', url: 'https://modelcontextprotocol.io/specification', note: 'Preview: tomorrow\u2019s lesson. MCP = tool use made reusable across applications.' },
     { type: 'DOCS', title: 'Claude Computer Use', url: 'https://docs.anthropic.com/en/docs/build-with-claude/computer-use', note: 'A specialized form of tool use. Covered in depth on Day 25.' }
   ]
 };

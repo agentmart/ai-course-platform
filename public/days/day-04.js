@@ -56,8 +56,8 @@ window.COURSE_DAY_DATA[4] = {
     { type: 'DOCS', title: 'Claude Models Overview', url: 'https://docs.anthropic.com/en/docs/about-claude/models', note: 'Current model strings, context limits, capabilities. Bookmark and check before every project.' },
     { type: 'BLOG', title: 'Anthropic\u2019s Mission', url: 'https://www.anthropic.com/company', note: 'The mission statement is operational, not decorative. Read it before your interview.' },
     { type: 'BLOG', title: 'The Claude Character', url: 'https://www.anthropic.com/research/claude-character', note: 'How Anthropic thinks about Claude\u2019s values and personality.' },
-    { type: 'BLOG', title: 'Anthropic Model Spec', url: 'https://www.anthropic.com/research/model-spec', note: 'Primary document on Claude\u2019s designed behavior. Essential reading for PMs building on Claude.' },
+    { type: 'BLOG', title: 'Anthropic Model Spec', url: 'https://www.anthropic.com/news/claudes-constitution', note: 'Primary document on Claude\u2019s designed behavior. Essential reading for PMs building on Claude.' },
     { type: 'DOCS', title: 'Claude Extended Thinking', url: 'https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking', note: 'How extended thinking works: budget_tokens parameter, when to use, streaming behavior.' },
-    { type: 'DOCS', title: 'Anthropic Security', url: 'https://www.anthropic.com/security', note: 'SOC 2, HIPAA, security certifications. Essential knowledge for enterprise sales conversations.' }
+    { type: 'DOCS', title: 'Anthropic Security', url: 'https://trust.anthropic.com', note: 'SOC 2, HIPAA, security certifications. Essential knowledge for enterprise sales conversations.' }
   ]
 };

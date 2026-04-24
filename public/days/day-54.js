@@ -22,7 +22,7 @@ window.COURSE_DAY_DATA[54] = {
     { type: 'TOOL', title: 'Anthropic Cookbook', url: 'https://github.com/anthropics/anthropic-cookbook', note: 'Production-ready code examples for Claude. The most underused DX resource.' },
     { type: 'DOCS', title: 'Anthropic API Documentation', url: 'https://docs.anthropic.com/', note: 'Study the documentation architecture as a DX case study.' },
     { type: 'DOCS', title: 'Claude SDK \u2014 Python', url: 'https://github.com/anthropics/anthropic-sdk-python', note: 'Official Python SDK with type-safe examples.' },
-    { type: 'DOCS', title: 'Claude SDK \u2014 TypeScript', url: 'https://github.com/anthropics/anthropic-sdk-node', note: 'Official TypeScript SDK for Node.js.' },
+    { type: 'DOCS', title: 'Claude SDK \u2014 TypeScript', url: 'https://github.com/anthropics/anthropic-sdk-typescript', note: 'Official TypeScript SDK for Node.js.' },
     { type: 'DOCS', title: 'Anthropic API Quickstart', url: 'https://docs.anthropic.com/en/docs/initial-setup', note: 'The quickstart guide designed around TTFSC.' }
   ]
 };

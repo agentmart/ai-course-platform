@@ -21,7 +21,7 @@ window.COURSE_DAY_DATA[25] = {
     { type: 'DOCS', title: 'Claude Computer Use', url: 'https://docs.anthropic.com/en/docs/build-with-claude/computer-use', note: 'Now GA. API reference and safety guidelines.' },
     { type: 'BLOG', title: 'OpenAI Operator', url: 'https://openai.com/index/introducing-operator/', note: 'Consumer-facing computer use. Compare approach to Anthropic\u2019s API-first.' },
     { type: 'TOOL', title: 'WebArena Benchmark', url: 'https://webarena.dev/', note: 'Leading benchmark for web agent evaluation. Know for competitive context.' },
-    { type: 'BLOG', title: 'Anthropic Computer Use Announcement', url: 'https://www.anthropic.com/news/3-5-sonnet-computer-use', note: 'Original announcement and design philosophy.' },
+    { type: 'BLOG', title: 'Anthropic Computer Use Announcement', url: 'https://www.anthropic.com/news/developing-computer-use', note: 'Original announcement and design philosophy.' },
     { type: 'PRICING', title: 'Anthropic Pricing', url: 'https://www.anthropic.com/pricing', note: 'Computer use incurs image token costs. Model these for product economics.' },
     { type: 'DOCS', title: 'Building Effective Agents \u2014 Anthropic', url: 'https://www.anthropic.com/research/building-effective-agents', note: 'Safety patterns for agentic systems including computer use.' }
   ]

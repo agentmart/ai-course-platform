@@ -53,7 +53,7 @@ window.COURSE_DAY_DATA[19] = {
   resources: [
     { type: 'BLOG', title: 'Anthropic Responsible Scaling Policy', url: 'https://www.anthropic.com/responsible-scaling-policy', note: 'The primary document. Read the full text \u2014 not summaries.' },
     { type: 'BLOG', title: 'OpenAI Preparedness Framework', url: 'https://cdn.openai.com/openai-preparedness-framework-beta.pdf', note: 'OpenAI\u2019s equivalent. Compare approaches for competitive analysis.' },
-    { type: 'DOCS', title: 'Anthropic Security & Compliance', url: 'https://www.anthropic.com/security', note: 'SOC 2 Type II, HIPAA, certifications. Essential for enterprise sales.' },
+    { type: 'DOCS', title: 'Anthropic Security & Compliance', url: 'https://trust.anthropic.com', note: 'SOC 2 Type II, HIPAA, certifications. Essential for enterprise sales.' },
     { type: 'BLOG', title: 'Anthropic Safety Research', url: 'https://www.anthropic.com/research', note: 'Interpretability, evals, and red-teaming research informing the RSP.' },
     { type: 'DOCS', title: 'EU AI Act \u2014 GPAI Provisions', url: 'https://artificialintelligenceact.eu/', note: 'GPAI requirements effective August 2025. Applies to Claude as a foundation model.' },
     { type: 'DOCS', title: 'Anthropic Model Card', url: 'https://www.anthropic.com/model-card', note: 'Safety evaluations for each Claude model. References ASL determinations.' }

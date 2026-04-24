@@ -22,7 +22,7 @@ window.COURSE_DAY_DATA[46] = {
     { type: 'DOCS', title: 'Model Context Protocol (MCP)', url: 'https://modelcontextprotocol.io/', note: 'The de facto standard for building agent skills.' },
     { type: 'DOCS', title: 'MCP Server Development', url: 'https://modelcontextprotocol.io/quickstart/server', note: 'How to build and publish MCP servers (skills).' },
     { type: 'DOCS', title: 'Claude MCP Integration', url: 'https://docs.anthropic.com/en/docs/agents-and-tools/mcp', note: 'Using MCP skills with Claude agents.' },
-    { type: 'DOCS', title: 'VS Code Agent Skills', url: 'https://code.visualstudio.com/docs/copilot/chat/extensibility/skills', note: 'Production-ready skill system in VS Code.' },
+    { type: 'DOCS', title: 'VS Code Agent Skills', url: 'https://code.visualstudio.com/docs/copilot/overview', note: 'Production-ready skill system in VS Code.' },
     { type: 'BLOG', title: 'Anthropic: Building Effective Agents', url: 'https://www.anthropic.com/research/building-effective-agents', note: 'Agent design patterns including skill architecture.' }
   ]
 };
