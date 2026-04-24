@@ -1,0 +1,50 @@
+name: Daily Freshness Planning Agent
+
+on:
+  schedule:
+    # 13:00 UTC = 06:00 PT — runs 4h after the Monday weekly freshness check,
+    # so any newly-filed issues from that run are already triaged.
+    - cron: '0 13 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Print plan without dispatching'
+        required: false
+        default: 'false'
+        type: string
+      cluster_cap:
+        description: 'Max issues per cluster (default 6)'
+        required: false
+        default: '6'
+        type: string
+
+permissions:
+  issues: write
+  contents: read
+  actions: write    # needed to dispatch auto-fix.yml
+  models: read
+
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run planner
+        env:
+          GH_TOKEN:          ${{ secrets.GH_PAT_TOKEN }}
+          GH_MODELS_TOKEN:   ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          DRY_RUN:           ${{ github.event.inputs.dry_run || 'false' }}
+          CLUSTER_CAP:       ${{ github.event.inputs.cluster_cap || '6' }}
+        run: node scripts/freshness-plan.mjs

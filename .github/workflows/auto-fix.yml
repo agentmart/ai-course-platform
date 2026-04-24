@@ -6,8 +6,16 @@ on:
   workflow_dispatch:
     inputs:
       issue_number:
-        description: 'Issue number to auto-fix (must be approved + content-freshness labeled)'
-        required: true
+        description: 'Single issue number (approved + content-freshness). Leave blank if using issue_numbers.'
+        required: false
+        type: string
+      issue_numbers:
+        description: 'Comma-separated issue numbers for a batched cluster run.'
+        required: false
+        type: string
+      cluster_label:
+        description: 'Optional cluster label (used in PR body).'
+        required: false
         type: string
 
 permissions:
@@ -41,9 +49,24 @@ jobs:
         with:
           github-token: ${{ secrets.GH_PAT_TOKEN }}
           script: |
+            // Determine mode: batch (issue_numbers) vs single (issue_number or label event)
+            const inputs = (context.payload.inputs) || {};
+            const batchRaw = (inputs.issue_numbers || '').trim();
+            if (batchRaw) {
+              core.setOutput('mode', 'batch');
+              core.setOutput('issue_numbers', batchRaw);
+              core.setOutput('cluster_label', (inputs.cluster_label || '').trim());
+              core.setOutput('is_freshness', 'true');
+              core.setOutput('issue_number', '');
+              return;
+            }
             let issueNumber, labels;
             if (context.eventName === 'workflow_dispatch') {
-              issueNumber = parseInt(context.payload.inputs.issue_number, 10);
+              issueNumber = parseInt(inputs.issue_number, 10);
+              if (!issueNumber) {
+                core.setFailed('workflow_dispatch needs either issue_number or issue_numbers');
+                return;
+              }
               const { data: issue } = await github.rest.issues.get({
                 owner: context.repo.owner, repo: context.repo.repo, issue_number: issueNumber,
               });
@@ -52,14 +75,16 @@ jobs:
               issueNumber = context.payload.issue.number;
               labels = (context.payload.issue.labels || []).map(l => l.name);
             }
+            core.setOutput('mode', 'single');
             core.setOutput('issue_number', String(issueNumber));
+            core.setOutput('issue_numbers', '');
             core.setOutput('is_freshness', labels.includes('content-freshness') ? 'true' : 'false');
 
       # ─────────────────────────────────────────────
       # Path A: content-freshness issues → dedicated content-aware script
       # ─────────────────────────────────────────────
-      - name: Freshness Auto-Fix
-        if: steps.classify.outputs.is_freshness == 'true'
+      - name: Freshness Auto-Fix (single)
+        if: steps.classify.outputs.is_freshness == 'true' && steps.classify.outputs.mode == 'single'
         env:
           ISSUE_NUMBER:              ${{ steps.classify.outputs.issue_number }}
           GH_TOKEN:                  ${{ secrets.GH_PAT_TOKEN }}
@@ -69,11 +94,23 @@ jobs:
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: node scripts/freshness-auto-fix.mjs
 
+      - name: Freshness Auto-Fix (batch)
+        if: steps.classify.outputs.mode == 'batch'
+        env:
+          ISSUE_NUMBERS:             ${{ steps.classify.outputs.issue_numbers }}
+          CLUSTER_LABEL:             ${{ steps.classify.outputs.cluster_label }}
+          GH_TOKEN:                  ${{ secrets.GH_PAT_TOKEN }}
+          GH_MODELS_TOKEN:           ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY:         ${{ github.repository }}
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node scripts/freshness-auto-fix-batch.mjs
+
       # ─────────────────────────────────────────────
       # Path B: generic developer-agent for non-freshness issues (legacy)
       # ─────────────────────────────────────────────
       - name: Generic Developer Agent
-        if: steps.classify.outputs.is_freshness != 'true'
+        if: steps.classify.outputs.is_freshness != 'true' && steps.classify.outputs.mode == 'single'
         uses: actions/github-script@v7
         env:
           GITHUB_MODELS_TOKEN: ${{ secrets.GITHUB_TOKEN }}

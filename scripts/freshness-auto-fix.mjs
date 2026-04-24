@@ -72,9 +72,11 @@ async function comment(body) {
 
 // ─────────────────────────────────────────────────────────
 // GitHub Models (use the token with models:read scope)
+// New endpoint + publisher-prefixed IDs. gpt-4.1 has stronger exact-string
+// fidelity than gpt-4o for our unique-match find/replace flow.
 // ─────────────────────────────────────────────────────────
-async function chat(messages, { model = 'gpt-4o', maxTokens = 2500, temperature = 0.1 } = {}) {
-  const res = await fetch('https://models.inference.ai.azure.com/chat/completions', {
+async function chat(messages, { model = 'openai/gpt-4.1', maxTokens = 2500, temperature = 0.1 } = {}) {
+  const res = await fetch('https://models.github.ai/inference/chat/completions', {
     method: 'POST',
     headers: { Authorization: `Bearer ${MODELS_TOKEN}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({ model, messages, max_tokens: maxTokens, temperature, response_format: { type: 'json_object' } }),
@@ -162,7 +164,7 @@ async function handleUrlHealth(issue, filepath, src) {
     const raw = await chat([
       { role: 'system', content: 'You suggest replacement URLs for dead links. Return JSON only.' },
       { role: 'user', content: `The URL "${url}" returns ${issue.finding}. Suggest a single replacement URL on the same organization's site that covers the same topic. Prefer stable docs pages or official announcement index pages. Return JSON: { "url": "https://..." }. Only return a URL; if unsure, return { "url": null }.` },
-    ], { model: 'gpt-4o-mini', maxTokens: 200 });
+    ], { model: 'openai/gpt-4o-mini', maxTokens: 200 });
     const parsed = safeParseJson(raw);
     if (parsed?.url && /^https?:\/\//.test(parsed.url)) {
       // Verify it's actually live before using
@@ -227,7 +229,7 @@ Rules:
   const raw = await chat([
     { role: 'system', content: system },
     { role: 'user', content: userPrompt },
-  ], { model: 'gpt-4o', maxTokens: 2500 });
+  ], { model: 'openai/gpt-4.1', maxTokens: 2500 });
 
   const parsed = safeParseJson(raw);
   if (!parsed || !Array.isArray(parsed.edits) || parsed.edits.length === 0) {
