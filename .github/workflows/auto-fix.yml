@@ -19,9 +19,7 @@ permissions:
 jobs:
   auto-fix:
     # Run if: (label add of 'approved') OR (manual dispatch)
-    if: |
-      (github.event_name == 'workflow_dispatch') ||
-      (github.event_name == 'issues' && github.event.label.name == 'approved')
+    if: ${{ github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && github.event.label.name == 'approved') }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
