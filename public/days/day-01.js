@@ -101,7 +101,7 @@ monthly cost = daily cost × 30</pre>
 #   Anthropic : https://www.anthropic.com/pricing
 #   OpenAI    : https://openai.com/pricing
 #   Google    : https://cloud.google.com/pricing
-#   Microsoft : https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/
+#   Microsoft : https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure
 #   Nvidia    : https://build.nvidia.com/  (NIM API pricing)
 #
 # The formula (memorise this — plug in live prices before any real estimate):
@@ -215,7 +215,7 @@ print("     Optimise prompts (input) AND response length (output) for cost contr
     { type: 'PRICING', title: 'Anthropic — API Pricing (live)',       url: 'https://www.anthropic.com/pricing',                                                                   note: 'Pull live pricing before every cost estimate. Never hardcode.' },
     { type: 'PRICING', title: 'OpenAI — API Pricing (live)',          url: 'https://openai.com/pricing',                                                                          note: 'GPT-4o vs o-series pricing tradeoffs. Verify before any estimate.' },
     { type: 'PRICING', title: 'Google — Gemini API Pricing (live)',   url: 'https://cloud.google.com/pricing',                                                                       note: 'Gemini 2.5 Pro and Flash pricing. Includes free tier details.' },
-    { type: 'PRICING', title: 'Microsoft — Azure OpenAI Pricing',    url: 'https://azure.microsoft.com/en-us/pricing/details/cognitive-services/openai-service/',              note: 'GPT + MAI models on Azure. Relevant for enterprise Azure-first customers.' },
+    { type: 'PRICING', title: 'Microsoft — Azure OpenAI Pricing',    url: 'https://learn.microsoft.com/en-us/azure/foundry/foundry-models/concepts/models-sold-directly-by-azure',              note: 'GPT + MAI models on Azure. Relevant for enterprise Azure-first customers.' },
     { type: 'PRICING', title: 'Nvidia — NIM API Pricing',             url: 'https://build.nvidia.com/',                                                                           note: 'Nemotron and partner models via Nvidia’s hosted inference API.' },
     { type: 'DOCS',    title: 'Meta — Llama 4 Model Card',            url: 'https://ai.meta.com/blog/llama-4-multimodal-intelligence/',                                          note: 'Llama 4 architecture and license. Understand open-weight strategy.' },
     { type: 'PAPER',   title: 'DeepSeek-R1 Technical Report',          url: 'https://arxiv.org/abs/2501.12948',                                                                    note: 'The model that signalled training cost compression. Read the abstract and executive summary.' },
