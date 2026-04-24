@@ -19,13 +19,13 @@
 <meta property="og:url" content="https://becomeaipm.com/companies.html">
 <meta property="og:type" content="website">
 <meta property="og:locale" content="en_US">
-<meta property="og:image" content="https://becomeaipm.com/og-image.png">
+<meta property="og:image" content="https://becomeaipm.com/og-companies.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="AI PM Jobs — 100+ AI Companies Hiring">
 <meta name="twitter:description" content="Live PM roles at Anthropic, OpenAI, Scale, Mistral, Cohere. Updated daily.">
-<meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+<meta name="twitter:image" content="https://becomeaipm.com/og-companies.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <!-- Pendo Analytics (initialized after Clerk auth loads) -->
 <style>
@@ -183,7 +183,7 @@ h1 em{color:var(--amber);font-style:italic;}
 </div>
 
 <nav id="main-nav">
-  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-light.svg" alt="becomeaipm" height="22" style="display:block;"></a>
+  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
   <div class="nav-links">
     <a class="nav-link" href="/course.html">Course</a>
     <a class="nav-link active" href="/companies.html">Companies</a>
@@ -301,7 +301,7 @@ ${inv.length?`<div style="margin-bottom:8px"><div style="font-family:'IBM Plex M
 <div class="cfoot"><span class="roles-badge ${rolesCls}">${rolesLabel}</span><span class="view-link">View roles &#8594;</span></div></div>`;}
 function badge(src){if(!src)return{bc:'sb-vc',bt:'VC'};const l=src.toLowerCase();if(l.includes('yc')||l.includes('startup track'))return{bc:'sb-yc',bt:'YC'};if(l.includes('hn')||l.includes('hiring'))return{bc:'sb-hn',bt:'HN'};return{bc:'sb-vc',bt:'VC'};}
 function e(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function openDrawer(jsonStr){const company=JSON.parse(jsonStr);if(!user){openSignIn();return;}activeCompany=company;activeTab='jobs';document.getElementById('dh-company').textContent=company.company_name;document.getElementById('dh-funding').textContent=company.funding_amount||'';document.getElementById('dh-src').textContent=company.source||'';const invs=(company.investors||[]).map(i=>i.value).filter(Boolean);document.getElementById('dh-investors').innerHTML=invs.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}" style="font-size:10px">${e(v)}</span>`).join('');document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');document.body.style.overflow='hidden';if(window.pendo&&pendo.track)pendo.track('Company Viewed',{company_name:company.company_name});loadJobs(company);}
+function openDrawer(jsonStr){const company=JSON.parse(jsonStr);if(window.pendo&&pendo.track)pendo.track('Company Card Click',{company_name:company.company_name,funding_amount:company.funding_amount||null,signed_in:!!user});if(!user){openSignIn();return;}activeCompany=company;activeTab='jobs';document.getElementById('dh-company').textContent=company.company_name;document.getElementById('dh-funding').textContent=company.funding_amount||'';document.getElementById('dh-src').textContent=company.source||'';const invs=(company.investors||[]).map(i=>i.value).filter(Boolean);document.getElementById('dh-investors').innerHTML=invs.map(v=>`<span class="tag ti${/y combinator|yc/i.test(v)?' yc':''}" style="font-size:10px">${e(v)}</span>`).join('');document.getElementById('tab-jobs').classList.add('on');document.getElementById('tab-about').classList.remove('on');document.getElementById('dr-overlay').classList.add('open');document.getElementById('drawer').classList.add('open');document.body.style.overflow='hidden';if(window.pendo&&pendo.track)pendo.track('Company Viewed',{company_name:company.company_name});loadJobs(company);}
 function closeDrawer(){document.getElementById('dr-overlay').classList.remove('open');document.getElementById('drawer').classList.remove('open');document.body.style.overflow='';activeCompany=null;}
 function switchTab(tab){activeTab=tab;document.getElementById('tab-jobs').classList.toggle('on',tab==='jobs');document.getElementById('tab-about').classList.toggle('on',tab==='about');if(tab==='jobs')renderJobsTab();if(tab==='about')renderAboutTab();}
 async function loadJobs(company){const body=document.getElementById('drawer-body');const key=company.id||company.company_name;if(jobsCache[key]){renderJobsTab();return;}body.innerHTML='<div class="jobs-loading">Loading PM roles…</div>';try{const p=company.id?`company_id=${company.id}`:`company_name=${encodeURIComponent(company.company_name)}`;const{jobs,company:c}=await fetch(`/api/company-jobs?${p}`).then(r=>r.json());jobsCache[key]={jobs:jobs||[],meta:c||company};if(c)activeCompany={...company,...c};}catch(err){jobsCache[key]={jobs:[],meta:company};}renderJobsTab();}
@@ -321,6 +321,16 @@ function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted
   <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>
+
+<section class="related" style="max-width:900px;margin:48px auto 24px;padding:32px 24px;border-top:1px solid var(--border);font-family:'DM Sans',sans-serif;">
+  <h2 style="font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:16px;color:var(--ink);">Keep going</h2>
+  <ul style="list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;">
+    <li><a href="/ai-pm-jobs" style="color:var(--ink);text-decoration:none;display:block;padding:14px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card);"><strong>AI PM jobs, live tracker</strong><br><span style="color:var(--ink2);font-size:13px;">100+ AI companies hiring PMs. Pulled daily from 4 ATS providers.</span></a></li>
+    <li><a href="/how-to-become-ai-pm" style="color:var(--ink);text-decoration:none;display:block;padding:14px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card);"><strong>How to become an AI PM</strong><br><span style="color:var(--ink2);font-size:13px;">The 2026 playbook — skills, timeline, portfolio, interviews.</span></a></li>
+    <li><a href="/ai-pm-course" style="color:var(--ink);text-decoration:none;display:block;padding:14px 16px;border:1px solid var(--border);border-radius:8px;background:var(--card);"><strong>60-day AI PM course</strong><br><span style="color:var(--ink2);font-size:13px;">Free hands-on curriculum with runnable labs and interview prep.</span></a></li>
+  </ul>
+  <p style="margin-top:24px;font-size:13px;color:var(--muted);font-family:'IBM Plex Mono',monospace;">Last reviewed April 2026 by <a href="https://www.linkedin.com/in/stavanmehta/" target="_blank" rel="noopener" style="color:var(--amber);">Stavan Mehta</a> — <a href="/contact.html" style="color:var(--amber);">send feedback</a></p>
+</section>
 
 </body>
 </html>
