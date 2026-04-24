@@ -1,0 +1,138 @@
+name: Project Ready → Approved Label
+
+# Bridges the org Project #1 "Status = Ready" column to the `approved` issue
+# label. Once an issue lands in "Ready" on https://github.com/orgs/agentmart/projects/1,
+# this workflow labels it `approved`, which triggers auto-fix.yml.
+#
+# Polling (every 5 min) is used because the `projects_v2_item` event is not
+# available to this repo's Actions runners.
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+permissions:
+  issues: write
+  contents: read
+
+concurrency:
+  group: project-ready-sync
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Promote Ready → approved
+        uses: actions/github-script@v7
+        env:
+          PROJECT_ORG: agentmart
+          PROJECT_NUMBER: '1'
+          READY_OPTION_NAME: Ready
+          TARGET_LABEL: approved
+        with:
+          # GH_PAT_TOKEN has read:project + repo scopes (already used by auto-fix.yml
+          # and api/create-feedback.js). The default GITHUB_TOKEN lacks project access.
+          github-token: ${{ secrets.GH_PAT_TOKEN }}
+          script: |
+            const org      = process.env.PROJECT_ORG;
+            const number   = parseInt(process.env.PROJECT_NUMBER, 10);
+            const readyName= process.env.READY_OPTION_NAME;
+            const target   = process.env.TARGET_LABEL;
+
+            // 1) Resolve project id + Status field id + Ready option id
+            const meta = await github.graphql(`
+              query($org:String!, $n:Int!) {
+                organization(login:$org) {
+                  projectV2(number:$n) {
+                    id
+                    fields(first:20) {
+                      nodes {
+                        ... on ProjectV2SingleSelectField {
+                          id name
+                          options { id name }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            `, { org, n: number });
+
+            const project = meta.organization?.projectV2;
+            if (!project) { core.setFailed(`Project ${org}/${number} not accessible`); return; }
+            const statusField = project.fields.nodes.find(f => f?.name === 'Status');
+            if (!statusField) { core.setFailed('No Status field on project'); return; }
+            const readyOpt = statusField.options.find(o => o.name === readyName);
+            if (!readyOpt) { core.setFailed(`No "${readyName}" option on Status field`); return; }
+
+            core.info(`Project=${project.id} statusField=${statusField.id} readyOpt=${readyOpt.id}`);
+
+            // 2) Paginate items, filter to issues in Ready status within this repo
+            const [owner, repo] = (context.payload.repository?.full_name || `${context.repo.owner}/${context.repo.repo}`).split('/');
+            let cursor = null;
+            const readyIssues = [];
+            for (let page = 0; page < 20; page++) {
+              const data = await github.graphql(`
+                query($pid:ID!, $after:String) {
+                  node(id:$pid) {
+                    ... on ProjectV2 {
+                      items(first:100, after:$after) {
+                        pageInfo { hasNextPage endCursor }
+                        nodes {
+                          id
+                          content {
+                            __typename
+                            ... on Issue {
+                              number
+                              state
+                              repository { nameWithOwner }
+                              labels(first:20) { nodes { name } }
+                            }
+                          }
+                          fieldValues(first:20) {
+                            nodes {
+                              ... on ProjectV2ItemFieldSingleSelectValue {
+                                field { ... on ProjectV2SingleSelectField { id } }
+                                optionId
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              `, { pid: project.id, after: cursor });
+
+              const items = data.node?.items?.nodes || [];
+              for (const it of items) {
+                if (it.content?.__typename !== 'Issue') continue;
+                if (it.content.state !== 'OPEN') continue;
+                if (it.content.repository.nameWithOwner !== `${owner}/${repo}`) continue;
+                const status = it.fieldValues.nodes.find(v => v?.field?.id === statusField.id);
+                if (status?.optionId !== readyOpt.id) continue;
+                const hasLabel = (it.content.labels?.nodes || []).some(l => l.name === target);
+                if (hasLabel) continue;
+                readyIssues.push(it.content.number);
+              }
+
+              if (!data.node?.items?.pageInfo?.hasNextPage) break;
+              cursor = data.node.items.pageInfo.endCursor;
+            }
+
+            core.info(`Found ${readyIssues.length} Ready issue(s) missing "${target}" label: ${readyIssues.join(', ') || '(none)'}`);
+
+            // 3) Label each issue. Applying the label triggers auto-fix.yml.
+            let applied = 0;
+            for (const n of readyIssues) {
+              try {
+                await github.rest.issues.addLabels({ owner, repo, issue_number: n, labels: [target] });
+                applied++;
+                core.info(`✓ Labeled #${n} with "${target}"`);
+              } catch (e) {
+                core.warning(`Failed to label #${n}: ${e.message}`);
+              }
+            }
+            core.notice(`Applied "${target}" to ${applied}/${readyIssues.length} issues.`);
