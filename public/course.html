@@ -206,7 +206,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 </div>
 
 <nav id="topbar" style="display:none">
-  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-light.svg" alt="becomeaipm" height="22" style="display:block;"></a>
+  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
   <div class="nav-links">
     <a class="nav-link active" href="/course.html">Course</a>
     <a class="nav-link" href="/companies.html">Companies</a>
@@ -529,6 +529,14 @@ function renderDay(day){
   `;
   document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
   if(window.pendo && pendo.pageLoad) pendo.pageLoad();
+  // Fire Course Day Started once per day per session (dedupe via window set).
+  if(window.pendo && pendo.track){
+    window.__dayStarted = window.__dayStarted || new Set();
+    if(!window.__dayStarted.has(day)){
+      window.__dayStarted.add(day);
+      pendo.track('Course Day Started', { day: day, completed: completed.has(day) });
+    }
+  }
 }
 
 function renderTask(day,i,task){
