@@ -139,3 +139,5 @@ console.log("\\nCombined: 60-85% total cost reduction is achievable.");`
     { type: 'TOOL', title: 'Langfuse \u2014 Cost Attribution', url: 'https://langfuse.com/', note: 'Open-source. Track cost per feature, user tier, and request type.' }
   ]
 };
+
+// Contributed for bounty: $300
