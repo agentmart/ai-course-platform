@@ -297,8 +297,19 @@ async function handlePrefs(req, res) {
     .from('notification_prefs').select('*').eq('clerk_user_id', userId).maybeSingle();
 
   if (!row) {
-    const fallbackEmail = claimsEmail || (req.body && req.body.email) || null;
+    let fallbackEmail = claimsEmail
+      || (req.body && req.body.email)
+      || (req.query && req.query.email)
+      || null;
+
+    if (!fallbackEmail) {
+      const { data: ua } = await supabase
+        .from('user_access').select('email').eq('clerk_user_id', userId).maybeSingle();
+      fallbackEmail = ua?.email || null;
+    }
+
     if (!fallbackEmail) return res.status(400).json({ error: 'Email required to create prefs' });
+
     const insert = {
       clerk_user_id: userId, email: fallbackEmail,
       job_alerts_opt_in: false, interview_prep_opt_in: false,

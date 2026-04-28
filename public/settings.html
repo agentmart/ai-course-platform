@@ -257,9 +257,17 @@ async function authedFetch(url,opts){
 
 async function loadPrefs(){
   try{
-    var r=await authedFetch('/api/notification-prefs');
+    var email='';
+    try{ email=clerk?.user?.primaryEmailAddress?.emailAddress || clerk?.user?.emailAddresses?.[0]?.emailAddress || ''; }catch(e){}
+    var url='/api/notification-prefs'+(email?('?email='+encodeURIComponent(email)):'');
+    var r=await authedFetch(url);
     if(r.status===401){showSignedOut();return;}
-    if(!r.ok)throw new Error('http '+r.status);
+    if(!r.ok){
+      console.warn('notification-prefs returned',r.status);
+      showSignedIn({email:email,job_alerts_opt_in:false,interview_prep_opt_in:false,job_filters:{}});
+      loadAdvisorSummary();
+      return;
+    }
     var prefs=await r.json();
     showSignedIn(prefs);
     loadAdvisorSummary();
