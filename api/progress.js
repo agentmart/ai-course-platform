@@ -54,12 +54,27 @@ export default async function handler(req, res) {
   }
 
   // POST — save progress
+  // Merge into existing progress_data so we don't clobber other top-level keys
+  // (e.g. `course_advisor` written by /api/course-advisor).
   const { completed, taskStates, notes } = req.body || {};
 
   try {
+    const { data: existing } = await supabase
+      .from('user_access')
+      .select('progress_data')
+      .eq('clerk_user_id', userId)
+      .single();
+
+    const merged = {
+      ...(existing?.progress_data || {}),
+      completed,
+      taskStates,
+      notes,
+    };
+
     await supabase
       .from('user_access')
-      .update({ progress_data: { completed, taskStates, notes }, updated_at: new Date().toISOString() })
+      .update({ progress_data: merged, updated_at: new Date().toISOString() })
       .eq('clerk_user_id', userId);
 
     return res.status(200).json({ ok: true });
