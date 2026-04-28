@@ -276,7 +276,7 @@ let saved=JSON.parse(localStorage.getItem('saved_roles')||'{}');
     s.onerror=()=>{loadCompanies();updateAuthUI();};
   }catch(e){loadCompanies();updateAuthUI();}
 })();
-function updateAuthUI(){const nu=document.getElementById('nav-user');const sp=document.getElementById('signin-pill');if(user){const av=document.getElementById('nav-avatar');av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();nu.style.display='flex';if(sp)sp.style.display='none';}else{nu.style.display='none';if(sp)sp.style.display='inline-flex';}}
+function updateAuthUI(){const nu=document.getElementById('nav-user');const sp=document.getElementById('signin-pill');const av=document.getElementById('nav-avatar');if(user){if(av)av.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();if(nu)nu.style.display='flex';if(sp)sp.style.display='none';}else{if(nu)nu.style.display='none';if(sp)sp.style.display='inline-flex';}}
 async function doSignOut(){await clerk?.signOut();user=null;updateAuthUI();}
 function openSignIn(){document.getElementById('overlay').classList.add('open');if(!clerkMounted&&clerk){const el=document.getElementById('clerk-mount');el.innerHTML='';clerk.mountSignIn(el,{routing:'hash'});clerkMounted=true;}}
 function closeSignIn(){document.getElementById('overlay').classList.remove('open');if(clerkMounted&&clerk){try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){}clerkMounted=false;}}

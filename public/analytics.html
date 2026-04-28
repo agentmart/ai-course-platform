@@ -177,7 +177,7 @@ footer a:hover{color:var(--amber);}
 <footer><p>&copy; 2025 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a></p></footer>
 
 <script>
-function updateAuthUI(){var user=window.Clerk&&window.Clerk.user;document.getElementById('nav-user').style.display=user?'flex':'none';document.getElementById('nav-signin').style.display=user?'none':'inline-block';if(user){var init=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();document.getElementById('nav-avatar').textContent=init;}}
+function updateAuthUI(){var user=window.Clerk&&window.Clerk.user;var nu=document.getElementById('nav-user');var ns=document.getElementById('nav-signin');var na=document.getElementById('nav-avatar');if(nu)nu.style.display=user?'flex':'none';if(ns)ns.style.display=user?'none':'inline-block';if(user&&na){na.textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();}}
 async function doSignOut(){if(window.Clerk){await window.Clerk.signOut();updateAuthUI();}}
 function openSignIn(){if(!window.Clerk){location.href='/course.html';return;}window.Clerk.openSignIn({fallbackRedirectUrl:window.location.href,signUpFallbackRedirectUrl:'/course.html'});}
 var cfg=null;
