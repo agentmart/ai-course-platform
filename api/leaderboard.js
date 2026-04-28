@@ -22,7 +22,7 @@ export default async function handler(req, res) {
       const { data: batch, error } = await supabase
         .from('user_access')
         .select('clerk_user_id, progress_data, subscription_type, updated_at')
-        .not('progress_data', 'is', null)
+        .not('progress_data->completed', 'is', null)
         .order('clerk_user_id', { ascending: true })
         .range(from, from + pageSize - 1);
 
