@@ -13,6 +13,16 @@ export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
   try {
+    // Total signed-up learners (matches Clerk signup count) — independent of progress.
+    let totalUsers = 0;
+    {
+      const { count, error: cErr } = await supabase
+        .from('user_access')
+        .select('*', { count: 'exact', head: true });
+      if (cErr) throw cErr;
+      totalUsers = count || 0;
+    }
+
     // Paginated fetch to avoid loading entire table into memory
     const pageSize = 1000;
     let from = 0;
@@ -33,8 +43,7 @@ export default async function handler(req, res) {
       from += pageSize;
     }
 
-    // Aggregate stats
-    let totalUsers = allUsers.length;
+    // Aggregate stats (over participants — those with a `completed` key)
     let totalDaysCompleted = 0;
     const dayCounts = {};
 
@@ -87,10 +96,11 @@ export default async function handler(req, res) {
           const myCompleted = me.progress_data?.completed || [];
           const myCount = myCompleted.length;
 
-          // Calculate percentile rank
+          // Percentile is over fellow participants (users who have a `completed` key),
+          // not over total signups. Matches what 'percentile of learners' implies.
           const allCounts = allUsers.map(u => (u.progress_data?.completed || []).length);
           const below = allCounts.filter(c => c < myCount).length;
-          const percentile = totalUsers > 0 ? Math.round((below / totalUsers) * 100) : 0;
+          const percentile = allCounts.length > 0 ? Math.round((below / allCounts.length) * 100) : 0;
 
           // Calculate streak (consecutive days from last completed)
           const sorted = [...myCompleted].sort((a, b) => a - b);
