@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Content gaps — what the AI PM course doesn't cover yet | becomeaipm</title>
+<meta name="description" content="A live list of major AI releases from the past 30 days that aren't yet covered in any of the 60 days of the becomeaipm course. Updated every Monday.">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/gaps.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<meta property="og:type" content="website">
+<meta property="og:title" content="What the AI PM course doesn't cover yet">
+<meta property="og:description" content="A live list of major AI releases from the past 30 days not yet covered in the becomeaipm 60-day course. Updated weekly.">
+<meta property="og:image" content="https://becomeaipm.com/og-image.png">
+<meta property="og:url" content="https://becomeaipm.com/gaps.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="What the AI PM course doesn't cover yet">
+<meta name="twitter:description" content="Live list of recent AI releases not yet in the 60-day curriculum.">
+<meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--rule:#d4cdc4;--amber:#c8590a;--card:#faf7f2;--border:#ccc4b8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;}
+.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
+.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
+.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
+.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
+.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
+.hero{padding:64px 40px 16px;max-width:880px;margin:0 auto;}
+.label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(34px,5vw,52px);font-weight:900;line-height:1.05;margin-bottom:14px;}
+h1 em{color:var(--amber);font-style:italic;}
+.sub{font-size:16px;color:var(--ink2);max-width:660px;line-height:1.7;margin-bottom:8px;}
+.sub-muted{font-size:13px;color:var(--muted);margin-bottom:24px;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;}
+.wrap{padding:0 40px 80px;max-width:880px;margin:0 auto;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px 26px;margin-bottom:14px;display:flex;gap:18px;align-items:flex-start;}
+.card .imp{flex-shrink:0;width:56px;text-align:center;padding-top:2px;}
+.imp-num{font-family:'Fraunces',serif;font-size:34px;font-weight:900;color:var(--amber);line-height:1;}
+.imp-lbl{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.1em;margin-top:2px;}
+.card .body{flex:1;min-width:0;}
+.card h2{font-family:'Fraunces',serif;font-size:20px;font-weight:700;line-height:1.3;margin-bottom:6px;}
+.meta{display:flex;flex-wrap:wrap;gap:14px;font-size:12px;color:var(--muted);font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;}
+.meta a{color:var(--amber);text-decoration:none;}
+.meta a:hover{text-decoration:underline;}
+.empty{text-align:center;padding:60px 24px;color:var(--muted);}
+.empty h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--ink2);margin-bottom:8px;}
+.skel{height:90px;background:var(--bg2);border-radius:8px;margin-bottom:14px;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+.legend{margin-top:32px;padding:22px 26px;background:var(--bg2);border-radius:8px;font-size:13px;color:var(--ink2);line-height:1.7;}
+.legend strong{color:var(--ink);}
+@media(max-width:700px){.hero,.wrap{padding-left:20px;padding-right:20px;}nav{padding:0 20px;}.card{padding:18px 20px;gap:14px;}.card .imp{width:42px;}.imp-num{font-size:28px;}}
+footer{background:var(--ink);color:rgba(255,255,255,.25);padding:24px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+footer a{color:rgba(255,255,255,.3);text-decoration:none;}
+footer a:hover{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
+  <div class="nav-links">
+    <a class="nav-link" href="/course.html">Course</a>
+    <a class="nav-link" href="/companies.html">Companies</a>
+    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
+    <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link active" href="/gaps.html">Gaps</a>
+    <a class="nav-link" href="/contact.html">Contact</a>
+    <a class="nav-link" href="/pm-os.html">PM-OS</a>
+    <a class="nav-link" href="/settings.html">Settings</a>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="label">Living curriculum</div>
+  <h1>What the course doesn't <em>cover yet</em>.</h1>
+  <p class="sub">AI moves faster than any 60-day curriculum can. Every Monday, an automated agent scans the past 30 days of releases from Anthropic, OpenAI, DeepMind, Meta AI, xAI, Cohere, and Mistral — then flags topics that aren't mentioned anywhere in the existing day files. Here are this week's top gaps.</p>
+  <p class="sub-muted" id="generated-stamp">Loading…</p>
+</div>
+
+<div class="wrap">
+  <div id="loading"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
+  <div id="empty" class="card empty" style="display:none">
+    <div class="body">
+      <h2>No gaps detected this week</h2>
+      <p>Either the course is fully caught up, or vendor news was quiet. The agent re-scans every Monday.</p>
+    </div>
+  </div>
+  <div id="list"></div>
+
+  <div class="legend">
+    <strong>How importance is scored:</strong> 5 = major release that an AI PM should know within a week (a frontier model launch, a new agent protocol, a critical safety incident). 1 = niche or speculative. Scores come from a single LLM call grounded only on the cluster name and source vendors. Items the course author has explicitly addressed in a day file are removed automatically; dismissed items are removed manually.
+  </div>
+</div>
+
+<footer><p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="/contact.html">Contact</a></p></footer>
+
+<script>
+function escapeHtml(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[c];});}
+function fmtSources(srcs){
+  if(!srcs||!srcs.length)return '';
+  var doms=srcs.map(function(u){try{return new URL(u).hostname.replace(/^www\./,'');}catch(e){return u;}});
+  var uniq=Array.from(new Set(doms));
+  return uniq.slice(0,3).join(' · ');
+}
+async function loadGaps(){
+  try{
+    var r=await fetch('/api/gaps');
+    if(!r.ok)throw new Error('http '+r.status);
+    var data=await r.json();
+    document.getElementById('loading').style.display='none';
+    var stamp=document.getElementById('generated-stamp');
+    var dt=data.generated_at?new Date(data.generated_at):new Date();
+    stamp.textContent='Last scan: '+dt.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit',timeZoneName:'short'});
+    var gaps=data.gaps||[];
+    if(!gaps.length){document.getElementById('empty').style.display='flex';return;}
+    document.getElementById('list').innerHTML=gaps.map(function(g){
+      return '<div class="card"><div class="imp"><div class="imp-num">'+g.importance+'</div><div class="imp-lbl">/ 5</div></div><div class="body"><h2>'+escapeHtml(g.title)+'</h2><div class="meta"><span>'+g.days_old+' day'+(g.days_old===1?'':'s')+' ago</span><span>'+g.source_count+' mention'+(g.source_count===1?'':'s')+'</span><span>'+escapeHtml(fmtSources(g.sources))+'</span></div></div></div>';
+    }).join('');
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('empty').style.display='flex';
+    document.getElementById('empty').querySelector('h2').textContent='Could not load gaps';
+    document.getElementById('empty').querySelector('p').textContent=e.message||'Network error.';
+  }
+}
+loadGaps();
+</script>
+</body>
+</html>

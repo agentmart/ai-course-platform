@@ -70,6 +70,27 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .sb-day.done .sb-check{background:#c8590a;border-color:#c8590a;color:white;}
 #content{flex:1;overflow-y:auto;padding:40px;}
 .day-view{max-width:860px;margin:0 auto;}
+.advisor-rail{max-width:860px;margin:0 auto 24px;background:linear-gradient(135deg,#fbf8f2 0%,#fdf3e6 100%);border:1px solid #e6d8be;border-radius:8px;padding:18px 22px;display:none;}
+.advisor-rail.show{display:block;}
+.advisor-rail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}
+.advisor-rail-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:#c8590a;text-transform:uppercase;font-weight:700;}
+.advisor-rail-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;}
+.advisor-rail-close:hover{color:var(--ink);}
+.advisor-rail-body{font-size:13px;color:var(--ink2);line-height:1.55;margin-bottom:12px;}
+.advisor-spine{display:flex;flex-wrap:wrap;gap:8px;}
+.advisor-spine a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:#fff;border:1px solid #c8590a;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#c8590a;text-decoration:none;cursor:pointer;}
+.advisor-spine a:hover{background:#c8590a;color:#fff;}
+.advisor-spine a.done{opacity:.5;text-decoration:line-through;}
+.advisor-banner{max-width:860px;margin:0 auto 20px;background:#1a1512;color:#fff;border-radius:8px;padding:16px 22px;display:none;align-items:center;justify-content:space-between;gap:14px;}
+.advisor-banner.show{display:flex;}
+.advisor-banner-text{font-size:13px;line-height:1.5;}
+.advisor-banner-text strong{color:#c8590a;}
+.advisor-banner-actions{display:flex;gap:10px;flex-shrink:0;}
+.advisor-cta{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;background:#c8590a;color:#fff;padding:7px 14px;border-radius:3px;text-decoration:none;border:none;cursor:pointer;}
+.advisor-cta:hover{background:#a84a06;}
+.advisor-skip{font-size:11px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-family:inherit;}
+.advisor-skip:hover{color:rgba(255,255,255,.8);}
+@media(max-width:600px){.advisor-banner{flex-direction:column;align-items:flex-start;}}
 .day-header{margin-bottom:32px;}
 .day-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
 .day-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:10px;}
@@ -232,6 +253,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
     <a class="nav-link" href="/companies.html">Companies</a>
     <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
     <a class="nav-link" href="/analytics.html">Leaderboard</a>
+    <a class="nav-link" href="/gaps.html">Gaps</a>
     <a class="nav-link" href="/contact.html">Contact</a>
     <a class="nav-link" href="/pm-os.html">PM-OS</a>
     <a class="nav-link" href="/settings.html">Settings</a>
@@ -246,7 +268,24 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 
 <div class="app" id="app" style="display:none">
   <div id="sidebar"><div class="sb-phases" id="sb-phases"></div></div>
-  <div id="content"><div class="day-view" id="day-view"></div></div>
+  <div id="content">
+    <div id="advisor-banner" class="advisor-banner" role="status">
+      <div class="advisor-banner-text">📚 <strong>Personalize your path.</strong> A 60-second quiz and we'll recommend the best 5 days to start with based on your background.</div>
+      <div class="advisor-banner-actions">
+        <a class="advisor-cta" href="/onboarding.html">Take the quiz →</a>
+        <button class="advisor-skip" onclick="dismissAdvisorBanner()">Not now</button>
+      </div>
+    </div>
+    <div id="advisor-rail" class="advisor-rail" role="region" aria-label="Recommended days">
+      <div class="advisor-rail-head">
+        <div class="advisor-rail-label">⭐ Recommended for you</div>
+        <button class="advisor-rail-close" title="Dismiss" onclick="dismissAdvisorRail()">×</button>
+      </div>
+      <div class="advisor-rail-body" id="advisor-rail-body"></div>
+      <div class="advisor-spine" id="advisor-spine"></div>
+    </div>
+    <div class="day-view" id="day-view"></div>
+  </div>
 </div>
 
 <!-- SHARE MODAL -->
@@ -419,6 +458,7 @@ function initPendo(apiKey, user) {
             updateProgress(); hideLoader();
             if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
             checkCookieConsent();
+            loadAdvisor();
           })();
         }
       });
@@ -434,8 +474,60 @@ function initPendo(apiKey, user) {
     if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
     checkCookieConsent();
     maybeShowNotifNudge();
+    loadAdvisor();
   };
 })();
+
+async function loadAdvisor(){
+  try{
+    if(!clerk||!clerk.user)return;
+    var token=await clerk.session.getToken();
+    var r=await fetch('/api/course-advisor',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)return;
+    var d=await r.json();
+    var advisor=d&&d.advisor;
+    if(!advisor){
+      if(localStorage.getItem('advisor_banner_dismissed')==='1')return;
+      document.getElementById('advisor-banner').classList.add('show');
+      return;
+    }
+    if(advisor.skipped||advisor.completed_spine)return;
+    if(localStorage.getItem('advisor_rail_dismissed')==='1')return;
+    var spine=advisor.spine||[];
+    if(!spine.length)return;
+    document.getElementById('advisor-rail-body').textContent=advisor.rationale||'Start with these days for the best on-ramp:';
+    document.getElementById('advisor-spine').innerHTML=spine.map(function(d){
+      var done=completed.has(d)?' done':'';
+      return '<a href="#" class="'+done+'" onclick="goToDay('+d+');return false;">Day '+String(d).padStart(2,'0')+'</a>';
+    }).join('');
+    document.getElementById('advisor-rail').classList.add('show');
+    var allDone=spine.every(function(d){return completed.has(d);});
+    if(allDone){
+      try{
+        var token2=await clerk.session.getToken();
+        await fetch('/api/course-advisor',{
+          method:'POST',
+          headers:{'Authorization':'Bearer '+token2,'Content-Type':'application/json'},
+          body:JSON.stringify({answers:advisor.profile,daySubtitles:[],completed_spine:true})
+        });
+      }catch(e){}
+    }
+  }catch(e){}
+}
+function dismissAdvisorBanner(){
+  try{localStorage.setItem('advisor_banner_dismissed','1');}catch(e){}
+  document.getElementById('advisor-banner').classList.remove('show');
+}
+function dismissAdvisorRail(){
+  try{localStorage.setItem('advisor_rail_dismissed','1');}catch(e){}
+  document.getElementById('advisor-rail').classList.remove('show');
+}
+function goToDay(n){
+  currentDay=n;
+  if(typeof renderDay==='function')renderDay(n);
+  if(typeof renderSidebar==='function')renderSidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
 
 function maybeShowNotifNudge(){
   try{

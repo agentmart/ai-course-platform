@@ -10,6 +10,8 @@
     "freshness:dry": "DRY_RUN=true SKIP_AI=true node scripts/content-freshness-check.mjs",
     "freshness:check": "node scripts/content-freshness-check.mjs",
     "freshness:backfill": "MODE=backfill node scripts/content-freshness-check.mjs",
+    "notify:gaps:dry": "DRY_RUN=true node scripts/weekly-gap-detector.mjs",
+    "notify:gaps": "node scripts/weekly-gap-detector.mjs",
     "notify:jobs:dry": "DRY_RUN=true node scripts/weekly-job-alerts.mjs",
     "notify:jobs:test": "DRY_RUN=true TEST_EMAIL=stavanm@gmail.com node scripts/weekly-job-alerts.mjs",
     "notify:jobs": "node scripts/weekly-job-alerts.mjs",
