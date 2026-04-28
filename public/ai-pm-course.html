@@ -27,16 +27,11 @@
 <meta name="twitter:description" content="Built by a working AI PM. Hands-on. 100% free.">
 <meta name="twitter:image" content="https://becomeaipm.com/og-course.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--rule:#d4cdc4;--amber:#c8590a;--teal:#0d6e6e;--card:#faf7f2;--border:#ccc4b8;--green:#16a34a;}
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;line-height:1.6;}
-nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;}
-.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
-.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
-.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
-.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
 .hero{padding:80px 40px 60px;max-width:1000px;margin:0 auto;}
 .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:18px;}
 h1{font-family:'Fraunces',serif;font-size:clamp(38px,5.5vw,68px);font-weight:900;line-height:1.05;margin-bottom:20px;}
@@ -106,17 +101,7 @@ footer a:hover{color:var(--amber);}
 </head>
 <body>
 
-<nav>
-  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
-  <div class="nav-links">
-    <a class="nav-link active" href="/ai-pm-course">AI PM Course</a>
-    <a class="nav-link" href="/course.html">Curriculum</a>
-    <a class="nav-link" href="/ai-pm-jobs">Jobs</a>
-    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
-    <a class="nav-link" href="/pm-os.html">PM-OS</a>
-    <a class="nav-link" href="/contact.html">Contact</a>
-  </div>
-</nav>
+<aside id="app-nav"></aside>
 
 <div class="hero">
   <div class="eyebrow">The AI Product Manager Course · 60 Days · Free</div>
@@ -227,6 +212,7 @@ footer a:hover{color:var(--amber);}
 <script>
 function toggleFaq(el){el.parentElement.classList.toggle('open');}
 </script>
-
+<script src="/components/nav.js"></script>
+<script>renderSidebar({});</script>
 </body>
 </html>

@@ -28,6 +28,7 @@
   <meta name="twitter:description" content="60-day AI PM course, PM-OS, live AI PM jobs, free AI cost calculator.">
   <meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
   <style>
     :root {
       --bg: #f5f0e8; --bg2: #ede8df; --ink: #1a1512; --ink2: #3d3530;
@@ -41,19 +42,9 @@
     .init-spin { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--amber); border-radius: 50%; animation: spin .8s linear infinite; }
     .init-text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,.3); letter-spacing: .12em; }
     @keyframes spin { to { transform: rotate(360deg); } }
-    nav { background: var(--ink); padding: 0 40px; display: flex; align-items: stretch; position: sticky; top: 0; z-index: 100; }
-    .nav-logo { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--amber); letter-spacing: .15em; text-decoration: none; display: flex; align-items: center; padding: 14px 0; margin-right: 24px; }
-    .nav-links { display: flex; align-items: stretch; gap: 2px; flex: 1; }
-    .nav-link { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,.4); text-decoration: none; padding: 0 14px; display: flex; align-items: center; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
-    .nav-link:hover { color: rgba(255,255,255,.8); border-bottom-color: rgba(255,255,255,.2); }
-    .nav-link.active { color: var(--amber); border-bottom-color: var(--amber); }
-    .nav-right { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
     .btn { padding: 7px 18px; border-radius: 3px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; }
     .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.6); }
     .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
-    #user-menu { display: none; align-items: center; gap: 10px; }
-    .u-avatar { width: 28px; height: 28px; border-radius: 50%; background: var(--amber); color: white; font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
-    .u-name { font-size: 12px; color: rgba(255,255,255,.6); font-family: 'IBM Plex Mono', monospace; }
     .hero { padding: 80px 40px 60px; max-width: 1100px; margin: 0 auto; }
     .hero-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
     .eyebrow-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; }
@@ -126,7 +117,7 @@
     footer a { color: rgba(255,255,255,.3); text-decoration: none; }
     footer a:hover { color: var(--amber); }
     .footer-links { display: flex; gap: 20px; }
-    @media(max-width:700px) { .hero { padding: 48px 20px 40px; } .sec { padding: 48px 20px; } .demo-wrap { padding: 48px 20px; } .stack-strip { padding: 24px 20px; } .course-band { padding: 48px 20px; } footer { padding: 24px 20px; } .nav-links { display: none; } nav { padding: 0 20px; } .hero-ctas { flex-direction: column; } }
+    @media(max-width:700px) { .hero { padding: 48px 20px 40px; } .sec { padding: 48px 20px; } .demo-wrap { padding: 48px 20px; } .stack-strip { padding: 24px 20px; } .course-band { padding: 48px 20px; } footer { padding: 24px 20px; } .hero-ctas { flex-direction: column; } }
     .cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
     .cookie-banner.show{display:flex;}
     .cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
@@ -160,29 +151,7 @@
     <div class="init-text">INITIALIZING...</div>
   </div>
 
-  <nav>
-    <a href="/" class="nav-logo" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
-    <div class="nav-links">
-      <a class="nav-link" href="/course.html">Course</a>
-      <a class="nav-link" href="/companies.html">Companies</a>
-      <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
-      <a class="nav-link" href="/analytics.html">Leaderboard</a>
-      <a class="nav-link" href="/gaps.html">Gaps</a>
-      <a class="nav-link" href="/contact.html">Contact</a>
-      <a class="nav-link" href="/pm-os.html">PM-OS</a>
-      <a class="nav-link" href="/settings.html">Settings</a>
-    </div>
-    <div class="nav-right">
-      <div id="user-menu" style="display:none">
-        <div class="u-avatar" id="u-avatar">?</div>
-        <span class="u-name" id="u-name"></span>
-        <button class="btn btn-ghost" onclick="doSignOut()" style="font-size:11px;">Sign Out</button>
-      </div>
-      <div id="auth-btns">
-        <button class="btn btn-ghost" onclick="openSignIn()">Sign In</button>
-      </div>
-    </div>
-  </nav>
+<aside id="app-nav"></aside>
 
   <!-- HERO -->
   <div class="hero">
@@ -442,39 +411,15 @@ for name, s in models.items():
       setTimeout(() => l.style.display = 'none', 500);
     }
 
-    function refreshUI() {
-      const user = clerk?.user;
-      document.getElementById('auth-btns').style.display = user ? 'none' : 'flex';
-      document.getElementById('user-menu').style.display = user ? 'flex' : 'none';
-      if (user) {
-        const init = (user.firstName?.[0] || user.emailAddresses?.[0]?.emailAddress?.[0] || '?').toUpperCase();
-        document.getElementById('u-avatar').textContent = init;
-        document.getElementById('u-name').textContent = user.firstName || user.emailAddresses?.[0]?.emailAddress?.split('@')[0] || '';
-      }
-    }
+    function refreshUI() {}
 
-    function openSignIn() {
-      if (!clerk) { location.href = '/course.html'; return; }
-      clerk.openSignIn({
-        fallbackRedirectUrl: '/course.html',
-        signUpFallbackRedirectUrl: '/course.html'
-      });
-    }
-
-    async function doSignOut() { await clerk?.signOut(); refreshUI(); }
+    async function doSignOut() { await clerk?.signOut(); }
 
     function toggleTopic(el) {
       const wasOpen = el.classList.contains('open');
       document.querySelectorAll('.topic.open').forEach(t => t.classList.remove('open'));
       if (!wasOpen) el.classList.add('open');
     }
-
-    (function() {
-      var path = location.pathname;
-      document.querySelectorAll('.nav-link').forEach(function(a) {
-        if (a.getAttribute('href') === path || (path === '/' && a.getAttribute('href') === '/')) a.classList.add('active');
-      });
-    })();
 
     function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(clerk&&clerk.user) initPendo(cfg.pendoApiKey,clerk.user); }
     function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
@@ -487,6 +432,9 @@ for name, s in models.items():
     <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
     <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
   </div>
+
+<script src="/components/nav.js"></script>
+<script>renderSidebar({});</script>
 
 </body>
 </html>

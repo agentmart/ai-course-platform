@@ -28,6 +28,8 @@
 <meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <!-- Pendo Analytics (initialized after Clerk auth loads) -->
+<link rel="stylesheet" href="/components/nav.css">
+<style>body.has-app-nav .sidebar, body.has-app-nav #sidebar { left: var(--nav-w-expanded); transition: left .18s ease; } body.has-app-nav.nav-collapsed .sidebar, body.has-app-nav.nav-collapsed #sidebar { left: var(--nav-w-collapsed); } @media (max-width: 768px) { body.has-app-nav .sidebar, body.has-app-nav #sidebar { left: 0; } }</style>
 <style>
 :root{--bg:#f5f0e8;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;}
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -40,20 +42,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .ld-err{color:#f87171;font-size:14px;text-align:center;max-width:400px;line-height:1.7;display:none;}
 .ld-err a{color:#fca87a;text-decoration:underline;cursor:pointer;}
 @keyframes spin{to{transform:rotate(360deg);}}
-#topbar{background:var(--ink);padding:0 32px;display:flex;align-items:stretch;position:sticky;top:0;z-index:100;flex-shrink:0;}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:#c8590a;letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
-.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
-.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
-.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
-.nav-link.active{color:#c8590a;border-bottom-color:#c8590a;}
-.nav-right{display:flex;align-items:center;gap:12px;padding:10px 0;margin-left:auto;}
-.tb-day-label{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
-.tb-streak{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);display:flex;align-items:center;gap:6px;}
-.streak-fire{font-size:14px;}
-.tb-avatar{width:28px;height:28px;border-radius:50%;background:#c8590a;color:white;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;}
-.tb-signout{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);font-size:11px;padding:4px 10px;border-radius:2px;cursor:pointer;font-family:'IBM Plex Mono',monospace;}
-.tb-signout:hover{border-color:#c8590a;color:#c8590a;}
-.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 57px);}
+.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 4px);}
 #sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
 .sb-phases{padding:12px 0;}
 .sb-phase-header{padding:10px 16px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;border-top:1px solid var(--rule);margin-top:4px;}
@@ -246,22 +235,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   </div>
 </div>
 
-<nav id="topbar" style="display:none">
-  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
-  <div class="nav-links">
-    <a class="nav-link active" href="/course.html">Course</a>
-    <a class="nav-link" href="/companies.html">Companies</a>
-    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
-    <a class="nav-link" href="/analytics.html">Leaderboard</a>
-    <a class="nav-link" href="/gaps.html">Gaps</a>
-    <a class="nav-link" href="/contact.html">Contact</a>
-    <a class="nav-link" href="/pm-os.html">PM-OS</a>
-    <a class="nav-link" href="/settings.html">Settings</a>
-    <div class="tb-streak"><span class="streak-fire">&#x1F525;</span><span id="tb-streak">0 days done</span></div>
-    <div class="tb-avatar" id="tb-avatar">?</div>
-    <button class="tb-signout" onclick="doSignOut()">Sign Out</button>
-  </div>
-</nav>
+<aside id="app-nav"></aside>
 <div class="progress-bar-wrap" id="pb-wrap" style="display:none">
   <div class="progress-bar-fill" id="pb-fill" style="width:0%"></div>
 </div>
@@ -451,8 +425,7 @@ function initPendo(apiKey, user) {
           document.querySelector('.ld-spin').style.display='block';
           (async function(){
             await loadProgress();
-            renderNav(); renderSidebar(); renderDay(currentDay);
-            document.getElementById('topbar').style.display='flex';
+            renderNav(); renderDaySidebar(); renderDay(currentDay);
             document.getElementById('pb-wrap').style.display='block';
             document.getElementById('app').style.display='flex';
             updateProgress(); hideLoader();
@@ -466,8 +439,7 @@ function initPendo(apiKey, user) {
     }
     setLdText('LOADING PROGRESS...');
     await loadProgress();
-    renderNav(); renderSidebar(); renderDay(currentDay);
-    document.getElementById('topbar').style.display='flex';
+    renderNav(); renderDaySidebar(); renderDay(currentDay);
     document.getElementById('pb-wrap').style.display='block';
     document.getElementById('app').style.display='flex';
     updateProgress(); hideLoader();
@@ -525,7 +497,7 @@ function dismissAdvisorRail(){
 function goToDay(n){
   currentDay=n;
   if(typeof renderDay==='function')renderDay(n);
-  if(typeof renderSidebar==='function')renderSidebar();
+  if(typeof renderDaySidebar==='function')renderDaySidebar();
   window.scrollTo({top:0,behavior:'smooth'});
 }
 
@@ -599,16 +571,10 @@ async function saveProgress(){
   }catch(e){}
 }
 
-function renderNav(){
-  const user=clerk.user;
-  const init=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
-  document.getElementById('tb-avatar').textContent=init;
-  updateStreak();
-}
-function updateStreak(){ const s=completed.size; document.getElementById('tb-streak').textContent=s+' day'+(s===1?'':'s')+' done'; }
-async function doSignOut(){ await clerk.signOut(); window.location.href='/'; }
+function renderNav(){}
+function updateStreak(){}
 
-function renderSidebar(){
+function renderDaySidebar(){
   const container=document.getElementById('sb-phases'); container.innerHTML='';
   for(const phase of PHASES){
     const header=document.createElement('div'); header.className='sb-phase-header'; header.textContent=phase.label; container.appendChild(header);
@@ -817,6 +783,8 @@ function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accep
   <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>
+<script src="/components/nav.js"></script>
+<script>renderSidebar({ active: 'course' });</script>
 
 </body>
 </html>

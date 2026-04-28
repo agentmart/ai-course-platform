@@ -27,23 +27,12 @@
 <meta name="twitter:description" content="Turn Claude Code or Copilot into a dedicated AI PM. Free & open source.">
 <meta name="twitter:image" content="https://becomeaipm.com/og-pm-os.png">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
 <style>
 :root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;--green:#16a34a;}
 *{margin:0;padding:0;box-sizing:border-box;}body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
 
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
-/* ── Nav ── */
-nav{background:var(--ink);padding:0 40px;display:flex;align-items:stretch;position:sticky;top:0;z-index:200;}
-.nav-logo{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.15em;text-decoration:none;display:flex;align-items:center;padding:14px 0;margin-right:24px;white-space:nowrap;}
-.nav-links{display:flex;align-items:stretch;gap:2px;flex:1;}
-.nav-link{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);text-decoration:none;padding:0 14px;display:flex;align-items:center;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;}
-.nav-link:hover{color:rgba(255,255,255,.8);border-bottom-color:rgba(255,255,255,.2);}
-.nav-link.active{color:var(--amber);border-bottom-color:var(--amber);}
-.nav-right{display:flex;align-items:center;gap:10px;padding:10px 0;margin-left:auto;}
-.nav-user{display:flex;align-items:center;gap:8px;}
-.nav-avatar{width:26px;height:26px;border-radius:50%;background:var(--amber);color:white;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;}
-.nav-signout{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);background:none;border:none;cursor:pointer;padding:4px 8px;}
-.nav-signout:hover{color:var(--amber);}
 
 /* ── Clerk overlay ── */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
@@ -172,7 +161,6 @@ body.tool-copilot .for-copilot{display:block;}
 
 /* ── Responsive ── */
 @media(max-width:768px){
-  nav{padding:0 16px;}
   .hero,.steps,.inside-section,.tips{padding-left:20px;padding-right:20px;}
   .step-card{padding:24px 20px;}
   .tool-toggle{margin-left:20px;margin-right:20px;max-width:none;}
@@ -180,7 +168,6 @@ body.tool-copilot .for-copilot{display:block;}
   .ctx-file{flex-direction:column;align-items:flex-start;gap:4px;}
   .ctx-name{min-width:auto;}
   .stepper{padding:0 40px;}
-  .nav-links{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 }
 
 /* ── Cookie banner ── */
@@ -218,25 +205,7 @@ body.tool-copilot .for-copilot{display:block;}
 </div>
 
 <!-- Navigation -->
-<nav id="main-nav">
-  <a class="nav-logo" href="/" aria-label="becomeaipm home"><img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" height="22" style="display:block;"></a>
-  <div class="nav-links">
-    <a class="nav-link" href="/course.html">Course</a>
-    <a class="nav-link" href="/companies.html">Companies</a>
-    <a class="nav-link" href="/ai-calculator.html">AI Calculator</a>
-    <a class="nav-link" href="/analytics.html">Leaderboard</a>
-    <a class="nav-link" href="/gaps.html">Gaps</a>
-    <a class="nav-link" href="/contact.html">Contact</a>
-    <a class="nav-link active" href="/pm-os.html">PM-OS</a>
-  </div>
-  <div class="nav-right">
-    <div class="nav-user" id="nav-user" style="display:none">
-      <div class="nav-avatar" id="nav-avatar">?</div>
-      <button class="nav-signout" onclick="doSignOut()">Sign Out</button>
-    </div>
-    <a class="nav-link" id="signin-pill" href="#" onclick="openSignIn();return false;" style="display:none">Sign In</a>
-  </div>
-</nav>
+<aside id="app-nav"></aside>
 
 <!-- Auth Gate (shown when not signed in) -->
 <div id="auth-gate" style="display:none">
@@ -598,18 +567,7 @@ function showAuthGate(){
   document.getElementById('auth-gate').style.display='flex';
   document.getElementById('main-content').style.display='none';
 }
-function updateAuthUI(){
-  const nu=document.getElementById('nav-user');
-  const sp=document.getElementById('signin-pill');
-  if(user){
-    document.getElementById('nav-avatar').textContent=(user.firstName?.[0]||user.emailAddresses?.[0]?.emailAddress?.[0]||'?').toUpperCase();
-    nu.style.display='flex';
-    if(sp)sp.style.display='none';
-  }else{
-    nu.style.display='none';
-    if(sp)sp.style.display='inline-flex';
-  }
-}
+function updateAuthUI(){}
 function openSignIn(){
   document.getElementById('overlay').classList.add('open');
   if(!clerkMounted&&clerk){
@@ -623,7 +581,7 @@ function closeSignIn(){
   document.getElementById('overlay').classList.remove('open');
   if(clerkMounted&&clerk){try{clerk.unmountSignIn(document.getElementById('clerk-mount'));}catch(e){}clerkMounted=false;}
 }
-async function doSignOut(){await clerk?.signOut();user=null;showAuthGate();updateAuthUI();}
+async function doSignOut(){await clerk?.signOut();user=null;showAuthGate();}
 document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))closeSignIn();});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeSignIn();});
 
@@ -691,6 +649,8 @@ if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banne
   </ul>
   <p style="margin-top:24px;font-size:13px;opacity:.6;font-family:'IBM Plex Mono',monospace;">Last reviewed April 2026 by <a href="https://www.linkedin.com/in/stavanmehta/" target="_blank" rel="noopener" style="color:#c8590a;">Stavan Mehta</a> — <a href="/contact.html" style="color:#c8590a;">send feedback</a></p>
 </section>
+<script src="/components/nav.js"></script>
+<script>renderSidebar({ active: 'pm-os' });</script>
 
 </body>
 </html>
