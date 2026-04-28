@@ -630,13 +630,13 @@ function syncSidebar(){
     el.querySelector('.sb-check').innerHTML=completed.has(d)?'&#10003;':'';
   });
   updateProgress(); updateStreak();
-  document.getElementById('tb-day-label').textContent='Day '+currentDay;
+  const tbLabel1=document.getElementById('tb-day-label'); if(tbLabel1) tbLabel1.textContent='Day '+currentDay;
 }
 
 function updateProgress(){ const pct=Math.round((completed.size/60)*100); document.getElementById('pb-fill').style.width=pct+'%'; }
 
 function renderDay(day){
-  document.getElementById('tb-day-label').textContent='Day '+day;
+  const tbLabel=document.getElementById('tb-day-label'); if(tbLabel) tbLabel.textContent='Day '+day;
   const data=getDayData(day); const isDone=completed.has(day);
   const view=document.getElementById('day-view');
   view.innerHTML=`
