@@ -3,6 +3,11 @@
   "buildCommand": "echo 'No build needed'",
   "outputDirectory": "public",
   "routes": [
+    { "src": "/api/welcome-email",      "dest": "/api/notifications?action=welcome-email" },
+    { "src": "/api/send-reminders",     "dest": "/api/notifications?action=send-reminders" },
+    { "src": "/api/unsubscribe",        "dest": "/api/notifications?action=unsubscribe" },
+    { "src": "/api/track-click",        "dest": "/api/notifications?action=track-click" },
+    { "src": "/api/notification-prefs", "dest": "/api/notifications?action=prefs" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/pricing.html", "status": 301, "headers": { "Location": "/ai-calculator.html" } },
     { "src": "/ai-pm-course/?$", "dest": "/public/ai-pm-course.html" },
