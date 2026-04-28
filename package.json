@@ -9,7 +9,13 @@
     "jobs:check": "node scripts/daily-jobs-check.mjs",
     "freshness:dry": "DRY_RUN=true SKIP_AI=true node scripts/content-freshness-check.mjs",
     "freshness:check": "node scripts/content-freshness-check.mjs",
-    "freshness:backfill": "MODE=backfill node scripts/content-freshness-check.mjs"
+    "freshness:backfill": "MODE=backfill node scripts/content-freshness-check.mjs",
+    "notify:jobs:dry": "DRY_RUN=true node scripts/weekly-job-alerts.mjs",
+    "notify:jobs:test": "DRY_RUN=true TEST_EMAIL=stavanm@gmail.com node scripts/weekly-job-alerts.mjs",
+    "notify:jobs": "node scripts/weekly-job-alerts.mjs",
+    "notify:interview:dry": "DRY_RUN=true node scripts/weekly-interview-prep.mjs",
+    "notify:interview:test": "DRY_RUN=true TEST_EMAIL=stavanm@gmail.com node scripts/weekly-interview-prep.mjs",
+    "notify:interview": "node scripts/weekly-interview-prep.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.39.0",

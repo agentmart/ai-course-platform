@@ -175,6 +175,17 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .sp-btn-primary:hover{background:#a84a06;}
 .sp-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
 .sp-btn-ghost:hover{border-color:#c8590a;color:#c8590a;}
+.notif-nudge{position:fixed;bottom:20px;right:20px;max-width:340px;background:#1a1512;color:#fff;border:1px solid #3d3530;border-left:3px solid #c8590a;border-radius:6px;padding:14px 16px 14px 18px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5;z-index:9000;display:none;animation:nudge-in .3s ease-out;}
+.notif-nudge.show{display:block;}
+.notif-nudge-title{font-weight:700;color:#c8590a;font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.notif-nudge-body{color:rgba(255,255,255,.85);margin-bottom:10px;}
+.notif-nudge-actions{display:flex;gap:10px;align-items:center;}
+.notif-nudge-cta{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;background:#c8590a;color:#fff;padding:7px 14px;border-radius:3px;text-decoration:none;border:none;cursor:pointer;}
+.notif-nudge-cta:hover{background:#a84a06;}
+.notif-nudge-skip{font-size:11px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-family:inherit;}
+.notif-nudge-skip:hover{color:rgba(255,255,255,.7);}
+@keyframes nudge-in{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@media(max-width:600px){.notif-nudge{left:12px;right:12px;bottom:12px;max-width:none;}}
 </style>
 <script type="application/ld+json">
 {"@context":"https://schema.org","@type":"Course","name":"60-Day AI Product Management Course","description":"Master AI product management in 60 days. Hands-on curriculum with code labs, LLM APIs, evals, PRDs, and interview prep.","url":"https://becomeaipm.com/course.html","provider":{"@type":"Organization","name":"becomeaipm","url":"https://becomeaipm.com/","sameAs":"https://www.linkedin.com/company/becomeaipm/about"},"inLanguage":"en-US","educationalLevel":"Intermediate","teaches":["AI product management","LLM evals","Prompt engineering","RAG systems","AI economics","AI PM interviews"],"hasCourseInstance":{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT60D","instructor":{"@type":"Person","name":"Stavan Mehta","sameAs":"https://www.linkedin.com/in/stavanmehta/"}},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://becomeaipm.com/course.html"}}
@@ -191,6 +202,15 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   <div class="ld-spin"></div>
   <div class="ld-text">LOADING COURSE...</div>
   <div class="ld-err" id="ld-err"></div>
+</div>
+
+<div class="notif-nudge" id="notif-nudge" role="status" aria-live="polite">
+  <div class="notif-nudge-title">📬 Stay current</div>
+  <div class="notif-nudge-body">Get matching AI PM jobs + 3 fresh interview questions every Monday — based on the past week's AI news.</div>
+  <div class="notif-nudge-actions">
+    <a class="notif-nudge-cta" href="/settings.html">Set up alerts →</a>
+    <button class="notif-nudge-skip" onclick="dismissNudge()">Not now</button>
+  </div>
 </div>
 
 <!-- Sign-in prompt overlay for unauthenticated CTA visitors -->
@@ -214,9 +234,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
     <a class="nav-link" href="/analytics.html">Leaderboard</a>
     <a class="nav-link" href="/contact.html">Contact</a>
     <a class="nav-link" href="/pm-os.html">PM-OS</a>
-  </div>
-  <div class="nav-right">
-    <div class="tb-day-label" id="tb-day-label">Day &mdash;</div>
+    <a class="nav-link" href="/settings.html">Settings</a>
     <div class="tb-streak"><span class="streak-fire">&#x1F525;</span><span id="tb-streak">0 days done</span></div>
     <div class="tb-avatar" id="tb-avatar">?</div>
     <button class="tb-signout" onclick="doSignOut()">Sign Out</button>
@@ -415,8 +433,25 @@ function initPendo(apiKey, user) {
     updateProgress(); hideLoader();
     if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
     checkCookieConsent();
+    maybeShowNotifNudge();
   };
 })();
+
+function maybeShowNotifNudge(){
+  try{
+    if(localStorage.getItem('notif_nudge_seen')==='1') return;
+    if(!clerk||!clerk.user) return;
+    setTimeout(function(){
+      var el=document.getElementById('notif-nudge');
+      if(el) el.classList.add('show');
+    }, 4000);
+  }catch(e){}
+}
+function dismissNudge(){
+  try{ localStorage.setItem('notif_nudge_seen','1'); }catch(e){}
+  var el=document.getElementById('notif-nudge');
+  if(el) el.classList.remove('show');
+}
 
 function hideLoader(){ const l=document.getElementById('loader'); l.classList.add('gone'); setTimeout(()=>l.style.display='none',500); }
 function showLdErr(html){ document.querySelector('.ld-spin').style.display='none'; document.querySelector('.ld-text').style.display='none'; const el=document.getElementById('ld-err'); el.innerHTML=html; el.style.display='block'; }

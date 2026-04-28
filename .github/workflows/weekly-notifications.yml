@@ -1,0 +1,81 @@
+name: Weekly Notifications
+
+on:
+  schedule:
+    # Mondays 16:00 UTC (9:00 AM PT during PST, 9:00 AM PDT during DST shifts to 8 AM PT —
+    # acceptable; users in target time zones still see it Monday morning local).
+    - cron: '0 16 * * 1'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry mode (no emails sent, no log writes)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  job-alerts:
+    name: Weekly Job Alerts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run weekly job alerts
+        env:
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
+          NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/weekly-job-alerts.mjs
+
+  interview-prep:
+    name: Weekly Interview Prep
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: job-alerts
+    if: ${{ always() }}     # run even if job-alerts errored — they're independent
+    permissions:
+      contents: read
+      models: read          # GitHub Models inference
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run weekly interview prep
+        env:
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
+          NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          GH_MODELS_TOKEN:           ${{ secrets.GH_MODELS_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
+          DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/weekly-interview-prep.mjs
