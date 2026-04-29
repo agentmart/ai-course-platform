@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>60-Day AI PM Course — Hands-On Curriculum & Code Labs | becomeaipm</title>
+<meta name="description" content="Master AI product management in 60 days. Ship real AI features with Claude, OpenAI, and Anthropic APIs. PRDs, evals, LLM economics, and AI PM interview prep.">
+<meta name="keywords" content="AI PM course, AI product manager course, become AI PM, AI PM curriculum, LLM PRD, evals, AI PM interview">
+<meta name="author" content="Stavan Mehta">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/course.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="becomeaipm">
+<meta property="og:title" content="60-Day AI PM Course — Hands-On Curriculum & Code Labs">
+<meta property="og:description" content="Master AI product management in 60 days. Ship real AI features, write PRDs, run evals, and nail AI PM interviews.">
+<meta property="og:url" content="https://becomeaipm.com/course.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://becomeaipm.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="60-Day AI PM Course — becomeaipm">
+<meta name="twitter:description" content="Master AI product management in 60 days with hands-on code labs.">
+<meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<!-- Pendo Analytics (initialized after Clerk auth loads) -->
+<link rel="stylesheet" href="/components/nav.css">
+<style>body.has-app-nav .sidebar, body.has-app-nav #sidebar { left: var(--nav-w-expanded); transition: left .18s ease; } body.has-app-nav.nav-collapsed .sidebar, body.has-app-nav.nav-collapsed #sidebar { left: var(--nav-w-collapsed); } @media (max-width: 768px) { body.has-app-nav .sidebar, body.has-app-nav #sidebar { left: 0; } }</style>
+<style>
+:root{--bg:#f5f0e8;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;min-height:100vh;}
+#loader{position:fixed;inset:0;background:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9999;transition:opacity .4s;}
+#loader.gone{opacity:0;pointer-events:none;}
+.ld-spin{width:40px;height:40px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;}
+.ld-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);letter-spacing:.12em;}
+.ld-err{color:#f87171;font-size:14px;text-align:center;max-width:400px;line-height:1.7;display:none;}
+.ld-err a{color:#fca87a;text-decoration:underline;cursor:pointer;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.app{display:flex;flex:1;overflow:hidden;height:calc(100vh - 4px);}
+#sidebar{width:260px;flex-shrink:0;background:var(--card);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;}
+.sb-phases{padding:12px 0;}
+.sb-phase-header{padding:10px 16px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.18em;text-transform:uppercase;border-top:1px solid var(--rule);margin-top:4px;}
+.sb-phase-header:first-child{border-top:none;margin-top:0;}
+.sb-day{display:flex;align-items:center;gap:8px;padding:8px 16px;cursor:pointer;transition:background .1s;border-left:2px solid transparent;}
+.sb-day:hover{background:rgba(200,89,10,.06);}
+.sb-day.active{background:rgba(200,89,10,.1);border-left-color:#c8590a;}
+.sb-day.done{opacity:.7;}
+.sb-day-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);width:30px;flex-shrink:0;}
+.sb-day.active .sb-day-num{color:#c8590a;}
+.sb-day-title{font-size:12px;color:var(--ink2);line-height:1.3;flex:1;}
+.sb-day.active .sb-day-title{color:var(--ink);font-weight:600;}
+.sb-check{width:16px;height:16px;border-radius:50%;border:1.5px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:font-size:9px;}
+.sb-day.done .sb-check{background:#c8590a;border-color:#c8590a;color:white;}
+#content{flex:1;overflow-y:auto;padding:40px;}
+.day-view{max-width:860px;margin:0 auto;}
+.advisor-rail{max-width:860px;margin:0 auto 24px;background:linear-gradient(135deg,#fbf8f2 0%,#fdf3e6 100%);border:1px solid #e6d8be;border-radius:8px;padding:18px 22px;display:none;}
+.advisor-rail.show{display:block;}
+.advisor-rail-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:10px;}
+.advisor-rail-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:#c8590a;text-transform:uppercase;font-weight:700;}
+.advisor-rail-close{background:none;border:none;color:var(--muted);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;}
+.advisor-rail-close:hover{color:var(--ink);}
+.advisor-rail-body{font-size:13px;color:var(--ink2);line-height:1.55;margin-bottom:12px;}
+.advisor-spine{display:flex;flex-wrap:wrap;gap:8px;}
+.advisor-spine a{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:#fff;border:1px solid #c8590a;border-radius:20px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#c8590a;text-decoration:none;cursor:pointer;}
+.advisor-spine a:hover{background:#c8590a;color:#fff;}
+.advisor-spine a.done{opacity:.5;text-decoration:line-through;}
+.advisor-banner{max-width:860px;margin:0 auto 20px;background:#1a1512;color:#fff;border-radius:8px;padding:16px 22px;display:none;align-items:center;justify-content:space-between;gap:14px;}
+.advisor-banner.show{display:flex;}
+.advisor-banner-text{font-size:13px;line-height:1.5;}
+.advisor-banner-text strong{color:#c8590a;}
+.advisor-banner-actions{display:flex;gap:10px;flex-shrink:0;}
+.advisor-cta{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;background:#c8590a;color:#fff;padding:7px 14px;border-radius:3px;text-decoration:none;border:none;cursor:pointer;}
+.advisor-cta:hover{background:#a84a06;}
+.advisor-skip{font-size:11px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-family:inherit;}
+.advisor-skip:hover{color:rgba(255,255,255,.8);}
+@media(max-width:600px){.advisor-banner{flex-direction:column;align-items:flex-start;}}
+.day-header{margin-bottom:32px;}
+.day-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.15em;text-transform:uppercase;margin-bottom:10px;}
+.day-title{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--ink);line-height:1.1;margin-bottom:10px;}
+.day-subtitle{font-size:15px;color:var(--muted);}
+.day-complete-btn{display:inline-flex;align-items:center;gap:8px;margin-top:16px;padding:10px 22px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.day-complete-btn:hover{background:#c8590a;}
+.day-complete-btn.done{background:#2d7a2d;pointer-events:none;}
+.section{margin-bottom:32px;}
+.section-title{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.15em;color:var(--muted);text-transform:uppercase;margin-bottom:14px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.context-body{font-size:15px;color:var(--ink2);line-height:1.75;}
+.context-body p{margin-bottom:14px;}
+.context-body strong{color:var(--ink);font-weight:600;}
+.tasks{display:flex;flex-direction:column;gap:12px;}
+.task{display:flex;gap:14px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:6px;transition:border-color .15s;}
+.task.done{opacity:.65;}
+.task-check{width:22px;height:22px;border-radius:4px;border:2px solid var(--border);flex-shrink:0;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;}
+.task-check:hover{border-color:#c8590a;}
+.task.done .task-check{background:#c8590a;border-color:#c8590a;color:white;}
+.task-body{flex:1;}
+.task-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:4px;}
+.task-title{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:4px;}
+.task-desc{font-size:13px;color:var(--muted);line-height:1.6;}
+.task-time{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);margin-top:6px;}
+.interview-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+.ic-q{padding:16px 20px;border-bottom:1px solid var(--rule);font-size:15px;font-weight:600;color:var(--ink);}
+.ic-toggle{padding:12px 20px;background:none;border:none;font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);letter-spacing:.1em;cursor:pointer;text-align:left;width:100%;}
+.ic-toggle:hover{background:rgba(200,89,10,.04);}
+.ic-answer{padding:0 20px;max-height:0;overflow:hidden;transition:max-height .3s ease,padding .3s;font-size:14px;color:var(--ink2);line-height:1.7;}
+.ic-answer.open{max-height:800px;padding:16px 20px;}
+.resources{display:flex;flex-direction:column;gap:8px;}
+.resource{display:flex;align-items:flex-start;gap:12px;padding:12px 14px;background:var(--card);border:1px solid var(--border);border-radius:4px;}
+.resource-type{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 7px;border-radius:3px;background:rgba(200,89,10,.1);color:#c8590a;letter-spacing:.1em;white-space:nowrap;flex-shrink:0;margin-top:2px;}
+.resource-title{font-size:13px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.resource-note{font-size:12px;color:var(--muted);}
+.resource a{color:#0d6e6e;text-decoration:none;}
+.resource a:hover{text-decoration:underline;}
+.pm-card{background:linear-gradient(135deg,rgba(13,110,110,.08),rgba(200,89,10,.05));border:1px solid var(--border);border-radius:6px;padding:20px 24px;}
+.pm-card p{font-size:14px;color:var(--ink2);line-height:1.7;}
+.code-block{margin:20px 0;}
+.code-block-title{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-bottom:8px;}
+.editor{background:var(--ink);border-radius:8px;overflow:hidden;}
+.e-bar{background:rgba(255,255,255,.04);padding:9px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid rgba(255,255,255,.07);}
+.e-dot{width:11px;height:11px;border-radius:50%;}
+.e-r{background:#ff5f57;}.e-y{background:#ffbd2e;}.e-g{background:#28c840;}
+.e-badge{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.2);margin-left:auto;}
+.e-ta{width:100%;background:transparent;border:none;outline:none;color:#d4c5b0;font-family:'IBM Plex Mono',monospace;font-size:13px;line-height:1.7;resize:vertical;min-height:100px;padding:14px 18px;}
+.e-foot{padding:8px 14px;border-top:1px solid rgba(255,255,255,.06);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.e-sel{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);padding:5px 8px;border-radius:3px;font-size:11px;font-family:'IBM Plex Mono',monospace;}
+.e-run{background:#c8590a;color:white;border:none;padding:7px 18px;border-radius:3px;font-size:11px;font-weight:700;cursor:pointer;font-family:'IBM Plex Mono',monospace;display:flex;align-items:center;gap:6px;flex-shrink:0;}
+.e-spin{width:11px;height:11px;border:2px solid rgba(255,255,255,.2);border-top-color:white;border-radius:50%;animation:spin .7s linear infinite;display:none;}
+.e-spin.on{display:inline-block;}
+.e-out{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);padding:12px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#90b878;min-height:44px;white-space:pre-wrap;word-break:break-all;}
+.e-out.err{color:#f87171;}
+.e-status{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);padding:4px 14px;text-align:right;}
+.notes-area{width:100%;min-height:120px;border:1px solid var(--border);border-radius:4px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card);resize:vertical;outline:none;line-height:1.6;}
+.notes-area:focus{border-color:#c8590a;}
+.notes-save{margin-top:8px;padding:8px 18px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.notes-save:hover{background:#c8590a;}
+.notes-saved{font-family:'IBM Plex Mono',monospace;font-size:10px;color:#4ade80;margin-left:10px;opacity:0;transition:opacity .3s;}
+.notes-saved.show{opacity:1;}
+.progress-bar-wrap{height:3px;background:rgba(255,255,255,.08);margin-top:1px;}
+.progress-bar-fill{height:3px;background:#c8590a;transition:width .4s ease;}
+@media(max-width:768px){#sidebar{display:none;}#content{padding:20px;}}
+/* SHARE MODAL */
+.share-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:1000;align-items:center;justify-content:center;backdrop-filter:blur(3px);}
+.share-overlay.open{display:flex;}
+.share-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:36px;max-width:420px;width:90%;text-align:center;}
+.share-emoji{font-size:48px;margin-bottom:12px;}
+.share-title{font-family:'Fraunces',serif;font-size:24px;font-weight:900;color:var(--ink);margin-bottom:8px;}
+.share-sub{font-size:14px;color:var(--muted);margin-bottom:24px;line-height:1.6;}
+.share-btns{display:flex;flex-direction:column;gap:10px;margin-bottom:16px;}
+.share-btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 20px;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all .15s;text-decoration:none;color:white;}
+.share-btn.linkedin{background:#0077B5;}
+.share-btn.linkedin:hover{background:#005e93;}
+.share-btn.xcom{background:#1a1512;}
+.share-btn.xcom:hover{background:var(--amber);}
+.share-btn.copy{background:var(--card);color:var(--ink);border:1px solid var(--border);}
+.share-btn.copy:hover{border-color:var(--amber);color:var(--amber);}
+.share-skip{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);background:none;border:none;cursor:pointer;padding:8px;}
+.share-skip:hover{color:var(--amber);}
+.share-toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:white;padding:10px 20px;border-radius:4px;font-size:13px;font-family:'IBM Plex Mono',monospace;opacity:0;transition:opacity .3s;pointer-events:none;z-index:1001;}
+.share-toast.show{opacity:1;}
+/* COOKIE CONSENT */
+.cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.cookie-banner.show{display:flex;}
+.cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
+.cookie-text a{color:var(--amber);text-decoration:underline;}
+.cookie-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;border-radius:3px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.cookie-accept{background:var(--amber);color:white;}
+.cookie-accept:hover{background:#a84a06;}
+.cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+/* SIGN-IN PROMPT (unauthenticated redirect to Clerk) */
+#signin-prompt{display:none;position:fixed;inset:0;background:var(--ink);z-index:10000;align-items:center;justify-content:center;}
+#signin-prompt.open{display:flex;}
+.sp-inner{text-align:center;}
+.sp-spin{width:36px;height:36px;border:3px solid rgba(255,255,255,.1);border-top-color:#c8590a;border-radius:50%;animation:spin .8s linear infinite;margin:0 auto 16px;}
+.sp-text{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.12em;}
+.sp-actions{display:none;margin-top:24px;}
+.sp-actions.show{display:flex;flex-direction:column;align-items:center;gap:10px;}
+.sp-btn{font-family:'IBM Plex Mono',monospace;font-size:12px;padding:10px 24px;border-radius:4px;cursor:pointer;border:none;transition:all .15s;}
+.sp-btn-primary{background:#c8590a;color:white;}
+.sp-btn-primary:hover{background:#a84a06;}
+.sp-btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.sp-btn-ghost:hover{border-color:#c8590a;color:#c8590a;}
+.notif-nudge{position:fixed;bottom:20px;right:20px;max-width:340px;background:#1a1512;color:#fff;border:1px solid #3d3530;border-left:3px solid #c8590a;border-radius:6px;padding:14px 16px 14px 18px;box-shadow:0 8px 24px rgba(0,0,0,.25);font-family:'DM Sans',sans-serif;font-size:13px;line-height:1.5;z-index:9000;display:none;animation:nudge-in .3s ease-out;}
+.notif-nudge.show{display:block;}
+.notif-nudge-title{font-weight:700;color:#c8590a;font-size:11px;font-family:'IBM Plex Mono',monospace;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;}
+.notif-nudge-body{color:rgba(255,255,255,.85);margin-bottom:10px;}
+.notif-nudge-actions{display:flex;gap:10px;align-items:center;}
+.notif-nudge-cta{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;background:#c8590a;color:#fff;padding:7px 14px;border-radius:3px;text-decoration:none;border:none;cursor:pointer;}
+.notif-nudge-cta:hover{background:#a84a06;}
+.notif-nudge-skip{font-size:11px;color:rgba(255,255,255,.4);background:none;border:none;cursor:pointer;font-family:inherit;}
+.notif-nudge-skip:hover{color:rgba(255,255,255,.7);}
+@keyframes nudge-in{from{transform:translateY(20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@media(max-width:600px){.notif-nudge{left:12px;right:12px;bottom:12px;max-width:none;}}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"Course","name":"60-Day AI Product Management Course","description":"Master AI product management in 60 days. Hands-on curriculum with code labs, LLM APIs, evals, PRDs, and interview prep.","url":"https://becomeaipm.com/course.html","provider":{"@type":"Organization","name":"becomeaipm","url":"https://becomeaipm.com/","sameAs":"https://www.linkedin.com/company/becomeaipm/about"},"inLanguage":"en-US","educationalLevel":"Intermediate","teaches":["AI product management","LLM evals","Prompt engineering","RAG systems","AI economics","AI PM interviews"],"hasCourseInstance":{"@type":"CourseInstance","courseMode":"online","courseWorkload":"PT60D","instructor":{"@type":"Person","name":"Stavan Mehta","sameAs":"https://www.linkedin.com/in/stavanmehta/"}},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD","availability":"https://schema.org/InStock","url":"https://becomeaipm.com/course.html"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[
+  {"@type":"ListItem","position":1,"name":"Home","item":"https://becomeaipm.com/"},
+  {"@type":"ListItem","position":2,"name":"Course","item":"https://becomeaipm.com/course.html"}
+]}
+</script>
+</head>
+<body>
+<div id="loader">
+  <div class="ld-spin"></div>
+  <div class="ld-text">LOADING COURSE...</div>
+  <div class="ld-err" id="ld-err"></div>
+</div>
+
+<div class="notif-nudge" id="notif-nudge" role="status" aria-live="polite">
+  <div class="notif-nudge-title">📬 Stay current</div>
+  <div class="notif-nudge-body">Get matching AI PM jobs + 3 fresh interview questions every Monday — based on the past week's AI news.</div>
+  <div class="notif-nudge-actions">
+    <a class="notif-nudge-cta" href="/settings.html">Set up alerts →</a>
+    <button class="notif-nudge-skip" onclick="dismissNudge()">Not now</button>
+  </div>
+</div>
+
+<!-- Sign-in prompt overlay for unauthenticated CTA visitors -->
+<div id="signin-prompt">
+  <div class="sp-inner">
+    <div class="sp-spin" id="sp-spin"></div>
+    <div class="sp-text" id="sp-text">OPENING SIGN IN...</div>
+    <div class="sp-actions" id="sp-actions">
+      <button class="sp-btn sp-btn-primary" onclick="retrySignIn()">Try Again</button>
+      <a class="sp-btn sp-btn-ghost" href="/">Return to Homepage</a>
+    </div>
+  </div>
+</div>
+
+<aside id="app-nav"></aside>
+<div class="progress-bar-wrap" id="pb-wrap" style="display:none">
+  <div class="progress-bar-fill" id="pb-fill" style="width:0%"></div>
+</div>
+
+<div class="app" id="app" style="display:none">
+  <div id="sidebar"><div class="sb-phases" id="sb-phases"></div></div>
+  <div id="content">
+    <div id="advisor-banner" class="advisor-banner" role="status">
+      <div class="advisor-banner-text">📚 <strong>Personalize your path.</strong> A 60-second quiz and we'll recommend the best 5 days to start with based on your background.</div>
+      <div class="advisor-banner-actions">
+        <a class="advisor-cta" href="/onboarding.html">Take the quiz →</a>
+        <button class="advisor-skip" onclick="dismissAdvisorBanner()">Not now</button>
+      </div>
+    </div>
+    <div id="advisor-rail" class="advisor-rail" role="region" aria-label="Recommended days">
+      <div class="advisor-rail-head">
+        <div class="advisor-rail-label">⭐ Recommended for you</div>
+        <button class="advisor-rail-close" title="Dismiss" onclick="dismissAdvisorRail()">×</button>
+      </div>
+      <div class="advisor-rail-body" id="advisor-rail-body"></div>
+      <div class="advisor-spine" id="advisor-spine"></div>
+    </div>
+    <div class="day-view" id="day-view"></div>
+  </div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="share-overlay" id="share-overlay" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-card">
+    <div class="share-emoji">&#127881;</div>
+    <div class="share-title" id="share-title">Day 1 Complete!</div>
+    <div class="share-sub">Share your progress and inspire others to start their AI PM journey.</div>
+    <div class="share-btns">
+      <a class="share-btn linkedin" id="share-linkedin" href="#" target="_blank" rel="noopener" onclick="trackShare('LinkedIn')">&#x1F310; Share on LinkedIn</a>
+      <a class="share-btn xcom" id="share-xcom" href="#" target="_blank" rel="noopener" onclick="trackShare('X')">&#x1D54F; Share on X</a>
+      <button class="share-btn copy" onclick="copyShareText()">&#128203; Copy for Instagram</button>
+    </div>
+    <button class="share-skip" onclick="closeShareModal()">Skip</button>
+  </div>
+</div>
+<div class="share-toast" id="share-toast">Copied! Paste on Instagram</div>
+
+<script src="/days/day-01.js"></script>
+<script src="/days/day-02.js"></script>
+<script src="/days/day-03.js"></script>
+<script src="/days/day-04.js"></script>
+<script src="/days/day-05.js"></script>
+<script src="/days/day-06.js"></script>
+<script src="/days/day-07.js"></script>
+<script src="/days/day-08.js"></script>
+<script src="/days/day-09.js"></script>
+<script src="/days/day-10.js"></script>
+<script src="/days/day-11.js"></script>
+<script src="/days/day-12.js"></script>
+<script src="/days/day-13.js"></script>
+<script src="/days/day-14.js"></script>
+<script src="/days/day-15.js"></script>
+<script src="/days/day-16.js"></script>
+<script src="/days/day-17.js"></script>
+<script src="/days/day-18.js"></script>
+<script src="/days/day-19.js"></script>
+<script src="/days/day-20.js"></script>
+<script src="/days/day-21.js"></script>
+<script src="/days/day-22.js"></script>
+<script src="/days/day-23.js"></script>
+<script src="/days/day-24.js"></script>
+<script src="/days/day-25.js"></script>
+<script src="/days/day-26.js"></script>
+<script src="/days/day-27.js"></script>
+<script src="/days/day-28.js"></script>
+<script src="/days/day-29.js"></script>
+<script src="/days/day-30.js"></script>
+<script src="/days/day-31.js"></script>
+<script src="/days/day-32.js"></script>
+<script src="/days/day-33.js"></script>
+<script src="/days/day-34.js"></script>
+<script src="/days/day-35.js"></script>
+<script src="/days/day-36.js"></script>
+<script src="/days/day-37.js"></script>
+<script src="/days/day-38.js"></script>
+<script src="/days/day-39.js"></script>
+<script src="/days/day-40.js"></script>
+<script src="/days/day-41.js"></script>
+<script src="/days/day-42.js"></script>
+<script src="/days/day-43.js"></script>
+<script src="/days/day-44.js"></script>
+<script src="/days/day-45.js"></script>
+<script src="/days/day-46.js"></script>
+<script src="/days/day-47.js"></script>
+<script src="/days/day-48.js"></script>
+<script src="/days/day-49.js"></script>
+<script src="/days/day-50.js"></script>
+<script src="/days/day-51.js"></script>
+<script src="/days/day-52.js"></script>
+<script src="/days/day-53.js"></script>
+<script src="/days/day-54.js"></script>
+<script src="/days/day-55.js"></script>
+<script src="/days/day-56.js"></script>
+<script src="/days/day-57.js"></script>
+<script src="/days/day-58.js"></script>
+<script src="/days/day-59.js"></script>
+<script src="/days/day-60.js"></script>
+
+<script>
+const PHASES = [
+  { label:'Phase 1 — Foundations', days:[1,20] },
+  { label:'Phase 2 — Protocols & Frameworks', days:[21,40] },
+  { label:'Phase 3 — Leadership & Ship', days:[41,60] },
+];
+
+const DAY_TITLES = {
+1:"AI Landscape & Model Families",2:"How LLMs Work — Tokens, Context, Sampling",3:"Constitutional AI & RLHF",4:"Claude's Model Family & Anthropic's Mission",5:"OpenAI Model Strategy",
+6:"Reasoning Models — o1, o3, o4",7:"Multimodal AI — Vision, Voice, Video",8:"The Frontier Lab Business Model",9:"Anthropic API Deep Dive",10:"OpenAI API Deep Dive",
+11:"Tool Use & Function Calling",12:"Model Context Protocol (MCP)",13:"RAG Architectures",14:"Fine-tuning & Distillation",15:"LangChain & Orchestration",
+16:"Vector Databases & Embeddings",17:"AI Cost Optimization",18:"Evals & Benchmarks",19:"Responsible Scaling Policies",20:"Phase 1 Capstone — Product Strategy Doc",
+21:"LlamaIndex & Document Intelligence",22:"CrewAI & Multi-Agent Systems",23:"AutoGen v0.4 — Microsoft Agent Framework",24:"AI Observability — Tracing & Monitoring",25:"Computer Use Agents",
+26:"Agent-to-Agent Protocol (A2A)",27:"Agent Communication Protocol (ACP)",28:"Agent Network Protocol (ANP)",29:"Open Agent Schema Framework (OASF)",30:"Enterprise AI Integration",
+31:"AI Metrics & KPIs",32:"AI Product Strategy",33:"Technical PM Interview Prep",34:"Stakeholder Communication for AI",35:"AI Roadmapping",
+36:"Competitive Analysis Framework",37:"Pricing AI Products",38:"Go-to-Market for AI",39:"Phase 2 Capstone — Competitive Teardown",40:"Mock Interview Sprint",
+41:"Claude's Safety Architecture",42:"OpenAI Safety & Alignment",43:"Claude Code — Agentic CLI",44:"GitHub Copilot Ecosystem",45:"Azure AI Foundry",
+46:"Agent Skills & Registries",47:"Semantic Kernel & AutoGen Stack",48:"Interpretability & Explainability",49:"AI Policy & Regulation",50:"Phase 3 Capstone — Enterprise AI Strategy",
+51:"Leading AI Product Teams",52:"OKRs for AI Products",53:"Advanced Evals & Red-Teaming",54:"Developer Experience Design",55:"DX Audit Capstone",
+56:"Portfolio Assembly",57:"Mock Interview Loop",58:"Your AI Product Vision Statement",59:"Capstone Case Study",60:"Retrospective & Launch"
+};
+
+let clerk=null,cfg={},completed=new Set(),taskStates={},notes={},currentDay=1,pyodide=null,pyLoading=false;
+// All 60 days open to signed-in users — no subscription required
+let maxDayUnlocked=60,userTier='open',userFeatures={progressTracking:true,saveJobs:true,slackCommunity:false,certification:false};
+
+var pendoInitialized = false;
+function initPendo(apiKey, user) {
+  if (!apiKey) return;
+  var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+  var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+  var visitorFirst = user ? (user.firstName || '') : '';
+  var visitorLast = user ? (user.lastName || '') : '';
+  if (pendoInitialized) {
+    if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast }, account: { id: 'becomeaipm' } });
+    return;
+  }
+  (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+  v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+  y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+  z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+  pendoInitialized = true;
+  pendo.initialize({
+    visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst, lastName: visitorLast },
+    account: { id: 'becomeaipm' }
+  });
+}
+
+(async function boot(){
+  try{ const r=await fetch('/api/config'); cfg=await r.json(); }
+  catch(e){ showLdErr('Could not reach /api/config.'); return; }
+  if(!cfg.clerkPublishableKey||!cfg.clerkDomain){
+    showLdErr('Auth keys not configured. Add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_DOMAIN in Vercel env vars.');
+    return;
+  }
+  const s=document.createElement('script');
+  s.src=`https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+  s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
+  s.crossOrigin='anonymous';
+  document.head.appendChild(s);
+  s.onerror=()=>showLdErr('Failed to load auth. Check CLERK_DOMAIN env var.');
+  s.onload=async()=>{
+    try{ clerk=window.Clerk; await clerk.load(); }
+    catch(e){ showLdErr('Auth init failed: '+e.message); return; }
+    if(!clerk.user){
+      hideLoader();
+      document.getElementById('signin-prompt').classList.add('open');
+      clerk.openSignIn({ fallbackRedirectUrl: window.location.href });
+      // Show fallback actions after a delay in case user cancels the modal
+      setTimeout(function(){
+        if(!clerk.user){
+          document.getElementById('sp-spin').style.display='none';
+          document.getElementById('sp-text').textContent='SIGN IN REQUIRED TO ACCESS THE COURSE';
+          document.getElementById('sp-actions').classList.add('show');
+        }
+      }, 2000);
+      // Listen for auth state changes — if user signs in via modal, proceed to load course
+      clerk.addListener(function onAuthChange(){
+        if(clerk.user){
+          document.getElementById('signin-prompt').classList.remove('open');
+          document.getElementById('loader').style.display='flex';
+          document.getElementById('loader').classList.remove('gone');
+          setLdText('LOADING PROGRESS...');
+          document.querySelector('.ld-spin').style.display='block';
+          (async function(){
+            await loadProgress();
+            renderNav(); renderDaySidebar(); renderDay(currentDay);
+            document.getElementById('pb-wrap').style.display='block';
+            document.getElementById('app').style.display='flex';
+            updateProgress(); hideLoader();
+            if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
+            checkCookieConsent();
+            loadAdvisor();
+          })();
+        }
+      });
+      return;
+    }
+    setLdText('LOADING PROGRESS...');
+    await loadProgress();
+    renderNav(); renderDaySidebar(); renderDay(currentDay);
+    document.getElementById('pb-wrap').style.display='block';
+    document.getElementById('app').style.display='flex';
+    updateProgress(); hideLoader();
+    if(canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
+    checkCookieConsent();
+    maybeShowNotifNudge();
+    loadAdvisor();
+  };
+})();
+
+async function loadAdvisor(){
+  try{
+    if(!clerk||!clerk.user)return;
+    var token=await clerk.session.getToken();
+    var r=await fetch('/api/course-advisor',{headers:{'Authorization':'Bearer '+token}});
+    if(!r.ok)return;
+    var d=await r.json();
+    var advisor=d&&d.advisor;
+    if(!advisor){
+      if(localStorage.getItem('advisor_banner_dismissed')==='1')return;
+      document.getElementById('advisor-banner').classList.add('show');
+      return;
+    }
+    if(advisor.skipped||advisor.completed_spine)return;
+    if(localStorage.getItem('advisor_rail_dismissed')==='1')return;
+    var spine=advisor.spine||[];
+    if(!spine.length)return;
+    document.getElementById('advisor-rail-body').textContent=advisor.rationale||'Start with these days for the best on-ramp:';
+    document.getElementById('advisor-spine').innerHTML=spine.map(function(d){
+      var done=completed.has(d)?' done':'';
+      return '<a href="#" class="'+done+'" onclick="goToDay('+d+');return false;">Day '+String(d).padStart(2,'0')+'</a>';
+    }).join('');
+    document.getElementById('advisor-rail').classList.add('show');
+    var allDone=spine.every(function(d){return completed.has(d);});
+    if(allDone){
+      try{
+        var token2=await clerk.session.getToken();
+        await fetch('/api/course-advisor',{
+          method:'POST',
+          headers:{'Authorization':'Bearer '+token2,'Content-Type':'application/json'},
+          body:JSON.stringify({answers:advisor.profile,daySubtitles:[],completed_spine:true})
+        });
+      }catch(e){}
+    }
+  }catch(e){}
+}
+function dismissAdvisorBanner(){
+  try{localStorage.setItem('advisor_banner_dismissed','1');}catch(e){}
+  document.getElementById('advisor-banner').classList.remove('show');
+}
+function dismissAdvisorRail(){
+  try{localStorage.setItem('advisor_rail_dismissed','1');}catch(e){}
+  document.getElementById('advisor-rail').classList.remove('show');
+}
+function goToDay(n){
+  currentDay=n;
+  if(typeof renderDay==='function')renderDay(n);
+  if(typeof renderDaySidebar==='function')renderDaySidebar();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function maybeShowNotifNudge(){
+  try{
+    if(localStorage.getItem('notif_nudge_seen')==='1') return;
+    if(!clerk||!clerk.user) return;
+    setTimeout(function(){
+      var el=document.getElementById('notif-nudge');
+      if(el) el.classList.add('show');
+    }, 4000);
+  }catch(e){}
+}
+function dismissNudge(){
+  try{ localStorage.setItem('notif_nudge_seen','1'); }catch(e){}
+  var el=document.getElementById('notif-nudge');
+  if(el) el.classList.remove('show');
+}
+
+function hideLoader(){ const l=document.getElementById('loader'); l.classList.add('gone'); setTimeout(()=>l.style.display='none',500); }
+function showLdErr(html){ document.querySelector('.ld-spin').style.display='none'; document.querySelector('.ld-text').style.display='none'; const el=document.getElementById('ld-err'); el.innerHTML=html; el.style.display='block'; }
+function setLdText(t){ document.querySelector('.ld-text').textContent=t; }
+function retrySignIn(){
+  document.getElementById('sp-spin').style.display='block';
+  document.getElementById('sp-text').textContent='OPENING SIGN IN...';
+  document.getElementById('sp-actions').classList.remove('show');
+  clerk.openSignIn({ fallbackRedirectUrl: window.location.href });
+  setTimeout(function(){ if(!clerk.user){ document.getElementById('sp-spin').style.display='none'; document.getElementById('sp-text').textContent='SIGN IN REQUIRED TO ACCESS THE COURSE'; document.getElementById('sp-actions').classList.add('show'); } }, 2000);
+}
+
+async function loadProgress(){
+  try{
+    const token=await clerk.session.getToken();
+    const r=await fetch('/api/progress',{headers:{'Authorization':'Bearer '+token}});
+    if(r.ok){
+      const d=await r.json();
+      completed=new Set(d.completed||[]); taskStates=d.taskStates||{}; notes=d.notes||{};
+      const lastDone=Math.max(0,...[...completed]);
+      currentDay=Math.min(60,lastDone+1)||1;
+      if(completed.size===0 && !sessionStorage.getItem('welcome_sent')){
+        sendWelcomeEmail();
+      }
+    }
+  }catch(e){}
+}
+
+async function sendWelcomeEmail(){
+  try{
+    sessionStorage.setItem('welcome_sent','1');
+    const token=await clerk.session.getToken();
+    const email=clerk.user.emailAddresses?.[0]?.emailAddress||'';
+    const firstName=clerk.user.firstName||'';
+    console.log('[welcome-email] attempting:', {email: email ? email.substring(0,3)+'***' : '(empty)', firstName, hasToken: !!token});
+    if(!email){ console.warn('[welcome-email] no email found on clerk.user'); return; }
+    const resp=await fetch('/api/welcome-email',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+      body:JSON.stringify({email,firstName})
+    });
+    const d=await resp.json().catch(()=>({}));
+    console.log('[welcome-email] response:', resp.status, d);
+    if(!resp.ok) console.error('[welcome-email] API error:', resp.status);
+    else if(!d.sent) console.warn('[welcome-email] not sent:', d.reason, d.detail||'');
+  }catch(e){ console.error('[welcome-email] failed:', e); }
+}
+
+async function saveProgress(){
+  try{
+    const token=await clerk.session.getToken();
+    await fetch('/api/progress',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({completed:[...completed],taskStates,notes})});
+  }catch(e){}
+}
+
+function renderNav(){}
+function updateStreak(){}
+
+function renderDaySidebar(){
+  const container=document.getElementById('sb-phases'); container.innerHTML='';
+  for(const phase of PHASES){
+    const header=document.createElement('div'); header.className='sb-phase-header'; header.textContent=phase.label; container.appendChild(header);
+    for(let d=phase.days[0];d<=phase.days[1];d++){
+      const el=document.createElement('div');
+      el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'');
+      el.dataset.day=d;
+      el.innerHTML=`<div class="sb-day-num">D${String(d).padStart(2,'0')}</div><div class="sb-day-title">${DAY_TITLES[d]||'Day '+d}</div><div class="sb-check">${completed.has(d)?'&#10003;':''}</div>`;
+      el.addEventListener('click',()=>{ currentDay=d; renderDay(d); syncSidebar(); });
+      container.appendChild(el);
+    }
+  }
+}
+
+function syncSidebar(){
+  document.querySelectorAll('.sb-day').forEach(el=>{
+    const d=Number(el.dataset.day);
+    el.className='sb-day'+(completed.has(d)?' done':'')+(d===currentDay?' active':'');
+    el.querySelector('.sb-check').innerHTML=completed.has(d)?'&#10003;':'';
+  });
+  updateProgress(); updateStreak();
+  const tbLabel1=document.getElementById('tb-day-label'); if(tbLabel1) tbLabel1.textContent='Day '+currentDay;
+}
+
+function updateProgress(){ const pct=Math.round((completed.size/60)*100); document.getElementById('pb-fill').style.width=pct+'%'; }
+
+function renderDay(day){
+  const tbLabel=document.getElementById('tb-day-label'); if(tbLabel) tbLabel.textContent='Day '+day;
+  const data=getDayData(day); const isDone=completed.has(day);
+  const view=document.getElementById('day-view');
+  view.innerHTML=`
+    <div class="day-header">
+      <div class="day-meta">Day ${day} of 60 &middot; ${data.phase}</div>
+      <div class="day-title">${data.title}</div>
+      <div class="day-subtitle">${data.subtitle}</div>
+      <button class="day-complete-btn ${isDone?'done':''}" id="complete-btn" onclick="markDayComplete(${day})">${isDone?'&#10003; Day Completed':'Mark Day Complete'}</button>
+    </div>
+    <div class="section"><div class="section-title">Context &amp; Concepts</div><div class="context-body">${data.context}</div></div>
+    <div class="section"><div class="section-title">Today&#39;s Tasks</div><div class="tasks" id="tasks-container">${data.tasks.map((t,i)=>renderTask(day,i,t)).join('')}</div></div>
+    ${data.codeExample?`<div class="section"><div class="section-title">Hands-On Code</div>${renderCodeBlock(day,data.codeExample)}</div>`:''}
+    <div class="section"><div class="section-title">Interview Preparation</div><div class="interview-card"><div class="ic-q">Q: ${data.interview.question}</div><button class="ic-toggle" onclick="toggleAnswer(this)">&#9658; SHOW MODEL ANSWER</button><div class="ic-answer">${data.interview.answer}</div></div></div>
+    <div class="section"><div class="section-title">PM Leadership Angle</div><div class="pm-card"><p>${data.pmAngle}</p></div></div>
+    <div class="section"><div class="section-title">Resources</div><div class="resources">${data.resources.map(r=>`<div class="resource"><div class="resource-type">${r.type}</div><div><div class="resource-title"><a href="${r.url}" target="_blank" rel="noopener">${r.title}</a></div><div class="resource-note">${r.note}</div></div></div>`).join('')}</div></div>
+    <div class="section"><div class="section-title">Your Notes</div><textarea class="notes-area" id="notes-area" placeholder="Your notes for Day ${day}...">${notes['day'+day]||''}</textarea><button class="notes-save" onclick="saveNote(${day})">Save Note</button><span class="notes-saved" id="notes-saved">Saved &#10003;</span></div>
+  `;
+  document.getElementById('content').scrollTo({top:0,behavior:'smooth'});
+  if(window.pendo && pendo.pageLoad) pendo.pageLoad();
+  // Fire Course Day Started once per day per session (dedupe via window set).
+  if(window.pendo && pendo.track){
+    window.__dayStarted = window.__dayStarted || new Set();
+    if(!window.__dayStarted.has(day)){
+      window.__dayStarted.add(day);
+      pendo.track('Course Day Started', { day: day, completed: completed.has(day) });
+    }
+  }
+}
+
+function renderTask(day,i,task){
+  const key=`day${day}_task${i}`; const done=taskStates[key]||false;
+  return `<div class="task ${done?'done':''}" id="task-${day}-${i}"><div class="task-check" onclick="toggleTask(${day},${i})">${done?'&#10003;':''}</div><div class="task-body"><div class="task-label">Task ${i+1}</div><div class="task-title">${task.title}</div><div class="task-desc">${task.description}</div><div class="task-time">&#9203; ${task.time}</div></div></div>`;
+}
+
+function renderCodeBlock(day,ex){
+  const id=`editor-${day}`;
+  return `<div class="code-block"><div class="code-block-title">${ex.title||'Code Exercise'}</div><div class="editor"><div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'}</div></div><textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea><div class="e-foot"><select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')"><option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option><option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (sandbox)</option></select><button class="e-run" onclick="runEditor('${id}')"><span class="e-spin" id="${id}-spin"></span>&#9654; Run</button></div><div class="e-out" id="${id}-out">// Press Run</div><div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div></div></div>`;
+}
+
+function onEditorLangChange(id){ document.getElementById(id+'-badge').innerHTML=document.getElementById(id+'-lang').value==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'; }
+function toggleAnswer(btn){ const ans=btn.nextElementSibling; const open=ans.classList.toggle('open'); btn.textContent=(open?'&#9660; HIDE':'&#9658; SHOW')+' MODEL ANSWER'; }
+
+function toggleTask(day,i){
+  const key=`day${day}_task${i}`; taskStates[key]=!taskStates[key];
+  const el=document.getElementById(`task-${day}-${i}`);
+  if(el){ el.className='task '+(taskStates[key]?'done':''); el.querySelector('.task-check').innerHTML=taskStates[key]?'&#10003;':''; }
+  saveProgress();
+}
+
+function markDayComplete(day){
+  completed.add(day);
+  if(window.pendo && pendo.track) pendo.track('Day Completed', {day: day});
+  const btn=document.getElementById('complete-btn');
+  if(btn){ btn.innerHTML='&#10003; Day Completed'; btn.className='day-complete-btn done'; }
+  syncSidebar(); saveProgress();
+  showShareModal(day);
+  if(day<60){ setTimeout(()=>{ currentDay=day+1; renderDay(day+1); syncSidebar(); },1200); }
+}
+
+var shareDay = 1;
+function showShareModal(day) {
+  shareDay = day;
+  document.getElementById('share-title').textContent = 'Day ' + day + ' Complete!';
+  var text = 'I just completed Day ' + day + '/60 of Become AI PM! #BecomeAIPM';
+  var url = 'https://becomeaipm.com/course.html';
+  document.getElementById('share-linkedin').href = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+  document.getElementById('share-xcom').href = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+  document.getElementById('share-overlay').classList.add('open');
+}
+function closeShareModal() {
+  document.getElementById('share-overlay').classList.remove('open');
+}
+function trackShare(platform) {
+  if (window.pendo && pendo.track) pendo.track('Day Share', { day: shareDay, platform: platform });
+}
+function copyShareText() {
+  var text = 'I just completed Day ' + shareDay + '/60 of Become AI PM! \uD83D\uDE80 #BecomeAIPM\nhttps://becomeaipm.com/course.html';
+  navigator.clipboard.writeText(text).then(function() {
+    var toast = document.getElementById('share-toast');
+    toast.classList.add('show');
+    setTimeout(function() { toast.classList.remove('show'); }, 2500);
+  });
+  trackShare('Instagram');
+}
+
+function saveNote(day){
+  const area=document.getElementById('notes-area');
+  if(area){ notes['day'+day]=area.value; }
+  const saved=document.getElementById('notes-saved');
+  if(saved){ saved.classList.add('show'); setTimeout(()=>saved.classList.remove('show'),2000); }
+  saveProgress();
+}
+
+async function runEditor(id){
+  const lang=document.getElementById(id+'-lang').value;
+  const code=document.getElementById(id+'-code').value;
+  const out=document.getElementById(id+'-out');
+  const spin=document.getElementById(id+'-spin');
+  spin.classList.add('on');
+  if(lang==='python'){ await runPython(code,out,id+'-status'); } else { runJS(code,out); }
+  spin.classList.remove('on');
+}
+
+async function runPython(code,outEl,statusId){
+  const statusEl=statusId?document.getElementById(statusId):null;
+  const setStatus=t=>{ if(statusEl)statusEl.textContent=t; };
+  try{
+    if(!pyodide&&!pyLoading){
+      pyLoading=true; outEl.textContent='Loading Pyodide WebAssembly (~10MB, one-time)...'; setStatus('Pyodide: downloading...');
+      const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'; document.head.appendChild(s);
+      await new Promise((res,rej)=>{ s.onload=res; s.onerror=()=>rej(new Error('CDN unreachable')); });
+      pyodide=await window.loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/'});
+      setStatus('Pyodide: ready &#10003;'); pyLoading=false;
+    } else if(pyLoading){ outEl.textContent='Python runtime still loading...'; return; }
+    let buf='';
+    pyodide.setStdout({batched:s=>buf+=s+'\n'});
+    pyodide.setStderr({batched:s=>buf+='&#9888; '+s+'\n'});
+    await pyodide.runPythonAsync(code);
+    outEl.textContent=buf.trimEnd()||'(no output)'; outEl.className='e-out';
+  }catch(e){ outEl.textContent=String(e); outEl.className='e-out err'; setStatus('Pyodide: error'); pyLoading=false; }
+}
+
+function runJS(code,outEl){
+  const iframe=document.createElement('iframe'); iframe.style.display='none'; iframe.sandbox='allow-scripts'; document.body.appendChild(iframe);
+  const logs=[],w=iframe.contentWindow;
+  w.console={log:(...a)=>logs.push(a.map(x=>typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' ')),error:(...a)=>logs.push('&#9888; '+a.map(String).join(' ')),warn:(...a)=>logs.push('&#9888; '+a.map(String).join(' ')),table:(...a)=>logs.push(JSON.stringify(a,null,2))};
+  try{ w.eval(code); outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out'; }
+  catch(e){ outEl.textContent=e.toString(); outEl.className='e-out err'; }
+  finally{ document.body.removeChild(iframe); }
+}
+
+document.addEventListener('keydown',e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
+    const active=document.activeElement;
+    if(active&&active.classList.contains('e-ta')){ e.preventDefault(); runEditor(active.id.replace('-code','')); }
+  }
+});
+
+function getDayData(day){
+  const defaults={
+    phase: day<=20?'Phase 1 — Foundations':day<=40?'Phase 2 — Protocols & Frameworks':'Phase 3 — Leadership & Ship',
+    title: DAY_TITLES[day]||'Day '+day,
+    subtitle: 'Master the tools, protocols, and frameworks used at frontier AI labs.',
+    context: '<p>Lesson content loading. If this persists, please refresh the page.</p>',
+    tasks:[
+      {title:'Read the lesson',description:"Study today's context and concepts carefully.",time:'30 min'},
+      {title:'Complete the hands-on exercise',description:'Apply the concept with the code runner below.',time:'25 min'},
+      {title:'Answer the interview question',description:'Write your answer before revealing the model answer.',time:'20 min'},
+      {title:'Review resources',description:'Skim the pre-selected docs and flag what to revisit.',time:'15 min'},
+    ],
+    interview:{question:"How would you explain today's topic to a non-technical PM?",answer:'Structure your answer with: (1) the problem this solves, (2) how it works at a high level, (3) why it matters for product decisions, and (4) a concrete example from a product you know.'},
+    pmAngle:'Every technical topic in this course has a product decision attached to it. Your job as an AI PM is to understand the tradeoffs well enough to make build/buy/partner calls and communicate them credibly.',
+    resources:[
+      {type:'DOCS',title:'Anthropic Documentation',url:'https://docs.anthropic.com',note:'Primary reference for all Claude API and safety concepts.'},
+      {type:'DOCS',title:'OpenAI Documentation',url:'https://platform.openai.com/docs',note:'Primary reference for GPT and Assistants API.'},
+    ],
+  };
+  const overrides=getDayOverride(day);
+  return {...defaults,...overrides};
+}
+
+function getDayOverride(day){
+  if(window.COURSE_DAY_DATA && window.COURSE_DAY_DATA[day]){
+    return window.COURSE_DAY_DATA[day];
+  }
+  return {};
+}
+
+// ── COOKIE CONSENT ──
+function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(clerk&&clerk.user) initPendo(cfg.pendoApiKey,clerk.user); }
+function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
+function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
+function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
+</script>
+
+<div class="cookie-banner" id="cookie-banner">
+  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+  <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+</div>
+<script src="/components/nav.js"></script>
+<script>renderSidebar({ active: 'course' });</script>
+
+</body>
+</html>

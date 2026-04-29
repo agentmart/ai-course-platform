@@ -1,0 +1,22 @@
+# robots.txt for becomeaipm.com
+# Canonical host: https://becomeaipm.com (non-www)
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /days/
+
+# AI crawlers — explicitly allowed (we want brand reach)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+Sitemap: https://becomeaipm.com/sitemap.xml
