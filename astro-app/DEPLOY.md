@@ -55,6 +55,7 @@ This is the Sprint 4 deployment plan for migrating becomeaipm.com from Vercel to
 
 | Symptom | Fix |
 |---|---|
+| **Build fails on `main` but passes on `feat/astro-migration`** | Expected — `astro-app/` doesn't exist on `main` yet. Until squash-merge, set CF Pages production branch to `feat/astro-migration` (Settings → Builds & deployments → Production branch). After cutover, flip back to `main`. |
 | `Cannot find module 'resend'` | `astro-app/package.json` must list `resend` (added). Run `npm install` to refresh `package-lock.json` before pushing. |
 | `Process #unstable_enableNodejsCompat is not enabled` or `node:crypto / node:buffer not found` | Add `nodejs_compat` to **Compatibility flags** in CF Pages → Settings → Functions. |
 | `engine "node" requires Node >=20` | Set `NODE_VERSION=20` env var on the project (production + preview). |
