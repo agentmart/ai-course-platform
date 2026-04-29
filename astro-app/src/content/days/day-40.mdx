@@ -1,0 +1,53 @@
+---
+day: 40
+subtitle: "Simulate the full AI PM interview loop — pressure-test every skill."
+track: full
+tasks:
+    - title: "Mock 1: Product design (30 min)"
+      time: 25
+      description: "Set a timer. Answer this prompt as if in a live interview: “Design an AI agent that automates insurance claims processing. Walk me through the user experience, agent architecture, model selection, evaluation methodology, and launch plan.” Write your answer in 20 minutes, then spend 10 minutes self-critiquing: what did you miss? Did you address failure modes and human-in-the-loop? Save as /day-40/mock1_product_design.md."
+    - title: "Mock 2: Technical depth (25 min)"
+      time: 25
+      description: "Set a timer. Answer: “Your RAG system for legal document search has a 15% hallucination rate on complex multi-clause questions. Walk me through how you would diagnose the root cause, propose solutions, and measure improvement.” Cover: chunking strategy, retrieval quality, prompt engineering, evaluation pipeline, and when to escalate to human review. Save as /day-40/mock2_technical_depth.md."
+    - title: "Mock 3: Strategy and competitive (20 min)"
+      time: 25
+      description: "Set a timer. Answer: “You’re the PM for an AI customer support product. OpenAI just launched a competing feature built into ChatGPT. Your CEO asks for a response strategy by end of day. What do you recommend?” Address: immediate competitive response, defensibility assessment, customer communication, and 90-day strategic plan. Save as /day-40/mock3_strategy.md."
+    - title: "Mock 4: Anthropic-specific safety (20 min)"
+      time: 25
+      description: "Set a timer. Answer: “You’re a PM at Anthropic. A customer wants to use Claude for automated hiring decisions. Walk me through your framework for deciding whether to support this use case, what safeguards you’d require, and how you’d communicate the decision internally and externally.” This is the Anthropic-specific safety question format. Save as /day-40/mock4_safety_anthropic.md. Stage and commit all Day 40 work and celebrate completing Phase 2."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "What’s your preparation process for an AI PM interview at a frontier lab?"
+  answer: "My preparation has three pillars: knowledge, practice, and company-specific research.<br><br><strong>Knowledge foundation (ongoing):</strong> Stay current with Artificial Analysis for model benchmarks, Latent Space for industry analysis, and hands-on experimentation with new models within 48 hours of release. The interviewer expects you to know the current landscape: which models lead on which benchmarks, current pricing, and recent capability jumps. Being 2 weeks out of date is noticeable.<br><br><strong>Structured practice (2—4 weeks before):</strong> I use Exponent for solo practice with AI PM-specific questions — their video answers calibrate quality expectations. Then Interviewing.io for live practice with feedback, focusing on thinking out loud and structuring answers. I do 2–3 mock interviews per week in the final two weeks, specifically practicing: multi-agent design questions, RAG architecture questions, and the “design an AI agent for X” format that’s now standard.<br><br><strong>Company-specific research (1 week before):</strong> For Anthropic: read the responsible scaling policy end-to-end, understand constitutional AI methodology, review recent research publications, and prepare a genuine answer for “why safety-first AI development matters to you.” For other companies: understand their model strategy, their competitive position, and their product philosophy. Use their product hands-on.<br><br><strong>Day-of mindset:</strong> Structure every answer. I use “situation, approach, tradeoffs, metrics” for product design questions and “define, decompose, design, defend” for system design questions. Always acknowledge tradeoffs explicitly — the interviewer wants to see judgment, not just knowledge. And always discuss how you’d measure success, because AI PM interviews disproportionately weight evaluation methodology."
+pmAngle: "Mock interviews under timed pressure reveal the gap between knowing concepts and articulating them fluently. The candidate who practices 10 mock interviews outperforms the one who reads 10 more articles. Phase 2 has given you the strategic depth — multi-agent design, competitive analysis, pricing strategy, safety frameworks. Today you pressure-test whether you can deliver that depth in a 30-minute interview under time pressure."
+context: "<p>Day 40 is a mock interview sprint. By now you’ve built the strategic toolkit (Days 21–30) and refined the analytical skills (Days 31–39). Today you pressure-test everything under timed conditions. The format: four mock interviews covering the four question types that dominate AI PM interview loops at frontier labs and AI-native companies in 2026.</p>\n  <p><strong>Phase 2-specific mock topics</strong> draw from the strategic and analytical skills built in this phase. <strong>Multi-agent design:</strong> “Design a multi-agent system for automated financial compliance review. How do agents coordinate? What happens when they disagree?” This tests your understanding of agent architectures, inter-agent protocols (MCP for tool access, A2A for agent communication), and failure mode thinking from Day 25–26 material. <strong>A2A vs MCP:</strong> “When would you use A2A versus MCP for inter-service communication in an AI product?” This tests protocol understanding from Days 25–26 — MCP connects agents to tools/data, A2A connects agents to other agents. <strong>RAG architecture:</strong> “Design the retrieval architecture for an enterprise knowledge base serving 10,000 employees.” Tests Days 21–24 material on document intelligence, embedding strategies, and permission-aware retrieval.</p>\n  <p><strong>Anthropic-specific interview preparation.</strong> Anthropic interviews emphasize three areas beyond standard PM questions: (1) <strong>AI safety reasoning</strong> — expect scenarios about capability vs safety tradeoffs, responsible deployment in high-stakes domains, and alignment with Anthropic’s responsible scaling policy. (2) <strong>Technical depth</strong> — Anthropic expects PMs to understand Claude’s architecture at a level sufficient to make informed product decisions. Know extended thinking, tool use, the Messages API, and system prompt design. (3) <strong>Mission alignment</strong> — “Why Anthropic specifically?” needs a genuine answer about safety-first AI development, not a generic “I love AI” response. Research the responsible scaling policy, RLHF methodology, and constitutional AI before interviewing.</p>\n  <p><strong>Mock interview platforms (2026 recommendations):</strong> <a href=\"https://www.tryexponent.com/\" target=\"_blank\">Exponent</a> offers structured AI PM interview questions with video answers from industry PMs — best for solo practice. <a href=\"https://interviewing.io/\" target=\"_blank\">Interviewing.io</a> provides anonymous practice interviews with engineers at top companies — best for live practice with feedback. For peer practice: find an AI PM study group (Lenny’s Slack, AI PM communities on Discord) and do weekly mock sessions. The combination of solo practice (Exponent) plus live practice (Interviewing.io or peer) is the most effective preparation approach.</p>"
+resources:
+    - type: "TOOL"
+      title: "Exponent — AI PM Interview Prep"
+      url: "https://www.tryexponent.com/"
+      note: "Structured AI PM practice questions with video answers. Best for solo prep."
+    - type: "TOOL"
+      title: "Interviewing.io"
+      url: "https://interviewing.io/"
+      note: "Anonymous live practice interviews with engineers at top companies."
+    - type: "DOCS"
+      title: "Anthropic Responsible Scaling Policy"
+      url: "https://www.anthropic.com/index/anthropics-responsible-scaling-policy"
+      note: "Required reading before any Anthropic interview."
+    - type: "DOCS"
+      title: "Anthropic Research"
+      url: "https://www.anthropic.com/research"
+      note: "Recent research publications. Know the latest 2–3 papers."
+    - type: "BLOG"
+      title: "Latent Space"
+      url: "https://www.latent.space/"
+      note: "Stay current with AI industry developments for interview prep."
+    - type: "BLOG"
+      title: "Lenny’s Newsletter"
+      url: "https://www.lennysnewsletter.com/"
+      note: "Product management perspectives relevant to PM interview prep."
+---
+

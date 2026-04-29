@@ -1,0 +1,49 @@
+---
+day: 37
+subtitle: "How to price AI products when open-source creates a zero-cost floor."
+track: full
+tasks:
+    - title: "Calculate cost-to-serve for an AI product"
+      time: 25
+      description: "For an AI document summarization product: calculate cost per summarization for three model tiers (claude-haiku-4-5-20251001 for basic, claude-sonnet-4-6 for standard, claude-opus-4-6 for premium). Estimate input/output tokens per document. Calculate monthly cost to serve 1,000 free users and 200 paid users. What gross margin does a $29/month price achieve? Save as /day-37/cost_to_serve_analysis.md."
+    - title: "Design a pricing strategy"
+      time: 25
+      description: "Design a complete pricing strategy for an AI customer support product: free tier (what’s included, what model powers it, monthly cost to you), pro tier (pricing, features, model tier), enterprise tier (pricing model, SLA, dedicated resources). Include the open-source risk: what happens to your pricing if a customer can self-host Llama to achieve 80% of your quality? Save as /day-37/pricing_strategy.md."
+    - title: "Competitive pricing analysis"
+      time: 25
+      description: "Compare pricing models of 5 AI products across different categories: code assistant (Cursor/Copilot), writing (Jasper/Copy.ai), search (Perplexity), enterprise (Salesforce Einstein), API (Anthropic/OpenAI). For each: pricing model, price point, what’s included, and how they handle the open-source pricing floor. Identify patterns. Save as /day-37/competitive_pricing_analysis.md."
+    - title: "Freemium conversion model"
+      time: 25
+      description: "Design the free-to-paid conversion funnel for an AI product. Define: free tier limits, the “aha moment” that triggers upgrade intent, upgrade prompts (when and how), and the target conversion rate. Calculate the maximum cost you can afford per free user given your target conversion rate and paid ARPU. Save as /day-37/freemium_conversion_model.md. Stage and commit your Day 33—37 work."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How would you price an AI product when the underlying model costs are dropping rapidly?"
+  answer: "I’d approach this as a unit economics problem with a strategic overlay.<br><br><strong>Start with cost-to-serve:</strong> Calculate the model API cost per unit of customer value (conversation, document processed, query answered). Include not just the primary model call but embeddings, classification, and any retry costs. For a customer support AI: average conversation might be 3,000 input tokens and 1,000 output tokens across 4 turns, costing roughly $0.03–$0.08 per conversation depending on the model.<br><br><strong>Price for value, not cost:</strong> If AI support resolves a $15 ticket for $0.05 in model costs, the value capture opportunity is enormous. Price at 10–20% of the value delivered: $1–3 per resolved ticket, or a per-seat model that averages to similar unit economics. The model cost is a floor, not a ceiling.<br><br><strong>Handle the open-source floor:</strong> Any sophisticated buyer knows they could self-host Llama at near-zero per-token cost. Your pricing premium must be justified by product value: reliability (99.9% uptime SLA), quality (your eval suite proves superiority), speed to value (works in hours, not weeks of self-hosting setup), and ongoing improvement (you continuously improve prompts and evaluations).<br><br><strong>Plan for cost deflation:</strong> Model costs drop 50–70% annually. Two strategies: hold prices and improve margins (the Amazon approach), or pass savings to customers and grow volume (the penetration approach). I’d hold prices for the first 12–18 months to build margin, then selectively lower prices in segments where open-source competition pressures you.<br><br><strong>Per-seat with usage guardrails</strong> is my default recommendation for B2B. Predictable for procurement, decouples from per-token volatility, and aligned with how enterprises buy software."
+pmAngle: "The AI pricing mistake that kills startups: pricing based on model cost rather than customer value. If your AI saves a customer $100 per task and costs you $0.05 to run, pricing at $1 is leaving 95% of the value on the table. Price for value delivered, absorb model cost reduction as margin improvement, and defend your premium with product differentiation that open-source can’t replicate."
+context: "<p>AI product pricing is fundamentally different from traditional SaaS pricing because your marginal cost is non-zero and variable. Every API call costs money — and that cost varies by model, prompt length, and output length. The pricing challenge: charge enough to cover model costs with margin, but not so much that customers switch to open-source alternatives that approach zero marginal cost.</p>\n  <p><strong>Open-source models create a pricing floor.</strong> Self-hosted Llama, Phi, and Mistral models run at near-zero per-token cost on dedicated GPUs once infrastructure is provisioned. For high-volume use cases (thousands of requests per day), self-hosting open-source is dramatically cheaper than commercial APIs. This means any pricing strategy that depends solely on model access is vulnerable. Your premium must come from product value — UX, workflow integration, reliability, support, and domain-specific fine-tuning — not from model access itself.</p>\n  <p><strong>Per-seat SaaS has become the dominant AI pricing model</strong> for B2B products. GitHub Copilot ($19/month per developer), Salesforce Einstein (per-user add-on), Notion AI ($10/month per member), and Cursor Pro ($20/month per developer). The per-seat model works because: it’s predictable for buyers (enterprise procurement loves predictable costs), it decouples pricing from variable model costs (the vendor absorbs usage variance), and it aligns with existing SaaS purchasing patterns. The risk: heavy users cost you significantly more to serve than light users. Track cost-per-seat carefully and consider tiered usage limits.</p>\n  <p><strong>Per-token or usage-based pricing</strong> makes sense for API-first products and high-volume applications. Anthropic, OpenAI, and Google all price this way. Advantage: revenue scales directly with customer value. Disadvantage: customer costs are unpredictable, which creates friction in enterprise procurement. Hybrid approaches work: per-seat base price with included usage, then overage charges above the threshold.</p>\n  <p><strong>Freemium AI pricing</strong> is powerful but expensive. Free tiers drive adoption, but every free user costs real money in model API calls. Design your free tier carefully: limit usage volume (GitHub Copilot Free: 2,000 completions/month), use a cheaper model for free tier (claude-haiku-4-5-20251001) while reserving the premium model (claude-sonnet-4-6) for paid tiers, or limit to specific features. The conversion funnel must justify the cost of free users — if conversion to paid is below 3—5%, revisit the free tier economics.</p>\n  <p><strong>The pricing stack:</strong> (1) Calculate cost-to-serve per unit (conversation, document, query). (2) Add target margin (60–80% gross margin for AI SaaS). (3) Benchmark against competitors and alternatives (including self-hosting). (4) Test willingness-to-pay with early customers. (5) Plan for model cost decreases — prices drop 50–70% annually, which improves your margin if you hold prices steady.</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic API Pricing"
+      url: "https://www.anthropic.com/pricing"
+      note: "Current Claude model pricing. Essential for cost-to-serve calculations."
+    - type: "TOOL"
+      title: "Artificial Analysis — Pricing Comparison"
+      url: "https://artificialanalysis.ai/"
+      note: "Compare pricing across providers for the best price/performance."
+    - type: "BLOG"
+      title: "a16z: AI Pricing Strategies"
+      url: "https://a16z.com/the-economic-case-for-generative-ai-and-foundation-models/"
+      note: "Economic analysis of AI product pricing and margins."
+    - type: "BLOG"
+      title: "Kyle Poyar: AI Pricing Models"
+      url: "https://www.growthunhinged.com/"
+      note: "OpenView partner on usage-based vs seat-based AI pricing."
+    - type: "DOCS"
+      title: "OpenAI Pricing"
+      url: "https://openai.com/pricing"
+      note: "Competitive pricing reference for cost comparison."
+---
+

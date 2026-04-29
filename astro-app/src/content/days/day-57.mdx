@@ -1,0 +1,49 @@
+---
+day: 57
+subtitle: "Prepare for the hardest AI PM interview questions — regulation, red-teaming, and research-informed product thinking."
+track: full
+tasks:
+    - title: "Practice EU AI Act compliance question"
+      time: 25
+      description: "Answer this interview question in writing: “You’re building an AI-powered hiring screening tool using Claude. Walk me through how you’d ensure EU AI Act compliance.” Structure your answer: identify the risk category (high-risk under Annex III), list specific compliance requirements (human oversight, transparency, documentation), estimate timeline, and explain how compliance shapes the product roadmap. Time yourself: 5 minutes max for the verbal version. Save as /day-57/eu_ai_act_answer.md."
+    - title: "Practice red-team exercise design question"
+      time: 25
+      description: "Answer this interview question: “Design a red-teaming plan for a customer-facing Claude chatbot deployed in healthcare.” Cover: scope definition, tools (Garak for automated scanning, PyRIT for multi-turn attacks, manual testing for domain-specific risks), team composition, attack categories (prompt injection, medical misinformation, privacy leakage), report template, and how you’d prioritize findings. Save as /day-57/red_team_design_answer.md."
+    - title: "Practice interpretability impact question"
+      time: 25
+      description: "Answer this interview question: “How does Anthropic’s interpretability research affect product roadmap decisions?” Connect research to product: interpretability enables better debugging (finding why Claude gives wrong answers), improves safety evaluation (moving beyond behavioral testing to mechanistic understanding), and creates new product features (explaining Claude’s reasoning to users). Use specific research examples. Save as /day-57/interpretability_answer.md."
+    - title: "Full mock interview simulation"
+      time: 25
+      description: "Run a complete 45-minute mock interview loop. Question 1 (10 min): product sense — “How would you improve Claude’s tool-use capabilities?” Question 2 (10 min): strategy — “Should Anthropic build a consumer product or stay API-first?” Question 3 (10 min): safety — “Design the safety review process for a new Claude feature.” For each: write your answer, time yourself, then critique your own answer using the framework (Framework, Specifics, Tradeoffs, Experience). Save as /day-57/mock_interview_full.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How do you prepare for AI PM interviews at frontier labs like Anthropic?"
+  answer: "Preparation for frontier AI PM roles goes beyond standard PM interview prep — you need to demonstrate depth in safety, regulation, and research-informed product thinking.<br><br><strong>Three non-negotiable preparation steps for Anthropic:</strong> First, read the Model Spec end-to-end. It’s Anthropic’s values document for Claude’s behavior, and every product question connects to it. Second, build something with the API. Even a small project using claude-sonnet-4-6. Interviewers can immediately tell who has used the product versus who has read about it. Third, read at least three research papers: alignment faking, Constitutional AI, and interpretability. You don’t need the math, but you need the product implications.<br><br><strong>Phase 3 topics that separate candidates:</strong> EU AI Act compliance — can you map a product to risk categories and articulate compliance requirements? Red-team exercise design — can you design a plan using Garak and PyRIT, not just describe what red-teaming is? Interpretability roadmap impact — can you connect research findings to product decisions?<br><br><strong>Answer structure:</strong> Framework (name your approach), Specifics (model names, tools, regulations, metrics), Tradeoffs (acknowledge tensions explicitly), and Experience (connect to something you’ve built or analyzed). Generic frameworks get “no hire.” Specific, research-informed answers with honest tradeoff analysis get offers.<br><br><strong>Practice platforms:</strong> Exponent for structured PM prep with AI modules. Interviewing.io for real practice with experienced interviewers who give honest feedback."
+pmAngle: "The AI PM interview at a frontier lab tests depth, not breadth. Can you connect research to product? Can you design a red-teaming plan, not just describe one? Can you navigate regulation with enough detail to make product decisions? Preparation means immersing in the company’s research, building with their product, and practicing until specificity is your default."
+context: "<p>Phase 3 interviews are where AI PM candidates separate themselves from general PMs who’ve read a few articles about AI. The questions go deep: regulatory compliance, safety architecture, interpretability research, and how these shape product decisions. Today you prepare for the questions that test whether you truly understand AI product management at the frontier.</p>\n  <p><strong>Phase 3 interview topics.</strong> Expect questions in three areas that most candidates are unprepared for: (1) <strong>EU AI Act compliance</strong> — can you explain which AI Act risk categories apply to a specific product? Can you map a product’s features to compliance requirements? Can you estimate the timeline and cost of compliance? Interviewers don’t expect you to be a lawyer, but they expect you to know the framework well enough to make product decisions. (2) <strong>Red-team exercise design</strong> — can you design a red-teaming plan for a specific product? What tools would you use (Garak, PyRIT)? How do you prioritize findings? What’s the difference between a red team report that protects the company and one that’s performative? (3) <strong>Interpretability roadmap impact</strong> — how does Anthropic’s interpretability research (understanding what models actually compute) affect product strategy? Candidates who can connect research papers to product decisions demonstrate the depth that frontier labs value.</p>\n  <p><strong>Anthropic-specific interview preparation.</strong> If you’re interviewing at Anthropic specifically, three preparation steps are non-negotiable: (1) <strong>Read the Model Spec</strong> — this is Anthropic’s values document for Claude’s behavior. Every question about product decisions at Anthropic connects to the Model Spec. If you haven’t read it, you’ll give generic answers that could apply to any AI company. (2) <strong>Use the API to build something</strong> — even a simple project. Use claude-sonnet-4-6 to build a small tool, agent, or demo. Interviewers can tell the difference between a candidate who has used the product and one who has read about it. (3) <strong>Read at least 3 Anthropic research papers</strong> — alignment faking, Constitutional AI, and interpretability research. You don’t need to understand the math, but you need to articulate the product implications of the findings.</p>\n  <p><strong>Updated platform recommendations.</strong> For mock interview practice, two platforms stand out in 2026: (1) <strong>Exponent</strong> — the best structured course for PM interview preparation, with AI-specific modules and practice problems. Their PM interview frameworks translate well to AI PM roles with minor adaptation. (2) <strong>Interviewing.io</strong> — real practice interviews with people who’ve worked at top companies. The feedback is more honest and specific than peer practice. Avoid relying solely on peer practice groups (formerly Pramp) — the feedback quality is inconsistent and most peers don’t know enough about AI PM roles to give useful feedback.</p>\n  <p><strong>The interview answer framework for AI PM questions.</strong> For any AI PM interview question, structure your answer in four parts: (1) <strong>Framework</strong> — name the approach you use. (2) <strong>Specifics</strong> — use concrete details: model names (claude-sonnet-4-6), tools (Garak, PyRIT), regulations (EU AI Act Article 6), and metrics. (3) <strong>Tradeoffs</strong> — acknowledge the tension explicitly. Every AI product decision involves a tradeoff between capability, safety, cost, and speed. (4) <strong>Experience</strong> — connect to something you’ve actually done (from this course or your work). Candidates who cite specific artifacts, tools, and research papers get hired. Candidates who give generic frameworks get “no hire.”</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic Model Spec"
+      url: "https://docs.anthropic.com/en/docs/resources/model-spec"
+      note: "Non-negotiable reading for any Anthropic interview."
+    - type: "RESEARCH"
+      title: "Anthropic: Alignment Faking Research"
+      url: "https://www.anthropic.com/research/alignment-faking"
+      note: "Key research paper to discuss in interpretability questions."
+    - type: "TOOL"
+      title: "Exponent PM Interview Prep"
+      url: "https://www.tryexponent.com/"
+      note: "Best structured course for PM interview preparation."
+    - type: "TOOL"
+      title: "Interviewing.io"
+      url: "https://interviewing.io/"
+      note: "Practice interviews with experienced interviewers."
+    - type: "DOCS"
+      title: "EU AI Act Full Text"
+      url: "https://artificialintelligenceact.eu/"
+      note: "Reference for compliance questions in interviews."
+---
+

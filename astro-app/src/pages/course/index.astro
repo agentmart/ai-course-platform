@@ -1,0 +1,21 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const days = (await getCollection('days')).sort((a, b) => a.data.day - b.data.day);
+---
+<BaseLayout title="60-Day AI PM Course">
+  <main style="max-width:780px;margin:2rem auto;padding:0 1rem;font-family:system-ui,sans-serif">
+    <h1>60-Day AI PM Course</h1>
+    <p>{days.length} days available.</p>
+    <ol>
+      {days.map((d) => (
+        <li>
+          <a href={`/course/${d.data.day}`}>
+            Day {d.data.day} — {d.data.subtitle.slice(0, 80)}
+          </a>
+        </li>
+      ))}
+    </ol>
+  </main>
+</BaseLayout>

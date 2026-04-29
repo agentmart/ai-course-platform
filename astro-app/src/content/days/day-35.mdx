@@ -1,0 +1,49 @@
+---
+day: 35
+subtitle: "How to roadmap an AI product when capability changes every 90 days."
+track: full
+tasks:
+    - title: "Build a three-horizon AI roadmap"
+      time: 25
+      description: "For an AI writing assistant: create a three-horizon roadmap. H1 (0—3 months): 3 features built on current claude-sonnet-4-6 capabilities. H2 (3—9 months): 2 features contingent on specific capability improvements (define the benchmarks). H3 (9—18 months): 1 strategic bet. For each H2/H3 item, specify the model capability gate and how you’d test for it. Save as /day-35/three_horizon_roadmap.md."
+    - title: "Create a model deprecation process"
+      time: 25
+      description: "Document a complete model deprecation management process: monitoring deprecation announcements, evaluation pipeline on new releases, migration sprint planning, rollback procedures, and communication templates for when a migration changes product behavior. Include a deprecation calendar template. Save as /day-35/deprecation_management.md."
+    - title: "API versioning decision guide"
+      time: 25
+      description: "Create a decision guide for when to use pinned vs latest model versions. Cover: regulated industries (pinned only), consumer products (latest with guardrails), enterprise (customer choice), and the CI/CD pipeline that validates latest before promoting to pinned. Include example version strings for claude-sonnet-4-6 and claude-haiku-4-5-20251001. Save as /day-35/api_versioning_guide.md."
+    - title: "Stakeholder roadmap communication"
+      time: 25
+      description: "Write three versions of your roadmap for different audiences: (1) Executive summary (1 page: what we’re shipping, business impact, risks), (2) Engineering detail (technical dependencies, model versions, evaluation gates), (3) Customer-facing roadmap (capabilities coming, no internal details). Save as /day-35/roadmap_communication.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How do you plan a product roadmap when the underlying AI capabilities change every few months?"
+  answer: "The three-horizon model adapted for AI uncertainty.<br><br><strong>Horizon 1 (0—3 months):</strong> This is committed work built on validated model capabilities. I run our eval suite against current models and only commit features we can ship with today’s performance. These have dates, owners, and success metrics.<br><br><strong>Horizon 2 (3—9 months):</strong> These are contingent on specific capability improvements. Each item has a model capability gate — like “requires less than 2% hallucination rate on legal documents” or “requires sub-200ms TTFT for real-time features.” When a new model releases, I run our eval suite against these gates. If a gate passes, the feature moves to H1 with a sprint commitment. This turns model releases into roadmap acceleration events rather than disruptions.<br><br><strong>Horizon 3 (9—18 months):</strong> Strategic bets. “If multi-modal models can reliably process video, we’ll build X.” These are directional, not promises. I communicate them as options, not commitments.<br><br><strong>The deprecation process matters as much as the roadmap.</strong> I budget 1–2 sprint cycles per quarter specifically for model migration testing. When a provider announces a deprecation, we have a runbook: evaluate the new version, identify regressions, communicate changes to customers, and migrate deliberately. The PM who doesn’t budget for model migrations ships a broken product when a deprecation deadline hits."
+pmAngle: "The three-horizon roadmap with explicit model dependency gates is the highest-signal artifact you can produce as an AI PM. It shows you understand that AI product planning requires absorbing external capability changes, not just internal execution. The PM who reviews the roadmap monthly against new model releases ships features faster than the one locked into a quarterly plan."
+context: "<p>AI product roadmapping operates on fundamentally different assumptions than traditional software roadmapping. In traditional products, your stack’s capabilities are stable — you plan around what you build. In AI products, the underlying model capabilities change every 60—90 days: new model releases, capability jumps, pricing changes, deprecations. Your roadmap must be a living document that can absorb these shifts without losing strategic direction.</p>\n  <p><strong>The three-horizon roadmap with model dependencies</strong> is the framework that works. <strong>Horizon 1 (0—3 months):</strong> Features built on current model capabilities. These are your committed deliverables with known model performance. <strong>Horizon 2 (3—9 months):</strong> Features that depend on expected capability improvements — mark these as “contingent on model capability X” and define the specific benchmark that unblocks them. <strong>Horizon 3 (9—18 months):</strong> Strategic bets on capabilities that don’t exist yet. These are directional, not committed. The key insight: every H2 and H3 item should specify what model capability it needs and how you’ll test for that capability when new models release.</p>\n  <p><strong>Model deprecation management</strong> is a process most AI teams learn the hard way. Model providers deprecate versions on schedules that don’t align with your roadmap. Process: (1) Track deprecation announcements from every provider you use (Anthropic, OpenAI, Google). (2) Maintain a deprecation calendar integrated with your product roadmap. (3) When a new model version releases, immediately run your evaluation suite against it. (4) Budget 1–2 sprint cycles per quarter for model migration testing. (5) Never skip a deprecated version — migrating from a model two versions behind is exponentially harder than keeping current.</p>\n  <p><strong>API versioning: pinned vs latest model strings.</strong> A critical technical decision with product implications. <strong>Pinned versions</strong> (e.g., <code>claude-sonnet-4-6-20250514</code>) guarantee identical behavior over time — essential for regulated industries and products where consistency matters. <strong>Latest aliases</strong> (e.g., <code>claude-sonnet-4-6</code>) automatically upgrade to the newest version — you get improvements but risk regressions. Best practice: use pinned versions in production, run your eval suite against latest versions in CI/CD, and upgrade pinned versions deliberately after validation passes.</p>\n  <p><strong>Roadmap communication to stakeholders</strong> requires translating model uncertainty into business language. Executives want dates and commitments. Engineers want technical clarity. The framework: commit to Horizon 1, signal confidence levels for Horizon 2 (high/medium/low), and frame Horizon 3 as strategic options, not promises. Use monthly roadmap reviews to absorb model capability changes — a quarterly review cycle is too slow for AI products.</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic Model Deprecations"
+      url: "https://docs.anthropic.com/en/docs/resources/model-deprecations"
+      note: "Track Claude model deprecation timelines. Essential for roadmap planning."
+    - type: "DOCS"
+      title: "Anthropic API Versioning"
+      url: "https://docs.anthropic.com/en/api/versioning"
+      note: "How API version headers and model strings work."
+    - type: "BLOG"
+      title: "Lenny’s Newsletter: AI Roadmapping"
+      url: "https://www.lennysnewsletter.com/"
+      note: "How top AI PMs structure roadmaps under uncertainty."
+    - type: "TOOL"
+      title: "Artificial Analysis"
+      url: "https://artificialanalysis.ai/"
+      note: "Track model capabilities to inform Horizon 2 planning gates."
+    - type: "DOCS"
+      title: "OpenAI Model Deprecations"
+      url: "https://platform.openai.com/docs/deprecations"
+      note: "Competitive awareness: know deprecation timelines across providers."
+---
+

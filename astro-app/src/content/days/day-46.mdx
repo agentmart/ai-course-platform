@@ -1,0 +1,49 @@
+---
+day: 46
+subtitle: "Building skills is building MCP servers — the protocol that turns agents into extensible platforms."
+track: full
+tasks:
+    - title: "Design an internal skills registry"
+      time: 25
+      description: "For a mid-size enterprise (500 engineers, 50 AI agents): design an internal MCP skills registry. Cover: publishing workflow (who can publish, approval process), testing requirements (unit tests, security scan, performance benchmarks), versioning strategy (semver, deprecation timeline), access control (which agents can use which skills), and discovery mechanism (how do developers find available skills). Save as /day-46/skills_registry_design.md."
+    - title: "Build a skills governance policy"
+      time: 25
+      description: "Write a governance policy document for an organization’s agent skills. Sections: skill publishing standards, security requirements (input validation, credential handling, output sanitization), versioning and deprecation rules, access control matrix, quality SLAs (latency, error rate), and incident response (what happens when a skill fails in production). Save as /day-46/skills_governance_policy.md."
+    - title: "Identify and prioritize skills"
+      time: 25
+      description: "For a customer support AI system: identify 10 potential skills (MCP servers) ranked by user value. For each: name, what it connects to, key tools it exposes, estimated build effort, and expected impact on support resolution. Explain your prioritization framework and recommend the top 3 to build first. Save as /day-46/skills_prioritization.md."
+    - title: "Design skill observability"
+      time: 25
+      description: "Create an observability specification for agent skills. Define: metrics to track (invocation count, latency, error rate, quality), alerting thresholds, dashboard layout, and correlation between skill quality and agent outcome quality. Include a sample alert: “CRM skill p95 latency exceeded 2s for 5 consecutive minutes.” Save as /day-46/skill_observability_spec.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How would you build and manage an agent skills platform for an enterprise?"
+  answer: "Agent skills are where enterprise AI value gets created — and they need the same rigor as any production system.<br><br><strong>Skills = MCP servers.</strong> In 2026, building an agent skill means publishing an MCP server that exposes tools, resources, and prompts. MCP is the de facto standard because it’s interoperable — a skill built once works with Claude, Copilot, Cursor, and custom agents. I’d start by identifying the 10 highest-value skills for our users (e.g., CRM query, knowledge base search, ticket creation) and building the top 3.<br><br><strong>Registry and governance.</strong> I’d build an internal skills registry with four governance pillars: (1) Publishing standards — every skill passes automated tests for correctness, security, and performance before publication. (2) Versioning — semantic versioning with minimum 90-day deprecation notice for breaking changes. (3) Access control — role-based: customer-facing agents get read-only skills, internal automation agents get write skills, production-critical skills require additional approval. (4) Quality SLAs — p95 latency under 2 seconds, error rate under 1%, with automated alerting.<br><br><strong>Observability.</strong> Every skill is a production dependency. I’d track invocation count, latency percentiles, error rate, and — critically — downstream quality: did the skill’s output lead to a good agent outcome? High invocation with low quality signals a skill that agents rely on but performs poorly. That’s the highest-priority fix.<br><br><strong>Strategic positioning.</strong> The base model and agent framework are commoditizing. Skills — your proprietary data connectors, workflow integrations, and domain tools — are the defensible layer. I’d invest disproportionately in skill quality and coverage because that’s where competitive advantage accumulates."
+pmAngle: "The skills layer is where AI products differentiate. Models commoditize. Frameworks commoditize. But the skills that connect agents to your organization’s specific data, workflows, and tools are proprietary and defensible. The PM who builds a governed skills registry with quality SLAs creates a platform moat that compounds over time."
+context: "<p>In the multi-agent world from Days 25–26, agents need skills — the ability to take actions, access data, and interact with external systems. The Model Context Protocol (MCP) has emerged as the de facto standard for building and publishing agent skills. Understanding skills architecture is essential for PMs because the “skills layer” is where most enterprise-specific value gets created — a generic agent becomes valuable when it has skills tailored to your organization’s workflows.</p>\n  <p><strong>MCP as the de facto skills protocol.</strong> Building an agent skill in 2026 means publishing an MCP server. An MCP server exposes tools (functions the agent can call), resources (data the agent can read), and prompts (templates the agent can use). When you build a skill for “query our Salesforce CRM” or “search our internal knowledge base,” you’re building an MCP server that any MCP-compatible agent can use — Claude, Copilot, Cursor, or your custom agents. This interoperability is MCP’s strategic advantage: skills built once work across the entire MCP-compatible ecosystem.</p>\n  <p><strong>Skills governance framework.</strong> As organizations build internal skill libraries, governance becomes critical. Key questions: (1) <strong>Who publishes?</strong> Define who can create and publish MCP servers to your internal registry. Engineering teams? A central platform team? Individual developers? (2) <strong>Testing requirements</strong> — every published skill should pass automated tests for correctness, security (no credential leaks, proper input validation), and performance (latency SLAs). (3) <strong>Versioning and deprecation</strong> — skills need semantic versioning so agents can pin to stable versions. Deprecation policy: how long do you support old skill versions? How do you migrate agents to new versions? (4) <strong>Access control</strong> — not all agents should have access to all skills. A customer-facing chatbot shouldn’t access the “delete production database” skill. Role-based access control for skills is essential.</p>\n  <p><strong>VS Code Agent Skills in production.</strong> VS Code’s agent skills system has moved to production status, allowing developers to build, publish, and use skills directly within the VS Code ecosystem. Skills are defined as reusable capabilities that agents can invoke — from simple file operations to complex multi-step workflows involving external APIs. The VS Code skills marketplace enables discovery and installation, similar to the extension marketplace. For PMs, this demonstrates how skill registries will work at platform scale: discovery, installation, version management, and quality ratings.</p>\n  <p><strong>Building a skills strategy.</strong> For AI PMs, the skills layer is where product differentiation happens. The base model (Claude) and the agent framework (Semantic Kernel, LangGraph) are commoditizing. But the skills your agents can access — your proprietary data connectors, your workflow integrations, your domain-specific tools — are your competitive moat. Strategy: (1) Identify the 10 skills that would create the most value for your users. (2) Build the top 3 as MCP servers. (3) Create an internal skills registry with governance. (4) Measure skill adoption: which skills are agents actually using, how often, and what’s the quality of outcomes?</p>\n  <p><strong>Skill quality and observability.</strong> A published skill is a production dependency — it needs the same observability as any production service. Track: invocation count, latency percentiles (p50, p95, p99), error rate, and downstream quality (did the skill’s output lead to a good agent outcome?). Skills with high error rates or latency should be flagged for remediation. The PM’s role: define skill quality SLAs and ensure the platform team enforces them.</p>"
+resources:
+    - type: "DOCS"
+      title: "Model Context Protocol (MCP)"
+      url: "https://modelcontextprotocol.io/"
+      note: "The de facto standard for building agent skills."
+    - type: "DOCS"
+      title: "MCP Server Development"
+      url: "https://modelcontextprotocol.io/quickstart/server"
+      note: "How to build and publish MCP servers (skills)."
+    - type: "DOCS"
+      title: "Claude MCP Integration"
+      url: "https://docs.anthropic.com/en/docs/agents-and-tools/mcp"
+      note: "Using MCP skills with Claude agents."
+    - type: "DOCS"
+      title: "VS Code Agent Skills"
+      url: "https://code.visualstudio.com/docs/copilot/overview"
+      note: "Production-ready skill system in VS Code."
+    - type: "BLOG"
+      title: "Anthropic: Building Effective Agents"
+      url: "https://www.anthropic.com/research/building-effective-agents"
+      note: "Agent design patterns including skill architecture."
+---
+

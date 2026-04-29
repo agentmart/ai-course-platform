@@ -1,0 +1,53 @@
+---
+day: 44
+subtitle: "Map the AI code assistant landscape — GitHub Copilot, Cursor, Windsurf, and the battle for developer workflows."
+track: full
+tasks:
+    - title: "Build a competitive feature matrix"
+      time: 25
+      description: "Create a detailed feature comparison across GitHub Copilot, Cursor, Windsurf, and Claude Code. Dimensions: code completion quality, multi-file editing, codebase context awareness, model flexibility (which models supported), agentic capabilities (autonomous multi-step tasks), enterprise features (SSO, audit logs, data privacy), pricing tiers, and SWE-bench Verified scores. Save as /day-44/code_assistant_matrix.md."
+    - title: "Evaluate SWE-bench Verified"
+      time: 25
+      description: "Research the current SWE-bench Verified leaderboard. Document: top 5 agents by score, what the benchmark actually tests, limitations of the benchmark (what it doesn’t measure), and how PMs should use these scores in competitive analysis. Write a one-paragraph guidance note on when to cite SWE-bench scores and when they’re misleading. Save as /day-44/swe_bench_analysis.md."
+    - title: "Design a Copilot Workspace workflow"
+      time: 25
+      description: "Design a workflow using Copilot Workspace for a product launch: describe the feature in natural language, let Copilot propose implementation, review the plan, and iterate. Document the workflow steps, where human judgment is essential, and how this changes the PM-engineer collaboration model. Save as /day-44/copilot_workspace_workflow.md."
+    - title: "Write a market structure analysis"
+      time: 25
+      description: "Analyze the three-segment market structure (IDE-integrated, AI-native editors, agentic CLI). For each segment: identify the key players, their competitive advantages, their vulnerabilities, and predict which segment captures the most value in 2027. Identify the underserved segment. Save as /day-44/market_structure_analysis.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How do you evaluate the competitive landscape for AI code assistants?"
+  answer: "I segment the market into three categories and evaluate each on different criteria.<br><br><strong>IDE-integrated (Copilot, JetBrains AI):</strong> These win on distribution. Copilot has millions of users through VS Code integration. Copilot Workspace adds plan-to-code capability, and Copilot Autofix handles security remediation. The strength is frictionless adoption — developers don’t switch editors. The weakness: bolting AI onto existing editors limits the UX. GitHub Models expanding access to Claude and other models is strategically significant — it signals the end of model lock-in as a competitive strategy.<br><br><strong>AI-native editors (Cursor, Windsurf):</strong> These win on experience. Cursor’s Composer for multi-file editing and deep context awareness create a superior AI-first workflow. Windsurf targets enterprise compliance with on-premise deployment. The strength: purpose-built for AI collaboration. The weakness: they need developers to switch editors, which is a high-friction ask.<br><br><strong>Agentic CLI (Claude Code, Devin):</strong> These win on autonomy. Claude Code with sub-agents can execute complex multi-step tasks without constant guidance. The strength: handles large-scale refactoring, migration, and maintenance tasks that suggestion-based tools can’t. The weakness: the trust boundary — how much autonomous action should an AI take on production code?<br><br><strong>My evaluation framework:</strong> I use SWE-bench Verified for capability comparison, developer surveys for satisfaction, and enterprise deal analysis for market traction. The metric I weight most: engineering time saved per developer per week. That’s the number that drives enterprise purchase decisions. The strategic question isn’t which tool is best in the abstract — it’s which tool fits the team’s workflow, security requirements, and model preferences."
+pmAngle: "The AI code assistant market teaches a critical PM lesson: distribution beats features in the short term, but purpose-built experience wins in the long term. Copilot’s VS Code distribution advantage is enormous, but Cursor’s AI-native UX is capturing the most AI-forward developers. GitHub Models signals that model access is commoditizing — the fight moves to workflow integration and developer experience."
+context: "<p>The AI code assistant market is the most competitive AI product category in 2026. GitHub Copilot pioneered the space but now faces serious competition from AI-native editors and model-agnostic tools. Understanding this landscape is essential for PMs — both because code assistants are the highest-adoption AI product category and because they demonstrate how platform dynamics, model selection, and developer experience interact.</p>\n  <p><strong>GitHub Copilot’s ecosystem.</strong> Copilot’s primary advantage is distribution: VS Code has millions of active users, and Copilot is deeply integrated. Key capabilities: inline code completion, Copilot Chat for conversational coding, <strong>Copilot Workspace</strong> for plan-to-code workflows (describe what you want in natural language, Copilot proposes a full implementation plan and code changes), and <strong>Copilot Autofix</strong> for automated security vulnerability remediation. Copilot is evolving from a suggestion tool to a full development workflow platform. Subscriber growth has been significant, though exact numbers should be verified against the latest GitHub reports rather than hardcoded — the market moves fast and stale numbers undermine credibility.</p>\n  <p><strong>GitHub Models.</strong> GitHub now provides access to multiple AI models — including Claude, GPT-4, and open-source models — directly within the GitHub interface. This is strategically significant: GitHub is positioning itself as a model marketplace for developers, not just a host for Microsoft’s models. For PMs, this signals that the “model lock-in” era is ending — platforms compete on integration quality and developer experience, not exclusive model access.</p>\n  <p><strong>Cursor: the AI-native challenger.</strong> Cursor rebuilt the editor from scratch around AI, with features like Composer (natural language to multi-file edits), inline diff review, and deep codebase context awareness. Cursor’s advantage: the entire UX is designed for AI collaboration, rather than bolting AI onto an existing editor. It supports multiple models (Claude, GPT-4, custom) and lets users bring their own API keys. Cursor has captured significant developer mindshare, particularly among AI-forward developers and startups.</p>\n  <p><strong>Windsurf (formerly Codeium).</strong> Windsurf rebranded from Codeium in late 2024, bringing an AI-native editor with a focus on enterprise compliance and data privacy. Key differentiator: Windsurf offers on-premise deployment options and enterprise-grade data handling that addresses CISO concerns about code leaving the corporate network. For PMs evaluating the competitive landscape, Windsurf represents the enterprise-compliance-first segment of the market.</p>\n  <p><strong>SWE-bench Verified as the coding agent benchmark.</strong> SWE-bench Verified tests AI coding agents on real software engineering tasks from open-source repositories — resolving actual GitHub issues, not synthetic benchmarks. It measures end-to-end capability: understanding the issue, navigating the codebase, writing a fix, and passing existing tests. PMs should reference SWE-bench Verified scores when comparing coding agents because it measures practical engineering capability, not just code completion quality. Track scores on the SWE-bench leaderboard for competitive analysis.</p>\n  <p><strong>Competitive dynamics and market structure.</strong> The AI code assistant market is consolidating around three segments: (1) <strong>IDE-integrated</strong> (Copilot in VS Code, JetBrains AI) — distribution advantage, good-enough quality. (2) <strong>AI-native editors</strong> (Cursor, Windsurf) — superior AI UX, challenger positioning. (3) <strong>Agentic CLI tools</strong> (Claude Code, Devin, OpenAI Codex) — autonomous coding agents for complex tasks. The long-term question: does the winner have the best model, the best UX, or the best distribution? Current evidence suggests UX and workflow integration matter more than model superiority alone.</p>"
+resources:
+    - type: "TOOL"
+      title: "SWE-bench Verified Leaderboard"
+      url: "https://www.swebench.com/"
+      note: "The standard benchmark for AI coding agent capability comparison."
+    - type: "DOCS"
+      title: "GitHub Copilot"
+      url: "https://github.com/features/copilot"
+      note: "Official Copilot features including Workspace and Autofix."
+    - type: "DOCS"
+      title: "GitHub Models"
+      url: "https://github.com/marketplace/models"
+      note: "Multi-model access including Claude within GitHub."
+    - type: "TOOL"
+      title: "Cursor"
+      url: "https://cursor.sh/"
+      note: "AI-native code editor and Copilot’s primary challenger."
+    - type: "TOOL"
+      title: "Windsurf"
+      url: "https://windsurf.com/"
+      note: "Enterprise-focused AI editor (formerly Codeium)."
+    - type: "BLOG"
+      title: "Artificial Analysis: Code Model Benchmarks"
+      url: "https://artificialanalysis.ai/"
+      note: "Independent benchmarks for code generation quality and speed."
+---
+

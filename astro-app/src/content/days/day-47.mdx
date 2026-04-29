@@ -1,0 +1,49 @@
+---
+day: 47
+subtitle: "Microsoft’s AI orchestration stack — Semantic Kernel for orchestration, AutoGen for multi-agent."
+track: full
+tasks:
+    - title: "Build an SK Process Framework workflow"
+      time: 25
+      description: "Design an event-driven workflow using SK Process Framework for a loan application process: intake (parse application), credit check (call external API), risk assessment (AI evaluation using claude-sonnet-4-6), human review (escalation logic), and decision notification. Define states, events that trigger transitions, and where AI versus human judgment applies. Save as /day-47/sk_process_workflow.md."
+    - title: "Create an SK vs alternatives decision guide"
+      time: 25
+      description: "Build a decision matrix for choosing between SK, LangChain, LlamaIndex, and direct Anthropic SDK. Dimensions: primary language (.NET vs Python), cloud platform (Azure vs AWS vs multi-cloud), use case complexity (simple vs orchestrated vs multi-agent), team expertise, community support, and maintenance burden. Include the “when NOT to use SK” criteria. Save as /day-47/framework_decision_guide.md."
+    - title: "Design a combined SK + AutoGen architecture"
+      time: 25
+      description: "For a customer escalation system: design an architecture where SK handles individual agent logic and AutoGen coordinates multiple agents (Triage Agent, Technical Agent, Billing Agent, Supervisor Agent). Show how SK plugins provide skills to each agent and how AutoGen manages the multi-agent conversation. Include a sequence diagram description. Save as /day-47/sk_autogen_architecture.md."
+    - title: "Evaluate SK Python SDK maturity"
+      time: 25
+      description: "Research the current state of the SK Python SDK. Document: feature parity with .NET, available plugins, community size (GitHub stars, npm/PyPI downloads), documentation quality, and known limitations. Compare with LangChain Python on the same dimensions. Write a recommendation for a Python-first team evaluating SK. Save as /day-47/sk_python_evaluation.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "When would you use Semantic Kernel vs other AI orchestration frameworks?"
+  answer: "The framework choice depends on three factors: your tech stack, your use case complexity, and your cloud platform.<br><br><strong>Choose SK when:</strong> (1) You’re a .NET team — SK’s C# SDK is the most mature and best-supported. (2) You’re deeply integrated with Azure — SK’s Azure OpenAI integration and Process Framework for event-driven workflows are excellent. (3) You need auditability — SK’s Process Framework provides traceable state machines where every AI decision is logged. (4) You need both single-agent orchestration (SK) and multi-agent coordination (AutoGen) — Microsoft’s guidance is to layer them.<br><br><strong>Choose alternatives when:</strong> (1) Python-first team not on Azure — LangChain has a larger community, more tutorials, and more third-party integrations. (2) Simple applications — SK’s abstraction overhead doesn’t justify itself for basic prompt-and-response use cases. The direct Anthropic SDK is simpler and more performant. (3) Maximum model flexibility — while SK supports Claude, the ergonomics are optimized for Azure OpenAI. Native SDK usage gives you the best developer experience per model.<br><br><strong>SK Process Framework vs LangGraph:</strong> Both handle stateful, event-driven agent workflows. SK Process Framework integrates natively with Azure services and .NET. LangGraph integrates natively with LangChain’s Python ecosystem. Choose based on your existing stack.<br><br><strong>The honest assessment:</strong> SK is excellent for Microsoft ecosystem teams. It’s not the universal best choice. The PM who recommends SK because it’s from Microsoft — rather than because it fits the team’s stack — loses engineering credibility. Evaluate on merits."
+pmAngle: "Framework selection reveals PM judgment. The PM who recommends a framework based on the team’s actual tech stack, cloud platform, and use case complexity demonstrates practical wisdom. The PM who recommends based on brand affinity or hype loses engineering trust. SK is excellent for .NET/Azure teams. For Python-first teams on AWS, LangChain or the native Anthropic SDK may be better choices."
+context: "<p>Semantic Kernel (SK) and AutoGen are Microsoft’s two AI frameworks, serving different architectural needs. Understanding when to use each — and when to use neither — is essential for PMs evaluating orchestration frameworks, especially in enterprise environments where Microsoft’s ecosystem carries significant weight.</p>\n  <p><strong>Semantic Kernel: the orchestration layer.</strong> Semantic Kernel is an open-source SDK for building AI-powered applications. It handles the plumbing: model routing, plugin management, memory, and function calling. Key capabilities: (1) <strong>Planners</strong> — SK can decompose a user request into a sequence of function calls, choosing from available plugins. (2) <strong>Plugins</strong> — reusable skill packages that wrap APIs, databases, and business logic. (3) <strong>Memory</strong> — built-in short-term and long-term memory with vector store integration. (4) <strong>Multi-model support</strong> — SK abstracts the model layer, supporting Claude (via API), OpenAI, Azure OpenAI, Hugging Face, and local models. SK is the orchestration framework for building a single agent or a pipeline of AI steps.</p>\n  <p><strong>SK Process Framework for event-driven orchestration.</strong> The Process Framework is SK’s approach to complex workflows: define processes as state machines with event-driven transitions. Example: an insurance claims workflow where the process moves through intake → validation → assessment → decision → notification, with AI handling each step and events triggering transitions. This is particularly powerful for enterprise workflows that need auditability — every state transition is logged, every decision is traceable. PMs building workflow automation should evaluate SK Process Framework against alternatives like LangGraph and Temporal.</p>\n  <p><strong>SK Python SDK is feature-complete.</strong> SK originally launched as a C#/.NET framework, but the Python SDK is now feature-complete with full parity. This matters because it eliminates the “SK is only for .NET shops” objection. Python-first teams can use SK for orchestration with full access to plugins, planners, memory, and the Process Framework. However, the Python AI ecosystem (LangChain, LlamaIndex, CrewAI) is more mature and has more community support than SK Python — PMs should evaluate the tradeoff between SK’s Microsoft ecosystem integration and the Python community’s broader tooling.</p>\n  <p><strong>AutoGen: multi-agent conversations.</strong> AutoGen is Microsoft’s framework for multi-agent systems where agents communicate through structured conversations. While SK orchestrates a single agent’s capabilities, AutoGen coordinates multiple agents working together. Example: a code review system where a Reviewer agent, a Security agent, and a Documentation agent each analyze a pull request and converge on a recommendation. AutoGen handles the conversation protocol, turn-taking, and consensus mechanisms.</p>\n  <p><strong>Microsoft’s guidance: SK for orchestration, AutoGen for multi-agent.</strong> The official guidance is clear: use Semantic Kernel when building a single agent or a linear pipeline (request → plan → execute → respond). Use AutoGen when you need multiple agents with distinct roles collaborating on a task. In practice, you can use both: SK for the orchestration logic within each agent, and AutoGen for the multi-agent coordination layer. This layered approach maps well to enterprise architectures where individual services (SK) communicate through protocols (AutoGen/A2A).</p>\n  <p><strong>When NOT to use Semantic Kernel.</strong> SK is the right choice for .NET teams already in the Microsoft ecosystem, or for Python teams that need deep Azure integration. But SK is not the best choice for: (1) <strong>Python-first teams not on Azure</strong> — LangChain or LlamaIndex have larger communities, more tutorials, and more third-party integrations in the Python ecosystem. (2) <strong>Simple prompt-and-response applications</strong> — SK’s abstraction overhead isn’t justified for applications that just call a model and return a response. (3) <strong>Teams that need maximum model flexibility</strong> — while SK supports multiple models, the ergonomics are optimized for Azure OpenAI. Claude integration works but has less community support than native Anthropic SDK usage. The honest answer: evaluate SK on its merits for your specific stack, not because it’s from Microsoft.</p>"
+resources:
+    - type: "DOCS"
+      title: "Semantic Kernel Documentation"
+      url: "https://learn.microsoft.com/en-us/semantic-kernel/"
+      note: "Official SK documentation for both .NET and Python."
+    - type: "DOCS"
+      title: "SK Process Framework"
+      url: "https://learn.microsoft.com/en-us/semantic-kernel/frameworks/process/process-framework"
+      note: "Event-driven workflow orchestration in SK."
+    - type: "DOCS"
+      title: "AutoGen Documentation"
+      url: "https://microsoft.github.io/autogen/"
+      note: "Microsoft’s multi-agent conversation framework."
+    - type: "DOCS"
+      title: "Anthropic Claude SDK"
+      url: "https://docs.anthropic.com/en/docs/quickstart"
+      note: "Direct SDK alternative for teams not needing orchestration framework overhead."
+    - type: "DOCS"
+      title: "LangChain Documentation"
+      url: "https://python.langchain.com/docs/get_started/introduction"
+      note: "Primary alternative for Python-first teams."
+---
+

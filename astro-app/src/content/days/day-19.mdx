@@ -1,0 +1,53 @@
+---
+day: 19
+subtitle: "Anthropic’s commitment to slow down before AI becomes dangerous — and why that commitment sells to enterprise buyers."
+track: full
+tasks:
+    - title: "Read and summarize the RSP"
+      time: 25
+      description: "Read the current RSP at anthropic.com/responsible-scaling-policy. Write 3 bullet points on the biggest implications for a PM building on Claude. Which ASL level are current Claude models at? What would trigger a deployment pause? Save as /day-19/rsp_summary.md."
+    - title: "Map your product to the RSP"
+      time: 25
+      description: "Choose a hypothetical AI product (legal, medical, security research, HR screening). Identify which features might trigger RSP review. How would you design guardrails? Which features are clearly ASL-2 safe? Where are the gray areas? Save as /day-19/product_safety_mapping.md."
+    - title: "Compare RSP to EU AI Act GPAI requirements"
+      time: 25
+      description: "The EU AI Act’s GPAI provisions (effective August 2025) require providers of foundation models above 10^25 FLOPs to provide technical documentation, adversarial testing results, and incident reporting. How do these overlap with the RSP? Where do they diverge? What does this mean for enterprise customers in EU-regulated industries? Save as /day-19/rsp_vs_eu_ai_act.md."
+    - title: "Write the enterprise safety pitch"
+      time: 25
+      description: "Write a 200-word pitch for a CISO at a healthcare company: why should they trust Claude for processing patient data? Reference specific commitments: RSP, SOC 2 Type II, HIPAA eligibility, UKAIS testing, EU AI Office compliance. Explain the multi-layer governance model (Anthropic + cloud provider + enterprise). Save as /day-19/enterprise_safety_pitch.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "What is Anthropic’s RSP and how does it affect product decisions?"
+  answer: "The RSP is Anthropic’s framework that links deployment decisions to safety evaluations. It defines capability thresholds (ASL 1-4) and commits Anthropic to implementing specific safeguards before deploying models that exceed those thresholds. All Claude 4.x models currently deployed are evaluated as ASL-2.<br><br>For product decisions, it affects three things. First, <strong>feature scope:</strong> some capabilities might be technically possible but would require ASL-3 evaluation — meaning enhanced safeguards and longer review cycles. As a PM, I need to understand this before committing to a roadmap that depends on capabilities not yet cleared for deployment.<br><br>Second, <strong>enterprise positioning:</strong> the RSP is a competitive differentiator with risk-averse buyers. For banks, hospitals, and government agencies, a transparent safety policy with specific commitments — reinforced by formal agreements with the UK AI Safety Institute and EU AI Office — is a reason to choose Anthropic over providers without equivalent frameworks.<br><br>Third, <strong>multi-layer governance:</strong> enterprise buyers deploying Claude via Bedrock get three oversight layers: Anthropic’s RSP, Amazon’s responsible AI policies, and their own governance. This stacking is a selling point for regulated industries. The PM who can explain this in a CISO meeting closes deals that the PM who only knows \"we do safety testing\" does not.<br><br>Compare to OpenAI’s Preparedness Framework: similar intent, different specificity. The RSP’s public commitment to halt deployment at capability thresholds is more explicit."
+pmAngle: "The RSP is not just a safety document — it’s a product document and a sales tool. Understanding it lets you position Anthropic honestly with risk-averse enterprise buyers, design features aligned with safety commitments, and explain multi-layer governance to CISOs and compliance officers. By 2025, formal commitments to UKAIS and the EU AI Office add external accountability beyond self-regulation."
+context: "<p>Anthropic’s <strong>Responsible Scaling Policy (RSP)</strong> is a self-imposed commitment that ties commercial deployment to safety evaluations. It defines <strong>AI Safety Levels (ASL)</strong>: <strong>ASL-1</strong> (clearly not dangerous, like a chess AI), <strong>ASL-2</strong> (current deployed models — potentially useful for harm but below meaningful uplift threshold), <strong>ASL-3</strong> (models that could provide meaningful assistance to mass-casualty attacks with CBRN weapons, enable autonomous replication and self-improvement, or provide large-scale cyberoffense capabilities), and <strong>ASL-4</strong> (not yet precisely defined, implies capabilities requiring nation-state-level safeguards). Anthropic published an updated RSP in 2024 with more specific evaluation criteria and capability thresholds for each level.</p>\n  <p>The practical mechanism: before deploying a new model, Anthropic runs <strong>capability evaluations</strong> testing for dangerous capabilities — CBRN uplift, autonomous replication, and cyberoffense at scale. If a model passes these evaluations (doesn’t exhibit dangerous capabilities at threshold levels), it deploys. All deployed Claude 4.x models have been evaluated as ASL-2 — this is now verifiable historical fact, not just a forward-looking commitment. The RSP explicitly states Anthropic will slow down or stop deployment if models approach ASL-3 thresholds without adequate safeguards in place.</p>\n  <p><strong>Beyond the self-imposed RSP:</strong> By 2025, Anthropic has made formal commitments to external bodies that are more binding than internal policy: commitments to the <strong>UK AI Safety Institute (UKAIS)</strong> for pre-deployment testing, <strong>EU AI Office</strong> compliance with GPAI provisions under the AI Act, and <strong>US federal AI safety initiatives</strong>. These formal commitments add accountability beyond self-regulation. For enterprise customers in government, healthcare, or financial services, these external commitments provide additional assurance that Anthropic’s safety posture is verified by third parties.</p>\n  <p><strong>Multi-layer governance</strong> matters for enterprise sales. An enterprise deploying Claude via AWS Bedrock is subject to three governance layers: Anthropic’s RSP, Amazon’s responsible AI policies, and the enterprise’s own AI governance framework. This stacking is actually a selling point for regulated industries: multiple independent oversight layers reduce the surface area for uncontrolled risk. The PM who can explain this multi-layer model in a CISO conversation is more credible than one who only knows Anthropic’s layer.</p>"
+resources:
+    - type: "BLOG"
+      title: "Anthropic Responsible Scaling Policy"
+      url: "https://www.anthropic.com/responsible-scaling-policy"
+      note: "The primary document. Read the full text — not summaries."
+    - type: "BLOG"
+      title: "OpenAI Preparedness Framework"
+      url: "https://cdn.openai.com/openai-preparedness-framework-beta.pdf"
+      note: "OpenAI’s equivalent. Compare approaches for competitive analysis."
+    - type: "DOCS"
+      title: "Anthropic Security & Compliance"
+      url: "https://trust.anthropic.com"
+      note: "SOC 2 Type II, HIPAA, certifications. Essential for enterprise sales."
+    - type: "BLOG"
+      title: "Anthropic Safety Research"
+      url: "https://www.anthropic.com/research"
+      note: "Interpretability, evals, and red-teaming research informing the RSP."
+    - type: "DOCS"
+      title: "EU AI Act — GPAI Provisions"
+      url: "https://artificialintelligenceact.eu/"
+      note: "GPAI requirements effective August 2025. Applies to Claude as a foundation model."
+    - type: "DOCS"
+      title: "Anthropic Model Card"
+      url: "https://www.anthropic.com/model-card"
+      note: "Safety evaluations for each Claude model. References ASL determinations."
+---
+
