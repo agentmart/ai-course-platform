@@ -28,10 +28,13 @@ This is the Sprint 4 deployment plan for migrating becomeaipm.com from Vercel to
 2. Repo: `agentmart/ai-course-platform`
 3. Production branch: `main` (will switch from `feat/astro-migration` after squash-merge)
 4. Build settings:
-   - Build command: `cd astro-app && npm install && npm run build`
-   - Build output directory: `astro-app/dist`
-   - Root directory: leave empty (project root)
-   - Node version env var: `NODE_VERSION=20`
+   - **Framework preset**: `Astro`
+   - **Build command**: `cd astro-app && npm install && npm run build`
+   - **Build output directory**: `astro-app/dist`
+   - **Root directory**: leave empty (project root)
+   - **Compatibility flags**: `nodejs_compat` (required — Astro server output uses Node APIs that the Workers runtime exposes only when this flag is set)
+   - **Compatibility date**: `2024-09-23` or newer
+   - **Environment variable** `NODE_VERSION = 20` (Astro 6 + `@astrojs/cloudflare@13` require Node ≥ 20). The `astro-app/.nvmrc` and `engines.node` field also pin this.
 5. Environment variables (Production + Preview both):
 
    | Var | Source |
@@ -47,6 +50,17 @@ This is the Sprint 4 deployment plan for migrating becomeaipm.com from Vercel to
    | `GH_PAT_TOKEN` | from current Vercel (feedback issues) |
    | `GH_MODELS_TOKEN` | from current Vercel (course advisor LLM) |
    | `TURNSTILE_SECRET_KEY` | from current Vercel (contact form) |
+
+### 1.b Common build-failure causes (fix these before re-running)
+
+| Symptom | Fix |
+|---|---|
+| `Cannot find module 'resend'` | `astro-app/package.json` must list `resend` (added). Run `npm install` to refresh `package-lock.json` before pushing. |
+| `Process #unstable_enableNodejsCompat is not enabled` or `node:crypto / node:buffer not found` | Add `nodejs_compat` to **Compatibility flags** in CF Pages → Settings → Functions. |
+| `engine "node" requires Node >=20` | Set `NODE_VERSION=20` env var on the project (production + preview). |
+| `cannot find package "@astrojs/cloudflare"` | The build runs from repo root; ensure build command does `cd astro-app && npm install && npm run build` — not just `npm run build` at root. |
+| `Module not found: cloudflare:workers` | Means the adapter wasn't loaded. Verify `astro.config.mjs` has `import cloudflare from '@astrojs/cloudflare'` and `output: 'server'`. |
+| Build wedges at "Detecting framework" | CF Pages auto-detected Vercel. Manually pick `Astro` preset. |
 
 ### 2. Preview deploy (no DNS impact)
 
