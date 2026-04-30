@@ -77,6 +77,11 @@ footer a{color:rgba(255,255,255,.3);text-decoration:none;}
     <h2>Here's where to begin.</h2>
     <div class="spine" id="result-spine"></div>
     <div class="rationale" id="result-rationale"></div>
+    <div id="sprint-suggest" style="display:none;margin:16px 0 22px;padding:18px 20px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#c8590a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Tight on time?</div>
+      <div style="font-size:14px;color:var(--ink);line-height:1.6;">Try the <strong>28-day AI PM Sprint</strong> — 10 minutes a day, 4 weeks, with a public capstone demo. Same content, faster path.</div>
+      <a class="btn" href="/sprint" style="margin-top:12px;background:#c8590a;text-decoration:none;">See the 28-day Sprint →</a>
+    </div>
     <div class="actions">
       <a class="btn" id="result-cta" href="/course.html">Start your first day →</a>
       <button class="btn ghost" onclick="restartQuiz()">Re-take quiz</button>
@@ -234,7 +239,17 @@ function showResult(advisor){
     document.getElementById('result-cta').href='/course.html#day-'+spine[0];
     document.getElementById('result-cta').textContent='Start with Day '+spine[0]+' →';
   }
-  if(window.pendo&&pendo.track)pendo.track('Course Advisor Completed',{spine:spine.join(','),profile:advisor.profile||{}});
+  // Sprint-track suggestion: show for time-constrained or non-AI-co PMs (s6-advisor).
+  var prof=advisor.profile||{};
+  var suggestSprint=(
+    prof.background==='pm_non_ai' || prof.background==='designer' || prof.background==='other' ||
+    prof.yearsExp==='0_2' ||
+    prof.primaryGoal==='general_literacy' || prof.primaryGoal==='add_ai_to_role'
+  );
+  if(suggestSprint){
+    document.getElementById('sprint-suggest').style.display='block';
+  }
+  if(window.pendo&&pendo.track)pendo.track('Course Advisor Completed',{spine:spine.join(','),profile:prof,sprintSuggested:suggestSprint});
 }
 
 (async function init(){
