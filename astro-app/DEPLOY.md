@@ -24,16 +24,17 @@ This is the Sprint 4 deployment plan for migrating becomeaipm.com from Vercel to
 
 ### 1. One-time Cloudflare project setup
 
-1. Log into Cloudflare → Workers & Pages → Create → Pages → Connect to Git
+We deploy to a **Worker** (not a Pages project) using **Workers Builds** — git-connected, CI runs in Cloudflare. The Astro 6 + `@astrojs/cloudflare@13` adapter auto-generates `dist/server/wrangler.json` with the correct `main`, `assets`, KV/Images bindings, etc. The deploy step just hands that file to `wrangler deploy`.
+
+1. Log into Cloudflare → Workers & Pages → existing Worker `ai-course-platform` → Settings → Builds → Connect to Git (or create a new Worker, "Import a repository")
 2. Repo: `agentmart/ai-course-platform`
-3. Production branch: `main` (will switch from `feat/astro-migration` after squash-merge)
-4. Build settings:
-   - **Framework preset**: `Astro`
+3. Production branch: `feat/astro-migration` (until squash-merge to `main`)
+4. Build settings (the existing project has these wrong — fix in the dashboard):
+   - **Root directory**: leave empty
    - **Build command**: `cd astro-app && npm install && npm run build`
-   - **Build output directory**: `astro-app/dist`
-   - **Root directory**: leave empty (project root)
-   - **Compatibility flags**: `nodejs_compat` (required — Astro server output uses Node APIs that the Workers runtime exposes only when this flag is set)
-   - **Compatibility date**: `2024-09-23` or newer
+   - **Deploy command**: `cd astro-app && npx wrangler deploy --config dist/server/wrangler.json --name ai-course-platform`
+     - ⚠️ This is the line that was wrong — previously it just re-ran the build, so the live URL kept serving the original Hello World stub.
+   - The adapter-generated `dist/server/wrangler.json` already includes `nodejs_compat` flags as needed, the `ASSETS` binding pointing at `dist/client`, the `SESSION` KV binding, and the `IMAGES` binding. You do **not** need to set these in the dashboard.
    - **Environment variable** `NODE_VERSION = 20` (Astro 6 + `@astrojs/cloudflare@13` require Node ≥ 20). The `astro-app/.nvmrc` and `engines.node` field also pin this.
 5. Environment variables (Production + Preview both):
 

@@ -10,6 +10,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "deploy": "astro build && wrangler deploy --config dist/server/wrangler.json --name ai-course-platform",
     "astro": "astro"
   },
   "dependencies": {
@@ -25,5 +26,8 @@
     "react-dom": "^18.3.1",
     "resend": "^4.8.0",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "wrangler": "^4.86.0"
   }
 }
