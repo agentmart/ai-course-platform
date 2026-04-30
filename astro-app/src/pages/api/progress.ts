@@ -2,6 +2,7 @@ import type { APIRoute } from 'astro';
 import { verifyClerkToken, bearerToken } from '~/lib/clerk';
 import { getSupabaseAdmin, jsonResponse, corsHeaders } from '~/lib/supabase';
 import { envFrom } from '~/lib/handler';
+import { awardBadges, computeStreak, type Badge } from '~/lib/gamification';
 
 export const prerender = false;
 
@@ -86,12 +87,18 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const newDay = (completed ?? []).find((d) => !prevCompleted.includes(d));
   const completion_dates = newDay && !prevDates.includes(today) ? [...prevDates, today] : prevDates;
 
+  const nextCompleted = completed ?? prevCompleted;
+  const prevBadges = Array.isArray(prev.badges) ? (prev.badges as Badge[]) : [];
+  const { badges, newlyEarned } = awardBadges(nextCompleted.length, prevBadges);
+  const streak = computeStreak(completion_dates);
+
   const merged = {
     ...prev,
-    completed: completed ?? prevCompleted,
+    completed: nextCompleted,
     taskStates: taskStates ?? prev.taskStates ?? {},
     notes: notes ?? prev.notes ?? {},
     completion_dates,
+    badges,
   };
 
   const { error } = await supabase
@@ -100,5 +107,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .eq('clerk_user_id', user.sub);
 
   if (error) return jsonResponse({ error: 'Failed to save progress' }, { status: 500, headers: cors });
-  return jsonResponse({ ok: true, completion_dates }, { headers: cors });
+  return jsonResponse(
+    { ok: true, completion_dates, badges, streak, newlyEarnedBadges: newlyEarned },
+    { headers: cors }
+  );
 };

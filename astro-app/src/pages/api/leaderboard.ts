@@ -1,6 +1,7 @@
 import type { APIRoute } from 'astro';
 import { envFrom, getSupabaseAdmin, jsonResponse, appCors } from '~/lib/handler';
 import { verifyClerkToken, bearerToken } from '~/lib/clerk';
+import { computeStreak } from '~/lib/gamification';
 
 export const prerender = false;
 
@@ -80,24 +81,12 @@ export const GET: APIRoute = async ({ locals, request }) => {
           const below = allCounts.filter((c) => c < myCount).length;
           const percentile = allCounts.length > 0 ? Math.round((below / allCounts.length) * 100) : 0;
 
-          // Calendar-day streak from completion_dates[] (Sprint 5 ready).
-          // Falls back to legacy day-number streak if completion_dates isn't populated yet.
-          let streak = 0;
+          // Calendar-day streak from completion_dates[] (Sprint 5).
+          // Falls back to legacy consecutive-day-number streak when a user has
+          // completed days but no completion_dates yet (pre-Sprint-5 data).
           const dates: string[] = me.progress_data?.completion_dates ?? [];
-          if (dates.length > 0) {
-            const sorted = [...new Set(dates)].sort().reverse();
-            const today = new Date().toISOString().slice(0, 10);
-            const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0, 10);
-            if (sorted[0] === today || sorted[0] === yesterday) {
-              streak = 1;
-              for (let i = 1; i < sorted.length; i++) {
-                const prev = new Date(sorted[i - 1] + 'T00:00:00Z').getTime();
-                const cur = new Date(sorted[i] + 'T00:00:00Z').getTime();
-                if (prev - cur === 86400000) streak++;
-                else break;
-              }
-            }
-          } else if (myCompleted.length > 0) {
+          let streak = computeStreak(dates);
+          if (streak === 0 && dates.length === 0 && myCompleted.length > 0) {
             const sorted = [...myCompleted].sort((a, b) => a - b);
             streak = 1;
             for (let i = sorted.length - 1; i > 0; i--) {
