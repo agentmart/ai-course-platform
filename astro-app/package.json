@@ -9,6 +9,7 @@
   "scripts": {
     "dev": "astro dev",
     "build": "astro build",
+    "postbuild": "node ./scripts/cf-deploy.mjs",
     "preview": "astro preview",
     "deploy": "astro build && wrangler deploy --config dist/server/wrangler.json --name ai-course-platform",
     "astro": "astro"
