@@ -1,0 +1,341 @@
+---
+export const prerender = true;
+
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { WEEK_THEMES, SPRINT_DAY_ORDER } from '../content/sprint-themes';
+
+const days = await getCollection('days');
+const dayByNum = new Map<number, (typeof days)[number]>();
+for (const d of days) dayByNum.set(d.data.day, d);
+
+const weeks = WEEK_THEMES.map((w) => ({
+  ...w,
+  dayCards: w.days.map((n) => {
+    const entry = dayByNum.get(n);
+    return {
+      day: n,
+      slug: String(n),
+      title: entry?.data.subtitle?.split('—')[0]?.trim() || `Day ${n}`,
+      subtitle: entry?.data.subtitle ?? '',
+    };
+  }),
+}));
+
+const firstSprintDay = WEEK_THEMES[0].days[0];
+const sprintDaysJSON = JSON.stringify(SPRINT_DAY_ORDER);
+const sprintWeeksJSON = JSON.stringify(
+  WEEK_THEMES.map((w) => ({ week: w.week, name: w.name, tagline: w.tagline, days: w.days }))
+);
+---
+<BaseLayout
+  title="AI PM Sprint — 28 days, 10 minutes a day | becomeaipm"
+  description="Couch-to-5K, but for AI Product Management. A 28-day curated on-ramp built for time-strapped professionals — discover, define, build, deploy."
+  ogImage="/og-sprint.png"
+>
+  <Fragment slot="head">
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,600;0,900&family=DM+Sans:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f5f0e8;
+        --bg2: #ede8df;
+        --ink: #1a1512;
+        --ink2: #3d3530;
+        --muted: #8c7f74;
+        --rule: #d4cdc4;
+        --amber: #c8590a;
+        --teal: #0d6e6e;
+        --card: #faf7f2;
+        --border: #ccc4b8;
+      }
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html { font-size: 16px; scroll-behavior: smooth; }
+      body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; line-height: 1.55; }
+      a { color: var(--amber); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .topbar { background: var(--ink); color: #fff; padding: 14px 28px; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+      .topbar .brand { font-family: 'Fraunces', serif; font-weight: 900; font-size: 18px; color: #fff; text-decoration: none; }
+      .topbar .topnav { display: flex; gap: 18px; align-items: center; }
+      .topbar .topnav a { color: rgba(255,255,255,.7); font-size: 13px; text-decoration: none; }
+      .topbar .topnav a:hover { color: var(--amber); }
+      .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 22px; border-radius: 4px; font-size: 14px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; text-decoration: none; }
+      .btn-primary { background: var(--amber); color: #fff; }
+      .btn-primary:hover { background: #a84a06; text-decoration: none; }
+      .btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--ink2); }
+      .btn-ghost:hover { border-color: var(--amber); color: var(--amber); text-decoration: none; }
+      .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; }
+
+      .hero { max-width: 1100px; margin: 0 auto; padding: 80px 28px 48px; }
+      .hero h1 { font-family: 'Fraunces', serif; font-size: clamp(40px, 6vw, 68px); line-height: 1.04; font-weight: 900; color: var(--ink); margin: 18px 0 18px; letter-spacing: -0.02em; }
+      .hero .lede { font-size: 18px; color: var(--ink2); max-width: 720px; margin-bottom: 28px; }
+      .hero .ctas { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; }
+      .hero .footnote { color: var(--muted); font-size: 13px; margin-top: 18px; }
+
+      section.block { max-width: 1100px; margin: 0 auto; padding: 56px 28px; border-top: 1px solid var(--rule); }
+      section.block h2 { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 900; color: var(--ink); margin-bottom: 12px; }
+      section.block .sub { color: var(--muted); font-size: 15px; max-width: 720px; margin-bottom: 32px; }
+
+      .why-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+      .why-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 24px; }
+      .why-card h3 { font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+      .why-card p { color: var(--ink2); font-size: 14px; }
+      @media (max-width: 800px) { .why-grid { grid-template-columns: 1fr; } }
+
+      .week { margin-bottom: 32px; background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; }
+      .week-head { display: flex; align-items: baseline; gap: 14px; flex-wrap: wrap; margin-bottom: 18px; }
+      .week-num { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .15em; color: var(--amber); text-transform: uppercase; }
+      .week-name { font-family: 'Fraunces', serif; font-size: 26px; font-weight: 900; color: var(--ink); }
+      .week-tag { color: var(--muted); font-size: 14px; flex-basis: 100%; }
+      .day-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+      .day-card { display: block; background: var(--bg); border: 1px solid var(--border); border-radius: 6px; padding: 12px 14px; color: var(--ink); text-decoration: none; transition: border-color .12s, transform .12s; }
+      .day-card:hover { border-color: var(--amber); transform: translateY(-1px); text-decoration: none; }
+      .day-card .num { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .12em; color: var(--amber); text-transform: uppercase; margin-bottom: 4px; }
+      .day-card .t { font-size: 13.5px; font-weight: 600; line-height: 1.35; color: var(--ink); }
+      .day-card .s { font-size: 12px; color: var(--muted); margin-top: 4px; line-height: 1.4; }
+
+      .capstone { background: linear-gradient(135deg, #1a1512 0%, #2a201a 100%); color: #fff; border-radius: 12px; padding: 36px; margin: 0 28px; max-width: 1044px; margin-left: auto; margin-right: auto; }
+      .capstone h2 { font-family: 'Fraunces', serif; font-size: 28px; color: #fff; margin-bottom: 8px; }
+      .capstone p { color: rgba(255,255,255,.75); font-size: 15px; max-width: 640px; margin-bottom: 18px; }
+      .capstone .btn-primary { background: var(--amber); }
+
+      .faq details { background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; }
+      .faq summary { list-style: none; cursor: pointer; padding: 16px 20px; font-weight: 600; color: var(--ink); display: flex; justify-content: space-between; align-items: center; }
+      .faq summary::-webkit-details-marker { display: none; }
+      .faq summary::after { content: '+'; color: var(--amber); font-size: 22px; line-height: 1; }
+      .faq details[open] summary::after { content: '−'; }
+      .faq .faq-body { padding: 0 20px 18px; color: var(--ink2); font-size: 14px; line-height: 1.7; }
+
+      footer { max-width: 1100px; margin: 40px auto 60px; padding: 0 28px; color: var(--muted); font-size: 13px; }
+      footer a { color: var(--muted); }
+      footer a:hover { color: var(--amber); }
+    </style>
+  </Fragment>
+
+  <header class="topbar">
+    <a class="brand" href="/">becomeaipm</a>
+    <nav class="topnav">
+      <a href="/course/1">60-Day Course</a>
+      <a href="/sprint">Sprint</a>
+      <a id="auth-link" href="/course/1">Sign in</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="eyebrow">AI PM Sprint · 28 days · ~10 min/day</div>
+      <h1>10 minutes a day for 4 weeks. The fast lane to AI Product Management.</h1>
+      <p class="lede">
+        Couch-to-5K, but for AI PM. A curated on-ramp built for time-strapped
+        professionals — pick a daily ritual, compound for four weeks, and ship a
+        public artifact at the end.
+      </p>
+      <div class="ctas">
+        <a id="cta-start" class="btn btn-primary" href={`/course/${firstSprintDay}`} data-sprint-cta="start">
+          Start the 28-day Sprint →
+        </a>
+        <a class="btn btn-ghost" href="/course/1">Want the full 60-day course?</a>
+      </div>
+      <p class="footnote">No payment. Free with sign-up. You can switch tracks any time.</p>
+    </section>
+
+    <!-- WHY -->
+    <section class="block" id="why">
+      <div class="eyebrow">Why a sprint</div>
+      <h2>Three forces, compounding daily.</h2>
+      <p class="sub">
+        Most courses fail because life gets in the way. The Sprint is engineered
+        around the three things that actually move the needle for working PMs.
+      </p>
+      <div class="why-grid">
+        <div class="why-card">
+          <h3>🕒 Daily ritual</h3>
+          <p>One ~10-minute task. Same time, same place. Ship before standup. Designed to survive a full calendar.</p>
+        </div>
+        <div class="why-card">
+          <h3>🏗 Weekly capstone</h3>
+          <p>Four themed arcs — Discover, Define, Build, Deploy. Each week ends with a small artifact you'd actually use at work.</p>
+        </div>
+        <div class="why-card">
+          <h3>📣 Public pledge</h3>
+          <p>Commit publicly on Day 1, demo publicly on Day 28. The asymmetry of social commitment beats willpower every time.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4 WEEKS -->
+    <section class="block" id="weeks">
+      <div class="eyebrow">The 4 weeks</div>
+      <h2>Discover → Define → Build → Deploy.</h2>
+      <p class="sub">
+        The same arc you'd run on a real AI product launch — compressed into
+        four weeks. Click any day to preview.
+      </p>
+      {weeks.map((w) => (
+        <div class="week">
+          <div class="week-head">
+            <span class="week-num">Week {w.week}</span>
+            <span class="week-name">{w.name}</span>
+            <span class="week-tag">{w.tagline}</span>
+          </div>
+          <div class="day-grid">
+            {w.dayCards.map((d) => (
+              <a class="day-card" href={`/course/${d.slug}`}>
+                <div class="num">Day {String(d.day).padStart(2, '0')}</div>
+                <div class="t">{d.title}</div>
+                {d.subtitle && d.subtitle !== d.title && <div class="s">{d.subtitle}</div>}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <!-- CAPSTONE -->
+    <section style="padding: 40px 0">
+      <div class="capstone">
+        <div class="eyebrow" style="color: var(--amber)">Day 28 · Graduation</div>
+        <h2>Ship a public AI PM artifact and graduate.</h2>
+        <p>
+          On Day 28 you'll demo a public artifact — a PRD, an eval suite, a
+          working prototype, a teardown — and earn a graduation badge. Pledge
+          on Day 1, ship on Day 28.
+        </p>
+        <a class="btn btn-primary" href="/pledge">Take the pledge →</a>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="block faq" id="faq">
+      <div class="eyebrow">FAQ</div>
+      <h2>Questions, answered.</h2>
+      <details>
+        <summary>How is this different from the 60-day course?</summary>
+        <div class="faq-body">
+          The Sprint is 28 of the 60 days — a curated on-ramp covering the
+          highest-leverage topics for working PMs. Same content, smaller scope.
+          You can switch to the full 60-day track any time.
+        </div>
+      </details>
+      <details>
+        <summary>Can I switch tracks?</summary>
+        <div class="faq-body">
+          Yes — there's a "Sprint mode" pill in the course sidebar. Toggle it on
+          to see only the 28 sprint days; toggle off to see all 60.
+        </div>
+      </details>
+      <details>
+        <summary>What if I miss a day?</summary>
+        <div class="faq-body">
+          Nothing breaks. Streaks tolerate one rest day per week, and every day
+          is self-contained. Pick up where you left off.
+        </div>
+      </details>
+      <details>
+        <summary>What do I demo on Day 28?</summary>
+        <div class="faq-body">
+          Anything public and real: a PRD for an AI feature you'd actually
+          ship, an eval suite for a prompt, a teardown of a competitor's AI
+          product, or a working prototype. We share examples on Day 27.
+        </div>
+      </details>
+      <details>
+        <summary>Do I need to code?</summary>
+        <div class="faq-body">
+          Light hands-on in Week 3 (APIs, RAG, evals) — but no engineering
+          background required. If you can read JSON, you're set.
+        </div>
+      </details>
+    </section>
+
+    <footer>
+      <p>
+        © becomeaipm · Built by a working AI PM ·
+        <a href="/course/1">Full 60-day course</a> ·
+        <a href="/contact.html">Contact</a>
+      </p>
+    </footer>
+  </main>
+
+  <script set:html={`window.__SPRINT_DAYS__ = ${sprintDaysJSON}; window.__SPRINT_WEEKS__ = ${sprintWeeksJSON};`} />
+
+  <script is:inline>
+    (function () {
+      // Auth-aware CTA: signed-in users → "Start the Sprint" deep link;
+      // signed-out users → friendly sign-up CTA. We hydrate post-Clerk-load.
+      var startBtn = document.getElementById('cta-start');
+      var authLink = document.getElementById('auth-link');
+      if (!startBtn) return;
+
+      function setSignedOut() {
+        startBtn.textContent = 'Sign up to start the Sprint →';
+        if (authLink) {
+          authLink.textContent = 'Sign in';
+        }
+      }
+      function setSignedIn() {
+        startBtn.textContent = 'Start the 28-day Sprint →';
+        if (authLink) {
+          authLink.textContent = 'Continue learning →';
+          authLink.href = '/course/' + (window.__SPRINT_DAYS__ ? window.__SPRINT_DAYS__[0] : 1);
+        }
+      }
+
+      function persistSprintChoice() {
+        try { localStorage.setItem('sprintTrack', 'true'); } catch (e) {}
+        if (window.Clerk && window.Clerk.session) {
+          window.Clerk.session.getToken().then(function (token) {
+            if (!token) return;
+            return fetch('/api/progress', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + token },
+              body: JSON.stringify({ sprint_track: true }),
+            });
+          }).catch(function () {});
+        }
+      }
+
+      startBtn.addEventListener('click', function (e) {
+        // Persist intent. Even if user is signed out, the localStorage flag
+        // will be picked up by /course on first authenticated load.
+        persistSprintChoice();
+        if (window.Clerk && !window.Clerk.user) {
+          // Defer navigation; open sign-in instead.
+          e.preventDefault();
+          var redirect = startBtn.getAttribute('href');
+          try {
+            window.Clerk.openSignIn({ fallbackRedirectUrl: redirect, signUpFallbackRedirectUrl: redirect });
+          } catch (err) {
+            window.location.href = redirect;
+          }
+        }
+      });
+
+      // Boot Clerk to flip CTA copy.
+      fetch('/api/config').then(function (r) { return r.ok ? r.json() : {}; }).then(function (cfg) {
+        if (!cfg || !cfg.clerkPublishableKey || !cfg.clerkDomain) return;
+        var s = document.createElement('script');
+        s.src = 'https://' + cfg.clerkDomain + '/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+        s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
+        s.crossOrigin = 'anonymous';
+        s.onload = function () {
+          var clerk = window.Clerk;
+          if (!clerk) return;
+          clerk.load().then(function () {
+            if (clerk.user) setSignedIn();
+            else setSignedOut();
+            clerk.addListener(function () {
+              if (clerk.user) setSignedIn();
+              else setSignedOut();
+            });
+          }).catch(function () { setSignedOut(); });
+        };
+        s.onerror = function () { setSignedOut(); };
+        document.head.appendChild(s);
+      }).catch(function () { setSignedOut(); });
+    })();
+  </script>
+</BaseLayout>

@@ -783,6 +783,162 @@ function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accep
   <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>
+<style>
+.sprint-pill{margin:10px 12px 6px;padding:8px 12px;border-radius:6px;background:rgba(200,89,10,.08);border:1px solid rgba(200,89,10,.35);display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:'IBM Plex Mono',monospace;}
+.sprint-pill-label{font-size:10px;letter-spacing:.14em;color:#c8590a;text-transform:uppercase;font-weight:700;}
+.sprint-pill-toggle{background:none;border:none;color:#8c7f74;font-size:10px;cursor:pointer;font-family:inherit;letter-spacing:.1em;text-transform:uppercase;padding:0;}
+.sprint-pill-toggle:hover{color:#c8590a;text-decoration:underline;}
+.sb-week-header{padding:12px 16px 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;color:#c8590a;letter-spacing:.18em;text-transform:uppercase;border-top:1px solid #d4cdc4;margin-top:4px;font-weight:700;}
+.sb-week-header:first-child{border-top:none;margin-top:0;}
+.sb-week-tag{display:block;font-size:9px;color:#8c7f74;letter-spacing:.04em;margin-top:3px;font-weight:400;text-transform:none;}
+</style>
+<script>
+// ── Sprint mode (Sprint 6) ───────────────────────────────────────────────
+// Filters the sidebar to the curated 28-day AI PM Sprint when active.
+// Source of truth lives in astro-app/src/content/sprint-themes.ts; mirrored
+// here for the legacy course.html shell.
+(function(){
+  var SPRINT_WEEKS = [
+    { week:1, name:'Discover', tagline:'Get the lay of the AI land — models, capabilities, tradeoffs.', days:[2,1,6,7,4,5,31] },
+    { week:2, name:'Define',   tagline:'Scope AI features, write the PRD, frame eval and risk.',          days:[32,35,18,14,19,41,37] },
+    { week:3, name:'Build',    tagline:'Lightest hands-on — APIs, tools, RAG, Claude Code, evals.',       days:[9,10,11,13,43,44,53] },
+    { week:4, name:'Deploy',   tagline:'Launch, measure, observe, comply — and ship the capstone.',      days:[38,52,24,17,49,45,60] }
+  ];
+  var SPRINT_DAYS = SPRINT_WEEKS.reduce(function(a,w){ return a.concat(w.days); }, []);
+  var DAY_TO_WEEK = {};
+  SPRINT_WEEKS.forEach(function(w){ w.days.forEach(function(d){ DAY_TO_WEEK[d]=w; }); });
+
+  window.__SPRINT_DAYS__ = SPRINT_DAYS;
+  window.__SPRINT_WEEKS__ = SPRINT_WEEKS;
+
+  function isSprintMode(){
+    try { return localStorage.getItem('sprintTrack') === 'true'; } catch(e) { return false; }
+  }
+  function setSprintMode(on){
+    try { localStorage.setItem('sprintTrack', on ? 'true' : 'false'); } catch(e) {}
+    // Best-effort persist server-side; ignored if not signed in.
+    try {
+      if (window.clerk && window.clerk.session) {
+        window.clerk.session.getToken().then(function(token){
+          if (!token) return;
+          fetch('/api/progress', {
+            method: 'POST',
+            headers: { 'Content-Type':'application/json', 'Authorization':'Bearer '+token },
+            body: JSON.stringify({ sprint_track: !!on })
+          }).catch(function(){});
+        });
+      }
+    } catch(e) {}
+    applySprintMode();
+  }
+
+  function ensurePill(){
+    var sb = document.getElementById('sidebar');
+    if (!sb) return null;
+    var pill = document.getElementById('sprint-pill');
+    if (pill) return pill;
+    pill = document.createElement('div');
+    pill.id = 'sprint-pill';
+    pill.className = 'sprint-pill';
+    pill.innerHTML = '<span class="sprint-pill-label" id="sprint-pill-label"></span>'
+                   + '<button class="sprint-pill-toggle" id="sprint-pill-toggle" type="button"></button>';
+    var phases = document.getElementById('sb-phases');
+    if (phases && phases.parentNode === sb) sb.insertBefore(pill, phases);
+    else sb.insertBefore(pill, sb.firstChild);
+    pill.querySelector('#sprint-pill-toggle').addEventListener('click', function(){
+      setSprintMode(!isSprintMode());
+    });
+    return pill;
+  }
+
+  function applySprintMode(){
+    var pill = ensurePill();
+    if (!pill) return;
+    var on = isSprintMode();
+    var label = pill.querySelector('#sprint-pill-label');
+    var btn = pill.querySelector('#sprint-pill-toggle');
+    if (on) { label.textContent = '🏃 Sprint mode · 28 days'; btn.textContent = 'Switch to full course →'; }
+    else    { label.textContent = '60-day course · all days'; btn.textContent = 'Switch to Sprint mode →'; }
+
+    var phases = document.getElementById('sb-phases');
+    if (!phases) return;
+
+    // Remove any previously-injected week headers and reset row visibility.
+    phases.querySelectorAll('.sb-week-header').forEach(function(el){ el.remove(); });
+    phases.querySelectorAll('.sb-day').forEach(function(el){ el.style.display = ''; });
+    phases.querySelectorAll('.sb-phase-header').forEach(function(el){ el.style.display = ''; });
+
+    if (!on) return;
+
+    // Hide phase headers; hide non-sprint days.
+    phases.querySelectorAll('.sb-phase-header').forEach(function(el){ el.style.display = 'none'; });
+    phases.querySelectorAll('.sb-day').forEach(function(el){
+      var d = Number(el.dataset.day);
+      if (SPRINT_DAYS.indexOf(d) === -1) el.style.display = 'none';
+    });
+
+    // Inject week headers above the first day of each week.
+    SPRINT_WEEKS.forEach(function(w){
+      var firstDay = w.days[0];
+      var firstEl = phases.querySelector('.sb-day[data-day="'+firstDay+'"]');
+      if (!firstEl) return;
+      var h = document.createElement('div');
+      h.className = 'sb-week-header';
+      h.innerHTML = 'Week '+w.week+' — '+w.name+'<span class="sb-week-tag">'+w.tagline+'</span>';
+      firstEl.parentNode.insertBefore(h, firstEl);
+    });
+  }
+
+  // Hook into existing render lifecycle: re-apply after sidebar renders/syncs.
+  function wrap(name){
+    var orig = window[name];
+    if (typeof orig !== 'function' || orig.__sprintWrapped) return;
+    var wrapped = function(){ var r = orig.apply(this, arguments); try { applySprintMode(); } catch(e) {} return r; };
+    wrapped.__sprintWrapped = true;
+    window[name] = wrapped;
+  }
+
+  // Capture server-side sprint_track flag once progress loads.
+  function wrapLoadProgress(){
+    var orig = window.loadProgress;
+    if (typeof orig !== 'function' || orig.__sprintWrapped) return;
+    var wrapped = async function(){
+      var r = await orig.apply(this, arguments);
+      try {
+        var token = window.clerk && window.clerk.session && await window.clerk.session.getToken();
+        if (token) {
+          var resp = await fetch('/api/progress', { headers: { 'Authorization':'Bearer '+token } });
+          if (resp.ok) {
+            var d = await resp.json();
+            if (d && typeof d.sprint_track === 'boolean') {
+              try { localStorage.setItem('sprintTrack', d.sprint_track ? 'true' : 'false'); } catch(e) {}
+            }
+          }
+        }
+      } catch(e) {}
+      try { applySprintMode(); } catch(e) {}
+      return r;
+    };
+    wrapped.__sprintWrapped = true;
+    window.loadProgress = wrapped;
+  }
+
+  function init(){
+    wrap('renderDaySidebar');
+    wrap('syncSidebar');
+    wrapLoadProgress();
+    // Apply now in case sidebar is already on the page.
+    setTimeout(applySprintMode, 0);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
 <script src="/components/nav.js"></script>
 <script>renderSidebar({ active: 'course' });</script>
 

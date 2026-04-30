@@ -61,10 +61,11 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const { completed, taskStates, notes } = body as {
+  const { completed, taskStates, notes, sprint_track } = body as {
     completed?: number[];
     taskStates?: Record<string, unknown>;
     notes?: Record<string, unknown>;
+    sprint_track?: boolean;
   };
 
   const supabase = getSupabaseAdmin(env);
@@ -99,6 +100,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     notes: notes ?? prev.notes ?? {},
     completion_dates,
     badges,
+    sprint_track: typeof sprint_track === 'boolean' ? sprint_track : prev.sprint_track ?? false,
   };
 
   const { error } = await supabase

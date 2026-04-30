@@ -181,7 +181,9 @@ var cfg=null;
     document.getElementById('stat-days').textContent=fmt(st.totalDaysCompleted||0);
     document.getElementById('stat-avg').textContent=st.avgDaysPerUser||0;
     document.getElementById('stat-popular').textContent=st.mostPopularDay?'Day '+st.mostPopularDay:'\u2014';
-    if(data.me){var mp=document.getElementById('my-progress');mp.classList.add('show');document.getElementById('mp-days').textContent=data.me.daysCompleted;document.getElementById('mp-streak').textContent=data.me.streak;document.getElementById('mp-percentile').textContent=data.me.percentile+'%';var pct=Math.round((data.me.daysCompleted/60)*100);document.getElementById('mp-pct-label').textContent=pct+'%';document.getElementById('mp-bar-fill').style.width=pct+'%';}else{document.getElementById('my-progress-anon').style.display='block';}
+    if(data.me){var mp=document.getElementById('my-progress');mp.classList.add('show');document.getElementById('mp-days').textContent=data.me.daysCompleted;document.getElementById('mp-streak').textContent=data.me.streak;document.getElementById('mp-percentile').textContent=data.me.percentile+'%';var pct=Math.round((data.me.daysCompleted/60)*100);document.getElementById('mp-pct-label').textContent=pct+'%';document.getElementById('mp-bar-fill').style.width=pct+'%';
+      if(window.Gamification){window.Gamification.render({streak:data.me.streak||0,badges:data.me.badges||[]});}
+    }else{document.getElementById('my-progress-anon').style.display='block';}
     loading.style.display='none';
     if(data.leaderboard&&data.leaderboard.length>0){
       table.style.display='table';
@@ -213,6 +215,7 @@ function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted
   <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
 </div>
 <script src="/components/nav.js"></script>
+<script src="/components/gamification.js"></script>
 <script>renderSidebar({ active: 'leaderboard' });</script>
 
 </body>
