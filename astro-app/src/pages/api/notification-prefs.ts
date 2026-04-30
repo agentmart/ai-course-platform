@@ -74,6 +74,7 @@ async function loadOrCreate(env: any, request: Request, body: any) {
       email,
       job_alerts_opt_in: false,
       interview_prep_opt_in: false,
+      daily_nudge_opt_in: false,
       job_filters: {},
       unsubscribe_token: randomToken(24),
     };
@@ -106,6 +107,7 @@ export const GET: APIRoute = async ({ locals, request, url }) => {
       email: r.row.email,
       job_alerts_opt_in: r.row.job_alerts_opt_in,
       interview_prep_opt_in: r.row.interview_prep_opt_in,
+      daily_nudge_opt_in: r.row.daily_nudge_opt_in ?? false,
       job_filters: r.row.job_filters ?? {},
     },
     { headers: corsHdrs(env) }
@@ -121,6 +123,7 @@ export const PUT: APIRoute = async ({ locals, request }) => {
   const update: Record<string, any> = { updated_at: new Date().toISOString() };
   if (typeof body.job_alerts_opt_in === 'boolean') update.job_alerts_opt_in = body.job_alerts_opt_in;
   if (typeof body.interview_prep_opt_in === 'boolean') update.interview_prep_opt_in = body.interview_prep_opt_in;
+  if (typeof body.daily_nudge_opt_in === 'boolean') update.daily_nudge_opt_in = body.daily_nudge_opt_in;
   if (body.job_filters !== undefined) update.job_filters = sanitizeFilters(body.job_filters);
   if (typeof body.email === 'string' && body.email.includes('@')) update.email = body.email.trim();
 
@@ -139,6 +142,7 @@ export const PUT: APIRoute = async ({ locals, request }) => {
       email: updated.email,
       job_alerts_opt_in: updated.job_alerts_opt_in,
       interview_prep_opt_in: updated.interview_prep_opt_in,
+      daily_nudge_opt_in: updated.daily_nudge_opt_in ?? false,
       job_filters: updated.job_filters ?? {},
     },
     { headers: corsHdrs(env) }

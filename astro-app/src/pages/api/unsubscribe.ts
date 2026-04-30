@@ -75,10 +75,14 @@ export const GET: APIRoute = async ({ locals, url }) => {
   } else if (kind === 'interview_prep') {
     update.interview_prep_opt_in = false;
     label = 'weekly interview prep';
+  } else if (kind === 'daily_nudge') {
+    update.daily_nudge_opt_in = false;
+    label = 'daily nudges';
   } else {
     update.job_alerts_opt_in = false;
     update.interview_prep_opt_in = false;
-    label = 'all weekly emails';
+    update.daily_nudge_opt_in = false;
+    label = 'all emails';
   }
   const { error } = await supabase
     .from('notification_prefs')
