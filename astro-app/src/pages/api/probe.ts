@@ -1,12 +1,11 @@
 import type { APIRoute } from 'astro';
+// @ts-ignore — virtual module from @astrojs/cloudflare
+import { env as cfEnv } from 'cloudflare:workers';
 
 export const prerender = false;
 
-// Minimal probe — no imports of supabase/clerk/handler. If this still 500s,
-// the problem is in the Astro Cloudflare adapter itself, not our code.
-export const GET: APIRoute = ({ locals }) => {
-  // @ts-expect-error
-  const env = locals?.runtime?.env ?? {};
+export const GET: APIRoute = () => {
+  const env = (cfEnv ?? {}) as Record<string, unknown>;
   const present = Object.fromEntries(
     [
       'SUPABASE_URL',
@@ -20,7 +19,7 @@ export const GET: APIRoute = ({ locals }) => {
       'TURNSTILE_SECRET_KEY',
       'TURNSTILE_SITE_KEY',
       'PENDO_API_KEY',
-    ].map((k) => [k, typeof env[k] === 'string' && env[k].length > 0]),
+    ].map((k) => [k, typeof env[k] === 'string' && (env[k] as string).length > 0]),
   );
   return new Response(
     JSON.stringify({ ok: true, env: present, bindings: Object.keys(env) }, null, 2),

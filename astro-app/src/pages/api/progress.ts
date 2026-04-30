@@ -1,27 +1,9 @@
 import type { APIRoute } from 'astro';
 import { verifyClerkToken, bearerToken } from '~/lib/clerk';
 import { getSupabaseAdmin, jsonResponse, corsHeaders } from '~/lib/supabase';
+import { envFrom } from '~/lib/handler';
 
 export const prerender = false;
-
-interface Env {
-  CLERK_DOMAIN?: string;
-  SUPABASE_URL?: string;
-  SUPABASE_SERVICE_ROLE_KEY?: string;
-  NEXT_PUBLIC_APP_URL?: string;
-}
-
-function envFrom(locals: App.Locals): Env {
-  // @ts-expect-error — Cloudflare adapter exposes runtime.env at runtime
-  const cfEnv = (locals?.runtime?.env ?? {}) as Env;
-  return {
-    CLERK_DOMAIN: cfEnv.CLERK_DOMAIN ?? import.meta.env.CLERK_DOMAIN,
-    SUPABASE_URL: cfEnv.SUPABASE_URL ?? import.meta.env.SUPABASE_URL,
-    SUPABASE_SERVICE_ROLE_KEY:
-      cfEnv.SUPABASE_SERVICE_ROLE_KEY ?? import.meta.env.SUPABASE_SERVICE_ROLE_KEY,
-    NEXT_PUBLIC_APP_URL: cfEnv.NEXT_PUBLIC_APP_URL ?? import.meta.env.NEXT_PUBLIC_APP_URL,
-  };
-}
 
 export const OPTIONS: APIRoute = ({ locals }) => {
   const env = envFrom(locals);

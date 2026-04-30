@@ -1,4 +1,10 @@
 import type { APIContext } from 'astro';
+// In Astro v6, locals.runtime.env was removed — env now comes from
+// cloudflare:workers. The import is virtual (provided by the adapter); it has
+// no effect when running outside a Workers runtime.
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore — virtual module from @astrojs/cloudflare
+import { env as cfEnv } from 'cloudflare:workers';
 import { verifyClerkToken, bearerToken, type ClerkUser } from './clerk';
 import { getSupabaseAdmin, jsonResponse, corsHeaders, type SupabaseEnv } from './supabase';
 
@@ -16,10 +22,9 @@ export interface Env extends SupabaseEnv {
   OPENAI_API_KEY?: string;
 }
 
-export function envFrom(locals: App.Locals): Env {
-  // @ts-expect-error — Cloudflare adapter exposes runtime.env at runtime
-  const cf = (locals?.runtime?.env ?? {}) as Env;
-  // @ts-expect-error — fall back to import.meta.env in dev
+export function envFrom(_locals?: App.Locals): Env {
+  const cf = (cfEnv ?? {}) as Env;
+  // @ts-expect-error — fall back to import.meta.env in dev/build
   const im = (import.meta.env ?? {}) as Env;
   const pick = <K extends keyof Env>(k: K): Env[K] => cf[k] ?? im[k];
   return {
