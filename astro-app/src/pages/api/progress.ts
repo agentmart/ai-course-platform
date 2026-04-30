@@ -61,11 +61,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const body = await request.json().catch(() => ({} as Record<string, unknown>));
-  const { completed, taskStates, notes, sprint_track } = body as {
+  const { completed, taskStates, notes, sprint_track, completed_sprint } = body as {
     completed?: number[];
     taskStates?: Record<string, unknown>;
     notes?: Record<string, unknown>;
     sprint_track?: boolean;
+    completed_sprint?: boolean;
   };
 
   const supabase = getSupabaseAdmin(env);
@@ -101,6 +102,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
     completion_dates,
     badges,
     sprint_track: typeof sprint_track === 'boolean' ? sprint_track : prev.sprint_track ?? false,
+    completed_sprint:
+      typeof completed_sprint === 'boolean' ? completed_sprint : prev.completed_sprint ?? false,
   };
 
   const { error } = await supabase
@@ -110,7 +113,16 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (error) return jsonResponse({ error: 'Failed to save progress' }, { status: 500, headers: cors });
   return jsonResponse(
-    { ok: true, completion_dates, badges, streak, newlyEarnedBadges: newlyEarned },
+    {
+      ok: true,
+      completed: nextCompleted,
+      completion_dates,
+      badges,
+      streak,
+      newlyEarnedBadges: newlyEarned,
+      sprint_track: merged.sprint_track,
+      completed_sprint: merged.completed_sprint,
+    },
     { headers: cors }
   );
 };

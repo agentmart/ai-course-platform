@@ -103,9 +103,33 @@ export const POST: APIRoute = async ({ locals, request }) => {
   );
 };
 
-export const GET: APIRoute = async ({ locals, url }) => {
+export const GET: APIRoute = async ({ locals, request, url }) => {
   const env = envFrom(locals);
   const cors = corsHdrs(env);
+
+  // Auth path: /api/pledge?mine=1 returns the signed-in user's most recent pledge.
+  if (url.searchParams.get('mine') === '1') {
+    let user;
+    try {
+      user = await verifyClerkToken(bearerToken(request), env);
+    } catch {
+      return jsonResponse({ error: 'Unauthorized' }, { status: 401, headers: cors });
+    }
+    const supabase = getSupabaseAdmin(env);
+    const { data, error } = await supabase
+      .from('pledges')
+      .select('token, display_name, pledge_text, track, start_date, target_date, demo_url, demo_completed_at, created_at')
+      .eq('clerk_user_id', user.sub)
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (error) {
+      console.error('[pledge] mine error', error);
+      return jsonResponse({ error: 'Lookup failed' }, { status: 500, headers: cors });
+    }
+    return jsonResponse(data ?? null, { headers: cors });
+  }
+
   const token = url.searchParams.get('token');
   if (!token) return jsonResponse({ error: 'token required' }, { status: 400, headers: cors });
 

@@ -570,11 +570,12 @@ async function saveProgress(){
   try{
     const token=await clerk.session.getToken();
     const r=await fetch('/api/progress',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({completed:[...completed],taskStates,notes})});
-    if(r.ok && window.Gamification){
+    if(r.ok){
       const json=await r.json().catch(()=>null);
       if(json){
         const displayName=(clerk.user&&(clerk.user.firstName||clerk.user.username))||'';
-        window.Gamification.handleProgressResponse(json, displayName);
+        if(window.Gamification) window.Gamification.handleProgressResponse(json, displayName);
+        if(window.__sprintCapstoneCheck) window.__sprintCapstoneCheck(json);
       }
     }
   }catch(e){}
@@ -950,6 +951,7 @@ function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accep
 
 <script src="/components/nav.js"></script>
 <script src="/components/gamification.js"></script>
+<script src="/components/capstone.js"></script>
 <script>renderSidebar({ active: 'course' });</script>
 
 </body>
