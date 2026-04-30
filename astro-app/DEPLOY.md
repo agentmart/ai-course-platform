@@ -37,19 +37,20 @@ This is the Sprint 4 deployment plan for migrating becomeaipm.com from Vercel to
    - **Environment variable** `NODE_VERSION = 20` (Astro 6 + `@astrojs/cloudflare@13` require Node ≥ 20). The `astro-app/.nvmrc` and `engines.node` field also pin this.
 5. Environment variables (Production + Preview both):
 
-   | Var | Source |
-   |-----|--------|
-   | `CLERK_DOMAIN` | from current Vercel |
-   | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | from current Vercel |
-   | `NEXT_PUBLIC_APP_URL` | `https://<branch>.becomeaipm.pages.dev` for preview, `https://becomeaipm.com` after cutover |
-   | `SUPABASE_URL` | from current Vercel |
-   | `SUPABASE_SERVICE_ROLE_KEY` | from current Vercel |
-   | `SUPABASE_ANON_KEY` | from current Vercel |
-   | `RESEND_API_KEY` | from current Vercel |
-   | `CRON_SECRET` | from current Vercel |
-   | `GH_PAT_TOKEN` | from current Vercel (feedback issues) |
-   | `GH_MODELS_TOKEN` | from current Vercel (course advisor LLM) |
-   | `TURNSTILE_SECRET_KEY` | from current Vercel (contact form) |
+   | Var | Required? | Source / how to get it |
+   |-----|-----------|------------------------|
+   | `CLERK_DOMAIN` | required | Copy from current Vercel |
+   | `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY` | required | Copy from current Vercel |
+   | `SUPABASE_URL` | required | Copy from current Vercel |
+   | `SUPABASE_SERVICE_ROLE_KEY` | required | Copy from current Vercel |
+   | `RESEND_API_KEY` | required | Copy from current Vercel |
+   | `CRON_SECRET` | required | Copy from current Vercel |
+   | `TURNSTILE_SECRET_KEY` | required (contact form) | Copy from current Vercel |
+   | `NEXT_PUBLIC_APP_URL` | required | **Set yourself** — not a Vercel secret. Preview: paste your CF preview URL (e.g. `https://feat-astro-migration.<project>.pages.dev`). Production: `https://becomeaipm.com` |
+   | `SUPABASE_ANON_KEY` | required (used by `/api/config` to seed browser Supabase client) | **Get from Supabase dashboard** → Project Settings → API → "anon public" key (different from service-role key) |
+   | `GH_PAT_TOKEN` | optional (feedback form) | If missing, `/api/create-feedback` returns "Feedback system not configured" — everything else works. Create a fine-grained PAT at https://github.com/settings/personal-access-tokens with `Issues: write` + `Projects: write` on `agentmart/ai-course-platform` |
+   | `GH_MODELS_TOKEN` | optional (course-advisor LLM rationale) | Falls back to `GITHUB_TOKEN`, and if neither is set the advisor uses `staticRationale()` (works, just less personalized). Create a PAT with **`Models: read`** account-level scope at https://github.com/settings/personal-access-tokens — free tier |
+   | `ADVISOR_MODEL` | optional | Defaults to `openai/gpt-4.1`. Override if you swap to a different GitHub Models / Foundry deployment name |
 
 ### 1.b Common build-failure causes (fix these before re-running)
 
