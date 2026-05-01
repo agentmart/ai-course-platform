@@ -29,9 +29,13 @@ function jobRowHtml(j) {
   const title = escapeHtml(j.title || 'Role');
   const loc = j.location ? escapeHtml(j.location) : (j.remote ? 'Remote' : '—');
   const url = j.job_url || '#';
+  const evidence = j.screener_evidence
+    ? `<div style="font-size:12px;color:#5a4f47;margin-top:6px;line-height:1.5;"><span style="color:#c8590a;font-weight:600;">Screened by AI:</span> ${escapeHtml(j.screener_evidence)}</div>`
+    : '';
   return `<tr><td style="padding:14px 0;border-bottom:1px solid #ede8df;">
     <div style="font-size:15px;font-weight:600;color:#1a1512;margin:0 0 4px;"><a href="${escapeHtml(url)}" style="color:#1a1512;text-decoration:none;">${title}</a></div>
     <div style="font-size:13px;color:#8c7f74;">${company} · ${loc}</div>
+    ${evidence}
   </td></tr>`;
 }
 
@@ -59,7 +63,10 @@ export function renderJobAlert({ user, jobs, weekLabel }) {
     '',
     intro,
     '',
-    ...jobs.map(j => `• ${j.title} — ${j.company_name} (${j.location || (j.remote ? 'Remote' : '—')})\n  ${j.job_url || ''}`),
+    ...jobs.map(j => {
+      const head = `• ${j.title} — ${j.company_name} (${j.location || (j.remote ? 'Remote' : '—')})\n  ${j.job_url || ''}`;
+      return j.screener_evidence ? `${head}\n  Screened by AI: ${j.screener_evidence}` : head;
+    }),
     '',
     'Browse all companies: https://becomeaipm.com/companies.html',
     '',
@@ -79,7 +86,7 @@ function questionHtml(q, idx) {
   </div>`;
 }
 
-export function renderInterviewPrep({ user, questions, weekLabel, headlines }) {
+export function renderInterviewPrep({ user, questions, weekLabel, headlines, factCheck }) {
   const subject = `This week's 3 AI PM interview questions`;
 
   const headlinesHtml = headlines && headlines.length
@@ -87,6 +94,21 @@ export function renderInterviewPrep({ user, questions, weekLabel, headlines }) {
         headlines.slice(0, 3).map(h => escapeHtml(h)).join(' · ')
       }</p>`
     : '';
+
+  // Optional fact-check footer. Backward-compatible: omit when factCheck is undefined.
+  let factCheckHtml = '';
+  let factCheckText = '';
+  if (factCheck && factCheck.status) {
+    const flagged = Number(factCheck.flaggedCount) || 0;
+    const isClean = factCheck.status === 'all_verified' || flagged === 0;
+    const label = isClean
+      ? '✅ Fact-check status: all claims verified.'
+      : `⚠ Fact-check status: ${flagged} claim${flagged === 1 ? '' : 's'} flagged as time-sensitive — verify before relying on it.`;
+    const colour = isClean ? '#2f6b3a' : '#a25b00';
+    const bg = isClean ? '#f0f6ed' : '#fbf3e4';
+    factCheckHtml = `<p style="font-size:12px;color:${colour};background:${bg};border-radius:4px;padding:10px 12px;margin:12px 0 0;">${escapeHtml(label)}</p>`;
+    factCheckText = `\n${label}\n`;
+  }
 
   const html = SHELL_OPEN + `
     <h1 style="font-size:20px;margin:0 0 8px;">3 fresh AI PM interview questions</h1>
@@ -97,6 +119,7 @@ export function renderInterviewPrep({ user, questions, weekLabel, headlines }) {
     <div style="text-align:center;margin:20px 0 4px;">
       <a href="https://becomeaipm.com/course.html" style="display:inline-block;padding:10px 22px;background:#1a1512;color:#fff;text-decoration:none;border-radius:4px;font-size:13px;font-weight:600;">Continue the course →</a>
     </div>
+    ${factCheckHtml}
   ` + SHELL_CLOSE_TEMPLATE(footerHtml(user.unsubscribe_token, 'interview_prep'));
 
   const text = [
@@ -106,7 +129,7 @@ export function renderInterviewPrep({ user, questions, weekLabel, headlines }) {
     '',
     ...questions.map((q, i) => `Q${i + 1}: ${q.question}\n\nHow to answer: ${q.answer}\n`),
     `Continue the course: https://becomeaipm.com/course.html`,
-    '',
+    factCheckText,
     `Unsubscribe: ${unsubscribeUrl(user.unsubscribe_token, 'interview_prep')}`,
     `Manage preferences: https://becomeaipm.com/settings.html`,
   ].join('\n');

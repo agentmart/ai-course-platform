@@ -29,6 +29,30 @@ const PM_KEYWORDS = [
 ];
 const isPMRole = title => PM_KEYWORDS.some(k => (title || '').toLowerCase().includes(k));
 
+// Decode common HTML entities + strip tags from a JD body. Best-effort, no dep.
+// Truncates to 8 KB so we never push huge blobs into Supabase.
+function stripHtmlToText(html) {
+  if (!html || typeof html !== 'string') return null;
+  const text = html
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<script[\s\S]*?<\/script>/gi, ' ')
+    .replace(/<\/(p|div|li|br|h\d)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;|&apos;/g, "'")
+    .replace(/&#(\d+);/g, (_, n) => String.fromCharCode(Number(n)))
+    .replace(/[ \t]+\n/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .replace(/[ \t]{2,}/g, ' ')
+    .trim();
+  return text.length > 8000 ? text.slice(0, 8000) : text;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // KNOWN_COMPANIES — verified ATS slugs only. No auto-slugify() entries.
 // Cursor slug returned null last run (CF transient block) — keep it, will retry.
@@ -77,8 +101,8 @@ const KNOWN_COMPANIES = [
 async function fetchGreenhouse(slug) {
   try {
     const r = await fetch(
-      `https://boards-api.greenhouse.io/v1/boards/${slug}/jobs?content=false`,
-      { signal: AbortSignal.timeout(10000) }
+      `https://boards-api.greenhouse.io/v1/boards/${slug}/jobs?content=true`,
+      { signal: AbortSignal.timeout(15000) }
     );
     if (!r.ok) return null;
     const { jobs } = await r.json();
@@ -91,6 +115,7 @@ async function fetchGreenhouse(slug) {
       remote:      (j.location?.name || '').toLowerCase().includes('remote'),
       job_url:     j.absolute_url || `https://boards.greenhouse.io/${slug}/jobs/${j.id}`,
       ats_source:  'greenhouse',
+      description: stripHtmlToText(j.content),
     }));
   } catch { return null; }
 }
@@ -112,6 +137,7 @@ async function fetchLever(slug) {
       remote:      (j.categories?.commitment || '').toLowerCase().includes('remote'),
       job_url:     j.hostedUrl || `https://jobs.lever.co/${slug}/${j.id}`,
       ats_source:  'lever',
+      description: j.descriptionPlain || stripHtmlToText(j.description) || null,
     }));
   } catch { return null; }
 }
@@ -201,6 +227,7 @@ async function upsertJobs(company, allJobs, companyId) {
       job_url:      j.job_url || null,
       ats_source:   j.ats_source,
       external_id:  j.external_id,
+      description:  j.description || null,
       is_active:    true,
       last_seen_at: now,
     }));
