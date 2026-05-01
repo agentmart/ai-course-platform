@@ -1,0 +1,60 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e4]: LOADING COURSE...
+  - complementary [ref=e5]:
+    - link "becomeaipm home" [ref=e6] [cursor=pointer]:
+      - /url: /
+      - generic [ref=e7]: becomeaipm
+    - button "Collapse sidebar" [ref=e8] [cursor=pointer]: ❮
+    - generic [ref=e9]:
+      - generic [ref=e10]:
+        - generic [ref=e11]: Learn
+        - link "60-Day AI PM" [ref=e12] [cursor=pointer]:
+          - /url: /course.html
+          - generic [ref=e13]: ■
+          - generic [ref=e14]: 60-Day AI PM
+      - generic [ref=e15]:
+        - generic [ref=e16]: PM Toolkit
+        - link "AI Calculator" [ref=e17] [cursor=pointer]:
+          - /url: /ai-calculator.html
+          - generic [ref=e18]: ¤
+          - generic [ref=e19]: AI Calculator
+      - generic [ref=e20]:
+        - generic [ref=e21]: Discover
+        - link "Companies" [ref=e22] [cursor=pointer]:
+          - /url: /companies.html
+          - generic [ref=e23]: ◎
+          - generic [ref=e24]: Companies
+        - link "AI PM Jobs" [ref=e25] [cursor=pointer]:
+          - /url: /ai-pm-jobs.html
+          - generic [ref=e26]: ▸
+          - generic [ref=e27]: AI PM Jobs
+        - link "Content Gaps" [ref=e28] [cursor=pointer]:
+          - /url: /gaps.html
+          - generic [ref=e29]: △
+          - generic [ref=e30]: Content Gaps
+        - link "How-To" [ref=e31] [cursor=pointer]:
+          - /url: /how-to-become-ai-pm.html
+          - generic [ref=e32]: "?"
+          - generic [ref=e33]: How-To
+        - link "PM-OS" [ref=e34] [cursor=pointer]:
+          - /url: /pm-os.html
+          - generic [ref=e35]: ◇
+          - generic [ref=e36]: PM-OS
+      - generic [ref=e37]:
+        - generic [ref=e38]: Community
+        - link "Leaderboard" [ref=e39] [cursor=pointer]:
+          - /url: /analytics.html
+          - generic [ref=e40]: ☰
+          - generic [ref=e41]: Leaderboard
+        - link "Contact" [ref=e42] [cursor=pointer]:
+          - /url: /contact.html
+          - generic [ref=e43]: "@"
+          - generic [ref=e44]: Contact
+    - generic [ref=e45]:
+      - link "Settings" [ref=e46] [cursor=pointer]:
+        - /url: /settings.html
+        - generic [ref=e47]: ⚙
+        - generic [ref=e48]: Settings
+      - link "Sign In" [ref=e49] [cursor=pointer]:
+        - /url: "#"
+  - generic: Copied! Paste on Instagram
