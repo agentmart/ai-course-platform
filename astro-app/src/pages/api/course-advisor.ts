@@ -3,6 +3,7 @@ import { envFrom, getSupabaseAdmin, jsonResponse, appCors } from '~/lib/handler'
 import { verifyClerkToken, bearerToken } from '~/lib/clerk';
 // @ts-expect-error — JS module without types
 import { profileToSpine, staticRationale } from '~/lib/advisor-rules.mjs';
+import { runAdvisor, type AdvisorProfile } from '~/lib/agents/advisor';
 
 export const prerender = false;
 
@@ -148,20 +149,62 @@ export const POST: APIRoute = async ({ locals, request }) => {
     );
   }
 
-  const { spine, reasonCodes } = profileToSpine(answers) as { spine: number[]; reasonCodes: string[] };
-  const subtitles = Array.isArray(body.daySubtitles) ? body.daySubtitles.slice(0, spine.length) : [];
-  // @ts-expect-error — env may not have ADVISOR_MODEL/GH_MODELS_TOKEN typed
-  const ghToken = env.GH_MODELS_TOKEN ?? env.GITHUB_TOKEN;
-  // @ts-expect-error
-  const modelId = env.ADVISOR_MODEL ?? 'openai/gpt-4.1';
-  let rationale = await llmRationale(answers, spine, subtitles, ghToken, modelId);
-  if (!rationale) rationale = staticRationale(answers, spine);
+  const subtitles = Array.isArray(body.daySubtitles) ? body.daySubtitles.slice(0, 5) : [];
+
+  // Engine selector (hidden A/B knob): ?engine=agent|rules. Defaults to 'agent'
+  // (LangGraph) and falls back to the legacy rule path on any error.
+  const url = new URL(request.url);
+  const engineParam = (url.searchParams.get('engine') || '').toLowerCase();
+  const useAgent = engineParam !== 'rules';
+
+  let spine: number[];
+  let rationale: string;
+  let reasonCodes: string[];
+  let engine: 'agent' | 'rules' = 'rules';
+  let sprintRecommended = false;
+
+  if (useAgent) {
+    try {
+      const result = await runAdvisor(env as any, answers as AdvisorProfile, {
+        daySubtitles: subtitles,
+      });
+      spine = result.spine;
+      rationale = result.rationale;
+      reasonCodes = result.reasonCodes;
+      engine = result.engine;
+      sprintRecommended = result.sprintRecommended ?? false;
+    } catch {
+      const r = profileToSpine(answers) as { spine: number[]; reasonCodes: string[] };
+      spine = r.spine;
+      reasonCodes = r.reasonCodes;
+      // @ts-expect-error — env may not have ADVISOR_MODEL/GH_MODELS_TOKEN typed
+      const ghToken = env.GH_MODELS_TOKEN ?? env.GITHUB_TOKEN;
+      // @ts-expect-error
+      const modelId = env.ADVISOR_MODEL ?? 'openai/gpt-4.1';
+      rationale =
+        (await llmRationale(answers, spine, subtitles, ghToken, modelId)) ??
+        staticRationale(answers, spine);
+    }
+  } else {
+    const r = profileToSpine(answers) as { spine: number[]; reasonCodes: string[] };
+    spine = r.spine;
+    reasonCodes = r.reasonCodes;
+    // @ts-expect-error — env may not have ADVISOR_MODEL/GH_MODELS_TOKEN typed
+    const ghToken = env.GH_MODELS_TOKEN ?? env.GITHUB_TOKEN;
+    // @ts-expect-error
+    const modelId = env.ADVISOR_MODEL ?? 'openai/gpt-4.1';
+    rationale =
+      (await llmRationale(answers, spine, subtitles, ghToken, modelId)) ??
+      staticRationale(answers, spine);
+  }
 
   const advisor = {
     profile: answers,
     spine,
     rationale,
     reason_codes: reasonCodes,
+    engine,
+    sprint_recommended: sprintRecommended,
     completed_spine: false,
     skipped: false,
     generated_at: new Date().toISOString(),
