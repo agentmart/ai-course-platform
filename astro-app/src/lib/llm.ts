@@ -113,21 +113,21 @@ export async function getChatModel(
       throw new Error('AZURE_FOUNDRY_API_KEY and AZURE_FOUNDRY_ENDPOINT required for foundry');
     }
     const baseURL = env.AZURE_FOUNDRY_ENDPOINT.replace(/\/+$/, '');
+    // Foundry's "v1" inference endpoint (e.g. .../openai/v1) is stable and
+    // does NOT take an `api-version` query param. The classic Azure OpenAI
+    // path (.../openai/deployments/<name>) does. Detect by suffix.
+    const isV1 = /\/openai\/v1(\/.*)?$/.test(baseURL);
     const apiVersion = env.AZURE_FOUNDRY_API_VERSION || '2024-08-01-preview';
     const { ChatOpenAI } = await import('@langchain/openai');
-    // Foundry uses an `api-key` header (not `Authorization: Bearer`) and an
-    // `api-version` query param. ChatOpenAI's `configuration` is forwarded to
-    // the underlying OpenAI client, which supports `defaultHeaders` and
-    // `defaultQuery`.
     return new ChatOpenAI({
-      apiKey: env.AZURE_FOUNDRY_API_KEY, // satisfies the SDK; real auth via header below
+      apiKey: env.AZURE_FOUNDRY_API_KEY,
       model,
       temperature,
       maxTokens,
       configuration: {
         baseURL,
         defaultHeaders: { 'api-key': env.AZURE_FOUNDRY_API_KEY },
-        defaultQuery: { 'api-version': apiVersion },
+        ...(isV1 ? {} : { defaultQuery: { 'api-version': apiVersion } }),
       },
     }) as unknown as BaseChatModel;
   }

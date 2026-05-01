@@ -40,25 +40,11 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
   const url = new URL(request.url);
   const q = (url.searchParams.get('q') ?? '').trim() || 'Reply with the single word: pong.';
-  const providerParam = (url.searchParams.get('provider') ?? '').trim();
+  const providerParam = (url.searchParams.get('provider') ?? '').trim().toLowerCase();
   const provider: LlmProvider | undefined =
-    providerParam === 'openai' || providerParam === 'anthropic' ? providerParam : undefined;
-
-  const effectiveProvider: LlmProvider =
-    provider ?? (env.ANTHROPIC_API_KEY ? 'anthropic' : env.OPENAI_API_KEY ? 'openai' : 'anthropic');
-
-  if (
-    (effectiveProvider === 'anthropic' && !env.ANTHROPIC_API_KEY) ||
-    (effectiveProvider === 'openai' && !env.OPENAI_API_KEY)
-  ) {
-    return jsonResponse(
-      {
-        error: 'LLM not configured',
-        message: `No API key in env for provider "${effectiveProvider}". Set ANTHROPIC_API_KEY or OPENAI_API_KEY.`,
-      },
-      { status: 503, headers: cors }
-    );
-  }
+    providerParam === 'openai' || providerParam === 'anthropic' || providerParam === 'foundry'
+      ? (providerParam as LlmProvider)
+      : undefined;
 
   const t0 = Date.now();
   try {
@@ -68,7 +54,18 @@ export const GET: APIRoute = async ({ request, locals }) => {
     ]);
     const { HumanMessage } = await import('@langchain/core/messages');
 
-    const model = await getChatModel(env, { provider: effectiveProvider });
+    let model;
+    try {
+      model = await getChatModel(env, provider ? { provider } : {});
+    } catch (e) {
+      return jsonResponse(
+        {
+          error: 'LLM not configured',
+          message: e instanceof Error ? e.message : String(e),
+        },
+        { status: 503, headers: cors }
+      );
+    }
 
     // 1-node graph: START -> call_model -> END.
     const graph = new StateGraph(MessagesAnnotation)
@@ -97,7 +94,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
 
     return jsonResponse(
       {
-        provider: effectiveProvider,
+        provider: provider ?? 'auto',
         // @ts-expect-error — model field exists on both ChatAnthropic and ChatOpenAI
         model: (model.model as string | undefined) ?? null,
         response: text,
