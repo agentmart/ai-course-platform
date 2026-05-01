@@ -4,3 +4,4 @@ node_modules/
 .DS_Store
 freshness-report.json
 .vscode/settings.json
+.playwright-mcp/

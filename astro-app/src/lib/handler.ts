@@ -20,6 +20,11 @@ export interface Env extends SupabaseEnv {
   RESEND_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   OPENAI_API_KEY?: string;
+  AZURE_FOUNDRY_API_KEY?: string;
+  AZURE_FOUNDRY_ENDPOINT?: string;
+  AZURE_FOUNDRY_API_VERSION?: string;
+  AZURE_FOUNDRY_DEFAULT_MODEL?: string;
+  LLM_PROVIDER?: string;
 }
 
 export function envFrom(_locals?: App.Locals): Env {
@@ -41,6 +46,11 @@ export function envFrom(_locals?: App.Locals): Env {
     RESEND_API_KEY: pick('RESEND_API_KEY'),
     ANTHROPIC_API_KEY: pick('ANTHROPIC_API_KEY'),
     OPENAI_API_KEY: pick('OPENAI_API_KEY'),
+    AZURE_FOUNDRY_API_KEY: pick('AZURE_FOUNDRY_API_KEY'),
+    AZURE_FOUNDRY_ENDPOINT: pick('AZURE_FOUNDRY_ENDPOINT'),
+    AZURE_FOUNDRY_API_VERSION: pick('AZURE_FOUNDRY_API_VERSION'),
+    AZURE_FOUNDRY_DEFAULT_MODEL: pick('AZURE_FOUNDRY_DEFAULT_MODEL'),
+    LLM_PROVIDER: pick('LLM_PROVIDER'),
   };
 }
 
