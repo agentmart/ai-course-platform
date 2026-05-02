@@ -1,0 +1,45 @@
+---
+day: 27
+subtitle: "IBM and Red Hat’s open protocol for agent communication — the REST-native enterprise challenger."
+track: full
+tasks:
+    - title: "Compare A2A and ACP specifications"
+      time: 25
+      description: "Read both specs. Compare on: protocol type, authentication model, state management, ecosystem support, developer experience. Save as /day-27/a2a_vs_acp_comparison_table.md."
+    - title: "Design an ACP-compliant agent endpoint"
+      time: 25
+      description: "Write the REST API spec (routes, methods, request/response schemas) for an ACP-compliant data analysis agent. Save as /day-27/acp_agent_endpoint_spec.md."
+    - title: "Protocol selection framework"
+      time: 25
+      description: "For 5 enterprise scenarios, recommend: MCP only, A2A, ACP, or A2A+MCP. Include: cloud provider, team stack, compliance requirements. Save as /day-27/protocol_selection_framework.md."
+    - title: "Verify current ACP adoption"
+      time: 25
+      description: "Research current BeeAI/ACP status. Has it gained production traction? Are there notable deployments? Be honest about the maturity level. Save as /day-27/acp_adoption_check.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "There are now multiple agent communication protocols. How do you advise a team on which to adopt?"
+  answer: "First, separate the layers: MCP for agent-to-tool connectivity is the clear standard regardless of which agent-to-agent protocol you choose. For agent-to-agent, the decision depends on ecosystem.<br><br>A2A (Google): best if you’re on Google Cloud/Vertex AI, need the Agent Card discovery mechanism, or want the largest partner ecosystem.<br><br>ACP (IBM/Red Hat): best if you’re on OpenShift/Kubernetes, want pure REST with no custom agent runtime, or your team prefers HTTP-native patterns over agent-specific protocols.<br><br>My practical advice: (1) adopt MCP immediately — it’s mature and essential. (2) For agent-to-agent, evaluate based on your cloud provider. (3) Don’t commit deeply to either A2A or ACP until the convergence picture clarifies. Build your agent interfaces behind an abstraction layer so you can switch protocols without rewriting agents. The worst outcome is coupling your architecture to a protocol that loses the standards battle."
+pmAngle: "The protocol landscape is consolidating but not yet settled. The PM who builds behind an abstraction layer — so agents can switch protocols without rewriting — makes the right architectural bet regardless of which standard wins."
+context: "<p><strong>Agent Communication Protocol (ACP)</strong> was developed by the BeeAI team at IBM Research and released as an open standard in 2025. ACP’s key differentiator from A2A: it is <strong>REST-first</strong> — agents are standard HTTP endpoints, requiring no custom agent runtime or specialized client libraries. Any service that speaks HTTP can participate in an ACP agent network. The \"awaits\" mechanism (analogous to A2A’s \"input-required\" state) allows agents to pause and request additional context from the orchestrator.</p>\n  <p><strong>Protocol convergence status:</strong> As of Q1 2026, A2A (Google) and ACP (IBM/Red Hat) represent different ecosystem bets. A2A is gaining traction in Google Cloud environments; ACP aligns with Red Hat OpenShift and IBM’s enterprise Kubernetes customers. The protocol landscape continues to evolve. Check current adoption figures before making architectural recommendations — the course can’t predict which standard will dominate.</p>\n  <p><strong>When to choose ACP over A2A:</strong> (1) You’re in a Red Hat/IBM/OpenShift ecosystem, (2) you want HTTP-native with no custom agent runtime (pure REST), (3) your team is more comfortable with REST patterns than agent-specific protocols. In practice, many enterprises aren’t choosing between these protocols — they’re using MCP for tool connectivity and evaluating A2A vs ACP based on their cloud provider allegiance.</p>"
+resources:
+    - type: "DOCS"
+      title: "ACP Specification"
+      url: "https://agentcommunicationprotocol.dev/"
+      note: "REST-first agent communication. Verify current status."
+    - type: "GITHUB"
+      title: "BeeAI Framework"
+      url: "https://github.com/i-am-bee/beeai"
+      note: "IBM’s agent framework implementing ACP. Check for rebranding."
+    - type: "GITHUB"
+      title: "A2A Specification"
+      url: "https://github.com/google/a2a"
+      note: "Compare directly with ACP for your protocol decision."
+    - type: "DOCS"
+      title: "MCP Specification"
+      url: "https://modelcontextprotocol.io/specification"
+      note: "The one protocol you should adopt regardless of A2A vs ACP choice."
+---
+

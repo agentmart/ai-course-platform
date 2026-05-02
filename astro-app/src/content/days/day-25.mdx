@@ -1,0 +1,53 @@
+---
+day: 25
+subtitle: "AI that sees and interacts with any software — now GA, with competitive dynamics every PM must know."
+track: full
+tasks:
+    - title: "Identify 3 legacy automation opportunities"
+      time: 25
+      description: "Find 3 workflows at a company where: (a) there’s no API, (b) it’s currently manual GUI work, (c) the business value of automation is clear. For each: describe the workflow, estimate time saved, and assess whether computer use is the right approach vs API. Save as /day-25/legacy_automation_opportunities.md."
+    - title: "Design safety model for HR onboarding"
+      time: 25
+      description: "An HR team wants to automate new employee system setup (create accounts in 5 internal tools). Design the safety model: what permissions does the agent need, what environment does it run in, when does it ask for human approval, what’s logged, and what’s the rollback plan? Save as /day-25/safety_model_design.md."
+    - title: "Computer use vs API integration framework"
+      time: 25
+      description: "Write a decision framework: when to use computer use vs building an API integration. Consider: reliability, cost, security, maintenance, speed. Include a \"hybrid\" option where computer use handles the UI parts and API handles the data parts. Save as /day-25/computer_use_vs_api.md."
+    - title: "Operator vs Claude computer use comparison"
+      time: 25
+      description: "Compare Anthropic computer use and OpenAI Operator on: API-first vs consumer product, pricing model, safety controls, enterprise support, and developer experience. Which approach wins for enterprise? Which for consumer? Save as /day-25/operator_vs_claude_comparison.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "When would you use computer use agents vs building a proper API integration?"
+  answer: "Computer use is the right choice when: (1) no API exists for the target system, (2) the business value justifies the cost and complexity, (3) the workflow is well-defined enough to be reliable at >90% success rate, and (4) safety controls can be implemented (sandboxed environment, human approval for irreversible actions, audit logging).<br><br>API integration wins on: reliability (99.9% vs ~90-95% for computer use), speed (milliseconds vs seconds per step), cost (no screenshot tokens), security (authenticated API vs screen scraping), and maintainability (API contracts vs UI changes breaking automation).<br><br>The hybrid pattern is often the best answer: use the API for data operations and computer use only for the UI-exclusive parts that have no API. This minimizes the fragile screen-interaction surface area.<br><br>The competitive landscape matters: Anthropic’s computer use is API-first, designed for developers to build automation products. OpenAI’s Operator is consumer-facing — a product, not a primitive. For enterprise automation, Anthropic’s API approach is more appropriate because the customer controls the agent, the environment, and the safety model. Know this distinction for Anthropic interviews."
+pmAngle: "Computer use is powerful, but it’s the automation option of last resort. APIs are always better when they exist. The PM skill is knowing when computer use is the right tool and designing the safety model that makes it enterprise-deployable. And know the competitive landscape: Anthropic (API-first) vs OpenAI Operator (consumer product) is a strategic positioning conversation you’ll have in interviews."
+context: "<p><strong>Computer use agents</strong> can see screenshots of any software interface and interact using mouse clicks, keyboard input, and scroll actions. This is now production-ready: <strong>Anthropic’s computer use exited beta and is in general availability</strong> via the API. Computer use agents solve the most common enterprise automation problem: 70% of enterprise software has no API. Forms, legacy systems, and internal tools that can only be operated through a GUI are now automatable.</p>\n  <p>The competitive landscape has matured: <strong>OpenAI Operator</strong> (launched January 2025) is the direct competitor — but with a different approach. Anthropic’s computer use is API-first (a developer primitive you build products on), while Operator is consumer-facing (a product that controls a browser for end users). <strong>Google Project Jarvis</strong> is in limited availability. <strong>UI-TARS</strong> (ByteDance, 2025) is a specialized GUI interaction model outperforming general-purpose models on interface tasks. This competitive landscape is interview-ready knowledge for Anthropic PM candidates.</p>\n  <p><strong>\"Computer use is the automation option of last resort\"</strong> remains the correct framing. If an API exists, use it — APIs are faster, cheaper, more reliable, and more secure. Computer use is for the systems where no API exists and the business value of automation justifies the complexity. The evaluation framework: task completion rate, steps vs optimal, error recovery rate, and session duration.</p>\n  <p><strong>Pricing matters for product design.</strong> Computer use incurs image token costs for each screenshot (approximately 1,000-2,000 tokens per screenshot depending on resolution). For updated pricing details, see <a href=\"https://www.anthropic.com/pricing\">anthropic.com/pricing</a>. A PM designing a computer use product needs to model these costs: at 1,000 executions/day, that’s $50-100/day in screenshot tokens alone.</p>\n  <p><strong>Safety is non-negotiable.</strong> Computer use agents need: minimum-necessary access (don’t give the agent admin access for a read-only task), isolated environments (sandbox or VM), explicit human approval before irreversible actions, comprehensive audit logging, and time-bounded sessions. Design the safety model before the product, not after.</p>"
+resources:
+    - type: "DOCS"
+      title: "Claude Computer Use"
+      url: "https://docs.anthropic.com/en/docs/build-with-claude/computer-use"
+      note: "Now GA. API reference and safety guidelines."
+    - type: "BLOG"
+      title: "OpenAI Operator"
+      url: "https://openai.com/index/introducing-operator/"
+      note: "Consumer-facing computer use. Compare approach to Anthropic’s API-first."
+    - type: "TOOL"
+      title: "WebArena Benchmark"
+      url: "https://webarena.dev/"
+      note: "Leading benchmark for web agent evaluation. Know for competitive context."
+    - type: "BLOG"
+      title: "Anthropic Computer Use Announcement"
+      url: "https://www.anthropic.com/news/developing-computer-use"
+      note: "Original announcement and design philosophy."
+    - type: "PRICING"
+      title: "Anthropic Pricing"
+      url: "https://www.anthropic.com/pricing"
+      note: "Computer use incurs image token costs. Model these for product economics."
+    - type: "DOCS"
+      title: "Building Effective Agents — Anthropic"
+      url: "https://www.anthropic.com/research/building-effective-agents"
+      note: "Safety patterns for agentic systems including computer use."
+---
+

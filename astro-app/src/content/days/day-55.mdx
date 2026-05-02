@@ -1,0 +1,49 @@
+---
+day: 55
+subtitle: "Conduct a comprehensive DX audit — the artifact that proves you think like a platform PM."
+track: full
+tasks:
+    - title: "Conduct the 8-dimension DX audit"
+      time: 25
+      description: "Audit the Anthropic Claude API developer experience across all eight dimensions: TTFSC, interactive examples (Workbench), AI-powered search, community, streaming support, agentic use cases, error experience, and migration guides. For each dimension: rate it (1–5), provide specific evidence, and list one specific improvement. Save as /day-55/dx_audit_full.md."
+    - title: "Audit the Anthropic Cookbook"
+      time: 25
+      description: "Audit the Anthropic Cookbook (github.com/anthropics/anthropic-cookbook) on five criteria: recipe coverage (top 10 use cases represented?), code quality (production-ready?), freshness (current model names?), runability (clone-and-run in 2 minutes?), and progressive complexity (simple to agentic?). Rate each criterion and provide specific examples. Identify three missing recipes that developers need. Save as /day-55/cookbook_audit.md."
+    - title: "Competitive DX benchmark"
+      time: 25
+      description: "Benchmark Anthropic Claude, OpenAI GPT, and Google Gemini across the eight DX dimensions. Create a comparison matrix with ratings and notes. Identify: where Anthropic leads, where Anthropic trails, and where all three are weak (the differentiation opportunities). Be specific — “Anthropic’s streaming SDK is cleaner” with examples, not vague claims. Save as /day-55/competitive_dx_benchmark.md."
+    - title: "Build the DX improvement roadmap"
+      time: 25
+      description: "Based on your audit and benchmark, create a prioritized DX improvement roadmap. For each finding: severity, effort, impact, and recommended quarter. Identify 3 quick wins (high impact, low effort) for Sprint 1. Every recommendation must be tied to a measurable metric. Present the roadmap as a table: Finding | Severity | Effort | Impact | Metric | Quarter. Save as /day-55/dx_improvement_roadmap.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "Walk me through how you would audit the developer experience of an AI API."
+  answer: "I use an eight-dimension framework that captures the full developer journey, then benchmark against competitors to prioritize improvements.<br><br><strong>The eight dimensions:</strong> TTFSC (time to first successful call — target under 5 minutes), interactive examples (browser-based playground), AI-powered search (natural language documentation queries), community (active developer forums), streaming support (SDK quality for real-time apps), agentic use cases (tool use, MCP, agent patterns — the growth use case in 2026), error experience (structured, actionable error messages), and migration guides (clear paths when APIs change).<br><br><strong>Cookbook audit:</strong> I give special attention to the code cookbook because it bridges documentation and production. I evaluate recipe coverage, code quality, freshness (using current model names like claude-sonnet-4-6), runability, and progressive complexity from simple to agentic.<br><br><strong>Competitive benchmarking:</strong> The audit gains 10x value when compared to competitors. I rate the same eight dimensions across Claude, GPT, and Gemini. The most valuable finding is where all platforms are weak — in 2026, that’s often agentic documentation and error message quality.<br><br><strong>From audit to roadmap:</strong> Every finding gets severity, effort, impact, and a metric. “Improve TTFSC from 8 to under 5 minutes” is actionable. “Improve documentation” is not. I identify quick wins for Sprint 1 and structural improvements for the quarter. The roadmap is the deliverable that actually changes things."
+pmAngle: "The DX audit is one of the highest-signal interview artifacts because it demonstrates platform thinking: the ability to evaluate a developer product holistically, benchmark against competitors, and translate findings into a prioritized roadmap with measurable outcomes. Every AI PM should be able to produce one."
+context: "<p>The DX Audit is one of the highest-signal portfolio pieces an AI PM can produce. It demonstrates that you can evaluate a developer product holistically, identify gaps, and prioritize improvements with business justification. Today you conduct a full DX audit using a 2026-updated framework that covers dimensions most auditors miss.</p>\n  <p><strong>2026 DX audit dimensions.</strong> A comprehensive DX audit for an AI API evaluates eight dimensions: (1) <strong>Onboarding — TTFSC</strong>: time from zero to first successful API call. Target: under 5 minutes. (2) <strong>Interactive examples</strong>: does the platform offer a browser-based playground where developers can test API calls without writing code? In 2026, this is table stakes. Anthropic’s Workbench, OpenAI’s Playground, and Google’s AI Studio all provide this. (3) <strong>AI-powered search</strong>: can developers ask natural language questions about the documentation and get accurate answers? This is an emerging differentiator. (4) <strong>Community</strong>: is there an active developer community (Discord, forum, GitHub Discussions) where developers help each other? Community reduces support burden and surfaces documentation gaps. (5) <strong>Streaming support</strong>: does the SDK make streaming responses easy? For real-time AI applications, streaming DX is critical. (6) <strong>Agentic use cases</strong>: does the documentation cover multi-step tool use, function calling, MCP integration, and agent workflow patterns? In 2026, agentic is the growth use case. (7) <strong>Error experience</strong>: are error messages helpful, structured, and actionable? (8) <strong>Migration guides</strong>: when models or APIs change, are there clear migration paths?</p>\n  <p><strong>Auditing the Anthropic Cookbook.</strong> The Cookbook deserves its own audit subsection because it’s the bridge between documentation and production code. Audit criteria: (1) <strong>Recipe coverage</strong> — do recipes exist for the top 10 use cases developers ask about? (2) <strong>Code quality</strong> — is the code production-ready or demo-quality? (3) <strong>Freshness</strong> — do recipes use current API versions and model names (claude-sonnet-4-6, not deprecated model strings)? (4) <strong>Runability</strong> — can you clone the repo and run a recipe in under 2 minutes? (5) <strong>Progressive complexity</strong> — do recipes range from simple single-turn to complex agentic workflows?</p>\n  <p><strong>Competitive DX benchmarking.</strong> A DX audit gains 10x more value when benchmarked against competitors. Audit the same eight dimensions across Anthropic, OpenAI, and Google. Create a comparison matrix. Identify where each platform leads and trails. The most valuable finding is a gap where <em>all</em> platforms are weak — that’s an opportunity for differentiation. Common 2026 gaps: agentic documentation (everyone is behind), error message quality (inconsistent across providers), and migration guides (often an afterthought).</p>\n  <p><strong>From audit to roadmap.</strong> The audit is only valuable if it produces a prioritized roadmap. For each finding: severity (critical/high/medium/low), effort estimate, expected impact on developer adoption, and recommended quarter. The roadmap should produce a “quick wins” list (high impact, low effort) for the first sprint and a longer-term plan for structural improvements. Every recommendation should be tied to a metric: “Improve TTFSC from 8 minutes to under 5” is actionable. “Improve documentation” is not.</p>"
+resources:
+    - type: "TOOL"
+      title: "Anthropic Cookbook"
+      url: "https://github.com/anthropics/anthropic-cookbook"
+      note: "The primary audit target for the Cookbook evaluation."
+    - type: "DOCS"
+      title: "Anthropic API Documentation"
+      url: "https://docs.anthropic.com/"
+      note: "Primary DX audit subject."
+    - type: "TOOL"
+      title: "Anthropic Workbench"
+      url: "https://console.anthropic.com/workbench"
+      note: "Interactive playground for testing API calls in the browser."
+    - type: "DOCS"
+      title: "OpenAI API Documentation"
+      url: "https://platform.openai.com/docs"
+      note: "Competitive benchmark: OpenAI DX."
+    - type: "DOCS"
+      title: "Google Gemini API Documentation"
+      url: "https://ai.google.dev/gemini-api/docs"
+      note: "Competitive benchmark: Google Gemini DX."
+---
+

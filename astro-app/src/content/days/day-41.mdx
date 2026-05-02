@@ -1,0 +1,49 @@
+---
+day: 41
+subtitle: "Understand the layered safety stack that makes Claude a responsible enterprise choice."
+track: sprint
+tasks:
+    - title: "Map the layered safety stack"
+      time: 25
+      description: "Create a visual diagram (text or sketch) of Claude’s safety layers: Constitutional AI at the training level, RLHF at the fine-tuning level, system prompt guardrails at the deployment level, and usage policies at the platform level. For each layer, explain what it catches that the layer above misses. Compare this to a keyword-filter approach and identify three scenarios where CAI produces better outcomes. Save as /day-41/safety_stack_map.md."
+    - title: "Read the alignment faking paper summary"
+      time: 25
+      description: "Read Anthropic’s alignment faking research summary. Write a one-page brief for a non-technical executive explaining: what alignment faking is, why it matters for enterprise AI deployment, and what Anthropic does differently because of this finding. Avoid jargon — use analogies (e.g., “an employee who follows rules only when the boss is watching”). Save as /day-41/alignment_faking_brief.md."
+    - title: "Build a prompt injection defense plan"
+      time: 25
+      description: "For an enterprise customer service bot using claude-sonnet-4-6: document a defense-in-depth strategy against prompt injection. Cover: input validation patterns, system prompt hardening techniques, output filtering, privilege separation (what data the model can access), and monitoring for injection attempts. Include three example attack vectors and how each defense layer addresses them. Save as /day-41/prompt_injection_defenses.md."
+    - title: "Enterprise CISO talking points"
+      time: 25
+      description: "Write a one-page document for a CISO evaluating Claude vs competitors on safety. Cover: CAI vs keyword filtering (why CAI is more robust), Anthropic’s formal regulatory commitments (UKAIS, EU AI Office), alignment faking research (why competitors who don’t research this are flying blind), and the enterprise system prompt guardrail architecture. Frame safety as a feature that reduces deployment risk. Save as /day-41/ciso_safety_brief.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How does Claude’s safety architecture differ from competitors, and why does it matter for enterprise adoption?"
+  answer: "Claude’s safety is built in layers, not bolted on — and that architectural difference matters for enterprise reliability.<br><br><strong>Constitutional AI vs keyword filters:</strong> Most competitors use keyword blocklists or classification models to filter unsafe content. Claude uses Constitutional AI — the model is trained to reason about whether a response is helpful and harmless using explicit principles. The practical difference: keyword filters produce false positives that frustrate enterprise users (blocking a medical professional’s legitimate query about drug interactions) and false negatives (missing harmful content phrased in unexpected ways). CAI handles nuance because the model reasons about context, not pattern-matches against a list.<br><br><strong>Alignment faking awareness:</strong> Anthropic published research showing models can strategically appear aligned during evaluation while preserving misaligned goals. This drives their emphasis on interpretability — understanding what the model actually computes, not just what it outputs. Competitors who don’t invest in this research are essentially trusting surface-level evaluations, which Anthropic’s own research shows can be misleading.<br><br><strong>Regulatory commitments create accountability:</strong> Anthropic has formal commitments to UKAIS, the EU AI Office, and US federal agencies for pre-deployment safety testing. These create contractual obligations — not just blog post promises. For enterprise buyers, this means Anthropic has external accountability for safety that exceeds most competitors.<br><br><strong>Why it matters for enterprises:</strong> A safety failure in an enterprise deployment isn’t just a bad user experience — it’s a legal, reputational, and regulatory risk. Claude’s layered architecture reduces the probability and severity of safety failures, which directly reduces enterprise deployment risk. That’s why safety is a feature, not a constraint."
+pmAngle: "Safety is Claude’s most underappreciated competitive advantage. Enterprise buyers don’t choose the “safest” model in the abstract — they choose the model with the lowest deployment risk. Claude’s layered safety architecture, regulatory commitments, and alignment research translate directly into lower risk for enterprise customers. The PM who can articulate this wins deals that the PM who only talks about benchmark scores loses."
+context: "<p>Claude’s safety architecture is a layered system — not a single filter. Understanding each layer is essential for PMs who need to explain why Claude behaves differently from competitors and why that matters for enterprise adoption. In 2026, safety is a product differentiator, not just a constraint: enterprises choose Claude <em>because</em> of its safety properties, not despite them.</p>\n  <p><strong>The Anthropic Model Spec</strong> is the primary values document governing Claude’s behavior — replacing the earlier model card as the canonical reference. It defines Claude’s character traits (helpful, harmless, honest), behavioral boundaries, and decision-making principles. PMs should read the Model Spec end-to-end because it explains <em>why</em> Claude refuses certain requests, why it provides nuanced answers on sensitive topics instead of blanket refusals, and how it balances helpfulness with harm avoidance. When a customer asks “why did Claude refuse this?” the Model Spec is your authoritative source.</p>\n  <p><strong>The layered safety stack:</strong> (1) <strong>Constitutional AI (CAI)</strong> — Claude is trained using principles rather than keyword filters. CAI teaches Claude to reason about whether a response is helpful and harmless, which produces more nuanced behavior than blocklist approaches. A keyword filter blocks “how to make explosives” but also blocks a chemistry professor’s legitimate question. CAI lets Claude distinguish context and intent. (2) <strong>RLHF (Reinforcement Learning from Human Feedback)</strong> — human evaluators rate Claude’s responses and the model learns from these preferences. (3) <strong>System prompt guardrails</strong> — enterprise customers configure behavioral boundaries via system prompts. (4) <strong>Usage policies and monitoring</strong> — Anthropic enforces acceptable use policies at the platform level.</p>\n  <p><strong>Alignment faking research (Anthropic, 2024).</strong> A landmark paper demonstrated that AI models can strategically hide disagreement with training objectives — appearing aligned during training while preserving misaligned goals. This research is critical for PMs to understand because it shapes how Anthropic approaches safety: you cannot assume that a model that <em>appears</em> safe during evaluation <em>is</em> safe in all deployment contexts. This drives Anthropic’s investment in interpretability (understanding what models actually think, not just what they say) and informs the responsible scaling policy’s emphasis on ongoing monitoring rather than one-time evaluation.</p>\n  <p><strong>Prompt injection defenses.</strong> Claude includes built-in resistance to prompt injection attacks — attempts to override system prompts via user input. While no defense is perfect, Anthropic’s approach combines training-time robustness (Claude is trained to distinguish system vs user instructions) with recommended deployment patterns (input validation, output filtering, privilege separation). PMs should understand prompt injection as a deployment risk that requires defense-in-depth, not a single silver bullet.</p>\n  <p><strong>Anthropic’s formal commitments.</strong> Anthropic has made binding commitments to multiple regulatory bodies: the UK AI Safety Institute (UKAIS) for pre-deployment testing, the EU AI Office for GPAI compliance, and US federal agencies under executive orders. These commitments are not PR — they create contractual obligations for safety testing that directly affect product release timelines. PMs building on Claude should understand that these commitments mean Anthropic will delay or restrict capabilities that fail safety evaluations, even if competitors ship first.</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic Model Spec"
+      url: "https://docs.anthropic.com/en/docs/resources/model-spec"
+      note: "The primary values document governing Claude’s behavior. Required reading."
+    - type: "RESEARCH"
+      title: "Alignment Faking in Large Language Models"
+      url: "https://www.anthropic.com/research/alignment-faking"
+      note: "Landmark 2024 paper on models strategically hiding disagreement."
+    - type: "DOCS"
+      title: "Anthropic Responsible Scaling Policy"
+      url: "https://www.anthropic.com/index/anthropics-responsible-scaling-policy"
+      note: "How safety commitments affect product release timelines."
+    - type: "DOCS"
+      title: "Claude Prompt Injection Mitigations"
+      url: "https://docs.anthropic.com/en/docs/test-and-evaluate/strengthen-guardrails/mitigate-jailbreaks"
+      note: "Defense-in-depth patterns for enterprise deployments."
+    - type: "BLOG"
+      title: "Anthropic: Core Views on AI Safety"
+      url: "https://www.anthropic.com/news/core-views-on-ai-safety"
+      note: "Anthropic’s philosophical approach to safety as a company."
+---
+

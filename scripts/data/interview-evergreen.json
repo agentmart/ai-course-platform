@@ -1,0 +1,82 @@
+[
+  {
+    "q": "How do you decide between fine-tuning, RAG, and prompt engineering for a new feature?",
+    "a": "Walk through the decision tree: prompt engineering for tasks the base model can do but needs guidance on; RAG when the answer depends on private/fresh knowledge; fine-tuning when you need stable format/tone/skill that prompts can't reliably produce. Mention cost and eval differences."
+  },
+  {
+    "q": "Walk me through how you'd build an offline eval suite for an LLM-powered feature.",
+    "a": "Start from user journeys → derive task categories → curate a frozen golden set with adversarial and edge cases → choose graders (exact match, rubric LLM judge, human spot-check) → version the suite, gate releases on regression, report per-category deltas."
+  },
+  {
+    "q": "A new model is 30% cheaper but scores 2 points lower on your eval. How do you decide whether to switch?",
+    "a": "Translate eval delta into user-impact terms (which task categories regress, how often, how severe). Run a shadow A/B, look at downstream metrics (resolution rate, escalation), price the regression vs the savings, define rollback criteria before flipping traffic."
+  },
+  {
+    "q": "How do you scope and prioritise red-teaming for a new generative feature?",
+    "a": "Start from a threat model: who uses it, what damage is plausible (PII leak, harmful advice, jailbreak, prompt injection, IP). Prioritise threats by likelihood × severity × reversibility. Run structured probes per category, log findings, gate launch on closed criticals."
+  },
+  {
+    "q": "What's your framework for setting an SLO on an LLM feature where outputs are non-deterministic?",
+    "a": "Separate latency SLOs (deterministic, set normally) from quality SLOs (use a rubric-graded sample stream → target a pass-rate, e.g. 95% acceptable). Pair with a leading indicator like grader-flagged failure rate; alert when either drifts."
+  },
+  {
+    "q": "How do you handle a hallucination report from a high-value customer?",
+    "a": "Reproduce, classify (factual vs reasoning vs source-attribution), trace to component (retriever, prompt, model). Short term: hot-fix the prompt or guardrail. Medium term: add to eval set so future releases catch it. Communicate root cause and prevention to the customer."
+  },
+  {
+    "q": "Make the build vs buy call for a vector store / retrieval layer.",
+    "a": "Buy when scale is small/medium and managed services cover your access patterns. Build when you have unusual filter / multi-tenancy / latency / cost requirements that managed services don't meet. Embeddings are portable, infra often isn't — factor migration cost in."
+  },
+  {
+    "q": "Your CEO asks why you're not just using a frontier model for everything. How do you respond?",
+    "a": "Frame it as a routing problem: frontier models for hard reasoning and ambiguous prompts; smaller, cheaper models for high-volume, narrow, well-evaluated tasks. Show cost-per-resolved-task, latency, and eval parity data. Mention vendor risk and the value of optionality."
+  },
+  {
+    "q": "How would you measure whether your AI feature is actually useful, not just used?",
+    "a": "Define the user job-to-be-done, then pair usage metrics (DAU, prompts/session) with outcome metrics (task completion, edit-distance from acceptance, downstream conversion, retention of users who used the feature). Run a holdout to attribute. Beware vanity novelty spikes."
+  },
+  {
+    "q": "Walk through how you'd ship a feature with a strict latency budget of 1.5s p95.",
+    "a": "Decompose budget across network, retrieval, model, post-processing. Choose a smaller/faster model or distillation, stream tokens for perceived latency, parallelise retrieval, cache aggressive prompts, gate launch on a synthetic latency test in CI."
+  },
+  {
+    "q": "How do you decide what data to log from an LLM feature, given privacy constraints?",
+    "a": "Start from what you need to debug, eval, and improve (prompts, model, latency, success signal). Strip PII at ingestion, use field-level retention, get DPIA sign-off, expose user controls, document the data flow. Differentiate prod telemetry from training data — the consent bar differs."
+  },
+  {
+    "q": "Your model partner releases a major version. What's your upgrade plan?",
+    "a": "Run the new model through the eval suite first (offline). Identify regressions and prompt drift. Update prompts/format if needed. Stage rollout: 1% → 10% → 50% → 100% with quality + cost + latency dashboards. Keep the previous model behind a feature flag for instant rollback."
+  },
+  {
+    "q": "How do you tell a strong AI PM candidate from someone who's just fluent in jargon?",
+    "a": "Ask for a real shipped decision with a tradeoff: what was the eval, what got cut, what surprised them, what they'd do differently. Strong candidates speak in concrete metrics and user impact; jargon-only candidates speak in abstractions and vendor names."
+  },
+  {
+    "q": "You're given a noisy LLM feature with 70% user satisfaction. Where do you start improving?",
+    "a": "Slice the 30% dissatisfied — by task type, user segment, prompt length, retrieval hit rate. Pick the biggest, most fixable slice. Form a hypothesis (prompt? retrieval? model? UX?), instrument an eval for it, ship the smallest experiment that would falsify the hypothesis."
+  },
+  {
+    "q": "How do you handle prompt injection risk in a customer-facing agent that uses tools?",
+    "a": "Treat all retrieved or user-supplied text as untrusted. Constrain tool use via allow-lists and parameter validation. Use a planner/executor split so tool calls don't get re-prompted from raw retrieval. Log + monitor for known injection signatures. Fail closed on auth-sensitive tools."
+  },
+  {
+    "q": "What does a good LLM observability stack look like to you?",
+    "a": "Per-call traces (prompt, model, params, latency, tokens, cost, output, grader score), conversation-level traces, sampling for human review, alerting on cost/latency/quality drift, a search UI so on-call can find a specific user's bad session in under 60 seconds."
+  },
+  {
+    "q": "How do you scope an MVP for an AI-native product when capability is moving fast?",
+    "a": "Pick one job-to-be-done where current models are 'just barely good enough', design the UX so failure is recoverable, and pre-write the upgrade path (better model, more context, tool use) so improvements ship as the model improves. Avoid features that depend on capability you're betting on."
+  },
+  {
+    "q": "How would you justify a multi-million-dollar inference budget to a sceptical CFO?",
+    "a": "Tie inference cost to unit economics: cost per resolved task, gross margin per active user, cohort LTV uplift from the AI feature. Show the price-per-quality curve over time (it deflates fast). Compare to alternatives (human ops cost, lost retention). Commit to a quarterly cost-down plan."
+  },
+  {
+    "q": "What's your stance on open-weights vs closed-API models for a regulated enterprise customer?",
+    "a": "Open weights win when data residency, audit, fine-tuning rights, or air-gap deployment are hard requirements. Closed APIs win for capability, faster iteration, lower ops burden. Often the answer is hybrid: closed for the hard tail, open/self-hosted for high-volume routine work."
+  },
+  {
+    "q": "How do you write a PRD for an AI feature differently from a deterministic feature?",
+    "a": "Replace 'expected behaviour' with an eval suite + acceptance pass-rate. Add a fallback section (what shows when the model fails or refuses). Specify latency/cost budgets explicitly. Call out the data flow and human-in-the-loop policy. Note which behaviours are 'won't fix' because they depend on model capability."
+  }
+]

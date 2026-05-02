@@ -1,0 +1,49 @@
+---
+day: 31
+subtitle: "The metrics that matter for AI products — beyond accuracy, into business outcomes."
+track: sprint
+tasks:
+    - title: "Build an AI product metrics dashboard spec"
+      time: 25
+      description: "For an AI customer support chatbot: define 8 metrics across four layers — model quality (accuracy, hallucination rate), user experience (TTFT, acceptance rate), operational (cost per conversation, error rate), and business (ticket deflection, CSAT). For each metric: data source, measurement method, target, and alert threshold. Save as /day-31/metrics_dashboard_spec.md."
+    - title: "Design a hallucination measurement pipeline"
+      time: 25
+      description: "Your product summarizes legal documents. Design an automated hallucination detection pipeline: what baseline data do you need, which evaluation method (NLI model, LLM-as-judge with claude-sonnet-4-6, or human review), what thresholds trigger alerts, and how do you handle detected hallucinations in production? Save as /day-31/hallucination_pipeline.md."
+    - title: "Design an A/B test for a non-deterministic AI feature"
+      time: 25
+      description: "You want to test two system prompts for your AI writing assistant. Design the experiment: sample size calculation (accounting for non-determinism), randomization unit (user vs session vs request), primary metric, guardrail metrics, and statistical methodology. Why do AI products need 2—5x more samples than traditional A/B tests? Save as /day-31/ab_test_design.md."
+    - title: "Acceptance rate deep-dive"
+      time: 25
+      description: "Analyze acceptance rate as a product metric. For three AI products (code assistant, email composer, search summarizer): define what \"acceptance\" means in each context, what \"edit distance after acceptance\" signals, how to segment by user expertise level, and what acceptance rate target is realistic. Save as /day-31/acceptance_rate_analysis.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "What metrics would you track for an AI customer support product?"
+  answer: "I’d structure metrics in four layers, from model to business.<br><br><strong>Model quality:</strong> Hallucination rate (measured via LLM-as-judge using claude-sonnet-4-6 against ground truth), response accuracy (human-evaluated sample weekly), and response relevance score. These are necessary but not sufficient — a perfectly accurate bot that takes 10 seconds to respond still fails.<br><br><strong>User experience:</strong> TTFT under 500ms for perceived responsiveness, acceptance rate (do users accept the AI’s suggested resolution or escalate to a human?), and conversation length (shorter usually means the AI resolved the issue faster). TTFT and TTLT matter differently here — streaming makes TTFT critical for the first response, but TTLT matters for complex multi-step resolutions.<br><br><strong>Operational:</strong> Cost per conversation (model API cost plus compute), error rate (failed responses, timeouts), and escalation rate to human agents. Cost per conversation is essential — if AI support costs more per ticket than human support, the business case collapses.<br><br><strong>Business impact:</strong> Ticket deflection rate (the metric executives care about most), CSAT for AI-handled versus human-handled tickets, resolution rate, and repeat contact rate. The north star: did AI support resolve the customer’s problem without a human? Track weekly and segment by issue category — AI handles password resets at 95% but billing disputes at 30%."
+pmAngle: "The biggest measurement mistake in AI products is optimizing for proxy metrics. Benchmark scores don’t predict user satisfaction. BLEU/ROUGE scores don’t predict business impact. The PM who instruments acceptance rate, cost per outcome, and hallucination rate at launch — and ties them to business metrics within 30 days — is the one who keeps the AI product funded past v1."
+context: "<p>AI product metrics are fundamentally different from traditional software metrics. <strong>Accuracy</strong> is necessary but insufficient — you need to measure latency, cost, user trust, and business impact simultaneously. The biggest mistake new AI PMs make: optimizing for proxy metrics (benchmark scores, BLEU/ROUGE) instead of the metric that actually matters to the business (revenue impact, support ticket deflection, user retention).</p>\n  <p><strong>Latency has two distinct measurements in AI.</strong> <strong>TTFT (Time to First Token)</strong> measures how quickly the model starts responding — critical for perceived responsiveness in streaming UIs. <strong>TTLT (Time to Last Token)</strong> measures total generation time — critical for batch processing and agent workflows where you need the complete response before acting. A streaming UI can mask high TTLT with fast TTFT, but agent-to-agent communication (A2A) needs fast TTLT because the next agent waits for the full output. When specifying latency requirements, always distinguish which metric you mean. Production targets: TTFT under 500ms for interactive use, TTLT under 3s for most user-facing completions.</p>\n  <p><strong>Acceptance rate is the most undervalued metric in AI products.</strong> It measures how often users accept, edit, or reject AI suggestions. GitHub Copilot’s ~30% acceptance rate is considered strong for code completion. Cursor tracks not just accept/reject but <em>edit distance after acceptance</em> — how much the user modifies the suggestion after accepting. Low acceptance with low edit distance means the AI is almost right (tune prompts). Low acceptance with high edit distance means the AI is fundamentally wrong (rethink the approach). Track acceptance rate by feature, user segment, and task type — aggregate acceptance rate hides critical signal.</p>\n  <p><strong>Hallucination measurement</strong> requires multiple frameworks depending on context. <strong>Faithful summaries</strong>: does the output stay true to the input context? Measure with NLI (Natural Language Inference) models or LLM-as-judge using claude-sonnet-4-6. <strong>Factual consistency</strong>: are claims verifiable against a knowledge base? Tools like RAGAS and DeepEval provide automated hallucination detection pipelines. Neither automated method is perfect — human evaluation remains the gold standard, but you need automated metrics for continuous monitoring at scale.</p>\n  <p><strong>A/B testing AI products</strong> is harder than traditional A/B testing because of non-determinism. The same prompt can produce different quality outputs across runs. You need larger sample sizes (typically 2—5x traditional tests) and should test at the <em>session level</em>, not the request level — one bad response in a good session matters less than consistently mediocre responses. Consider multi-armed bandit approaches for prompt variant testing to converge faster than fixed A/B splits.</p>"
+resources:
+    - type: "TOOL"
+      title: "RAGAS — RAG Evaluation Framework"
+      url: "https://docs.ragas.io/"
+      note: "Automated hallucination detection and RAG quality metrics."
+    - type: "TOOL"
+      title: "DeepEval — LLM Evaluation"
+      url: "https://docs.confident-ai.com/"
+      note: "Open-source framework for hallucination, relevance, and faithfulness metrics."
+    - type: "BLOG"
+      title: "Anthropic: Evaluating AI Systems"
+      url: "https://www.anthropic.com/research"
+      note: "Research on model evaluation and safety metrics."
+    - type: "BLOG"
+      title: "GitHub Copilot Metrics"
+      url: "https://github.blog/news-insights/research/"
+      note: "How GitHub measures acceptance rate and developer productivity."
+    - type: "TOOL"
+      title: "Artificial Analysis"
+      url: "https://artificialanalysis.ai/"
+      note: "Independent benchmarks for TTFT, TTLT, and throughput across providers."
+---
+

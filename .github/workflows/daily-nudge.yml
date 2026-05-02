@@ -1,0 +1,45 @@
+name: Daily Nudge
+
+on:
+  schedule:
+    # 09:00 UTC daily — see s5-daily-nudge.
+    - cron: '0 9 * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry mode (no emails sent, no log writes)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  daily-nudge:
+    name: Daily Nudge
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run daily nudge
+        env:
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
+          NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/daily-nudge-cron.mjs

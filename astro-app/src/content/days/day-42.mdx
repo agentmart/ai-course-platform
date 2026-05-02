@@ -1,0 +1,49 @@
+---
+day: 42
+subtitle: "Compare safety approaches across frontier labs — honest analysis, not tribalism."
+track: full
+tasks:
+    - title: "Build a three-lab safety comparison matrix"
+      time: 25
+      description: "Create a comparison matrix across Anthropic, OpenAI, and Google DeepMind on these dimensions: alignment methodology (CAI vs RLHF vs rule-following), interpretability investment, organizational safety structure, regulatory commitments, deployment safety record, and content moderation approach. For each cell, provide a one-sentence factual summary. Save as /day-42/safety_comparison_matrix.md."
+    - title: "Write an enterprise CISO comparison document"
+      time: 25
+      description: "You’re a PM at a company evaluating Claude, GPT-4, and Gemini for enterprise deployment. Write a CISO-ready comparison covering: safety architecture differences, regulatory compliance status, data handling and privacy, incident response track record, and content filtering capabilities. Be honest — note where competitors have genuine advantages. Save as /day-42/ciso_comparison.md."
+    - title: "Analyze OpenAI organizational changes"
+      time: 25
+      description: "Research and summarize OpenAI’s organizational shifts from 2024–2025: the for-profit conversion, Preparedness team restructuring, Superalignment team dissolution, and leadership departures. For each change, analyze: what it signals about OpenAI’s safety priorities, how it affects enterprise confidence, and what questions a PM should be ready to answer. Save as /day-42/openai_org_analysis.md."
+    - title: "Draft a “why Claude” response that acknowledges competitors"
+      time: 25
+      description: "Write a response to an enterprise customer who says “OpenAI has more users, why should we trust Anthropic on safety?” Your answer must: acknowledge OpenAI’s legitimate strengths, explain Anthropic’s differentiated safety investments (interpretability, alignment faking research, CAI), and focus on what matters for the customer’s specific deployment. No tribal language. Save as /day-42/why_claude_honest.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How do you compare the safety approaches of the major AI labs?"
+  answer: "I compare them on philosophy, methodology, and organizational commitment — honestly, without tribal bias.<br><br><strong>Anthropic’s approach is understanding-first.</strong> Constitutional AI trains models using principles rather than keyword filters. Their mechanistic interpretability research — sparse autoencoders, alignment faking studies — aims to understand what models actually compute, not just what they output. The alignment faking paper is particularly significant: it demonstrated models can strategically appear aligned during training while preserving misaligned goals. This drives Anthropic’s emphasis on deep understanding rather than surface-level evaluation.<br><br><strong>OpenAI’s approach is scale-tested.</strong> With hundreds of millions of ChatGPT users, OpenAI has more real-world safety data than any competitor. Their moderation API, content filtering, and safety systems are battle-tested at consumer scale. That operational experience is genuinely valuable — they’ve seen attack vectors and failure modes that smaller-scale deployments never encounter.<br><br><strong>Google DeepMind’s approach leverages infrastructure.</strong> Google’s Trust and Safety systems handle billions of queries daily across Search, YouTube, and Gmail. DeepMind’s Gemini models inherit this operational safety infrastructure. Their model cards and responsible development practices reflect a research-first methodology shaped by the academic origins of the lab.<br><br><strong>For enterprise buyers, the answer is context-dependent.</strong> If interpretability and alignment research matter most (regulated industries, high-stakes decisions), Anthropic leads. If you need proven safety at massive consumer scale, OpenAI has the most operational experience. If you’re already a Google Cloud shop and need infrastructure integration, DeepMind is the natural choice. The PM who acknowledges all three labs’ strengths — rather than dismissing competitors — builds more trust with enterprise buyers."
+pmAngle: "Enterprise customers will ask you to compare AI providers on safety. The PM who dismisses competitors (“OpenAI doesn’t care about safety”) loses credibility instantly. The PM who gives an honest, nuanced comparison — acknowledging competitors’ genuine strengths while articulating Anthropic’s differentiated investments in interpretability and alignment research — wins trust and closes deals."
+context: "<p>Day 41 covered Claude’s safety architecture in depth. Today you zoom out to understand the safety approaches of the other two major frontier labs — OpenAI and Google DeepMind — and compare them honestly. The goal is not to declare a winner but to understand different philosophies, because enterprise customers will ask you to compare, and they deserve nuanced answers.</p>\n  <p><strong>OpenAI’s safety approach.</strong> OpenAI uses RLHF as its primary alignment technique, supplemented by red-teaming, external audits, and a moderation API for content filtering. Their system prompt framework gives developers control over model behavior within usage policies. OpenAI’s preparedness framework assesses catastrophic risks before model deployment. <strong>Key organizational changes (2024–2025):</strong> OpenAI announced a for-profit conversion in November 2024, restructuring from a capped-profit subsidiary to a more traditional for-profit entity. The Preparedness team was restructured in mid-2024 following leadership departures, with safety research redistributed across teams. The Superalignment team was dissolved, with alignment research integrated into other groups. These organizational shifts matter for PMs because they signal OpenAI’s evolving balance between safety investment and commercial priorities.</p>\n  <p><strong>Google DeepMind’s safety approach.</strong> Google DeepMind brings a research-first approach shaped by its origins as a separate AI research lab. Key elements: (1) <strong>Sparrow</strong> — their research on rule-following dialogue agents that can cite sources and decline inappropriate requests. (2) <strong>Gemini model cards</strong> — detailed safety documentation published with each major Gemini release, covering capability evaluations, safety testing methodology, and known limitations. (3) <strong>Responsible development practices</strong> — structured safety evaluations with internal review boards. Google’s advantage is scale: their Trust and Safety infrastructure handles billions of queries across Google Search, YouTube, and other products, giving them operational safety experience that pure-AI-lab competitors lack.</p>\n  <p><strong>Honest comparison across labs.</strong> All three organizations have serious safety programs — dismissing any lab’s safety work is tribalism, not analysis. The differences are philosophical: <strong>Anthropic</strong> leads on mechanistic interpretability and alignment faking research, investing heavily in understanding <em>why</em> models behave as they do. <strong>OpenAI</strong> leads on scale of deployment and has the most real-world safety data from ChatGPT’s massive user base. <strong>Google DeepMind</strong> leads on operational safety infrastructure from running safety-critical systems at Google scale. The PM who can honestly articulate these differences — without tribal bias — builds trust with enterprise customers evaluating multiple providers.</p>\n  <p><strong>Safety comparison for enterprise buyers.</strong> When a CISO asks “which model is safest?” the honest answer is “it depends on your threat model.” If your primary concern is content safety at scale, OpenAI’s moderation API and operational experience are strengths. If your concern is understanding and predicting model behavior, Anthropic’s interpretability research is the most advanced. If your concern is integration with existing Google Cloud infrastructure and compliance frameworks, DeepMind’s Gemini models inherit Google’s enterprise security posture. The right answer for your customer depends on their specific deployment context.</p>"
+resources:
+    - type: "DOCS"
+      title: "OpenAI Safety"
+      url: "https://openai.com/safety"
+      note: "OpenAI’s approach to AI safety and alignment."
+    - type: "DOCS"
+      title: "Google DeepMind Responsibility"
+      url: "https://deepmind.google/about/responsibility-safety/"
+      note: "Google DeepMind’s safety and responsibility practices."
+    - type: "RESEARCH"
+      title: "Anthropic Alignment Faking"
+      url: "https://www.anthropic.com/research/alignment-faking"
+      note: "Research that differentiates Anthropic’s safety approach."
+    - type: "DOCS"
+      title: "Anthropic Model Spec"
+      url: "https://docs.anthropic.com/en/docs/resources/model-spec"
+      note: "Claude’s values document for comparison with competitor approaches."
+    - type: "BLOG"
+      title: "Anthropic: Core Views on AI Safety"
+      url: "https://www.anthropic.com/news/core-views-on-ai-safety"
+      note: "Anthropic’s philosophical position on safety."
+---
+

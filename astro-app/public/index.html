@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Product Manager Course & Tools — becomeaipm</title>
+  <meta name="description" content="Learn AI product management with a 60-day hands-on course, PM-OS for Claude & Copilot, live AI PM job tracker, and a free AI cost calculator. Built by a working AI PM.">
+  <meta name="keywords" content="AI product manager, AI PM course, become AI PM, AI product management, PM-OS, Claude Code, GitHub Copilot, AI jobs, LLM pricing">
+  <meta name="author" content="Stavan Mehta">
+  <meta name="theme-color" content="#1a1512">
+  <link rel="canonical" href="https://becomeaipm.com/">
+  <link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+  <link rel="alternate icon" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  <link rel="manifest" href="/site.webmanifest">
+  <meta property="og:site_name" content="becomeaipm">
+  <meta property="og:title" content="AI Product Manager Course & Tools — becomeaipm">
+  <meta property="og:description" content="60-day AI PM course, PM-OS for Claude & Copilot, live AI PM job tracker, and a free AI cost calculator.">
+  <meta property="og:url" content="https://becomeaipm.com/">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:image" content="https://becomeaipm.com/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Product Manager Course & Tools — becomeaipm">
+  <meta name="twitter:description" content="60-day AI PM course, PM-OS, live AI PM jobs, free AI cost calculator.">
+  <meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
+  <style>
+    :root {
+      --bg: #f5f0e8; --bg2: #ede8df; --ink: #1a1512; --ink2: #3d3530;
+      --muted: #8c7f74; --rule: #d4cdc4; --amber: #c8590a;
+      --teal: #0d6e6e; --card: #faf7f2; --border: #ccc4b8;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: var(--bg); color: var(--ink); font-family: 'DM Sans', sans-serif; }
+    #init-loader { position: fixed; inset: 0; background: var(--ink); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; z-index: 9999; transition: opacity .4s; }
+    #init-loader.hidden { opacity: 0; pointer-events: none; }
+    .init-spin { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--amber); border-radius: 50%; animation: spin .8s linear infinite; }
+    .init-text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: rgba(255,255,255,.3); letter-spacing: .12em; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .btn { padding: 7px 18px; border-radius: 3px; font-size: 12px; font-weight: 600; cursor: pointer; border: none; font-family: 'DM Sans', sans-serif; transition: all .15s; text-decoration: none; display: inline-flex; align-items: center; }
+    .btn-ghost { background: transparent; border: 1px solid rgba(255,255,255,.2); color: rgba(255,255,255,.6); }
+    .btn-ghost:hover { border-color: var(--amber); color: var(--amber); }
+    .hero { padding: 80px 40px 60px; max-width: 1100px; margin: 0 auto; }
+    .hero-eyebrow { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+    .eyebrow-label { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; }
+    .live-dot { display: flex; align-items: center; gap: 6px; background: var(--ink); padding: 3px 11px; border-radius: 20px; }
+    .ldot { width: 5px; height: 5px; border-radius: 50%; background: #4ade80; animation: glow 2s infinite; }
+    @keyframes glow { 0%,100%{ opacity:1; box-shadow:0 0 0 0 rgba(74,222,128,.4); } 50%{ opacity:.5; box-shadow:0 0 0 4px rgba(74,222,128,0); } }
+    .ltxt { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(255,255,255,.4); }
+    h1 { font-family: 'Fraunces', serif; font-size: clamp(38px, 5.5vw, 70px); font-weight: 900; line-height: 1.05; margin-bottom: 20px; }
+    h1 em { color: var(--amber); font-style: italic; }
+    .hero-sub { font-size: 18px; color: var(--ink2); max-width: 620px; line-height: 1.7; margin-bottom: 36px; }
+    .hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 48px; }
+    .cta-primary { padding: 13px 30px; background: var(--ink); color: white; border: none; border-radius: 4px; font-size: 14px; font-weight: 700; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: background .15s; }
+    .cta-primary:hover { background: var(--amber); }
+    .cta-sec { padding: 13px 30px; background: transparent; border: 1px solid var(--border); color: var(--ink2); border-radius: 4px; font-size: 14px; cursor: pointer; font-family: 'DM Sans', sans-serif; text-decoration: none; transition: all .15s; }
+    .cta-sec:hover { border-color: var(--amber); color: var(--amber); }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+    @media(max-width:700px){ .stats { grid-template-columns: repeat(2, 1fr); } }
+    .stat { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+    .stat-n { font-family: 'Fraunces', serif; font-size: 36px; font-weight: 900; color: var(--amber); }
+    .stat-l { font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; margin-top: 4px; text-transform: uppercase; letter-spacing: .1em; }
+    .sec { padding: 60px 40px; max-width: 1100px; margin: 0 auto; }
+    .sec-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; color: var(--amber); text-transform: uppercase; margin-bottom: 12px; }
+    .sec-title { font-family: 'Fraunces', serif; font-size: 32px; font-weight: 700; color: var(--ink); margin-bottom: 32px; }
+    .divider { border: none; border-top: 1px solid var(--rule); margin: 0 40px; }
+    .projects { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+    @media(max-width:900px){ .projects { grid-template-columns: 1fr 1fr; } }
+    @media(max-width:600px){ .projects { grid-template-columns: 1fr; } }
+    .project-card { background: var(--card); border: 1px solid var(--border); border-radius: 8px; padding: 28px; display: flex; flex-direction: column; gap: 12px; transition: box-shadow .15s, border-color .15s, transform .1s; position: relative; overflow: hidden; }
+    .project-card::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, rgba(200,89,10,.04), transparent); pointer-events: none; }
+    .project-card:hover { border-color: rgba(200,89,10,.3); box-shadow: 0 8px 32px rgba(26,21,18,.08); transform: translateY(-2px); }
+    .pc-tag { font-family: 'IBM Plex Mono', monospace; font-size: 9px; letter-spacing: .16em; color: var(--amber); text-transform: uppercase; }
+    .pc-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 900; color: var(--ink); line-height: 1.1; }
+    .pc-desc { font-size: 14px; color: var(--ink2); line-height: 1.65; }
+    .pc-stack { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .pc-chip { font-family: 'IBM Plex Mono', monospace; font-size: 9px; padding: 2px 8px; border-radius: 3px; background: rgba(200,89,10,.07); color: #9a4008; border: 1px solid rgba(200,89,10,.15); }
+    .pc-link { margin-top: auto; font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); text-decoration: none; display: inline-flex; align-items: center; gap: 4px; padding-top: 8px; border-top: 1px solid var(--rule); }
+    .pc-link:hover { color: #a84a06; }
+    .stack-strip { background: var(--ink); padding: 32px 40px; }
+    .ss-inner { max-width: 1100px; margin: 0 auto; }
+    .ss-label { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; color: rgba(255,255,255,.25); text-transform: uppercase; margin-bottom: 16px; }
+    .ss-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ss-tag { font-family: 'IBM Plex Mono', monospace; font-size: 11px; padding: 5px 13px; border-radius: 3px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: rgba(255,255,255,.45); transition: all .15s; cursor: default; }
+    .ss-tag:hover { background: rgba(200,89,10,.15); border-color: rgba(200,89,10,.3); color: rgba(200,89,10,.9); }
+    .course-band { background: var(--bg2); border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); padding: 60px 40px; }
+    .cb-inner { max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1.2fr; gap: 48px; align-items: start; }
+    @media(max-width:800px){ .cb-inner { grid-template-columns: 1fr; } }
+    .cb-left .sec-title { margin-bottom: 16px; }
+    .cb-sub { font-size: 15px; color: var(--muted); line-height: 1.7; margin-bottom: 24px; }
+    .tgrid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .topic { display: flex; align-items: center; gap: 10px; padding: 9px 12px; background: var(--card); border: 1px solid var(--border); border-radius: 4px; font-size: 12px; color: var(--ink2); cursor: pointer; transition: all .15s; flex-wrap: wrap; }
+    .topic:hover { border-color: rgba(200,89,10,.3); }
+    .topic .chevron { margin-left: auto; font-size: 10px; color: var(--muted); transition: transform .2s; flex-shrink: 0; }
+    .topic.open .chevron { transform: rotate(180deg); }
+    .topic.open { border-color: var(--amber); background: rgba(200,89,10,.04); }
+    .topic-summary { display: none; width: 100%; font-size: 12px; color: var(--muted); line-height: 1.6; padding-top: 8px; border-top: 1px solid var(--rule); margin-top: 6px; }
+    .topic-summary .topic-days { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--amber); margin-top: 4px; }
+    .topic.open .topic-summary { display: block; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+    .da { background: var(--amber); } .dt { background: var(--teal); } .dp { background: #5c1f6e; }
+    .demo-wrap { padding: 60px 40px; background: var(--bg2); border-top: 1px solid var(--border); }
+    .demo-inner { max-width: 900px; margin: 0 auto; }
+    .editor { background: var(--ink); border-radius: 8px; overflow: hidden; margin-top: 24px; }
+    .e-bar { background: rgba(255,255,255,.04); padding: 10px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,.08); }
+    .e-dot { width: 11px; height: 11px; border-radius: 50%; }
+    .e-r { background: #ff5f57; } .e-y { background: #ffbd2e; } .e-g { background: #28c840; }
+    .e-badge { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: rgba(255,255,255,.25); margin-left: auto; }
+    .e-ta { width: 100%; background: transparent; border: none; outline: none; color: #d4c5b0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; line-height: 1.7; resize: vertical; min-height: 130px; padding: 16px 20px; }
+    .e-out { background: rgba(0,0,0,.35); border-top: 1px solid rgba(255,255,255,.05); padding: 14px 20px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #90b878; min-height: 50px; white-space: pre-wrap; word-break: break-all; }
+    footer { background: var(--ink); color: rgba(255,255,255,.25); padding: 32px 40px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px; font-size: 12px; font-family: 'IBM Plex Mono', monospace; }
+    footer a { color: rgba(255,255,255,.3); text-decoration: none; }
+    footer a:hover { color: var(--amber); }
+    .footer-links { display: flex; gap: 20px; }
+    @media(max-width:700px) { .hero { padding: 48px 20px 40px; } .sec { padding: 48px 20px; } .demo-wrap { padding: 48px 20px; } .stack-strip { padding: 24px 20px; } .course-band { padding: 48px 20px; } footer { padding: 24px 20px; } .hero-ctas { flex-direction: column; } }
+    .cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+    .cookie-banner.show{display:flex;}
+    .cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
+    .cookie-text a{color:var(--amber);text-decoration:underline;}
+    .cookie-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;border-radius:3px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+    .cookie-accept{background:var(--amber);color:white;}
+    .cookie-accept:hover{background:#a84a06;}
+    .cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+    .cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+  </style>
+  <script type="application/ld+json">
+{"@context":"https://schema.org","@graph":[
+  {"@type":"Organization","@id":"https://becomeaipm.com/#org","name":"becomeaipm","alternateName":"Become AI PM","url":"https://becomeaipm.com/","logo":{"@type":"ImageObject","url":"https://becomeaipm.com/assets/becomeaipm-logo-dark.png","width":1200,"height":630},"description":"AI product management course, tools, and live AI PM job directory.","founder":{"@type":"Person","name":"Stavan Mehta","url":"https://www.linkedin.com/in/stavanmehta/","sameAs":["https://www.linkedin.com/in/stavanmehta/","https://github.com/stavanmehta"]},"sameAs":["https://www.linkedin.com/company/becomeaipm/about","https://github.com/stavanmehta"]},
+  {"@type":"WebSite","@id":"https://becomeaipm.com/#website","url":"https://becomeaipm.com/","name":"becomeaipm","publisher":{"@id":"https://becomeaipm.com/#org"},"inLanguage":"en-US","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":"https://becomeaipm.com/?q={search_term_string}"},"query-input":"required name=search_term_string"}},
+  {"@type":"FAQPage","mainEntity":[
+    {"@type":"Question","name":"What is an AI Product Manager?","acceptedAnswer":{"@type":"Answer","text":"An AI Product Manager leads products that use machine learning, LLMs, or generative AI. They write PRDs for model-backed features, run evals, manage LLM economics, and coordinate with ML engineers and data scientists."}},
+    {"@type":"Question","name":"How do I become an AI PM?","acceptedAnswer":{"@type":"Answer","text":"Learn the fundamentals (LLMs, evals, RAG, agents), ship real AI features hands-on, and study AI PM interview loops. The 60-day course at becomeaipm.com provides a structured path with code labs."}},
+    {"@type":"Question","name":"Is the becomeaipm course free?","acceptedAnswer":{"@type":"Answer","text":"Yes. All 60 days of content, PM-OS, the AI cost calculator, and the AI PM job board are free. Sign in required for course progress tracking."}},
+    {"@type":"Question","name":"Do I need to be a developer?","acceptedAnswer":{"@type":"Answer","text":"No. The course teaches enough Python and JavaScript to ship AI features, but focuses on PM frameworks, evals, and product thinking. Non-engineers complete it successfully."}},
+    {"@type":"Question","name":"What is PM-OS?","acceptedAnswer":{"@type":"Answer","text":"PM-OS is an open-source AI product management operating system for Claude Code and GitHub Copilot. It includes 15 PM skills, 12 specialist sub-agents, and 5 proactive monitors. Setup takes 10 minutes."}},
+    {"@type":"Question","name":"Who is becomeaipm built by?","acceptedAnswer":{"@type":"Answer","text":"becomeaipm is built by Stavan Mehta, a working AI product manager. The curriculum reflects real-world AI PM work, not theory."}}
+  ]}
+]}
+  </script>
+</head>
+
+<body>
+
+  <div id="init-loader">
+    <div class="init-spin"></div>
+    <div class="init-text">INITIALIZING...</div>
+  </div>
+
+<aside id="app-nav"></aside>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-label">60-Day AI Product Management Course</span>
+      <div class="live-dot"><div class="ldot"></div><span class="ltxt">Platform live</span></div>
+    </div>
+    <h1>Build real AI products.<br><em>Not just read about them.</em></h1>
+    <p class="hero-sub">A hands-on, 60-day curriculum that teaches you to ship AI products — with real code labs, frontier model APIs, and the PM frameworks top companies actually use. Python &amp; JavaScript run right in your browser.</p>
+    <div class="hero-ctas">
+      <a class="cta-primary" href="/course.html">Start the 60-Day Course Free &rarr;</a>
+      <a class="cta-sec" href="/companies.html">Browse AI PM Jobs</a>
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="stat-n">60</div><div class="stat-l">Days of curriculum</div></div>
+      <div class="stat"><div class="stat-n">240</div><div class="stat-l">Hands-on tasks</div></div>
+      <div class="stat"><div class="stat-n">60</div><div class="stat-l">Code labs</div></div>
+      <div class="stat"><div class="stat-n">241+</div><div class="stat-l">AI PM roles tracked</div></div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- PLATFORM FEATURES -->
+  <div class="sec">
+    <div class="sec-label">What You Get</div>
+    <div class="sec-title">Everything you need to become an AI PM</div>
+    <div class="projects">
+      <div class="project-card">
+        <div class="pc-tag">Curriculum</div>
+        <div class="pc-title">60-Day Structured Course</div>
+        <div class="pc-desc">Day-by-day guided learning covering MCP, A2A, RAG, Constitutional AI, Evals, and more. Each day includes context, 4 hands-on tasks, a code lab, an interview question, and PM-specific angles.</div>
+        <div class="pc-stack"><span class="pc-chip">60 Days</span><span class="pc-chip">240 Tasks</span><span class="pc-chip">Interview Prep</span><span class="pc-chip">PM Angles</span></div>
+        <a class="pc-link" href="/course.html">Start learning &#8594;</a>
+      </div>
+      <div class="project-card">
+        <div class="pc-tag">Code Labs</div>
+        <div class="pc-title">Python &amp; JavaScript in Browser</div>
+        <div class="pc-desc">Every day includes a runnable code example. Python executes via Pyodide WebAssembly and JavaScript runs in a sandboxed iframe — no setup, no installs, no API keys needed to start.</div>
+        <div class="pc-stack"><span class="pc-chip">Pyodide WASM</span><span class="pc-chip">Python 3</span><span class="pc-chip">JavaScript</span><span class="pc-chip">Zero Setup</span></div>
+        <a class="pc-link" href="/course.html">Try a code lab &#8594;</a>
+      </div>
+      <div class="project-card">
+        <div class="pc-tag">Job Board</div>
+        <div class="pc-title">Live AI PM Job Tracker</div>
+        <div class="pc-desc">241+ AI PM roles from top companies, updated daily via automated ATS crawlers powered by GitHub Actions. Filter by company, role level, and location — all in one place.</div>
+        <div class="pc-stack"><span class="pc-chip">241+ Roles</span><span class="pc-chip">Daily Updates</span><span class="pc-chip">ATS Crawlers</span><span class="pc-chip">GitHub Actions</span></div>
+        <a class="pc-link" href="/companies.html">Browse jobs &#8594;</a>
+      </div>
+      <div class="project-card">
+        <div class="pc-tag">AI Operating System</div>
+        <div class="pc-title">PM-OS</div>
+        <div class="pc-desc">An AI-powered product management OS for Claude Code and GitHub Copilot. Structured slash commands, specialist sub-agents, and agentic workflows built on the .claude/ architecture.</div>
+        <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">GitHub Copilot</span><span class="pc-chip">Sub-Agents</span><span class="pc-chip">15+ Skills</span></div>
+        <a class="pc-link" href="/pm-os.html">Set up PM-OS &#8594;</a>
+      </div>
+    </div>
+    <div style="margin-top:24px;">
+      <div class="sec-label" style="margin-bottom:16px;">Coming Soon</div>
+      <div class="projects">
+        <div class="project-card" style="opacity:.7;">
+          <div class="pc-tag" style="display:flex;align-items:center;gap:8px;">AI Operating System <span style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);">Coming Soon</span></div>
+          <div class="pc-title">RIA OS</div>
+          <div class="pc-desc">An AI operating system for Registered Investment Advisors. Specialist sub-agents for compliance, portfolio analysis, and tax strategy built on Claude Code.</div>
+          <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">MCP</span><span class="pc-chip">Sub-agents</span></div>
+        </div>
+        <div class="project-card" style="opacity:.7;">
+          <div class="pc-tag" style="display:flex;align-items:center;gap:8px;">AI Operating System <span style="font-size:9px;padding:2px 8px;border-radius:10px;background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);">Coming Soon</span></div>
+          <div class="pc-title">ML OS</div>
+          <div class="pc-desc">An AI operating system for ML engineers. Agentic workflows for model training, evaluation, deployment, and monitoring — built on Claude Code architecture.</div>
+          <div class="pc-stack"><span class="pc-chip">Claude Code</span><span class="pc-chip">ML Workflows</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STACK STRIP -->
+  <div class="stack-strip">
+    <div class="ss-inner">
+      <div class="ss-label">Built With</div>
+      <div class="ss-tags">
+        <span class="ss-tag">Supabase (Postgres)</span><span class="ss-tag">Vercel Edge</span><span class="ss-tag">Clerk Auth</span>
+        <span class="ss-tag">Pendo Analytics</span><span class="ss-tag">GitHub Actions</span><span class="ss-tag">Pyodide WASM</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COURSE SECTION -->
+  <div class="course-band">
+    <div class="cb-inner">
+      <div class="cb-left">
+        <div class="sec-label">Free &mdash; All 60 Days</div>
+        <div class="sec-title">The 60-Day AI PM Curriculum</div>
+        <p class="cb-sub">Every day fully written. Every concept explained. MCP, A2A, ACP, Claude Code, Azure AI Foundry, Constitutional AI, Evals, Red-Teaming — all covered with zero Googling required. Sign in and get started immediately.</p>
+        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start the Course Free &rarr;</a>
+      </div>
+      <div class="cb-right">
+        <div class="tgrid">
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Model Context Protocol<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Learn what MCP is and how it lets LLMs connect to external tools, databases, and APIs through a standardized protocol.<div class="topic-days">Day 12</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent-to-Agent (A2A)<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Understand how autonomous AI agents discover, negotiate with, and delegate tasks to each other using Google's A2A protocol.<div class="topic-days">Days 26, 27, 47</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>Agent Comm Protocol<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Deep dive into Cisco/LangChain's Agent Communication Protocol. Learn when to choose ACP vs A2A.<div class="topic-days">Day 27</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Constitutional AI &amp; RLHF<span class="chevron">&#9660;</span>
+            <div class="topic-summary">How frontier models are aligned with human values. Understand RLHF reward modeling and Constitutional AI principles.<div class="topic-days">Day 3</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Frontier Reasoning Models<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Explore o3, o4-mini, and Claude's extended thinking. Learn chain-of-thought reasoning and cost trade-offs.<div class="topic-days">Day 6</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>OpenAI Agents SDK<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Master the OpenAI API ecosystem: Chat Completions, Assistants API v2, and the Responses API.<div class="topic-days">Day 10</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Claude Code (Agentic CLI)<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Build with Claude Code's .claude/ architecture: slash commands, CLAUDE.md configuration, specialist sub-agents.<div class="topic-days">Day 43</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>GitHub Copilot Ecosystem<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Navigate the Copilot platform: extensions, workspace agents, MCP integration, and Copilot Chat customization.<div class="topic-days">Day 44</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Azure AI Foundry<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Deploy and manage AI models on Azure: model catalog, prompt flow, responsible AI dashboards.<div class="topic-days">Day 45</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot da"></div>RAG &amp; Fine-tuning<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Build retrieval-augmented generation pipelines. Covers vector databases, embeddings, chunking, and distillation.<div class="topic-days">Days 13-14</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dt"></div>Evals &amp; Benchmarks<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Design evaluation suites that measure what matters. Learn benchmark design and eval-driven development.<div class="topic-days">Day 18</div></div>
+          </div>
+          <div class="topic" onclick="toggleTopic(this)"><div class="dot dp"></div>Red-Teaming &amp; Adversarial<span class="chevron">&#9660;</span>
+            <div class="topic-summary">Test AI systems for vulnerabilities: prompt injection, jailbreaks, and systematic red-teaming methodologies.<div class="topic-days">Day 53</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CODE PREVIEW -->
+  <div class="demo-wrap">
+    <div class="demo-inner">
+      <div class="sec-label">Built-In Code Runner</div>
+      <div class="sec-title" style="color:var(--ink);font-family:'Fraunces',serif;font-size:28px;font-weight:700;margin-bottom:12px;">Python &amp; JavaScript — right in your browser</div>
+      <p style="color:var(--muted);font-size:14px;margin-bottom:24px;">Every course day includes a runnable code lab. Python executes via Pyodide WebAssembly and JavaScript runs in a sandboxed iframe. No setup, no installs, no API keys.</p>
+      <div class="editor">
+        <div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge">PYTHON · WASM</div></div>
+        <pre class="e-ta" style="cursor:default;resize:none;min-height:auto;padding:16px 20px;margin:0;overflow-x:auto;"><code># Day 1: Frontier model cost comparison
+models = {
+    "Claude Sonnet 4.6":  {"ctx":"1M",  "in":3.0,  "out":15.0},
+    "GPT-5.4":            {"ctx":"1M",  "in":2.5,  "out":15.0},
+    "Gemini 2.5 Pro":     {"ctx":"1M",  "in":1.25, "out":10.0},
+    "DeepSeek R1":        {"ctx":"128K","in":0.55, "out":2.19},
+}
+for name, s in models.items():
+    cost = (500/1e6*s['in'] + 300/1e6*s['out']) * 1000
+    print(f"{name:<22}  ${cost:.4f}")</code></pre>
+        <div class="e-out" style="color:var(--amber);font-size:13px;padding:16px 20px;">&#9654; Sign in to run code in the full course editor</div>
+      </div>
+      <div style="margin-top:20px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+        <a class="cta-primary" href="/course.html" style="display:inline-block;">Start coding in the course &rarr;</a>
+        <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);">60 code labs · Python &amp; JavaScript · Zero setup</span>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span>&copy; 2025 becomeaipm.com</span>
+    <div class="footer-links">
+      <a href="/course.html">Course</a><a href="/companies.html">Companies</a>
+      <a href="/ai-calculator.html">AI Calculator</a><a href="/analytics.html">Leaderboard</a>
+      <a href="/contact.html">Contact</a>
+      <a href="/pm-os.html">PM-OS</a>
+      <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a>
+    </div>
+  </footer>
+
+  <script>
+    let clerk = null, cfg = {};
+    let wasSignedOut = true;
+
+    var pendoInitialized = false;
+    function initPendo(apiKey, user) {
+      if (!apiKey) return;
+      var visitorId = user ? user.id : 'VISITOR-UNIQUE-ID';
+      var visitorEmail = user ? (user.emailAddresses?.[0]?.emailAddress || '') : '';
+      var visitorFirst = user ? (user.firstName || '') : '';
+      if (pendoInitialized) {
+        if (window.pendo && pendo.identify) pendo.identify({ visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst }, account: { id: 'becomeaipm' } });
+        return;
+      }
+      (function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];
+      v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);
+      y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';
+      z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');
+      pendoInitialized = true;
+      pendo.initialize({
+        visitor: { id: visitorId, email: visitorEmail, firstName: visitorFirst },
+        account: { id: 'becomeaipm' }
+      });
+    }
+
+    async function sendWelcomeEmail(user) {
+      const lsKey = 'welcome_sent_' + user.id;
+      if (localStorage.getItem(lsKey)) return;
+      localStorage.setItem(lsKey, '1');
+      try {
+        const token = await clerk.session.getToken();
+        const email = user.emailAddresses?.[0]?.emailAddress || '';
+        const firstName = user.firstName || '';
+        if (!email) return;
+        console.log('[welcome-email] sending from index.html for', email.substring(0,3) + '***');
+        const resp = await fetch('/api/welcome-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+          body: JSON.stringify({ email, firstName })
+        });
+        const d = await resp.json().catch(() => ({}));
+        console.log('[welcome-email] response:', resp.status, d);
+      } catch(e) {
+        console.error('[welcome-email] failed:', e);
+      }
+    }
+
+    (async function boot() {
+      try { const r = await fetch('/api/config'); cfg = await r.json(); } catch(e) { hideLoader(); return; }
+      if (!cfg.clerkPublishableKey || !cfg.clerkDomain) { hideLoader(); return; }
+      const s = document.createElement('script');
+      s.src = `https://${cfg.clerkDomain}/npm/@clerk/clerk-js@latest/dist/clerk.browser.js`;
+      s.setAttribute('data-clerk-publishable-key', cfg.clerkPublishableKey);
+      s.crossOrigin = 'anonymous';
+      document.head.appendChild(s);
+      s.onload = async () => {
+        try { clerk = window.Clerk; await clerk.load(); } catch(e) { hideLoader(); return; }
+        wasSignedOut = !clerk.user;
+        refreshUI();
+        if (canUsePendo()) initPendo(cfg.pendoApiKey, clerk.user);
+        clerk.addListener(() => {
+          const user = clerk.user;
+          if (wasSignedOut && user) {
+            wasSignedOut = false;
+            sendWelcomeEmail(user);
+          }
+          if (!user) wasSignedOut = true;
+          refreshUI();
+          if (canUsePendo()) initPendo(cfg.pendoApiKey, user);
+        });
+        hideLoader();
+        checkCookieConsent();
+      };
+      s.onerror = () => hideLoader();
+    })();
+
+    function hideLoader() {
+      const l = document.getElementById('init-loader');
+      l.classList.add('hidden');
+      setTimeout(() => l.style.display = 'none', 500);
+    }
+
+    function refreshUI() {}
+
+    async function doSignOut() { await clerk?.signOut(); }
+
+    function toggleTopic(el) {
+      const wasOpen = el.classList.contains('open');
+      document.querySelectorAll('.topic.open').forEach(t => t.classList.remove('open'));
+      if (!wasOpen) el.classList.add('open');
+    }
+
+    function acceptCookies(){ localStorage.setItem('cookie_consent','accepted'); document.getElementById('cookie-banner').classList.remove('show'); if(clerk&&clerk.user) initPendo(cfg.pendoApiKey,clerk.user); }
+    function declineCookies(){ localStorage.setItem('cookie_consent','declined'); document.getElementById('cookie-banner').classList.remove('show'); }
+    function checkCookieConsent(){ if(!localStorage.getItem('cookie_consent')) document.getElementById('cookie-banner').classList.add('show'); }
+    function canUsePendo(){ return localStorage.getItem('cookie_consent') === 'accepted'; }
+  </script>
+
+  <div class="cookie-banner" id="cookie-banner">
+    <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+    <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+    <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+  </div>
+
+<script src="/components/nav.js"></script>
+<script>renderSidebar({});</script>
+
+</body>
+</html>

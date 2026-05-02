@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Personalize your path — becomeaipm</title>
+<meta name="description" content="Take a 60-second quiz and we'll recommend the best 5 days to start with based on your background and goals.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/onboarding.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--rule:#d4cdc4;--amber:#c8590a;--card:#faf7f2;--border:#ccc4b8;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.shell{max-width:720px;margin:0 auto;padding:48px 24px 80px;}
+.label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.2vw,42px);font-weight:900;line-height:1.1;margin-bottom:10px;}
+h1 em{color:var(--amber);font-style:italic;}
+.sub{font-size:15px;color:var(--ink2);max-width:540px;line-height:1.65;margin-bottom:28px;}
+.dots{display:flex;gap:8px;margin-bottom:24px;}
+.dot{flex:1;height:4px;background:var(--bg2);border-radius:2px;transition:background .2s;}
+.dot.done{background:var(--amber);}
+.dot.cur{background:var(--ink);}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:32px 28px;}
+.q{font-family:'Fraunces',serif;font-size:22px;font-weight:600;margin-bottom:6px;}
+.q-sub{font-size:13px;color:var(--muted);margin-bottom:22px;}
+.opts{display:flex;flex-direction:column;gap:10px;margin-bottom:24px;}
+.opt{display:flex;align-items:center;gap:14px;padding:14px 18px;border:1px solid var(--border);border-radius:6px;background:var(--bg);cursor:pointer;transition:all .12s;font-size:15px;color:var(--ink2);}
+.opt:hover{border-color:var(--amber);}
+.opt.sel{border-color:var(--amber);background:#fdf7ee;color:var(--ink);font-weight:600;}
+.opt input{display:none;}
+.opt .pin{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.opt.sel .pin{border-color:var(--amber);}
+.opt.sel .pin::after{content:'';width:8px;height:8px;border-radius:50%;background:var(--amber);}
+.actions{display:flex;justify-content:space-between;align-items:center;gap:12px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 22px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.btn:hover{background:var(--amber);}
+.btn:disabled{opacity:.4;cursor:not-allowed;}
+.btn.ghost{background:transparent;color:var(--muted);}
+.btn.ghost:hover{background:var(--bg2);color:var(--ink);}
+.skip{font-size:12px;color:var(--muted);background:none;border:none;cursor:pointer;font-family:inherit;text-decoration:underline;}
+.result{padding:32px 28px;}
+.result h2{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:8px;}
+.spine{display:flex;flex-wrap:wrap;gap:10px;margin:18px 0 22px;}
+.spine-day{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#fff;border:1px solid var(--amber);border-radius:24px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--amber);text-decoration:none;}
+.spine-day:hover{background:var(--amber);color:#fff;}
+.rationale{font-size:15px;color:var(--ink2);line-height:1.7;margin-bottom:22px;padding:16px 18px;border-left:3px solid var(--amber);background:#fbf8f2;}
+.signin-note{text-align:center;padding:32px;color:var(--ink2);}
+.signin-note h2{font-family:'Fraunces',serif;font-size:22px;margin-bottom:10px;}
+.err{padding:10px 14px;border-radius:4px;font-size:13px;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:#dc2626;margin-top:12px;}
+.spinner{display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media(max-width:600px){.shell{padding:24px 16px 60px;}nav{padding:0 16px;}.card{padding:22px 18px;}}
+footer{background:var(--ink);color:rgba(255,255,255,.25);padding:24px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+footer a{color:rgba(255,255,255,.3);text-decoration:none;}
+</style>
+</head>
+<body>
+
+<aside id="app-nav"></aside>
+
+<div class="shell">
+  <div class="label">Personalize your path</div>
+  <h1>The right <em>5 days</em> to start with.</h1>
+  <p class="sub">A 60-second quiz. Everyone else starts at Day 1, but the highest-leverage 5 days for <em>you</em> depend on your background and goals. We'll re-order them; you'll still get all 60.</p>
+
+  <div class="dots" id="dots"></div>
+
+  <div id="quiz-stage" class="card"></div>
+
+  <div id="result-stage" class="card result" style="display:none">
+    <div class="label" style="margin-bottom:8px;">Your recommended start</div>
+    <h2>Here's where to begin.</h2>
+    <div class="spine" id="result-spine"></div>
+    <div class="rationale" id="result-rationale"></div>
+    <div id="sprint-suggest" style="display:none;margin:16px 0 22px;padding:18px 20px;background:#fff7ed;border:1px solid #fdba74;border-radius:6px;">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:#c8590a;letter-spacing:.08em;text-transform:uppercase;margin-bottom:6px;">Tight on time?</div>
+      <div style="font-size:14px;color:var(--ink);line-height:1.6;">Try the <strong>28-day AI PM Sprint</strong> — 10 minutes a day, 4 weeks, with a public capstone demo. Same content, faster path.</div>
+      <a class="btn" href="/sprint" style="margin-top:12px;background:#c8590a;text-decoration:none;">See the 28-day Sprint →</a>
+    </div>
+    <div class="actions">
+      <a class="btn" id="result-cta" href="/course.html">Start your first day →</a>
+      <button class="btn ghost" onclick="restartQuiz()">Re-take quiz</button>
+    </div>
+  </div>
+
+  <div id="loading-stage" style="display:none;text-align:center;padding:40px;color:var(--muted);">
+    <div class="spinner" style="border-color:rgba(0,0,0,.1);border-top-color:var(--amber);width:24px;height:24px;"></div>
+    <p style="margin-top:14px;font-size:13px;">Building your path…</p>
+  </div>
+
+  <div id="signed-out" class="card signin-note" style="display:none">
+    <h2>Sign in to save your path</h2>
+    <p style="font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:8px;">Your personalized day order is saved to your account so you don't lose it.</p>
+    <p><a class="btn" href="/course.html" style="margin-top:14px;text-decoration:none;">Sign in →</a></p>
+  </div>
+</div>
+
+<footer><p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="/contact.html">Contact</a></p></footer>
+
+<script>
+var QUESTIONS=[
+  {key:'background',q:"What's your current background?",sub:"Pick the closest match.",opts:[
+    {v:'engineer',l:'Engineer / technical IC'},
+    {v:'pm_non_ai',l:"PM at a company that isn't AI-native"},
+    {v:'pm_ai',l:'PM at an AI-native company'},
+    {v:'designer',l:'Designer or other product role'},
+    {v:'other',l:'Something else'}
+  ]},
+  {key:'yearsExp',q:'How many years of PM experience do you have?',sub:'Roughly. We use this to set the depth of foundational days.',opts:[
+    {v:'0_2',l:'0–2 years (or pre-PM)'},
+    {v:'3_5',l:'3–5 years'},
+    {v:'6_10',l:'6–10 years'},
+    {v:'10_plus',l:'10+ years'}
+  ]},
+  {key:'aiLevel',q:'How hands-on are you with AI tools today?',sub:"Be honest — we won't make you re-learn the basics if you've shipped.",opts:[
+    {v:'chatgpt',l:'I use ChatGPT / Claude regularly as a user'},
+    {v:'prompts',l:"I've built workflows with prompts and APIs"},
+    {v:'rag',l:"I've built or shipped a RAG / retrieval system"},
+    {v:'shipped',l:"I've shipped a production LLM-powered feature"}
+  ]},
+  {key:'targetCo',q:'What kind of company are you targeting?',sub:"This shapes which model strategy and economics days come first.",opts:[
+    {v:'frontier',l:'Frontier lab (Anthropic, OpenAI, DeepMind, xAI)'},
+    {v:'startup',l:'AI-native startup (Series A–C)'},
+    {v:'enterprise',l:'Enterprise adopting AI seriously'},
+    {v:'non_ai',l:"Non-AI company adding AI features"}
+  ]},
+  {key:'goal',q:"What's your primary goal?",sub:'There are no wrong answers; we just bias the order differently.',opts:[
+    {v:'land_role',l:'Land an AI PM role'},
+    {v:'add_ai',l:'Add AI to my current role'},
+    {v:'build_product',l:'Build a personal AI product'},
+    {v:'literacy',l:'Build durable AI literacy'}
+  ]}
+];
+
+var state={step:0,answers:{}};
+var clerk=null;
+var DAY_SUBTITLES={};
+
+function renderDots(){
+  var html='';
+  for(var i=0;i<QUESTIONS.length;i++){
+    var cls=i<state.step?'done':(i===state.step?'cur':'');
+    html+='<div class="dot '+cls+'"></div>';
+  }
+  document.getElementById('dots').innerHTML=html;
+}
+
+function renderQuestion(){
+  var qDef=QUESTIONS[state.step];
+  var current=state.answers[qDef.key]||'';
+  var optsHtml=qDef.opts.map(function(o){
+    var sel=current===o.v?' sel':'';
+    return '<label class="opt'+sel+'" data-v="'+o.v+'"><span class="pin"></span><span>'+o.l+'</span></label>';
+  }).join('');
+  var prevBtn=state.step>0?'<button class="btn ghost" onclick="prevStep()">← Back</button>':'<button class="skip" onclick="skipQuiz()">Skip — show me Day 1</button>';
+  var nextLabel=state.step===QUESTIONS.length-1?'See my path →':'Next →';
+  document.getElementById('quiz-stage').innerHTML=
+    '<div class="q">'+qDef.q+'</div>'+
+    '<div class="q-sub">'+qDef.sub+'</div>'+
+    '<div class="opts">'+optsHtml+'</div>'+
+    '<div class="actions">'+prevBtn+'<button class="btn" id="next-btn" onclick="nextStep()" '+(current?'':'disabled')+'>'+nextLabel+'</button></div>';
+  Array.prototype.forEach.call(document.querySelectorAll('.opt'),function(el){
+    el.addEventListener('click',function(){
+      Array.prototype.forEach.call(document.querySelectorAll('.opt'),function(o){o.classList.remove('sel');});
+      el.classList.add('sel');
+      state.answers[qDef.key]=el.getAttribute('data-v');
+      document.getElementById('next-btn').disabled=false;
+    });
+  });
+  renderDots();
+}
+
+function prevStep(){if(state.step>0){state.step--;renderQuestion();}}
+function nextStep(){
+  if(state.step<QUESTIONS.length-1){state.step++;renderQuestion();}
+  else submitQuiz();
+}
+function skipQuiz(){
+  authedCall({skip:true}).catch(function(){}).finally(function(){location.href='/course.html';});
+}
+function restartQuiz(){
+  state={step:0,answers:{}};
+  document.getElementById('result-stage').style.display='none';
+  document.getElementById('quiz-stage').style.display='block';
+  document.getElementById('dots').style.display='flex';
+  renderQuestion();
+}
+
+async function authedCall(body){
+  var token=null;
+  try{if(clerk?.session)token=await clerk.session.getToken();}catch(e){}
+  if(!token)throw new Error('not signed in');
+  var r=await fetch('/api/course-advisor',{
+    method:'POST',
+    headers:{'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+    body:JSON.stringify(body)
+  });
+  if(!r.ok){
+    var d=await r.json().catch(function(){return{};});
+    throw new Error(d.error||'http '+r.status);
+  }
+  return r.json();
+}
+
+async function submitQuiz(){
+  document.getElementById('quiz-stage').style.display='none';
+  document.getElementById('dots').style.display='none';
+  document.getElementById('loading-stage').style.display='block';
+  try{
+    // pre-load day subtitles to send for better LLM rationale
+    var subtitles=[];
+    var data=await authedCall({answers:state.answers,daySubtitles:subtitles});
+    showResult(data.advisor);
+  }catch(e){
+    document.getElementById('loading-stage').style.display='none';
+    document.getElementById('quiz-stage').style.display='block';
+    document.getElementById('dots').style.display='flex';
+    var existing=document.getElementById('quiz-err');
+    if(existing)existing.remove();
+    var div=document.createElement('div');div.id='quiz-err';div.className='err';div.textContent='Could not save your path: '+(e.message||'unknown error');
+    document.getElementById('quiz-stage').appendChild(div);
+  }
+}
+
+function showResult(advisor){
+  document.getElementById('loading-stage').style.display='none';
+  document.getElementById('result-stage').style.display='block';
+  var spine=advisor.spine||[];
+  document.getElementById('result-spine').innerHTML=spine.map(function(d){
+    return '<a class="spine-day" href="/course.html#day-'+d+'">Day '+String(d).padStart(2,'0')+'</a>';
+  }).join('');
+  document.getElementById('result-rationale').textContent=advisor.rationale||'';
+  if(spine.length){
+    document.getElementById('result-cta').href='/course.html#day-'+spine[0];
+    document.getElementById('result-cta').textContent='Start with Day '+spine[0]+' →';
+  }
+  // Sprint-track suggestion: show for time-constrained or non-AI-co PMs (s6-advisor).
+  var prof=advisor.profile||{};
+  var suggestSprint=(
+    prof.background==='pm_non_ai' || prof.background==='designer' || prof.background==='other' ||
+    prof.yearsExp==='0_2' ||
+    prof.primaryGoal==='general_literacy' || prof.primaryGoal==='add_ai_to_role'
+  );
+  if(suggestSprint){
+    document.getElementById('sprint-suggest').style.display='block';
+  }
+  if(window.pendo&&pendo.track)pendo.track('Course Advisor Completed',{spine:spine.join(','),profile:prof,sprintSuggested:suggestSprint});
+}
+
+(async function init(){
+  try{
+    var res=await fetch('/api/config');var cfg=await res.json();
+    if(cfg.clerkPublishableKey&&cfg.clerkDomain){
+      var cs=document.createElement('script');cs.src='https://'+cfg.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';cs.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);cs.crossOrigin='anonymous';document.head.appendChild(cs);
+      cs.onload=async function(){
+        try{clerk=window.Clerk;await clerk.load();}catch(e){}
+        if(clerk&&clerk.user){
+          renderQuestion();
+        }else{
+          document.getElementById('signed-out').style.display='block';
+          document.getElementById('quiz-stage').style.display='none';
+          document.getElementById('dots').style.display='none';
+        }
+      };
+      cs.onerror=function(){document.getElementById('signed-out').style.display='block';document.getElementById('quiz-stage').style.display='none';};
+    }
+  }catch(e){
+    document.getElementById('signed-out').style.display='block';
+    document.getElementById('quiz-stage').style.display='none';
+  }
+})();
+</script><script src="/components/nav.js"></script>
+<script>renderSidebar({});</script>
+</body>

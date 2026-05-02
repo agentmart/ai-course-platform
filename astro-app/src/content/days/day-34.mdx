@@ -1,0 +1,49 @@
+---
+day: 34
+subtitle: "How to talk about AI to executives, engineers, and skeptics."
+track: full
+tasks:
+    - title: "Write three versions of an AI feature announcement"
+      time: 25
+      description: "Your team just shipped an AI-powered document summarization feature. Write three versions of the announcement: (1) Executive email (3 sentences, business impact focus), (2) Engineering Slack post (architecture and metrics), (3) Customer-facing blog post (benefits and limitations). Save as /day-34/feature_announcement_3versions.md."
+    - title: "Create an AI incident communication playbook"
+      time: 25
+      description: "Your AI chatbot hallucinated medical advice and a screenshot went viral on social media. Write the communication playbook: immediate response (first 2 hours), technical investigation summary (24 hours), customer communication (48 hours), and prevention plan (1 week). Include templates for each stage. Save as /day-34/incident_communication_playbook.md."
+    - title: "Write an AI feature spec"
+      time: 25
+      description: "Using the AI feature spec template (problem, model requirements, system prompt spec, eval criteria, failure modes, HITL design, safety review, rollback plan), write a complete spec for an AI email draft assistant. The system prompt should be versioned and include test cases. Save as /day-34/ai_feature_spec.md."
+    - title: "System prompt as product artifact"
+      time: 25
+      description: "For an AI customer support bot: write the production system prompt, the staging variant (with debug logging), document the A/B test plan for a prompt change, and describe the Git workflow for prompt version management. Include the PR review checklist for prompt changes. Save as /day-34/system_prompt_management.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How would you communicate an AI product failure to different stakeholders?"
+  answer: "I’d communicate with four audiences simultaneously, each needing different framing.<br><br><strong>Customers (immediate, within hours):</strong> Acknowledge the issue, explain the impact in plain language, and describe what you’re doing about it. “We identified an issue where our AI assistant occasionally provided inaccurate information about [topic]. We’ve temporarily added additional safeguards while we investigate. No action is needed from you.” Never minimize or blame the user.<br><br><strong>Executives (same day):</strong> Business impact framing. How many users were affected? What’s the revenue/reputation risk? What’s the timeline to resolution? What safeguards are we adding? Executives need to know if this is a PR crisis or a contained incident. Give them the talking points they need if asked by board members or press.<br><br><strong>Engineering team (immediate):</strong> Technical root cause, affected systems, and the fix plan. Was it a prompt issue, a model regression, a data pipeline problem, or a missing guardrail? Share the traces and logs. This is where you shift from communication mode to debugging mode.<br><br><strong>The broader organization (within 48 hours):</strong> Post-mortem that balances transparency with confidence. Yes, AI products will occasionally fail. Here’s our framework for catching issues faster, our evaluation pipeline improvements, and our updated incident response process. The goal is organizational learning, not blame."
+pmAngle: "The AI PM who treats the system prompt as a product artifact — versioned, tested, reviewed, and A/B tested — ships better products than the one who treats it as a developer implementation detail. Similarly, the PM who has an AI incident communication playbook before the first incident earns stakeholder trust that’s impossible to build after a crisis."
+context: "<p>Communicating about AI products requires different vocabularies for different audiences. <strong>Executives</strong> care about business metrics, competitive positioning, and risk. Lead with: “This reduces support costs by 40%” not “We fine-tuned a transformer.” <strong>Engineers</strong> care about architecture, reliability, and technical debt. Lead with: system design, latency requirements, and evaluation methodology. <strong>Skeptics</strong> (internal and external) care about what goes wrong. Lead with: failure modes you’ve anticipated, human oversight mechanisms, and your rollback plan.</p>\n  <p><strong>The system prompt is now a product artifact.</strong> In 2024–2025, the system prompt evolved from an afterthought to a critical product document. Best practice in 2026: version it in Git alongside your code, maintain environment-specific variants (dev/staging/production), A/B test prompt versions with the same rigor as UI changes, and include it in your release review process. The system prompt defines product behavior more than most code changes — a poorly worded system prompt can cause more user-facing issues than a code bug. Treat prompt engineering as product specification, not as a developer task.</p>\n  <p><strong>AI incident communication</strong> is a PM skill that didn’t exist two years ago. When your AI product produces harmful, embarrassing, or incorrect output at scale, you need a playbook. Public AI failures from major companies (ChatGPT hallucinating legal cases, Google Gemini image generation issues, Copilot generating insecure code) show that the communication response matters as much as the technical fix. Your incident communication plan should include: immediate acknowledgment (within hours, not days), clear explanation of what happened (without technical jargon), what you’re doing to fix it, and what safeguards you’re adding to prevent recurrence.</p>\n  <p><strong>The AI feature spec template</strong> is an evolved PRD for AI features. Structure: <strong>Problem statement</strong> (what user problem does this solve?), <strong>Model requirements</strong> (which model, what capabilities, latency/cost constraints), <strong>System prompt specification</strong> (versioned, with test cases), <strong>Evaluation criteria</strong> (how do we measure quality before and after launch?), <strong>Failure modes</strong> (what can go wrong and how do we handle it?), <strong>Human-in-the-loop design</strong> (when does a human intervene?), <strong>Safety review</strong> (red-teaming plan, content policy), and <strong>Rollback plan</strong> (how do we revert if quality degrades?). This template should be used for every AI feature, not just major launches.</p>\n  <p><strong>Communicating uncertainty</strong> is uniquely important for AI products. Traditional software is deterministic — you can promise a specific behavior. AI products are probabilistic — you can promise a quality level, not a specific output. Translate this for stakeholders: “The system will correctly classify 94% of tickets” rather than “The system will correctly classify every ticket.” Set expectations for the 6% failure rate upfront, including what happens to those cases (human review queue).</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic: System Prompts"
+      url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering/system-prompts"
+      note: "Best practices for system prompt design and management."
+    - type: "DOCS"
+      title: "Anthropic: Prompt Engineering Guide"
+      url: "https://docs.anthropic.com/en/docs/build-with-claude/prompt-engineering"
+      note: "Comprehensive prompt engineering for product specifications."
+    - type: "BLOG"
+      title: "Google: People + AI Guidebook"
+      url: "https://pair.withgoogle.com/guidebook"
+      note: "Communicating AI capabilities and limitations to users."
+    - type: "BLOG"
+      title: "Microsoft: Responsible AI"
+      url: "https://www.microsoft.com/en-us/ai/responsible-ai"
+      note: "Framework for transparent AI communication."
+    - type: "BLOG"
+      title: "Lenny’s Newsletter: AI Product Specs"
+      url: "https://www.lennysnewsletter.com/"
+      note: "How top PMs write specs for AI features."
+---
+

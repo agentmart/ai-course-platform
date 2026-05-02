@@ -1,0 +1,45 @@
+---
+day: 28
+subtitle: "Decentralized agent discovery and trust — the protocol for the open agent internet."
+track: full
+tasks:
+    - title: "Map the agent protocol stack"
+      time: 25
+      description: "Draw a 4-layer architecture: ANP (cross-org discovery/trust) → A2A/ACP (inter-agent tasks) → MCP (agent-to-tool) → LLM APIs. Label where each protocol operates. Save as /day-28/agent_protocol_stack.md."
+    - title: "Design an ANP use case"
+      time: 25
+      description: "Describe a cross-organizational scenario (travel booking, supply chain, or financial data) where agents from 3 companies need to interact. How does ANP’s DID-based identity help? What fails without it? Save as /day-28/anp_use_case_design.md."
+    - title: "Verify current ANP adoption"
+      time: 25
+      description: "Research: are there production ANP deployments? Has the open agent internet materialized? Be honest. If adoption is minimal, document where cross-org agent interop IS happening instead. Save as /day-28/protocol_ecosystem_update.md."
+    - title: "Alternative cross-org approaches"
+      time: 25
+      description: "Compare 3 ways enterprises solve cross-org agent communication today: (1) MCP over HTTPS with OAuth, (2) REST APIs, (3) agent marketplaces (ServiceNow, Salesforce). When does ANP become necessary vs overkill? Save as /day-28/cross_org_alternatives.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How does ANP differ from A2A and why does cross-organizational agent communication require a separate protocol?"
+  answer: "A2A and ACP solve intra-organizational agent coordination — agents within one company or one cloud account working together. ANP solves the harder inter-organizational problem: agents across company boundaries need to discover each other, verify identity, and establish trust without pre-arranged integration.<br><br>The technical requirement is decentralized identity. Within an organization, you trust your own identity provider. Across organizations, neither party controls the other’s identity system. ANP uses Decentralized Identifiers (DIDs) — self-sovereign agent identity that doesn’t depend on a central registry. The DNS+TLS analogy: ANP provides discovery and trust verification, just as DNS resolves names and TLS encrypts communication.<br><br>The honest assessment: as of Q1 2026, cross-org agent interoperability is mostly happening through traditional mechanisms — REST APIs, MCP over HTTPS with OAuth, and proprietary agent marketplaces (ServiceNow AI, Salesforce Agentforce). ANP represents the long-term vision. The PM’s job is knowing the difference between what’s shipping today and what’s aspirational, and making architectural decisions accordingly."
+pmAngle: "The open agent internet is coming — but as of 2026, cross-org agent interop is mostly happening through traditional REST APIs and proprietary platforms. The PM who honestly distinguishes between aspirational protocol visions and production reality makes better architectural decisions."
+context: "<p><strong>Agent Network Protocol (ANP)</strong> is an open specification for agent discovery, authentication, and communication across organizational boundaries — essentially DNS + TLS for the agent internet. Where A2A and ACP handle intra-organization agent collaboration, ANP addresses the harder inter-organizational problem: how agents from Company A discover and trustfully interact with agents from Company B without pre-arranged integration.</p>\n  <p>ANP’s core technical innovation: <strong>Decentralized Identifiers (DIDs)</strong> as the identity layer. Each agent has a DID that is self-sovereign — not controlled by any central registry. This enables trust without a central authority, which is the architectural requirement for a truly open agent network. The \"DNS plus TLS\" analogy: ANP provides discovery (find the agent) and trust (verify the agent’s identity), much as DNS provides name resolution and TLS provides encrypted communication.</p>\n  <p><strong>Reality check (Q1 2026):</strong> ANP remains early-stage. The open agent internet has not fully materialized. Cross-organizational agent communication in practice is happening through: <strong>MCP over HTTPS with OAuth</strong> (securing existing MCP for remote access), <strong>traditional REST APIs</strong> (still the dominant cross-org integration pattern), and <strong>agent marketplaces</strong> (ServiceNow AI, Salesforce Agentforce) providing proprietary cross-org communication. The PM’s job is honest assessment: where is agent interoperability actually happening vs where it’s aspirational?</p>"
+resources:
+    - type: "GITHUB"
+      title: "ANP Specification"
+      url: "https://modelcontextprotocol.io/specification"
+      note: "The specification. Early-stage — verify current adoption."
+    - type: "DOCS"
+      title: "W3C DIDs"
+      url: "https://www.w3.org/TR/did-core/"
+      note: "Decentralized Identifiers — the identity layer ANP uses."
+    - type: "GITHUB"
+      title: "A2A Specification"
+      url: "https://github.com/google/a2a"
+      note: "Compare: A2A for intra-org, ANP for inter-org."
+    - type: "DOCS"
+      title: "MCP Specification"
+      url: "https://modelcontextprotocol.io/specification"
+      note: "MCP over HTTPS with OAuth is the pragmatic cross-org solution today."
+---
+

@@ -1,0 +1,49 @@
+---
+day: 45
+subtitle: "How enterprises actually deploy Claude — Azure AI Foundry, AWS Bedrock, and data-in-perimeter architectures."
+track: sprint
+tasks:
+    - title: "Map the enterprise Claude deployment paths"
+      time: 25
+      description: "Create a decision flowchart for recommending Claude deployment paths to enterprise customers. Inputs: primary cloud provider, existing committed spend, data residency requirements, compliance needs (FedRAMP, HIPAA, SOC 2). Outputs: recommended deployment path (Anthropic API, Azure AI Foundry, AWS Bedrock), with rationale. Include a “fast path” recommendation based on procurement simplicity. Save as /day-45/deployment_decision_tree.md."
+    - title: "Design a BYOD architecture"
+      time: 25
+      description: "For a healthcare company deploying Claude for clinical note summarization: design the data-in-perimeter architecture on both AWS (Bedrock + PrivateLink) and Azure (AI Foundry + VNet peering). Include: network diagram description, data flow, encryption at rest and in transit, audit logging, and HIPAA compliance considerations. Identify which architecture you’d recommend and why. Save as /day-45/byod_architecture.md."
+    - title: "Build a procurement friction analysis"
+      time: 25
+      description: "Document the typical enterprise procurement timeline for: (1) new vendor onboarding (Anthropic direct), (2) Azure AI Foundry marketplace deployment, (3) AWS Bedrock deployment. For each path: estimated timeline, required approvals, security review scope, and cost structure. Quantify the time savings of marketplace deployment vs new vendor onboarding. Save as /day-45/procurement_analysis.md."
+    - title: "Write cloud platform recommendation guidelines"
+      time: 25
+      description: "Create an internal guidelines document for recommending Azure vs Bedrock to enterprise customers. Rules: recommend based on existing cloud agreements, never disparage a cloud provider, focus on procurement speed, and always verify current Claude model availability on each platform. Include templates for the recommendation conversation. Save as /day-45/cloud_recommendation_guide.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How would you recommend enterprise customers deploy Claude?"
+  answer: "The recommendation starts with procurement, not technology.<br><br><strong>First question: where do you already spend?</strong> The biggest barrier to enterprise AI adoption is procurement friction. New vendor onboarding takes 6–12 months at large enterprises. Cloud marketplace deployment — through Azure AI Foundry or AWS Bedrock — eliminates this by adding Claude to an existing vendor relationship. I always ask about existing cloud agreements first.<br><br><strong>Azure path:</strong> If the customer has Azure committed spend (MACC), I recommend Azure AI Foundry. Claude usage draws down existing Azure commitments. They get Azure’s compliance certifications, VNet integration for data-in-perimeter, and unified billing. No new vendor procurement required.<br><br><strong>AWS path:</strong> If the customer runs primarily on AWS, I recommend Bedrock. Same benefits: PrivateLink for data-in-perimeter, existing AWS enterprise agreement, and Bedrock Guardrails for additional safety layers. Cross-region inference gives them automatic availability optimization.<br><br><strong>The BYOD pattern:</strong> For regulated industries, the architecture is data-in-perimeter: the model is accessed via API, but customer data stays within their cloud perimeter. On AWS, this is PrivateLink. On Azure, this is VNet peering. I always lead with this for healthcare, financial services, and government customers because without it, the deal stalls at security review.<br><br><strong>What I never do:</strong> I never recommend a cloud provider based on technical superiority. Both Azure and Bedrock provide equivalent Claude access. The recommendation is purely about procurement speed and cost optimization. The PM who unblocks procurement in week 1 closes the deal months faster than the PM who debates cloud architecture."
+pmAngle: "Enterprise AI deals are won or lost in procurement, not product demos. The PM who understands cloud marketplace deployment paths and can recommend Azure AI Foundry or AWS Bedrock based on the customer’s existing agreements accelerates deals by months. Technical architecture matters, but procurement friction is the actual bottleneck for enterprise AI adoption."
+context: "<p>Enterprise Claude deployment doesn’t happen through the Anthropic API alone. Most large enterprises deploy Claude through cloud marketplace offerings — primarily Azure AI Foundry and AWS Bedrock — because these platforms solve procurement friction, data governance requirements, and infrastructure integration. Understanding these deployment paths is essential for PMs building enterprise AI products.</p>\n  <p><strong>Azure AI Foundry.</strong> Azure AI Foundry (formerly Azure AI Studio) is Microsoft’s unified platform for building AI applications. Claude is available on the Azure AI Marketplace, allowing enterprises to deploy Claude models within their existing Azure infrastructure. Key benefits for enterprise buyers: (1) <strong>Existing enterprise agreement</strong> — Claude usage counts against existing Azure committed spend (MACC), eliminating new vendor procurement. (2) <strong>Azure security posture</strong> — Claude inherits Azure’s compliance certifications (SOC 2, HIPAA, FedRAMP). (3) <strong>VNet integration</strong> — deploy Claude within your virtual network for data-in-perimeter compliance. (4) <strong>Unified billing</strong> — Claude costs appear on the same Azure invoice as other infrastructure.</p>\n  <p><strong>AWS Bedrock is equally important for Claude deployment.</strong> Amazon Bedrock provides Claude access within AWS infrastructure, and for many enterprises it’s the primary deployment path. Bedrock advantages: (1) <strong>AWS marketplace procurement</strong> — uses existing AWS enterprise agreements and committed spend. (2) <strong>Private Link</strong> — Bedrock supports AWS PrivateLink for private connectivity, keeping data within the customer’s VPC. (3) <strong>Bedrock Guardrails</strong> — AWS-native content filtering and safety layer on top of Claude. (4) <strong>Cross-region inference</strong> — automatic routing across AWS regions for availability and latency optimization. For enterprises already running on AWS, Bedrock is often the path of least resistance to Claude deployment.</p>\n  <p><strong>BYOD: Bring Your Own Data in perimeter.</strong> The dominant enterprise deployment pattern is data-in-perimeter: the model is accessed via API, but customer data never leaves the customer’s cloud perimeter. On AWS Bedrock, this is achieved through PrivateLink — API calls to Claude stay within the customer’s VPC. On Azure, this uses VNet peering to route Claude API calls through the customer’s virtual network. PMs must understand this pattern because it’s the primary requirement for regulated industries (financial services, healthcare, government). Without data-in-perimeter, most enterprise deals stall at security review.</p>\n  <p><strong>Choosing between Azure and Bedrock.</strong> The recommendation depends on the customer’s existing cloud agreements. If the customer has Azure committed spend (MACC), recommend Azure AI Foundry — Claude usage draws down existing commitments. If the customer runs primarily on AWS, recommend Bedrock. If the customer is multi-cloud, recommend whichever platform has the larger committed spend balance. This is a procurement and cost optimization decision, not a technical one — both platforms provide equivalent Claude model access. PMs should never recommend based on technical superiority of one cloud — recommend based on what unblocks the customer’s procurement process fastest.</p>\n  <p><strong>Enterprise procurement friction resolution.</strong> The biggest blocker for enterprise AI adoption isn’t technology — it’s procurement. New vendor onboarding takes 6–12 months at large enterprises. Cloud marketplace deployment eliminates this friction because the customer is adding a service to an existing vendor relationship. PMs who understand this can accelerate deal cycles by suggesting the marketplace deployment path early in the sales conversation, rather than waiting for procurement to flag the issue.</p>"
+resources:
+    - type: "DOCS"
+      title: "Claude on Azure AI Foundry"
+      url: "https://docs.anthropic.com/en/docs/partner-platforms/azure"
+      note: "Claude deployment on Azure AI Marketplace."
+    - type: "DOCS"
+      title: "Claude on AWS Bedrock"
+      url: "https://docs.anthropic.com/en/docs/partner-platforms/bedrock"
+      note: "Claude deployment on Amazon Bedrock."
+    - type: "DOCS"
+      title: "Azure AI Foundry"
+      url: "https://learn.microsoft.com/en-us/azure/ai-studio/"
+      note: "Microsoft’s unified AI platform documentation."
+    - type: "DOCS"
+      title: "AWS Bedrock"
+      url: "https://docs.aws.amazon.com/bedrock/"
+      note: "Amazon Bedrock documentation for Claude deployment."
+    - type: "DOCS"
+      title: "Anthropic Enterprise"
+      url: "https://www.anthropic.com/enterprise"
+      note: "Enterprise deployment options and compliance certifications."
+---
+

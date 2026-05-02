@@ -1,0 +1,106 @@
+---
+// Public pledge page — /pledge/<token>
+// SSR (no prerender): we look up the token in Supabase on every request to
+// keep the page indexable but fresh. og:image points to /api/share-card so
+// the social share renders the pledge card.
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { envFrom, getSupabaseAdmin } from '~/lib/handler';
+
+export const prerender = false;
+
+const { token } = Astro.params as { token: string };
+const env = envFrom(Astro.locals);
+const supabase = getSupabaseAdmin(env);
+
+const { data: pledge } = await supabase
+  .from('pledges')
+  .select('token, display_name, pledge_text, track, start_date, target_date, demo_url, demo_completed_at, created_at')
+  .eq('token', token)
+  .maybeSingle();
+
+if (!pledge) {
+  return new Response('Pledge not found', { status: 404 });
+}
+
+const appUrl = (env.NEXT_PUBLIC_APP_URL ?? Astro.url.origin).replace(/\/$/, '');
+const ogParams = new URLSearchParams({
+  type: 'pledge',
+  name: pledge.display_name,
+  date: pledge.target_date,
+  text: pledge.pledge_text,
+});
+const ogImage = `${appUrl}/api/share-card?${ogParams.toString()}`;
+
+const today = new Date().toISOString().slice(0, 10);
+const daysToTarget = Math.ceil(
+  (Date.parse(pledge.target_date + 'T00:00:00Z') - Date.parse(today + 'T00:00:00Z')) / 86_400_000
+);
+const completed = !!pledge.demo_completed_at;
+const title = `${pledge.display_name}'s AI PM pledge — demo on ${pledge.target_date}`;
+const description = `${pledge.display_name} pledged: "${pledge.pledge_text}" — public pledge to demo by ${pledge.target_date}.`;
+const statusColor = completed ? '#15803d' : (daysToTarget < 0 ? '#dc2626' : '#f59e0b');
+const statusText = completed
+  ? '✓ Demo shipped'
+  : (daysToTarget >= 0 ? `${daysToTarget} days to go` : `${Math.abs(daysToTarget)} days late`);
+const trackLabel = pledge.track === 'sprint' ? '28-day Sprint' : '60-day Course';
+const tweetText = `Watch ${pledge.display_name} ship: ${pledge.pledge_text}`;
+const tweetUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}&url=${encodeURIComponent(`${appUrl}/pledge/${pledge.token}`)}`;
+---
+<BaseLayout title={title} description={description} ogImage={ogImage}>
+  <main style="min-height:100vh;background:#f5f1e8;color:#1a1a1a;font-family:ui-sans-serif,system-ui,-apple-system,sans-serif;">
+    <div style="max-width:720px;margin:0 auto;padding:80px 24px;">
+      <a href="/" style="color:#737373;text-decoration:none;font-size:14px;">← becomeaipm.com</a>
+
+      <p style="margin-top:48px;color:#737373;text-transform:uppercase;letter-spacing:0.08em;font-size:13px;font-weight:600;">
+        Public AI PM pledge
+      </p>
+      <h1 style="margin-top:8px;font-size:48px;line-height:1.15;font-weight:800;color:#0a0a0a;">
+        {pledge.display_name}
+      </h1>
+
+      <blockquote style="margin:32px 0 0 0;padding:24px 28px;border-left:4px solid #f59e0b;background:#fff;border-radius:0 12px 12px 0;font-size:22px;line-height:1.5;font-weight:500;color:#1a1a1a;">
+        “{pledge.pledge_text}”
+      </blockquote>
+
+      <div style="margin-top:32px;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;">
+        <div style="background:#fff;border-radius:12px;padding:20px;">
+          <div style="font-size:13px;color:#737373;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Demo date</div>
+          <div style="margin-top:8px;font-size:24px;font-weight:700;color:#0a0a0a;">{pledge.target_date}</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px;">
+          <div style="font-size:13px;color:#737373;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Track</div>
+          <div style="margin-top:8px;font-size:24px;font-weight:700;color:#0a0a0a;">{trackLabel}</div>
+        </div>
+        <div style="background:#fff;border-radius:12px;padding:20px;">
+          <div style="font-size:13px;color:#737373;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Status</div>
+          <div style={`margin-top:8px;font-size:24px;font-weight:700;color:${statusColor};`}>
+            {statusText}
+          </div>
+        </div>
+      </div>
+
+      {completed && pledge.demo_url && (
+        <div style="margin-top:24px;padding:20px;background:#dcfce7;border-radius:12px;">
+          <div style="font-size:13px;color:#166534;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;">Demo shipped</div>
+          <a href={pledge.demo_url} target="_blank" rel="noopener noreferrer" style="margin-top:8px;display:inline-block;font-size:18px;font-weight:600;color:#166534;word-break:break-all;">
+            {pledge.demo_url} ↗
+          </a>
+        </div>
+      )}
+
+      <div style="margin-top:64px;padding-top:32px;border-top:1px solid #d6cfb8;">
+        <p style="color:#525252;font-size:16px;line-height:1.6;">
+          {pledge.display_name} is publicly committed to shipping a demo of an AI product manager artifact by {pledge.target_date}. Hold them to it.
+        </p>
+        <p style="margin-top:24px;">
+          <a href={tweetUrl} target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:12px 20px;background:#0a0a0a;color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">
+            Share on X
+          </a>
+          <a href="/sprint" style="margin-left:12px;display:inline-block;padding:12px 20px;background:#f59e0b;color:#0a0a0a;border-radius:8px;text-decoration:none;font-weight:600;font-size:15px;">
+            Take the 28-day Sprint
+          </a>
+        </p>
+      </div>
+    </div>
+  </main>
+</BaseLayout>

@@ -141,6 +141,18 @@ footer a:hover{color:var(--amber);}
     </div>
 
     <div class="card">
+      <h2>Daily Nudge</h2>
+      <p class="desc">A quick 09:00 UTC reminder on days you haven't completed a task yet — no spam, just a nudge to keep your streak alive.</p>
+      <div class="row">
+        <div class="row-label">
+          <div class="row-title">Send me a daily nudge</div>
+          <div class="row-sub">Skipped automatically on days you've already completed a task.</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="opt-daily-nudge"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="card">
       <h2>Weekly Interview Prep</h2>
       <p class="desc">Every Monday, get 3 fresh AI PM interview questions generated from the past week's AI news (model releases, policy shifts, lab announcements). Practice answers stay sharp because the material is current.</p>
       <div class="row">
@@ -192,6 +204,7 @@ function showSignedIn(prefs){
   document.getElementById('email-display').textContent='Delivered to '+(prefs.email||'your account email');
   document.getElementById('opt-jobs').checked=!!prefs.job_alerts_opt_in;
   document.getElementById('opt-interview').checked=!!prefs.interview_prep_opt_in;
+  document.getElementById('opt-daily-nudge').checked=!!prefs.daily_nudge_opt_in;
   toggleJobFilters(!!prefs.job_alerts_opt_in);
   document.getElementById('opt-jobs').addEventListener('change',function(e){toggleJobFilters(e.target.checked);});
   var f=prefs.job_filters||{};
@@ -227,7 +240,7 @@ async function loadPrefs(){
     if(r.status===401){showSignedOut();return;}
     if(!r.ok){
       console.warn('notification-prefs returned',r.status);
-      showSignedIn({email:email,job_alerts_opt_in:false,interview_prep_opt_in:false,job_filters:{}});
+      showSignedIn({email:email,job_alerts_opt_in:false,interview_prep_opt_in:false,daily_nudge_opt_in:false,job_filters:{}});
       loadAdvisorSummary();
       return;
     }
@@ -266,6 +279,7 @@ async function saveSettings(){
   var body={
     job_alerts_opt_in:document.getElementById('opt-jobs').checked,
     interview_prep_opt_in:document.getElementById('opt-interview').checked,
+    daily_nudge_opt_in:document.getElementById('opt-daily-nudge').checked,
     job_filters:{
       roles:readChips('chips-roles'),
       locations:parseList(document.getElementById('f-locations').value).map(function(s){return s.toLowerCase();}),
@@ -278,7 +292,7 @@ async function saveSettings(){
     var r=await authedFetch('/api/notification-prefs',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
     if(!r.ok){var d=await r.json().catch(function(){return{};});throw new Error(d.error||'http '+r.status);}
     msg.className='msg success';msg.textContent='Preferences saved.';msg.style.display='block';
-    if(window.pendo&&pendo.track)pendo.track('Notification Prefs Saved',{job_alerts:body.job_alerts_opt_in,interview_prep:body.interview_prep_opt_in});
+    if(window.pendo&&pendo.track)pendo.track('Notification Prefs Saved',{job_alerts:body.job_alerts_opt_in,interview_prep:body.interview_prep_opt_in,daily_nudge:body.daily_nudge_opt_in});
   }catch(e){
     msg.className='msg error';msg.textContent='Could not save: '+(e.message||'unknown error');msg.style.display='block';
   }finally{

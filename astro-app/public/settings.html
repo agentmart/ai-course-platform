@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Notification Settings — becomeaipm</title>
+<meta name="description" content="Manage your becomeaipm email notifications: weekly AI PM job alerts and weekly interview prep questions.">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/settings.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
+<style>
+:root{--bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;--rule:#d4cdc4;--amber:#c8590a;--card:#faf7f2;--border:#ccc4b8;--green:#16a34a;--red:#dc2626;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.hero{padding:64px 40px 24px;max-width:760px;margin:0 auto;}
+.label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:16px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(32px,4.5vw,48px);font-weight:900;line-height:1.1;margin-bottom:12px;}
+h1 em{color:var(--amber);font-style:italic;}
+.sub{font-size:16px;color:var(--ink2);max-width:580px;line-height:1.7;margin-bottom:32px;}
+.wrap{padding:0 40px 80px;max-width:760px;margin:0 auto;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:8px;padding:28px 28px;margin-bottom:24px;}
+.card h2{font-family:'Fraunces',serif;font-size:22px;font-weight:700;margin-bottom:6px;}
+.card .desc{font-size:14px;color:var(--ink2);line-height:1.6;margin-bottom:18px;}
+.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-top:1px solid var(--rule);}
+.row:first-of-type{border-top:none;}
+.row-label{flex:1;}
+.row-title{font-size:15px;font-weight:600;color:var(--ink);margin-bottom:2px;}
+.row-sub{font-size:13px;color:var(--muted);line-height:1.5;}
+/* toggle */
+.tog{position:relative;display:inline-block;width:46px;height:26px;flex-shrink:0;}
+.tog input{opacity:0;width:0;height:0;}
+.slider{position:absolute;cursor:pointer;inset:0;background:#ccc4b8;transition:.2s;border-radius:26px;}
+.slider::before{content:'';position:absolute;height:20px;width:20px;left:3px;top:3px;background:white;transition:.2s;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.15);}
+.tog input:checked+.slider{background:var(--amber);}
+.tog input:checked+.slider::before{transform:translateX(20px);}
+.tog input:disabled+.slider{opacity:.5;cursor:not-allowed;}
+.fg{margin-bottom:14px;}
+.fg label{display:block;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:6px;}
+.fg input[type=text]{width:100%;padding:10px 14px;border:1px solid var(--border);border-radius:4px;background:var(--bg);color:var(--ink);font:14px 'DM Sans',sans-serif;outline:none;transition:border-color .15s;}
+.fg input[type=text]:focus{border-color:var(--amber);}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);border-radius:20px;background:var(--bg);color:var(--ink2);font-size:12px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;user-select:none;}
+.chip input{position:absolute;opacity:0;pointer-events:none;}
+.chip.checked{background:var(--amber);border-color:var(--amber);color:white;}
+.chip:hover{border-color:var(--amber);}
+.actions{display:flex;align-items:center;gap:14px;margin-top:8px;}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.btn:hover{background:var(--amber);}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.msg{padding:10px 14px;border-radius:4px;font-size:13px;display:none;}
+.msg.success{display:block;background:rgba(22,163,74,.1);border:1px solid rgba(22,163,74,.2);color:var(--green);}
+.msg.error{display:block;background:rgba(220,38,38,.1);border:1px solid rgba(220,38,38,.2);color:var(--red);}
+.signin-prompt{text-align:center;padding:48px 24px;color:var(--ink2);}
+.signin-prompt h2{font-family:'Fraunces',serif;font-size:24px;margin-bottom:12px;}
+.signin-prompt .btn{margin-top:18px;text-decoration:none;}
+.skel{height:120px;background:var(--bg2);border-radius:8px;animation:pulse 1.4s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:.6;}50%{opacity:1;}}
+@media(max-width:700px){.hero,.wrap{padding-left:20px;padding-right:20px;}nav{padding:0 20px;}}
+footer{background:var(--ink);color:rgba(255,255,255,.25);padding:24px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+footer a{color:rgba(255,255,255,.3);text-decoration:none;}
+footer a:hover{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<aside id="app-nav"></aside>
+
+<div class="hero">
+  <div class="label">Email Settings</div>
+  <h1>Notification <em>preferences</em></h1>
+  <p class="sub">Choose which weekly emails you'd like to receive. We'll only send what you ask for, and you can change this anytime.</p>
+</div>
+
+<div class="wrap">
+
+  <div id="signed-out" style="display:none">
+    <div class="signin-prompt card">
+      <h2>Sign in to manage notifications</h2>
+      <p>Email preferences are tied to your account.</p>
+      <a class="btn" href="/course.html">Sign in →</a>
+    </div>
+  </div>
+
+  <div id="loading" class="card"><div class="skel"></div></div>
+
+  <div id="signed-in" style="display:none">
+
+    <div class="card" id="advisor-card">
+      <h2>Personalized path</h2>
+      <p class="desc">A 60-second quiz recommends the best 5 days to start with based on your background and goals — then the rest of the 60 days flows in order. You can re-take it anytime.</p>
+      <div id="advisor-summary" style="display:none;padding:14px 16px;background:var(--bg);border:1px solid var(--rule);border-radius:6px;margin-bottom:14px;">
+        <div style="font-size:13px;color:var(--ink2);line-height:1.65;margin-bottom:10px;" id="advisor-rationale-disp"></div>
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.06em;" id="advisor-spine-disp"></div>
+      </div>
+      <div id="advisor-empty" style="display:none;font-size:13px;color:var(--muted);margin-bottom:14px;">You haven't taken the quiz yet — everyone is on the default Day 1 → 60 walk.</div>
+      <div class="actions" style="margin-top:0;">
+        <a class="btn" id="advisor-cta" href="/onboarding.html">Take the quiz</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Weekly Job Alerts</h2>
+      <p class="desc">Every Monday, get the top AI PM roles posted in the past 7 days that match your filters. Sourced live from 240+ AI companies (Anthropic, OpenAI, Mistral, Cohere, Perplexity, and more).</p>
+      <div class="row">
+        <div class="row-label">
+          <div class="row-title">Send me weekly job alerts</div>
+          <div class="row-sub" id="email-display">Delivered to your account email.</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="opt-jobs"><span class="slider"></span></label>
+      </div>
+
+      <div id="job-filters" style="margin-top:18px;display:none">
+        <div class="fg">
+          <label>Roles you care about</label>
+          <div class="chips" id="chips-roles"></div>
+        </div>
+        <div class="fg">
+          <label>Locations <span style="text-transform:none;letter-spacing:0;color:var(--muted);">(comma separated, leave blank for any)</span></label>
+          <input type="text" id="f-locations" placeholder="e.g. san francisco, new york, london, remote" maxlength="300">
+        </div>
+        <div class="row" style="border-top:1px solid var(--rule);margin-top:6px;">
+          <div class="row-label">
+            <div class="row-title">Remote-only</div>
+            <div class="row-sub">Hide roles that require on-site attendance.</div>
+          </div>
+          <label class="tog"><input type="checkbox" id="f-remote"><span class="slider"></span></label>
+        </div>
+        <div class="fg" style="margin-top:14px;">
+          <label>Seniority</label>
+          <div class="chips" id="chips-seniority"></div>
+        </div>
+        <div class="fg">
+          <label>Companies <span style="text-transform:none;letter-spacing:0;color:var(--muted);">(optional allowlist, comma separated; blank = all)</span></label>
+          <input type="text" id="f-companies" placeholder="e.g. Anthropic, OpenAI, Cohere" maxlength="300">
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Weekly Interview Prep</h2>
+      <p class="desc">Every Monday, get 3 fresh AI PM interview questions generated from the past week's AI news (model releases, policy shifts, lab announcements). Practice answers stay sharp because the material is current.</p>
+      <div class="row">
+        <div class="row-label">
+          <div class="row-title">Send me weekly interview questions</div>
+          <div class="row-sub">3 questions per email, ~5-minute read.</div>
+        </div>
+        <label class="tog"><input type="checkbox" id="opt-interview"><span class="slider"></span></label>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="save-btn" onclick="saveSettings()">Save preferences</button>
+      <div class="msg" id="save-msg"></div>
+    </div>
+
+  </div>
+</div>
+
+<footer><p>&copy; 2026 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="/contact.html">Contact</a></p></footer>
+
+<script>
+var clerk=null;
+var ROLE_OPTIONS=['ai pm','senior pm','staff pm','principal pm','product manager','head of product','vp product','director of product','growth pm','technical pm','associate pm','product owner'];
+var SENIORITY_OPTIONS=['junior','mid','senior','staff','principal','lead','head','director','vp'];
+
+function updateAuthUI(){}
+async function doSignOut(){if(clerk){await clerk.signOut();location.reload();}}
+
+function buildChips(containerId,options,selected){
+  var c=document.getElementById(containerId);c.innerHTML='';
+  options.forEach(function(opt){
+    var label=document.createElement('label');label.className='chip'+(selected.indexOf(opt)>=0?' checked':'');
+    label.innerHTML='<input type="checkbox" value="'+opt+'"'+(selected.indexOf(opt)>=0?' checked':'')+'>'+opt;
+    var input=label.querySelector('input');
+    input.addEventListener('change',function(){label.classList.toggle('checked',input.checked);});
+    c.appendChild(label);
+  });
+}
+function readChips(containerId){
+  return Array.prototype.slice.call(document.querySelectorAll('#'+containerId+' input:checked')).map(function(i){return i.value;});
+}
+function parseList(s){return (s||'').split(',').map(function(v){return v.trim();}).filter(Boolean);}
+
+function showSignedIn(prefs){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('signed-in').style.display='block';
+  document.getElementById('signed-out').style.display='none';
+  document.getElementById('email-display').textContent='Delivered to '+(prefs.email||'your account email');
+  document.getElementById('opt-jobs').checked=!!prefs.job_alerts_opt_in;
+  document.getElementById('opt-interview').checked=!!prefs.interview_prep_opt_in;
+  toggleJobFilters(!!prefs.job_alerts_opt_in);
+  document.getElementById('opt-jobs').addEventListener('change',function(e){toggleJobFilters(e.target.checked);});
+  var f=prefs.job_filters||{};
+  buildChips('chips-roles',ROLE_OPTIONS,f.roles||[]);
+  buildChips('chips-seniority',SENIORITY_OPTIONS,f.seniority||[]);
+  document.getElementById('f-locations').value=(f.locations||[]).join(', ');
+  document.getElementById('f-companies').value=(f.companies||[]).join(', ');
+  document.getElementById('f-remote').checked=!!f.remote_only;
+}
+function toggleJobFilters(on){
+  document.getElementById('job-filters').style.display=on?'block':'none';
+}
+function showSignedOut(){
+  document.getElementById('loading').style.display='none';
+  document.getElementById('signed-in').style.display='none';
+  document.getElementById('signed-out').style.display='block';
+}
+
+async function authedFetch(url,opts){
+  opts=opts||{};opts.headers=opts.headers||{};
+  var token=null;
+  try{if(clerk?.session)token=await clerk.session.getToken();}catch(e){}
+  if(token)opts.headers['Authorization']='Bearer '+token;
+  return fetch(url,opts);
+}
+
+async function loadPrefs(){
+  try{
+    var email='';
+    try{ email=clerk?.user?.primaryEmailAddress?.emailAddress || clerk?.user?.emailAddresses?.[0]?.emailAddress || ''; }catch(e){}
+    var url='/api/notification-prefs'+(email?('?email='+encodeURIComponent(email)):'');
+    var r=await authedFetch(url);
+    if(r.status===401){showSignedOut();return;}
+    if(!r.ok){
+      console.warn('notification-prefs returned',r.status);
+      showSignedIn({email:email,job_alerts_opt_in:false,interview_prep_opt_in:false,job_filters:{}});
+      loadAdvisorSummary();
+      return;
+    }
+    var prefs=await r.json();
+    showSignedIn(prefs);
+    loadAdvisorSummary();
+  }catch(e){
+    showSignedOut();
+  }
+}
+
+async function loadAdvisorSummary(){
+  try{
+    var r=await authedFetch('/api/course-advisor');
+    if(!r.ok)return;
+    var d=await r.json();
+    var advisor=d&&d.advisor;
+    var summary=document.getElementById('advisor-summary');
+    var empty=document.getElementById('advisor-empty');
+    var cta=document.getElementById('advisor-cta');
+    if(advisor&&advisor.spine&&!advisor.skipped){
+      summary.style.display='block';empty.style.display='none';
+      document.getElementById('advisor-rationale-disp').textContent=advisor.rationale||'';
+      document.getElementById('advisor-spine-disp').textContent='Recommended start: Days '+advisor.spine.join(', ');
+      cta.textContent='Re-take quiz';
+    }else{
+      summary.style.display='none';empty.style.display='block';
+      cta.textContent='Take the quiz';
+    }
+  }catch(e){}
+}
+
+async function saveSettings(){
+  var btn=document.getElementById('save-btn');var msg=document.getElementById('save-msg');
+  msg.className='msg';msg.style.display='none';btn.disabled=true;btn.textContent='Saving…';
+  var body={
+    job_alerts_opt_in:document.getElementById('opt-jobs').checked,
+    interview_prep_opt_in:document.getElementById('opt-interview').checked,
+    job_filters:{
+      roles:readChips('chips-roles'),
+      locations:parseList(document.getElementById('f-locations').value).map(function(s){return s.toLowerCase();}),
+      remote_only:document.getElementById('f-remote').checked,
+      seniority:readChips('chips-seniority'),
+      companies:parseList(document.getElementById('f-companies').value)
+    }
+  };
+  try{
+    var r=await authedFetch('/api/notification-prefs',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if(!r.ok){var d=await r.json().catch(function(){return{};});throw new Error(d.error||'http '+r.status);}
+    msg.className='msg success';msg.textContent='Preferences saved.';msg.style.display='block';
+    if(window.pendo&&pendo.track)pendo.track('Notification Prefs Saved',{job_alerts:body.job_alerts_opt_in,interview_prep:body.interview_prep_opt_in});
+  }catch(e){
+    msg.className='msg error';msg.textContent='Could not save: '+(e.message||'unknown error');msg.style.display='block';
+  }finally{
+    btn.disabled=false;btn.textContent='Save preferences';
+  }
+}
+
+(async function init(){
+  try{
+    var res=await fetch('/api/config');var cfg=await res.json();
+    if(cfg.clerkPublishableKey&&cfg.clerkDomain){
+      var cs=document.createElement('script');cs.src='https://'+cfg.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';cs.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);cs.crossOrigin='anonymous';document.head.appendChild(cs);
+      cs.onload=async function(){
+        try{clerk=window.Clerk;await clerk.load();}catch(e){}
+        updateAuthUI();
+        if(clerk&&clerk.user){loadPrefs();}else{showSignedOut();}
+      };
+      cs.onerror=function(){showSignedOut();};
+    }else{showSignedOut();}
+  }catch(e){showSignedOut();}
+})();
+</script><script src="/components/nav.js"></script>
+<script>renderSidebar({ active: 'settings' });</script>
+</body>

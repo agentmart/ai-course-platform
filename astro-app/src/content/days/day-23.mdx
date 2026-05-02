@@ -1,0 +1,53 @@
+---
+day: 23
+subtitle: "Microsoft’s production-grade multi-agent framework — async, event-driven, enterprise-ready."
+track: full
+tasks:
+    - title: "Compare AutoGen vs CrewAI for enterprise"
+      time: 25
+      description: "Compare on 5 dimensions: observability, human-in-the-loop, Azure deployment, developer experience, community. Which for a regulated financial services product? Save as /day-23/autogen_vs_crewai_comparison.md."
+    - title: "Design expense review with human approval"
+      time: 25
+      description: "Build an AutoGen team: expense reviewer agent + human approver (UserProxyAgent). What happens when the human rejects? How does the agent retry? Save as /day-23/autogen_expense_review.md."
+    - title: "AgentChat vs Core decision guide"
+      time: 25
+      description: "For 3 products: (a) quarterly report generator, (b) real-time alert triage, (c) nightly document pipeline — choose AgentChat (task-driven) or Core (event-driven). Rationale for each. Save as /day-23/enterprise_agent_architecture.md."
+    - title: "Research Magentic-One architecture"
+      time: 25
+      description: "Read about Magentic-One at microsoft.com/research. How does the Orchestrator delegate to specialists? What design patterns transfer to your products? Save as /day-23/magentic_one_analysis.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "What are the key differences between AutoGen, CrewAI, and LangGraph?"
+  answer: "LangGraph is best for agentic workflows within the LangChain ecosystem — graph-based state management, conditional routing, cycles. Most flexible for tool-use loops.<br><br>CrewAI is optimized for role-based crews with structured task delegation. Strongest feature: explicit role/goal/task structure producing consistent outputs on analytical workflows. Less suitable for event-driven systems.<br><br>AutoGen v0.4+ is optimized for enterprise deployments needing human-in-the-loop, Azure integration, and observability. The event-driven Core handles real-time systems CrewAI and LangGraph don’t cover well. UserProxyAgent for human review is the key differentiator for compliance-sensitive deployments. AutoGen now supports Claude via AnthropicClient, so it’s not Azure-only.<br><br>Selection heuristic: LangGraph for flexible agentic tool loops, CrewAI for self-contained analytical crews, AutoGen for enterprise with compliance requirements. Many teams use LangGraph for orchestration calling CrewAI or AutoGen agents as tools."
+pmAngle: "AutoGen’s human-in-the-loop design makes it deployable in regulated industries where fully autonomous AI action creates liability. If building for financial services, healthcare, or legal, AutoGen’s architecture is the right starting point. Know the AutoGen vs Semantic Kernel distinction: AutoGen for multi-agent, SK for single-agent orchestration on Azure."
+context: "<p><strong>AutoGen</strong> is Microsoft Research’s open-source framework for multi-agent AI. Version 0.4 (January 2025) was a complete architectural redesign: asynchronous, event-driven, with three tiers — <strong>Core</strong> (event-driven actor framework), <strong>AgentChat</strong> (task-driven high-level API), and <strong>Extensions</strong> (integrations for memory, model clients, tools). Key additions through 2025-2026: <strong>GraphFlow</strong> for directed agent graphs, <strong>Swarm pattern</strong> for dynamic orchestration without fixed hierarchies, and <strong>declarative agent specifications</strong> (YAML-based). Verify the current version at <a href=\"https://microsoft.github.io/autogen/\" target=\"_blank\">microsoft.github.io/autogen</a>.</p>\n  <p><strong>Magentic-One</strong> (Microsoft, 2024) is a multi-agent benchmark system built on AutoGen that demonstrates where the framework is heading. Understanding its architecture — an Orchestrator agent delegating to specialist Web Surfer, File Surfer, Coder, and Computer Terminal agents — gives insight into production multi-agent design patterns.</p>\n  <p>AutoGen’s key differentiator: <strong>human-in-the-loop</strong> patterns and enterprise observability. The UserProxyAgent provides clean human review injection at any workflow point — critical for regulated industries. AutoGen now has a <strong>Claude client</strong> (AnthropicClient), so Anthropic-focused PM candidates should know how to configure AutoGen with Claude models. Microsoft’s official guidance: use AutoGen for multi-agent coordination, Semantic Kernel (Day 47) for single-agent orchestration on Azure. These two frameworks are complementary, not competing.</p>"
+resources:
+    - type: "DOCS"
+      title: "AutoGen Documentation"
+      url: "https://microsoft.github.io/autogen/"
+      note: "v0.4+ docs. Start with AgentChat quickstart."
+    - type: "BLOG"
+      title: "Magentic-One"
+      url: "https://www.microsoft.com/en-us/research/blog/magentic-one-a-generalist-multi-agent-system-for-solving-complex-tasks/"
+      note: "Microsoft’s flagship multi-agent system built on AutoGen."
+    - type: "TOOL"
+      title: "AutoGen Studio"
+      url: "https://microsoft.github.io/autogen/docs/autogen-studio/getting-started/"
+      note: "Low-code visual interface. Verify current features at docs."
+    - type: "BLOG"
+      title: "AutoGen v0.4 Architecture"
+      url: "https://devblogs.microsoft.com/autogen/autogen-reimagined-launching-autogen-0-4/"
+      note: "The redesign rationale. Core vs AgentChat explained."
+    - type: "DOCS"
+      title: "Building Effective Agents — Anthropic"
+      url: "https://www.anthropic.com/research/building-effective-agents"
+      note: "Apply Anthropic’s agent design principles when building AutoGen workflows."
+    - type: "DOCS"
+      title: "Semantic Kernel"
+      url: "https://learn.microsoft.com/semantic-kernel/"
+      note: "Complementary to AutoGen. SK for orchestration, AutoGen for multi-agent."
+---
+

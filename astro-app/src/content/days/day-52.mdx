@@ -1,0 +1,45 @@
+---
+day: 52
+subtitle: "Set goals that actually drive AI product quality — from eval hygiene to agentic success metrics."
+track: sprint
+tasks:
+    - title: "Write agentic OKRs for a quarter"
+      time: 25
+      description: "You’re the PM for an AI coding assistant built on claude-sonnet-4-6 that helps developers write and debug code. Write OKRs for Q3 2026. Include: one objective for task completion, one for user adoption, one for cost efficiency. Each objective has 3 key results. Separately, list the hygiene metrics (eval thresholds) that are non-negotiable floors but NOT OKRs. Save as /day-52/agentic_okrs.md."
+    - title: "Baseline discovery plan"
+      time: 25
+      description: "You’re launching a new AI feature next quarter and need to establish baselines. Write a baseline discovery plan: what metrics to instrument, how to collect data, what sample sizes you need for statistical significance, how long the baseline period should be, and how you’ll convert baselines into Q2 targets. Include specific metrics: task completion rate, human override rate, multi-step success rate, cost per completed task. Save as /day-52/baseline_plan.md."
+    - title: "Design a weekly AI health review"
+      time: 25
+      description: "Design the agenda, attendees, data sources, and action-item template for a weekly AI health review meeting. Include: eval suite dashboard design, user feedback aggregation method, cost/latency monitoring source, safety incident log, and a decision framework for when to escalate vs. when to add to backlog. Keep the meeting to 30 minutes. Save as /day-52/weekly_health_review.md."
+    - title: "Critique bad AI OKRs"
+      time: 25
+      description: "Here are three bad AI OKRs. Rewrite each to be effective. Bad OKR 1: “Improve Claude accuracy to 95%.” Bad OKR 2: “Reduce AI costs.” Bad OKR 3: “Make the AI agent work better.” For each, explain why it’s bad, rewrite it with specific key results, and identify what hygiene metric should accompany it. Save as /day-52/okr_critique.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "How do you set OKRs for AI products when performance is probabilistic?"
+  answer: "The key insight is separating hygiene metrics from OKRs — and always establishing baselines before setting targets.<br><br><strong>Hygiene metrics are floors, not goals:</strong> Eval thresholds are non-negotiable minimums. If our medical Q&A eval drops below 92% accuracy, everything stops. But that’s not the OKR. The OKR is the business outcome: physician adoption, task completion, user satisfaction. Teams that make eval scores their OKR end up gaming benchmarks instead of delivering user value.<br><br><strong>Baseline first, targets second:</strong> You cannot set credible performance targets without baselines. My first quarter with any new AI feature includes an explicit baseline discovery objective: instrument, collect data, establish current performance. Then Q2 targets are grounded in reality, not aspiration.<br><br><strong>Agentic metrics are different:</strong> For products where Claude performs multi-step tasks autonomously, I track: task completion rate (north star), human override rate (trust indicator), multi-step success rate (error compounding), recovery rate (resilience), and cost per completed task (efficiency). These don’t exist in traditional software OKRs.<br><br><strong>Weekly health review:</strong> Quarterly OKRs aren’t enough for AI products because quality can shift with model updates. I run a weekly 30-minute health review: eval results, user feedback themes, cost/latency trends, safety incidents, and model behavior changes. This catches regressions before they become quarter-defining problems."
+pmAngle: "The PM who separates hygiene metrics from OKRs, insists on baseline discovery before target-setting, and runs a disciplined weekly health review is the PM whose AI product actually improves quarter over quarter. Everyone else is either chasing benchmarks or flying blind."
+context: "<p>OKRs for AI products are fundamentally different from traditional software OKRs because AI product quality is probabilistic, not deterministic. A traditional feature either works or it doesn’t; an AI feature works 87% of the time. This changes how you set objectives, define key results, and measure progress. Today you learn the OKR framework that works for AI products in 2026, including the new agentic patterns that require entirely new metrics.</p>\n  <p><strong>Eval thresholds are hygiene, not OKRs.</strong> This is the most important insight for AI product OKRs: <strong>treat eval thresholds as hygiene metrics (non-negotiable floors), and business outcomes as OKRs</strong>. Hygiene metrics are monitored but not optimized — they’re the minimum bar. Example: “Claude’s response accuracy on our medical Q&A eval suite stays above 92%” is hygiene. If it drops below 92%, everything stops until it’s fixed. But the OKR is: “Increase physician adoption of the AI assistant from 30% to 60%.” The hygiene metric enables the OKR but isn’t the OKR. Teams that make eval scores their OKR optimize for benchmarks rather than user value.</p>\n  <p><strong>Discover baseline before setting performance OKRs.</strong> This is the key insight most AI PMs miss: you cannot set meaningful performance OKRs without first establishing a reliable baseline. If you don’t know your current task completion rate, you can’t set a credible target. The first quarter for any new AI feature should include an explicit “baseline discovery” objective: instrument the feature, collect data, establish current performance, and then set targets for the next quarter. Setting targets without baselines leads to either sandbagging (too easy) or demoralization (impossible). Template: Q1 OKR = “Establish reliable baseline metrics for [feature].” Q2 OKR = “Improve [metric] from [baseline] to [target].”</p>\n  <p><strong>Agentic OKR examples.</strong> Agentic AI products — where Claude performs multi-step tasks autonomously — need metrics that traditional AI OKRs don’t cover. Key agentic metrics: (1) <strong>Task completion rate</strong> — what percentage of multi-step tasks does the agent complete successfully without human intervention? This is the north star. (2) <strong>Human override rate</strong> — how often does a human need to step in to correct or complete an agent’s work? A decreasing override rate means the agent is becoming more trustworthy. (3) <strong>Multi-step success rate</strong> — for tasks requiring 5+ steps, what percentage succeed end-to-end? This is harder than single-step accuracy because errors compound. (4) <strong>Recovery rate</strong> — when the agent encounters an error, how often does it successfully recover without human help? (5) <strong>Cost per completed task</strong> — total API cost (tokens in + out) divided by successfully completed tasks. Optimization target: reduce cost per completed task while maintaining quality.</p>\n  <p><strong>Weekly AI health review.</strong> Beyond quarterly OKRs, AI products need a weekly health review — a structured meeting where the team reviews key metrics. Agenda: (1) Eval suite results — any regressions? (2) User feedback themes — what are users complaining about? (3) Cost and latency trends — any anomalies? (4) Safety incidents — any prompt injection attempts or inappropriate outputs? (5) Model performance — if using claude-sonnet-4-6, any behavior changes after model updates? This meeting should be 30 minutes, data-driven, and result in a prioritized action list. The PM owns this meeting.</p>\n  <p><strong>The OKR anti-pattern: optimizing for eval scores.</strong> When eval scores become the OKR, teams game them — cherry-picking eval examples, overfitting system prompts to the eval suite, ignoring user feedback that contradicts eval results. The fix: evals are hygiene metrics with a floor, and OKRs measure what users actually experience. “User satisfaction with AI responses” is an OKR. “Eval accuracy above 90%” is hygiene.</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic: Evaluating AI Models"
+      url: "https://docs.anthropic.com/en/docs/test-and-evaluate/eval-design"
+      note: "How to design evals that inform your hygiene metrics."
+    - type: "BLOG"
+      title: "Anthropic: Building Effective Agents"
+      url: "https://www.anthropic.com/research/building-effective-agents"
+      note: "Agent architecture patterns that determine which metrics to track."
+    - type: "DOCS"
+      title: "Claude API Usage Dashboard"
+      url: "https://console.anthropic.com/"
+      note: "Where you monitor cost and usage metrics for your health review."
+    - type: "DOCS"
+      title: "Anthropic API Pricing"
+      url: "https://www.anthropic.com/pricing"
+      note: "Model pricing for cost-per-task calculations."
+---
+

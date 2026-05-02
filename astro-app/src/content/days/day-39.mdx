@@ -1,0 +1,49 @@
+---
+day: 39
+subtitle: "Phase 2 Capstone — produce the competitive teardown that proves strategic depth."
+track: full
+tasks:
+    - title: "Choose your vertical and sign up"
+      time: 25
+      description: "Pick one AI product vertical (code assistants, customer support, document intelligence, or search). Sign up for a free trial or freemium tier of at least one competitor in that space. Spend 30 minutes using the product on a real task. Document: onboarding experience, time to first value, quality of AI output, one failure mode, and one strength. Take screenshots. Save as /day-39/primary_research_notes.md."
+    - title: "Complete the competitive teardown"
+      time: 25
+      description: "Using the enhanced template, write the full competitive teardown for your chosen vertical. Include all five sections: market overview, player analysis (3—5 products), strategic comparison with feature matrix, threat assessment across all four layers, and your recommendation. This should be 2,000–3,000 words — detailed enough to present to a VP of Product. Save as /day-39/competitive_teardown.md."
+    - title: "Create the positioning map"
+      time: 25
+      description: "Design a 2x2 positioning map for your vertical. Choose two axes that reveal strategic differences (e.g., breadth vs depth, developer-first vs enterprise-first, proprietary model vs API-dependent). Plot all major players. Write one paragraph explaining what the map reveals about market opportunity gaps. Save as /day-39/positioning_map.md."
+    - title: "Peer review and finalize"
+      time: 25
+      description: "Review your teardown against the quality checklist: Does it include primary research with specific examples? Does it cover all four threat layers? Is the recommendation actionable and defensible? Would this impress a VP of Product in an interview? Revise and finalize. Save final version as /day-39/competitive_teardown_final.md. Stage and commit your Days 35—39 capstone work."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "Walk me through a competitive analysis of an AI product category you know well."
+  answer: "I’ll use AI code assistants as the example since I’ve done hands-on research.<br><br><strong>Market overview:</strong> AI code assistants are a multi-billion dollar market growing 80%+ annually. The primary buyer is engineering leadership; the primary user is the individual developer. The core value proposition: accelerate development velocity, reduce context-switching, and lower the barrier to working in unfamiliar codebases.<br><br><strong>Key players:</strong> Cursor leads in AI-native experience — the entire editor is designed around AI, with features like Composer (multi-file editing) and deep contextual awareness. GitHub Copilot has distribution advantage (VS Code installed base) and enterprise trust (Microsoft/GitHub brand). Windsurf (formerly Codeium) focuses on enterprise compliance and data privacy. Each uses different model strategies: Cursor is model-agnostic (Claude, GPT, custom), Copilot uses OpenAI models primarily, Windsurf runs proprietary models alongside APIs.<br><br><strong>Strategic comparison:</strong> On a developer-first vs enterprise-first axis crossed with AI-native vs AI-added, you get a clear map. Cursor: developer-first, AI-native. Copilot: broad audience, AI-added to existing editor. Windsurf: enterprise-first, AI-native. The gap: AI-native experience with enterprise-grade compliance — whoever fills that wins the next wave of enterprise deals.<br><br><strong>Threats:</strong> Platform risk is real — Anthropic and OpenAI both have incentives to build code tools natively. Open-source threat: models like DeepSeek Coder and CodeLlama make self-hosted code assistance viable at scale. The biggest underappreciated threat: IDE vendors (JetBrains) building native AI features that are “good enough” and don’t require switching editors.<br><br><strong>If I were building:</strong> I’d go AI-native and enterprise-first with an on-premise deployment option using open-source models for maximum data privacy. That specific combination is underserved today."
+pmAngle: "A competitive teardown with primary research — where you actually used the competitor’s product and can cite specific strengths and failures — is 10x more credible than desk research alone. In interviews, the PM who says “I signed up for their free trial and here’s what I found” immediately demonstrates the hands-on instinct that separates strong PMs from analysts."
+context: "<p>The Phase 2 capstone is a <strong>competitive teardown</strong> that demonstrates your ability to analyze an AI product category with the depth of an analyst and the judgment of a PM. This is the artifact that most directly translates to interview performance and on-the-job impact. A strong competitive teardown answers: who are the players, what are their strategies, where are the vulnerabilities, and what would you build differently?</p>\n  <p><strong>Primary research is required.</strong> Desk research (reading blog posts and documentation) is necessary but insufficient. You must sign up for at least one competitor’s free trial or freemium tier and use the product hands-on. Document your first-run experience: onboarding quality, time-to-value, quality of AI outputs, failure modes you encountered, and pricing friction. First-person product experience is what separates a credible competitive teardown from a Wikipedia summary. Screenshots and specific examples are essential.</p>\n  <p><strong>Updated competitive landscape by vertical (2026):</strong> <strong>Code assistants:</strong> Cursor (AI-native editor, dominant), GitHub Copilot (distribution advantage via VS Code), Windsurf (Codeium rebrand, enterprise focus), Augment, Amazon Q Developer. <strong>Customer support:</strong> Intercom Fin, Zendesk AI, Ada, Sierra AI, Decagon. <strong>Document intelligence:</strong> Notion AI, Glean, Hebbia, Harvey (legal-specific). <strong>Search:</strong> Perplexity, Google AI Overviews, SearchGPT, You.com. <strong>Enterprise platforms:</strong> Salesforce Einstein, Microsoft Copilot for M365, ServiceNow AI. Pick one vertical for your teardown.</p>\n  <p><strong>Enhanced competitive teardown template:</strong></p>\n  <p><strong>Section 1 — Market overview:</strong> Category definition, TAM/SAM, growth rate, buyer persona, and key trends. What drove category formation? What’s the primary user need?</p>\n  <p><strong>Section 2 — Player analysis (3—5 products):</strong> For each: founding story, funding/business model, target market, core technology stack (which models, what infrastructure), product strengths, product weaknesses, and pricing. Include your hands-on experience with at least one.</p>\n  <p><strong>Section 3 — Strategic comparison:</strong> Feature matrix, positioning map (2x2), defensibility assessment (data moat, workflow moat, eval moat, network effects), and platform risk analysis for each.</p>\n  <p><strong>Section 4 — Threat assessment:</strong> Platform provider risk (will OpenAI/Anthropic/Google build this?), open-source risk (can Llama replicate it?), adjacent category risk (who expands into this space?), and regulatory risk.</p>\n  <p><strong>Section 5 — Your recommendation:</strong> If you were starting a company in this space tomorrow, what would you build? What gap exists? What defensibility would you prioritize?</p>"
+resources:
+    - type: "TOOL"
+      title: "Artificial Analysis"
+      url: "https://artificialanalysis.ai/"
+      note: "Model benchmarks and pricing to inform your competitive analysis."
+    - type: "TOOL"
+      title: "Hugging Face"
+      url: "https://huggingface.co/"
+      note: "Open-source model landscape for threat assessment layer 4."
+    - type: "BLOG"
+      title: "Latent Space"
+      url: "https://www.latent.space/"
+      note: "AI industry analysis to ground your market overview."
+    - type: "BLOG"
+      title: "Sequoia: Generative AI Market Map"
+      url: "https://www.sequoiacap.com/article/generative-ai-act-two/"
+      note: "Category landscape and investment thesis."
+    - type: "BLOG"
+      title: "a16z: AI Market Analysis"
+      url: "https://a16z.com/ai/"
+      note: "Andreessen Horowitz AI market analysis and frameworks."
+---
+

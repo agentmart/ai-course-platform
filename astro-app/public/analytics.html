@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Community Leaderboard — AI PM Course Progress | becomeaipm</title>
+<meta name="description" content="See the top learners in the 60-day AI PM course. Live progress tracking, streaks, and community activity.">
+<meta name="author" content="Stavan Mehta">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/analytics.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="becomeaipm">
+<meta property="og:title" content="Community Leaderboard — AI PM Course Progress">
+<meta property="og:description" content="Live progress tracking for the 60-day AI PM course.">
+<meta property="og:url" content="https://becomeaipm.com/analytics.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://becomeaipm.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=Fraunces:ital,wght@0,300;0,600;0,900;1,300;1,600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
+<!-- Pendo Analytics (initialized after Clerk auth loads) -->
+<style>
+:root{
+  --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
+  --rule:#d4cdc4;--amber:#c8590a;--teal:#0d6e6e;--card:#faf7f2;--border:#ccc4b8;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+.hero{padding:60px 40px 40px;max-width:1100px;margin:0 auto;}
+.label{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:16px;}
+h1{font-family:'Fraunces',serif;font-size:clamp(30px,4.5vw,56px);font-weight:900;line-height:1.05;margin-bottom:14px;}
+h1 em{color:var(--amber);font-style:italic;}
+.sub{font-size:16px;color:var(--ink2);max-width:640px;line-height:1.7;margin-bottom:40px;}
+.section{padding:0 40px 60px;max-width:1100px;margin:0 auto;}
+.sec-title{font-family:'Fraunces',serif;font-size:26px;font-weight:700;margin-bottom:24px;}
+.sec-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--muted);text-transform:uppercase;margin-bottom:16px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:40px;}
+@media(max-width:900px){.grid4{grid-template-columns:1fr 1fr;}}
+@media(max-width:600px){.grid4{grid-template-columns:1fr;}.section,.hero{padding-left:20px;padding-right:20px;}nav{padding:12px 20px;}}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:24px;}
+.sc-n{font-family:'Fraunces',serif;font-size:40px;font-weight:900;color:var(--amber);line-height:1;margin-bottom:6px;}
+.sc-l{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.sc-sub{font-size:12px;color:var(--muted);margin-top:6px;}
+.my-progress{background:var(--ink);border-radius:8px;padding:40px;margin-bottom:40px;display:none;}
+.my-progress.show{display:block;}
+.mp-tag{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--amber);text-transform:uppercase;margin-bottom:14px;}
+.mp-title{font-family:'Fraunces',serif;font-size:24px;font-weight:700;color:#f0ebe2;margin-bottom:20px;}
+.mp-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:600px){.mp-stats{grid-template-columns:1fr;}}
+.mp-stat{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);border-radius:6px;padding:20px;text-align:center;}
+.mp-stat-n{font-family:'Fraunces',serif;font-size:36px;font-weight:900;color:var(--amber);}
+.mp-stat-l{font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.4);margin-top:4px;text-transform:uppercase;letter-spacing:.1em;}
+.mp-bar-wrap{margin-top:20px;}
+.mp-bar-label{font-size:12px;color:rgba(255,255,255,.4);margin-bottom:8px;display:flex;justify-content:space-between;}
+.mp-bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;}
+.mp-bar-fill{height:100%;background:var(--amber);border-radius:4px;transition:width .6s ease;}
+.lb-table{width:100%;border-collapse:collapse;margin-bottom:40px;}
+.lb-table th{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:2px solid var(--rule);}
+.lb-table td{padding:12px 16px;border-bottom:1px solid var(--rule);font-size:14px;}
+.lb-rank{font-family:'Fraunces',serif;font-weight:700;color:var(--amber);font-size:18px;width:50px;}
+.lb-name{color:var(--ink);}
+.lb-days{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink2);}
+.lb-tier{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:3px 10px;border-radius:10px;text-transform:uppercase;letter-spacing:.08em;}
+.lb-tier.free{background:rgba(140,127,116,.1);color:var(--muted);border:1px solid rgba(140,127,116,.2);}
+.lb-tier.paid{background:rgba(200,89,10,.08);color:var(--amber);border:1px solid rgba(200,89,10,.2);}
+.lb-empty{text-align:center;padding:40px;color:var(--muted);font-size:14px;}
+.lb-me{background:rgba(200,89,10,.04);}
+.cta-section{background:var(--bg2);border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:48px 40px;}
+.cta-inner{max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap;}
+.cta-text h2{font-family:'Fraunces',serif;font-size:24px;font-weight:700;margin-bottom:6px;}
+.cta-text p{font-size:14px;color:var(--muted);}
+.cta-btn{padding:11px 26px;background:var(--ink);color:white;border:none;border-radius:4px;font-size:14px;font-weight:600;text-decoration:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .15s;white-space:nowrap;}
+.cta-btn:hover{background:var(--amber);}
+footer{background:var(--ink);color:rgba(255,255,255,.25);padding:28px 40px;text-align:center;font-size:12px;font-family:'IBM Plex Mono',monospace;}
+footer a{color:rgba(255,255,255,.3);text-decoration:none;}
+footer a:hover{color:var(--amber);}
+.loading-msg{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);padding:40px 0;text-align:center;}
+.cookie-banner{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:16px 40px;z-index:9999;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;}
+.cookie-banner.show{display:flex;}
+.cookie-text{font-family:'IBM Plex Mono',monospace;font-size:12px;color:rgba(255,255,255,.6);line-height:1.6;flex:1;min-width:200px;}
+.cookie-text a{color:var(--amber);text-decoration:underline;}
+.cookie-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;border-radius:3px;cursor:pointer;border:none;transition:all .15s;white-space:nowrap;}
+.cookie-accept{background:var(--amber);color:white;}
+.cookie-accept:hover{background:#a84a06;}
+.cookie-decline{background:transparent;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);}
+.cookie-decline:hover{border-color:rgba(255,255,255,.4);color:rgba(255,255,255,.8);}
+</style>
+</head>
+<body>
+
+<aside id="app-nav"></aside>
+
+<div class="hero">
+  <div class="label">Community Progress</div>
+  <h1>See how everyone is <em>progressing</em></h1>
+  <p class="sub">Track your progress through the 60-day curriculum and see how the community is advancing. All data is anonymized &mdash; no personal details shared.</p>
+</div>
+
+<div class="section">
+  <div class="my-progress" id="my-progress">
+    <div class="mp-tag">Your Progress</div>
+    <div class="mp-title" id="mp-title">Keep going &mdash; you're doing great</div>
+    <div class="mp-stats">
+      <div class="mp-stat"><div class="mp-stat-n" id="mp-days">0</div><div class="mp-stat-l">Days Completed</div></div>
+      <div class="mp-stat"><div class="mp-stat-n" id="mp-streak">0</div><div class="mp-stat-l">Day Streak</div></div>
+      <div class="mp-stat"><div class="mp-stat-n" id="mp-percentile">&mdash;</div><div class="mp-stat-l">Percentile</div></div>
+    </div>
+    <div class="mp-bar-wrap">
+      <div class="mp-bar-label"><span>Course progress</span><span id="mp-pct-label">0%</span></div>
+      <div class="mp-bar"><div class="mp-bar-fill" id="mp-bar-fill" style="width:0%"></div></div>
+    </div>
+  </div>
+  <div id="my-progress-anon" style="display:none;">
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:8px;padding:24px;margin-bottom:40px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <span style="font-size:14px;color:var(--ink2);">Sign in to see your personal progress and ranking</span>
+      <a class="cta-btn" href="#" onclick="openSignIn();return false;" style="margin-left:auto;">Sign In &amp; Track Progress &rarr;</a>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Platform Stats</div>
+  <div class="grid4">
+    <div class="stat-card"><div class="sc-n" id="stat-users">&mdash;</div><div class="sc-l">Total Learners</div><div class="sc-sub">Enrolled in the course</div></div>
+    <div class="stat-card"><div class="sc-n" id="stat-days">&mdash;</div><div class="sc-l">Days Completed</div><div class="sc-sub">Across all learners</div></div>
+    <div class="stat-card"><div class="sc-n" id="stat-avg">&mdash;</div><div class="sc-l">Avg Days / User</div><div class="sc-sub">Community average</div></div>
+    <div class="stat-card"><div class="sc-n" id="stat-popular">&mdash;</div><div class="sc-l">Most Popular Day</div><div class="sc-sub">Most completed by learners</div></div>
+  </div>
+</div>
+
+<div class="section">
+  <div class="sec-label">Community Leaderboard</div>
+  <div class="sec-title">Top Learners</div>
+  <div id="lb-loading" class="loading-msg">Loading leaderboard...</div>
+  <table class="lb-table" id="lb-table" style="display:none;">
+    <thead><tr><th>Rank</th><th>Learner</th><th>Days Completed</th><th>Tier</th></tr></thead>
+    <tbody id="lb-body"></tbody>
+  </table>
+  <div id="lb-empty" class="lb-empty" style="display:none;">No one has completed any days yet. Be the first!</div>
+</div>
+
+<div class="cta-section">
+  <div class="cta-inner">
+    <div class="cta-text"><h2>Ready to climb the leaderboard?</h2><p>Start the 60-day course and track your progress alongside the community.</p></div>
+    <a class="cta-btn" href="/course.html">Start the Course &rarr;</a>
+  </div>
+</div>
+
+<footer><p>&copy; 2025 becomeaipm.com &middot; <a href="/">Home</a> &middot; <a href="mailto:hello@becomeaipm.com">hello@becomeaipm.com</a></p></footer>
+
+<script>
+function updateAuthUI(){}
+async function doSignOut(){if(window.Clerk){await window.Clerk.signOut();updateAuthUI();}}
+function openSignIn(){if(!window.Clerk){location.href='/course.html';return;}window.Clerk.openSignIn({fallbackRedirectUrl:window.location.href,signUpFallbackRedirectUrl:'/course.html'});}
+var cfg=null;
+(async function loadLeaderboard(){
+  var loading=document.getElementById('lb-loading'),table=document.getElementById('lb-table'),tbody=document.getElementById('lb-body'),empty=document.getElementById('lb-empty');
+  try{
+    var headers={};
+    try{
+      var cfgRes=await fetch('/api/config');cfg=await cfgRes.json();
+      if(cfg.clerkPublishableKey&&cfg.clerkDomain){
+        var s=document.createElement('script');
+        s.src='https://'+cfg.clerkDomain+'/npm/@clerk/clerk-js@latest/dist/clerk.browser.js';
+        s.setAttribute('data-clerk-publishable-key',cfg.clerkPublishableKey);
+        s.crossOrigin='anonymous';document.head.appendChild(s);
+        await new Promise(function(res){s.onload=res;s.onerror=res;});
+        if(window.Clerk){await window.Clerk.load();updateAuthUI();var session=window.Clerk.session;if(session){var token=await session.getToken();if(token)headers['Authorization']='Bearer '+token;}}
+      }
+    }catch(e){updateAuthUI();}
+    var res=await fetch('/api/leaderboard',{headers:headers});
+    if(!res.ok)throw new Error('Failed to load');
+    var data=await res.json();
+    var st=data.stats||{};
+    document.getElementById('stat-users').textContent=fmt(st.totalUsers||0);
+    document.getElementById('stat-days').textContent=fmt(st.totalDaysCompleted||0);
+    document.getElementById('stat-avg').textContent=st.avgDaysPerUser||0;
+    document.getElementById('stat-popular').textContent=st.mostPopularDay?'Day '+st.mostPopularDay:'\u2014';
+    if(data.me){var mp=document.getElementById('my-progress');mp.classList.add('show');document.getElementById('mp-days').textContent=data.me.daysCompleted;document.getElementById('mp-streak').textContent=data.me.streak;document.getElementById('mp-percentile').textContent=data.me.percentile+'%';var pct=Math.round((data.me.daysCompleted/60)*100);document.getElementById('mp-pct-label').textContent=pct+'%';document.getElementById('mp-bar-fill').style.width=pct+'%';
+      if(window.Gamification){window.Gamification.render({streak:data.me.streak||0,badges:data.me.badges||[]});}
+    }else{document.getElementById('my-progress-anon').style.display='block';}
+    loading.style.display='none';
+    if(data.leaderboard&&data.leaderboard.length>0){
+      table.style.display='table';
+      data.leaderboard.forEach(function(u,i){
+        var tr=document.createElement('tr');
+        var tierClass=u.tier==='free'?'free':'paid';
+        var tierLabel=u.tier==='free'?'Free':u.tier==='annual'?'Annual':u.tier==='monthly'?'Monthly':'Pro';
+        tr.innerHTML='<td class="lb-rank">'+(i+1)+'</td><td class="lb-name">'+escHtml(u.displayName)+'</td><td class="lb-days">'+u.daysCompleted+' / 60</td><td><span class="lb-tier '+tierClass+'">'+tierLabel+'</span></td>';
+        tbody.appendChild(tr);
+      });
+    }else{empty.style.display='block';}
+  }catch(e){loading.textContent='Could not load leaderboard. Try refreshing.';}
+  if(canUsePendo())initPendo(cfg?cfg.pendoApiKey:'',window.Clerk?window.Clerk.user:null);
+  checkCookieConsent();
+})();
+var pendoInitialized=false;
+function initPendo(apiKey,user){if(!apiKey)return;var visitorId=user?user.id:'VISITOR-UNIQUE-ID';var visitorEmail=user?(user.emailAddresses?.[0]?.emailAddress||''):'';var visitorFirst=user?(user.firstName||''):'';var visitorLast=user?(user.lastName||''):'';if(pendoInitialized){if(window.pendo&&pendo.identify)pendo.identify({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst,lastName:visitorLast},account:{id:'becomeaipm'}});return;}(function(p,e,n,d,o){var v,w,x,y,z;o=p[d]=p[d]||{};o._q=o._q||[];v=['initialize','identify','updateOptions','pageLoad','track','trackAgent'];for(w=0,x=v.length;w<x;++w)(function(m){o[m]=o[m]||function(){o._q[m===v[0]?'unshift':'push']([m].concat([].slice.call(arguments,0)));};})(v[w]);y=e.createElement(n);y.async=!0;y.src='https://cdn.pendo.io/agent/static/'+apiKey+'/pendo.js';z=e.getElementsByTagName(n)[0];z.parentNode.insertBefore(y,z);})(window,document,'script','pendo');pendoInitialized=true;pendo.initialize({visitor:{id:visitorId,email:visitorEmail,firstName:visitorFirst,lastName:visitorLast},account:{id:'becomeaipm'}});}
+function fmt(n){if(n>=1000)return(n/1000).toFixed(1).replace(/\.0$/,'')+'k';return String(n);}
+function escHtml(s){var d=document.createElement('div');d.textContent=s;return d.innerHTML;}
+function acceptCookies(){localStorage.setItem('cookie_consent','accepted');document.getElementById('cookie-banner').classList.remove('show');initPendo(cfg?cfg.pendoApiKey:'',window.Clerk?window.Clerk.user:null);}
+function declineCookies(){localStorage.setItem('cookie_consent','declined');document.getElementById('cookie-banner').classList.remove('show');}
+function checkCookieConsent(){if(!localStorage.getItem('cookie_consent'))document.getElementById('cookie-banner').classList.add('show');}
+function canUsePendo(){return localStorage.getItem('cookie_consent')==='accepted';}
+</script>
+
+<div class="cookie-banner" id="cookie-banner">
+  <span class="cookie-text">We use analytics cookies (Pendo) to improve your experience. No data is sold. <a href="/contact.html">Learn more</a></span>
+  <button class="cookie-btn cookie-accept" onclick="acceptCookies()">Accept</button>
+  <button class="cookie-btn cookie-decline" onclick="declineCookies()">Decline</button>
+</div>
+<script src="/components/nav.js"></script>
+<script src="/components/gamification.js"></script>
+<script>renderSidebar({ active: 'leaderboard' });</script>
+
+</body>

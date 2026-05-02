@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Cost Calculator — Compare 40+ LLM API Prices Live | becomeaipm</title>
+<meta name="description" content="Compare GPT-5, Claude Opus 4.6, Gemini, and 40+ frontier LLM prices in real time. Calculate exact API costs for your AI product. Free, always current.">
+<meta name="keywords" content="LLM pricing, AI API cost, Claude pricing, GPT pricing, Gemini pricing, AI cost calculator, LLM comparison">
+<meta name="author" content="Stavan Mehta">
+<meta name="theme-color" content="#1a1512">
+<link rel="canonical" href="https://becomeaipm.com/ai-calculator.html">
+<link rel="icon" type="image/svg+xml" href="/assets/becomeaipm-mark.svg">
+<link rel="alternate icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<meta property="og:site_name" content="becomeaipm">
+<meta property="og:title" content="AI Cost Calculator — Compare 40+ LLM API Prices Live">
+<meta property="og:description" content="Compare GPT-5, Claude Opus 4.6, Gemini, and 40+ frontier LLM prices. Free.">
+<meta property="og:url" content="https://becomeaipm.com/ai-calculator.html">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://becomeaipm.com/og-image.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="AI Cost Calculator — becomeaipm">
+<meta name="twitter:description" content="Compare 40+ LLM API prices in real time.">
+<meta name="twitter:image" content="https://becomeaipm.com/og-image.png">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/components/nav.css">
+<style>
+:root{
+  --bg:#f5f0e8;--bg2:#ede8df;--ink:#1a1512;--ink2:#3d3530;--muted:#8c7f74;
+  --border:#ccc4b8;--card:#faf7f2;--amber:#c8590a;--teal:#0d6e6e;--rule:#d4cdc4;
+  --green:#1a6b3a;--red:#8b1a1a;--blue:#1a3a6b;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:16px;}
+body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;min-height:100vh;}
+
+/* PAGE HEADER */
+.ph{padding:48px 40px 32px;border-bottom:1px solid var(--rule);background:var(--ink);}
+.ph-inner{max-width:1200px;margin:0 auto;}
+.ph-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--amber);text-transform:uppercase;margin-bottom:10px;}
+.ph h1{font-family:'Fraunces',serif;font-size:clamp(28px,3.5vw,48px);font-weight:900;color:#fff;line-height:1.05;margin-bottom:10px;}
+.ph-sub{font-size:15px;color:rgba(255,255,255,.45);max-width:560px;line-height:1.65;}
+.ph-meta{margin-top:16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.ph-stat{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
+.ph-stat span{color:var(--amber);}
+.live-badge{display:flex;align-items:center;gap:6px;font-family:'IBM Plex Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);}
+.live-dot{width:5px;height:5px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(74,222,128,.4);}50%{opacity:.5;box-shadow:0 0 0 4px rgba(74,222,128,0);}}
+
+/* LAYOUT */
+.layout{max-width:1200px;margin:0 auto;padding:32px 40px;display:grid;grid-template-columns:320px 1fr;gap:28px;align-items:start;}
+@media(max-width:900px){.layout{grid-template-columns:1fr;padding:20px;}}
+
+/* CALCULATOR PANEL */
+.calc-panel{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;position:sticky;top:72px;}
+.cp-head{padding:18px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;gap:10px;}
+.cp-head-icon{width:28px;height:28px;background:rgba(200,89,10,.1);border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:14px;}
+.cp-head-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.08em;text-transform:uppercase;}
+.cp-body{padding:20px;display:flex;flex-direction:column;gap:16px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;}
+.field input{background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:9px 12px;font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--ink);outline:none;transition:border-color .15s;width:100%;}
+.field input:focus{border-color:var(--amber);}
+.field-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.field-hint{font-size:11px;color:var(--muted);margin-top:2px;line-height:1.4;}
+.calc-btn{width:100%;padding:11px;background:var(--ink);color:#fff;border:none;border-radius:4px;font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;letter-spacing:.08em;cursor:pointer;transition:background .15s;text-transform:uppercase;}
+.calc-btn:hover{background:var(--amber);}
+.calc-btn:disabled{background:var(--muted);cursor:not-allowed;}
+.sel-info{padding:12px 20px;border-top:1px solid var(--rule);font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);line-height:1.6;}
+.sel-info strong{color:var(--amber);}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+.fb-label{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-right:4px;}
+.type-btn{font-family:'IBM Plex Mono',monospace;font-size:10px;padding:4px 10px;border-radius:3px;border:1px solid var(--border);background:var(--card);color:var(--muted);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.type-btn:hover{border-color:var(--amber);color:var(--amber);}
+.type-btn.active{background:var(--ink);color:var(--amber);border-color:var(--ink);}
+.fb-sep{width:1px;height:20px;background:var(--rule);}
+.search-box{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:5px 10px;border:1px solid var(--border);border-radius:3px;background:var(--card);color:var(--ink);outline:none;width:160px;transition:border-color .15s;}
+.search-box:focus{border-color:var(--amber);}
+
+/* MODELS GRID */
+.company-group{margin-bottom:24px;}
+.cg-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--rule);}
+.cg-logo{width:26px;height:26px;border-radius:4px;background:var(--ink);display:flex;align-items:center;justify-content:center;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--amber);font-weight:700;letter-spacing:0;flex-shrink:0;}
+.cg-name{font-family:'Fraunces',serif;font-size:17px;font-weight:700;color:var(--ink);}
+.cg-count{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);}
+
+.model-card{display:flex;align-items:flex-start;gap:14px;padding:14px 16px;background:var(--card);border:1.5px solid var(--border);border-radius:6px;margin-bottom:8px;cursor:pointer;transition:all .15s;position:relative;user-select:none;}
+.model-card:hover{border-color:rgba(200,89,10,.4);background:#fff;}
+.model-card.selected{border-color:var(--amber);background:rgba(200,89,10,.04);}
+.model-card.deprecated{opacity:.5;cursor:default;}
+.model-card.deprecated:hover{border-color:var(--border);background:var(--card);}
+
+.mc-check{width:18px;height:18px;border-radius:3px;border:1.5px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:10px;}
+.model-card.selected .mc-check{background:var(--amber);border-color:var(--amber);color:#fff;}
+
+.mc-body{flex:1;min-width:0;}
+.mc-top{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:3px;}
+.mc-name{font-size:14px;font-weight:600;color:var(--ink);}
+.mc-type{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 6px;border-radius:2px;text-transform:uppercase;letter-spacing:.08em;font-weight:600;}
+.mc-type.chat{background:rgba(13,110,110,.1);color:var(--teal);border:1px solid rgba(13,110,110,.2);}
+.mc-type.reasoning{background:rgba(91,33,182,.1);color:#5b21b6;border:1px solid rgba(91,33,182,.2);}
+.mc-type.multimodal{background:rgba(200,89,10,.1);color:var(--amber);border:1px solid rgba(200,89,10,.2);}
+.mc-type.embedding{background:rgba(26,58,107,.1);color:var(--blue);border:1px solid rgba(26,58,107,.2);}
+.mc-type.code{background:rgba(26,107,58,.1);color:var(--green);border:1px solid rgba(26,107,58,.2);}
+.mc-type.audio{background:rgba(139,26,26,.1);color:var(--red);border:1px solid rgba(139,26,26,.2);}
+.mc-status-dep{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(139,26,26,.1);color:var(--red);border:1px solid rgba(139,26,26,.2);border-radius:2px;letter-spacing:.06em;}
+.mc-status-prev{font-family:'IBM Plex Mono',monospace;font-size:9px;padding:2px 6px;background:rgba(26,58,107,.1);color:var(--blue);border:1px solid rgba(26,58,107,.2);border-radius:2px;letter-spacing:.06em;}
+.mc-desc{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:6px;}
+
+.mc-prices{display:flex;gap:16px;flex-wrap:wrap;}
+.mc-price{display:flex;flex-direction:column;gap:1px;}
+.mc-price-label{font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;}
+.mc-price-val{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--ink);}
+.mc-price-val.free{color:var(--green);}
+
+.mc-ctx{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-left:auto;white-space:nowrap;align-self:flex-end;}
+
+/* RESULTS PANEL */
+.results{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;margin-top:28px;}
+.results-head{padding:16px 20px;border-bottom:1px solid var(--rule);display:flex;align-items:center;justify-content:space-between;}
+.rh-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--ink);letter-spacing:.08em;text-transform:uppercase;}
+.rh-reset{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);background:none;border:1px solid var(--border);border-radius:2px;padding:4px 8px;cursor:pointer;transition:all .15s;}
+.rh-reset:hover{border-color:var(--red);color:var(--red);}
+
+.results-body{overflow-x:auto;}
+.results-table{width:100%;border-collapse:collapse;min-width:600px;}
+.rt-head th{padding:10px 16px;text-align:left;font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;border-bottom:1px solid var(--rule);white-space:nowrap;}
+.rt-head th.num{text-align:right;}
+.rt-body tr{border-bottom:1px solid var(--rule);transition:background .1s;}
+.rt-body tr:last-child{border-bottom:none;}
+.rt-body tr:hover{background:var(--bg2);}
+.rt-body td{padding:12px 16px;font-size:13px;color:var(--ink2);vertical-align:top;}
+.rt-body td.num{text-align:right;font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--ink);}
+.rt-body td.best{background:rgba(200,89,10,.04);}
+.rt-model{font-weight:600;color:var(--ink);font-size:13px;}
+.rt-company{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);margin-top:2px;}
+.rt-total{font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;}
+.rt-total.cheapest{color:var(--green);}
+.rt-total.priciest{color:var(--red);}
+.rt-bar{height:4px;border-radius:2px;background:var(--amber);margin-top:4px;transition:width .4s ease;}
+
+.empty-state{padding:40px;text-align:center;}
+.es-icon{font-size:32px;margin-bottom:12px;}
+.es-title{font-family:'Fraunces',serif;font-size:18px;font-weight:700;color:var(--ink);margin-bottom:6px;}
+.es-sub{font-size:13px;color:var(--muted);line-height:1.6;}
+
+/* COMPARE CALLOUT */
+.compare-bar{display:none;position:fixed;bottom:0;left:0;right:0;background:var(--ink);padding:14px 40px;z-index:200;align-items:center;gap:16px;flex-wrap:wrap;border-top:2px solid var(--amber);}
+.compare-bar.show{display:flex;}
+.cb-chips{display:flex;gap:8px;flex:1;flex-wrap:wrap;}
+.cb-chip{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:4px 10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:3px;color:rgba(255,255,255,.7);display:flex;align-items:center;gap:6px;}
+.cb-chip button{background:none;border:none;color:rgba(255,255,255,.4);cursor:pointer;font-size:13px;line-height:1;padding:0;transition:color .15s;}
+.cb-chip button:hover{color:var(--amber);}
+.cb-actions{display:flex;gap:10px;align-items:center;}
+.cb-count{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.3);}
+.cb-calc-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 20px;background:var(--amber);color:#fff;border:none;border-radius:3px;cursor:pointer;font-weight:700;letter-spacing:.06em;transition:background .15s;}
+.cb-calc-btn:hover{background:#a84a06;}
+
+/* LAST UPDATED */
+.last-updated{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--muted);padding:12px 20px;border-top:1px solid var(--rule);text-align:right;}
+
+@media(max-width:700px){
+  nav{padding:0 16px;}
+  .ph{padding:28px 20px 20px;}
+  .layout{padding:16px;}
+  .filter-bar{gap:6px;}
+  .compare-bar{padding:12px 16px;}
+}
+</style>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"SoftwareApplication","name":"AI Cost Calculator","description":"Compare real-time pricing across 40+ frontier LLMs. Calculate exact API costs for your AI product.","url":"https://becomeaipm.com/ai-calculator.html","applicationCategory":"BusinessApplication","applicationSubCategory":"Calculator","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"publisher":{"@type":"Organization","name":"becomeaipm","url":"https://becomeaipm.com/"}}
+</script>
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://becomeaipm.com/"},{"@type":"ListItem","position":2,"name":"AI Calculator","item":"https://becomeaipm.com/ai-calculator.html"}]}
+</script>
+</head>
+<body>
+
+<aside id="app-nav"></aside>
+
+<div class="ph">
+  <div class="ph-inner">
+    <div class="ph-label">LLM Pricing Calculator</div>
+    <h1>What does your AI actually cost?</h1>
+    <p class="ph-sub">Compare token prices across every major provider. Select up to 5 models, enter your usage, and get an exact daily cost breakdown.</p>
+    <div class="ph-meta">
+      <div class="ph-stat">Models: <span id="ph-model-count">—</span></div>
+      <div class="ph-stat">Companies: <span id="ph-company-count">—</span></div>
+      <div class="live-badge"><div class="live-dot"></div><span id="ph-updated">Loading prices...</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- LEFT: CALCULATOR -->
+  <div>
+    <div class="calc-panel">
+      <div class="cp-head">
+        <div class="cp-head-icon">🧮</div>
+        <div class="cp-head-title">Usage Parameters</div>
+      </div>
+      <div class="cp-body">
+        <div class="field">
+          <label>Daily Requests</label>
+          <input type="number" id="daily-requests" value="1000" min="1" placeholder="e.g. 1000">
+          <div class="field-hint">Total API calls per day across all users</div>
+        </div>
+        <div class="field-row">
+          <div class="field">
+            <label>Input Tokens / Req</label>
+            <input type="number" id="input-tokens" value="500" min="1" placeholder="500">
+          </div>
+          <div class="field">
+            <label>Output Tokens / Req</label>
+            <input type="number" id="output-tokens" value="300" min="1" placeholder="300">
+          </div>
+        </div>
+        <div class="field-hint" style="margin-top:-8px;">~750 tokens ≈ 1 page of text. GPT-4 averages ~600 in + ~400 out for a chat turn.</div>
+        <button class="calc-btn" id="calc-btn" onclick="runCalculation()">Calculate Daily Cost →</button>
+      </div>
+      <div class="sel-info" id="sel-info">
+        <strong id="sel-count">0</strong> of 5 models selected<br>
+        Select models from the list to compare pricing.
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT: MODELS + RESULTS -->
+  <div>
+    <div class="filter-bar">
+      <span class="fb-label">Filter</span>
+      <button class="type-btn active" data-type="all" onclick="setFilter('all',this)">All</button>
+      <button class="type-btn" data-type="chat" onclick="setFilter('chat',this)">Chat</button>
+      <button class="type-btn" data-type="reasoning" onclick="setFilter('reasoning',this)">Reasoning</button>
+      <button class="type-btn" data-type="multimodal" onclick="setFilter('multimodal',this)">Multimodal</button>
+      <button class="type-btn" data-type="embedding" onclick="setFilter('embedding',this)">Embedding</button>
+      <button class="type-btn" data-type="code" onclick="setFilter('code',this)">Code</button>
+      <div class="fb-sep"></div>
+      <input class="search-box" id="search" placeholder="Search models..." oninput="renderModels()">
+    </div>
+
+    <div id="models-container"></div>
+
+    <div class="results" id="results-panel" style="display:none;">
+      <div class="results-head">
+        <div class="rh-title">💰 Cost Comparison</div>
+        <button class="rh-reset" onclick="clearResults()">Clear Results</button>
+      </div>
+      <div class="results-body">
+        <table class="results-table">
+          <thead class="rt-head">
+            <tr>
+              <th>Model</th>
+              <th class="num">Input Cost/day</th>
+              <th class="num">Output Cost/day</th>
+              <th class="num">Total/day</th>
+              <th class="num">Monthly Est.</th>
+              <th class="num">Annual Est.</th>
+            </tr>
+          </thead>
+          <tbody class="rt-body" id="results-tbody"></tbody>
+        </table>
+      </div>
+      <div class="last-updated" id="last-updated"></div>
+    </div>
+  </div>
+</div>
+
+<!-- COMPARE BAR -->
+<div class="compare-bar" id="compare-bar">
+  <div class="cb-chips" id="cb-chips"></div>
+  <div class="cb-actions">
+    <span class="cb-count" id="cb-count"></span>
+    <button class="cb-calc-btn" onclick="runCalculation()">Calculate Cost →</button>
+  </div>
+</div>
+
+<script>
+let ALL_MODELS = [];
+let selected = new Set();
+let activeFilter = 'all';
+let lastCalcParams = null;
+
+// ── Bootstrap ─────────────────────────────────────────────────────────────
+async function boot() {
+  try {
+    const r = await fetch('/api/models');
+    if (!r.ok) throw new Error('Failed to load models: ' + r.status);
+    const d = await r.json();
+    ALL_MODELS = d.models || [];
+    const active = ALL_MODELS.filter(m => m.status !== 'deprecated');
+    document.getElementById('ph-model-count').textContent = ALL_MODELS.length;
+    document.getElementById('ph-company-count').textContent = new Set(ALL_MODELS.map(m => m.company)).size;
+    const updated = ALL_MODELS[0]?.last_price_check;
+    if (updated) {
+      const d2 = new Date(updated);
+      document.getElementById('ph-updated').textContent = 'Prices as of ' + d2.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    }
+    document.getElementById('model-count-nav').textContent = ALL_MODELS.length + ' models';
+    renderModels();
+  } catch(e) {
+    document.getElementById('models-container').innerHTML = '<div class="empty-state"><div class="es-icon">⚠️</div><div class="es-title">Could not load models</div><div class="es-sub">Check your connection and refresh.</div></div>';
+  }
+}
+
+// ── Render ─────────────────────────────────────────────────────────────────
+function setFilter(type, btn) {
+  activeFilter = type;
+  document.querySelectorAll('.type-btn').forEach(b => b.classList.toggle('active', b === btn));
+  renderModels();
+}
+
+function renderModels() {
+  const q = (document.getElementById('search').value || '').toLowerCase();
+  let models = ALL_MODELS;
+  if (activeFilter !== 'all') models = models.filter(m => m.model_type === activeFilter);
+  if (q) models = models.filter(m =>
+    m.name.toLowerCase().includes(q) ||
+    m.company.toLowerCase().includes(q) ||
+    (m.best_for||'').toLowerCase().includes(q)
+  );
+
+  // Group by company
+  const groups = {};
+  models.forEach(m => {
+    if (!groups[m.company]) groups[m.company] = [];
+    groups[m.company].push(m);
+  });
+
+  const container = document.getElementById('models-container');
+  if (Object.keys(groups).length === 0) {
+    container.innerHTML = '<div class="empty-state"><div class="es-icon">🔍</div><div class="es-title">No models found</div><div class="es-sub">Try a different search term or filter.</div></div>';
+    return;
+  }
+
+  container.innerHTML = Object.entries(groups).map(([company, mods]) => `
+    <div class="company-group">
+      <div class="cg-header">
+        <div class="cg-logo">${company.substring(0,2).toUpperCase()}</div>
+        <div class="cg-name">${company}</div>
+        <div class="cg-count">${mods.length} model${mods.length>1?'s':''}</div>
+      </div>
+      ${mods.map(m => renderModelCard(m)).join('')}
+    </div>
+  `).join('');
+}
+
+function renderModelCard(m) {
+  const isSel = selected.has(m.model_id);
+  const isDeprecated = m.status === 'deprecated';
+  const isPreview = m.status === 'preview';
+  const ctx = formatCtx(m.context_window);
+  return `
+    <div class="model-card ${isSel?'selected':''} ${isDeprecated?'deprecated':''}" 
+         id="card-${m.model_id.replace(/[^a-z0-9]/gi,'-')}"
+         onclick="${isDeprecated ? '' : `toggleModel('${m.model_id}')`}">
+      <div class="mc-check">${isSel ? '✓' : ''}</div>
+      <div class="mc-body">
+        <div class="mc-top">
+          <span class="mc-name">${m.name}</span>
+          <span class="mc-type ${m.model_type}">${m.model_type}</span>
+          ${isDeprecated ? '<span class="mc-status-dep">deprecated</span>' : ''}
+          ${isPreview ? '<span class="mc-status-prev">preview</span>' : ''}
+        </div>
+        <div class="mc-desc">${m.best_for || ''}</div>
+        <div class="mc-prices">
+          <div class="mc-price">
+            <span class="mc-price-label">Input / 1M tokens</span>
+            <span class="mc-price-val ${m.input_price_per_1m===0?'free':''}">${m.input_price_per_1m===0?'Free':'$'+Number(m.input_price_per_1m).toFixed(2)}</span>
+          </div>
+          <div class="mc-price">
+            <span class="mc-price-label">Output / 1M tokens</span>
+            <span class="mc-price-val ${m.output_price_per_1m===0?'free':''}">${m.output_price_per_1m===0?'Free':'$'+Number(m.output_price_per_1m).toFixed(2)}</span>
+          </div>
+          ${ctx ? `<div class="mc-price"><span class="mc-price-label">Context</span><span class="mc-price-val">${ctx}</span></div>` : ''}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function formatCtx(n) {
+  if (!n) return '';
+  if (n >= 1000000) return (n/1000000).toFixed(0)+'M tokens';
+  if (n >= 1000) return (n/1000).toFixed(0)+'K tokens';
+  return n+' tokens';
+}
+
+// ── Selection ──────────────────────────────────────────────────────────────
+function toggleModel(modelId) {
+  if (selected.has(modelId)) {
+    selected.delete(modelId);
+  } else {
+    if (selected.size >= 5) {
+      showToast('Max 5 models — deselect one first');
+      return;
+    }
+    selected.add(modelId);
+  }
+  updateSelectionUI();
+}
+
+function updateSelectionUI() {
+  const count = selected.size;
+  document.getElementById('sel-count').textContent = count;
+
+  // Update card states
+  ALL_MODELS.forEach(m => {
+    const card = document.getElementById('card-'+m.model_id.replace(/[^a-z0-9]/gi,'-'));
+    if (card) {
+      card.classList.toggle('selected', selected.has(m.model_id));
+      const check = card.querySelector('.mc-check');
+      if (check) check.textContent = selected.has(m.model_id) ? '✓' : '';
+    }
+  });
+
+  // Compare bar
+  const bar = document.getElementById('compare-bar');
+  const chips = document.getElementById('cb-chips');
+  const cbCount = document.getElementById('cb-count');
+  if (count > 0) {
+    bar.classList.add('show');
+    cbCount.textContent = count + '/5 selected';
+    chips.innerHTML = [...selected].map(id => {
+      const m = ALL_MODELS.find(x => x.model_id === id);
+      return m ? `<div class="cb-chip">${m.name}<button onclick="event.stopPropagation();toggleModel('${id}')">×</button></div>` : '';
+    }).join('');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+// ── Calculation ────────────────────────────────────────────────────────────
+function runCalculation() {
+  if (selected.size === 0) { showToast('Select at least one model first'); return; }
+
+  const dailyReqs  = parseFloat(document.getElementById('daily-requests').value) || 0;
+  const inputToks  = parseFloat(document.getElementById('input-tokens').value)   || 0;
+  const outputToks = parseFloat(document.getElementById('output-tokens').value)  || 0;
+
+  if (dailyReqs === 0 || inputToks === 0) { showToast('Enter your usage parameters'); return; }
+
+  const results = [...selected].map(id => {
+    const m = ALL_MODELS.find(x => x.model_id === id);
+    const inputCost  = (dailyReqs * inputToks  / 1_000_000) * Number(m.input_price_per_1m);
+    const outputCost = (dailyReqs * outputToks / 1_000_000) * Number(m.output_price_per_1m);
+    const total = inputCost + outputCost;
+    return { m, inputCost, outputCost, total, monthly: total*30, annual: total*365 };
+  }).sort((a,b) => a.total - b.total);
+
+  lastCalcParams = { dailyReqs, inputToks, outputToks };
+
+  const maxTotal = Math.max(...results.map(r => r.total));
+  const tbody = document.getElementById('results-tbody');
+  tbody.innerHTML = results.map((r, i) => {
+    const isCheapest = i === 0;
+    const isPriciest = i === results.length - 1 && results.length > 1;
+    const barWidth   = maxTotal > 0 ? Math.round((r.total / maxTotal) * 100) : 0;
+    return `
+      <tr>
+        <td class="${isCheapest?'best':''}">
+          <div class="rt-model">${r.m.name}</div>
+          <div class="rt-company">${r.m.company}</div>
+        </td>
+        <td class="num ${isCheapest?'best':''}">${fmt(r.inputCost)}</td>
+        <td class="num ${isCheapest?'best':''}">${fmt(r.outputCost)}</td>
+        <td class="num ${isCheapest?'best':''}">
+          <div class="rt-total ${isCheapest?'cheapest':isPriciest?'priciest':''}">${fmt(r.total)}</div>
+          <div class="rt-bar" style="width:${barWidth}%"></div>
+        </td>
+        <td class="num ${isCheapest?'best':''}">${fmt(r.monthly)}</td>
+        <td class="num ${isCheapest?'best':''}">${fmt(r.annual)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  document.getElementById('last-updated').textContent =
+    `Calculated: ${dailyReqs.toLocaleString()} req/day × ${inputToks.toLocaleString()} in + ${outputToks.toLocaleString()} out tokens`;
+
+  const panel = document.getElementById('results-panel');
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  // Pendo: Calculator Used
+  if (window.pendo && pendo.track) {
+    pendo.track('Calculator Used', {
+      models_compared: results.length,
+      daily_requests: dailyReqs,
+      input_tokens: inputToks,
+      output_tokens: outputToks,
+      cheapest_model: results[0]?.m?.model_id || null,
+      cheapest_daily_cost: results[0]?.total ?? null
+    });
+  }
+}
+
+function fmt(n) {
+  if (n === 0) return '$0.00';
+  if (n < 0.01) return '$' + n.toFixed(5);
+  if (n < 1)    return '$' + n.toFixed(4);
+  if (n < 100)  return '$' + n.toFixed(2);
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function clearResults() {
+  document.getElementById('results-panel').style.display = 'none';
+  selected.clear();
+  updateSelectionUI();
+  renderModels();
+}
+
+// ── Toast ──────────────────────────────────────────────────────────────────
+let toastTimer;
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 20px;border-radius:4px;font-family:IBM Plex Mono,monospace;font-size:12px;z-index:300;opacity:0;transition:opacity .2s;pointer-events:none;';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.style.opacity = '0', 2500);
+}
+
+boot();
+</script><script src="/components/nav.js"></script>
+<script>renderSidebar({ active: 'calculator' });</script>
+</body>
+</html>

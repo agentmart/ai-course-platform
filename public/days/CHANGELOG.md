@@ -7,6 +7,18 @@ entry in the legacy phase files (`course-data-phase1.js`, `course-data-phase2.js
 **Model generation:** Claude 4.x (`claude-sonnet-4-6`, `claude-opus-4-6`, `claude-haiku-4-5-20251001`)  
 **Total files:** 60 individual day overrides (day-01.js through day-60.js)
 
+## AI PM Sprint — 28-Day On-Ramp Track
+
+Introduced a curated 28-day "AI PM Sprint" spine alongside the full 60-day course.
+Added a `track: 'full' | 'sprint'` enum to the days collection schema
+(`astro-app/src/content.config.ts`); 28 of the 60 day `.mdx` files are now flagged
+`track: sprint` and grouped into 4 weekly themes (Discover → Define → Build → Deploy)
+in `astro-app/src/content/sprint-themes.ts`. No day body content was modified — the
+sprint reuses existing course material as a 10-minutes/day, 4-week on-ramp for
+non-technical and time-constrained learners (couchto5k.ai-style progressive overload).
+Spine: W1 [2,1,6,7,4,5,31] · W2 [32,35,18,14,19,41,37] · W3 [9,10,11,13,43,44,53] ·
+W4 [38,52,24,17,49,45,60].
+
 ## April 2026 — Automated Freshness Monitoring
 
 Introduced the weekly Content Freshness agent (`.github/workflows/weekly-content-freshness.yml`

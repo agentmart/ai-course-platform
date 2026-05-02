@@ -2,31 +2,49 @@
 /**
  * scripts/weekly-gap-detector.mjs
  *
- * Weekly: fetch ~30d of vendor headlines, cluster them via LLM, grep all 60 day
- * files for each cluster's canonical name + aliases. Anything un-mentioned →
- * a gap. Score importance with one batched LLM call. Upsert into content_gaps.
- * Email Stavan a digest of the top 10.
+ * Weekly: fetch ~30d of vendor headlines, then run a LangGraph state machine
+ * (cluster_headlines → lookup_course_titles → judge_gap → score_gaps) that
+ * decides which clusters are missing from the 60-day course and scores them
+ * on impact / novelty / relevance. Upsert into content_gaps and email the
+ * admin a digest of the top 3.
+ *
+ * Sprint 7 (s7-gap-detector-graph): the analysis layer was migrated from a
+ * single GH-Models call to a LangGraph graph using `getChatModelNode` so the
+ * same Foundry/Anthropic/OpenAI provider rules used by Astro/Workers apply
+ * here too. Total LLM calls per run is capped at 3 (well under the budget
+ * of 8) — clustering, gap-judging, and scoring each run as one batched
+ * call, with `maxTokens: 600` per call.
  *
  * Env:
- *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY  — required
- *   GH_MODELS_TOKEN | GITHUB_TOKEN           — required for clustering / scoring
- *   RESEND_API_KEY                            — optional (skipped in dry run)
- *   ADMIN_EMAIL                               — defaults to stavanm@gmail.com
- *   GAP_DETECTOR_MODEL                        — default openai/gpt-4.1
- *   DRY_RUN=true                              — print results, no DB writes, no email
+ *   SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY              — required
+ *   AZURE_FOUNDRY_API_KEY + AZURE_FOUNDRY_ENDPOINT       — preferred LLM
+ *     (or ANTHROPIC_API_KEY, or OPENAI_API_KEY)
+ *   AZURE_FOUNDRY_DEFAULT_MODEL                          — Foundry deployment name
+ *   LLM_PROVIDER                                          — pin provider
+ *   GH_MODELS_TOKEN | GITHUB_TOKEN                       — legacy fallback path
+ *   GAP_DETECTOR_MODEL                                    — legacy GH-Models id
+ *   RESEND_API_KEY                                        — optional (skipped on DRY_RUN)
+ *   ADMIN_EMAIL                                           — defaults to stavanm@gmail.com
+ *   TEST_EMAIL                                            — short-circuit recipient list
+ *   DRY_RUN=true                                          — print only, no DB / no email
  */
 
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 import { sendTemplated } from '../lib/email.js';
+import { getChatModelNode } from './lib/llm-node.mjs';
 
 const DRY_RUN     = process.env.DRY_RUN === 'true';
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'stavanm@gmail.com').trim().toLowerCase();
+const TEST_EMAIL  = (process.env.TEST_EMAIL || '').trim().toLowerCase();
+const ADMIN_EMAIL_RAW = (process.env.ADMIN_EMAIL || 'stavanm@gmail.com').trim().toLowerCase();
+// Honour TEST_EMAIL as in sibling weekly notification scripts.
+const ADMIN_EMAIL = TEST_EMAIL || ADMIN_EMAIL_RAW;
 const ADMIN_USER  = 'admin_stavanm';
 const MODELS_ENDPOINT = 'https://models.github.ai/inference/chat/completions';
 const MODELS_TOKEN = process.env.GH_MODELS_TOKEN || process.env.GITHUB_TOKEN || '';
 const MODEL_ID = process.env.GAP_DETECTOR_MODEL || 'openai/gpt-4.1';
+const MAX_TOKENS = 600;
 
 const VENDOR_FEEDS = [
   { vendor: 'Anthropic',       url: 'https://www.anthropic.com/news' },
@@ -78,21 +96,39 @@ function safeParseJson(s) {
   return null;
 }
 
-async function callModel({ system, user, max_tokens = 1500, json = true }) {
-  if (!MODELS_TOKEN) throw new Error('No GH_MODELS_TOKEN/GITHUB_TOKEN');
-  const res = await fetch(MODELS_ENDPOINT, {
-    method: 'POST',
-    headers: { Authorization: `Bearer ${MODELS_TOKEN}`, 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      model: MODEL_ID,
-      messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
-      max_tokens, temperature: 0.3,
-      ...(json ? { response_format: { type: 'json_object' } } : {}),
-    }),
-  });
-  if (!res.ok) throw new Error(`Models ${MODEL_ID} ${res.status}: ${(await res.text()).slice(0, 300)}`);
-  const data = await res.json();
-  return data.choices?.[0]?.message?.content || '';
+async function callModel({ system, user, max_tokens = MAX_TOKENS, json = true }) {
+  // Try the LangChain chat model first (Foundry/Anthropic/OpenAI). If no
+  // provider is configured, fall back to legacy GitHub Models endpoint.
+  try {
+    const model = await getChatModelNode({ maxTokens: max_tokens, temperature: 0.3 });
+    const res = await model.invoke([
+      { role: 'system', content: system },
+      // Some providers ignore response_format on chat; we coax JSON via prompt.
+      { role: 'user', content: json ? `${user}\n\nReturn ONLY a single valid JSON object. No prose, no code fences.` : user },
+    ]);
+    const content = typeof res?.content === 'string'
+      ? res.content
+      : Array.isArray(res?.content)
+        ? res.content.map(c => (typeof c === 'string' ? c : c?.text || '')).join('')
+        : '';
+    return content;
+  } catch (e) {
+    if (!MODELS_TOKEN) throw e; // no fallback available — surface the original error
+    console.warn(`  ⚠ LangChain provider unavailable (${e.message.split('\n')[0]}), falling back to GH Models`);
+    const res = await fetch(MODELS_ENDPOINT, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${MODELS_TOKEN}`, 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL_ID,
+        messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
+        max_tokens, temperature: 0.3,
+        ...(json ? { response_format: { type: 'json_object' } } : {}),
+      }),
+    });
+    if (!res.ok) throw new Error(`Models ${MODEL_ID} ${res.status}: ${(await res.text()).slice(0, 300)}`);
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content || '';
+  }
 }
 
 async function clusterHeadlines(headlines) {
@@ -107,7 +143,7 @@ Cluster these into distinct topics (max 15 clusters). For each cluster:
 - headline_indices: the [i] indices that belong to this cluster.
 
 Return JSON: {"clusters":[{"title":"...","aliases":["..."],"headline_indices":[0,4]}]}`;
-  const raw = await callModel({ system: sys, user, max_tokens: 2000 });
+  const raw = await callModel({ system: sys, user, max_tokens: MAX_TOKENS });
   const parsed = safeParseJson(raw);
   if (!Array.isArray(parsed?.clusters)) throw new Error('Cluster response unparseable');
   return parsed.clusters
@@ -159,7 +195,7 @@ ${blob}
 
 Return JSON: {"scores":[{"index":0,"importance":4,"reason":"..."}, ...]}  (≤8 words for reason)`;
   try {
-    const raw = await callModel({ system: sys, user, max_tokens: 800 });
+    const raw = await callModel({ system: sys, user, max_tokens: MAX_TOKENS });
     const parsed = safeParseJson(raw);
     const scores = Array.isArray(parsed?.scores) ? parsed.scores : [];
     const map = new Map(scores.map(s => [s.index, s]));
@@ -210,6 +246,189 @@ function weekLabel(now = new Date()) {
   return `${fmt(start)} – ${fmt(now)}`;
 }
 
+async function loadDayTitles() {
+  // Read frontmatter (day, subtitle) from astro-app/src/content/days/*.mdx so
+  // the judge_gap node can reason over canonical course titles instead of
+  // raw legacy day-NN.js bodies. Falls back silently if the directory is
+  // missing (older checkouts).
+  const dir = path.resolve('astro-app/src/content/days');
+  let files;
+  try {
+    files = (await fs.readdir(dir)).filter(f => /\.mdx$/.test(f));
+  } catch {
+    return [];
+  }
+  const out = [];
+  for (const f of files) {
+    const text = await fs.readFile(path.join(dir, f), 'utf8');
+    const fmMatch = text.match(/^---\n([\s\S]*?)\n---/);
+    if (!fmMatch) continue;
+    const fm = fmMatch[1];
+    const dayMatch = fm.match(/^day:\s*(\d+)/m);
+    const subMatch = fm.match(/^subtitle:\s*"([^"]+)"/m);
+    if (!dayMatch) continue;
+    out.push({
+      day: parseInt(dayMatch[1], 10),
+      subtitle: subMatch ? subMatch[1] : '',
+    });
+  }
+  return out.sort((a, b) => a.day - b.day);
+}
+
+// ─── LangGraph state machine ────────────────────────────────────────────────
+
+async function buildGapGraph() {
+  // Lazy-import LangGraph so we only pay the cost when we actually have
+  // headlines to analyse (the script can early-exit before we ever load it).
+  const { StateGraph, Annotation, START, END } = await import('@langchain/langgraph');
+
+  const State = Annotation.Root({
+    headlines:    Annotation({ reducer: (_, n) => n, default: () => [] }),
+    dayTitles:    Annotation({ reducer: (_, n) => n, default: () => [] }),
+    dayCorpus:    Annotation({ reducer: (_, n) => n, default: () => [] }),
+    clusters:     Annotation({ reducer: (_, n) => n, default: () => [] }),
+    gaps:         Annotation({ reducer: (_, n) => n, default: () => [] }),
+    scoredGaps:   Annotation({ reducer: (_, n) => n, default: () => [] }),
+  });
+
+  // Node 1 — cluster headlines (LLM call #1).
+  async function clusterNode(state) {
+    let clusters;
+    try {
+      clusters = await clusterHeadlines(state.headlines);
+    } catch (e) {
+      if (DRY_RUN && /no_access|403|not configured|provider configured|no llm/i.test(e.message)) {
+        console.warn(`  ⚠ ${e.message.split('\n')[0]}`);
+        console.warn('  ⚠ DRY_RUN fallback: treating each headline as its own cluster.');
+        clusters = state.headlines.map(h => ({ title: h.headline, aliases: [], headlines: [h] }));
+      } else { throw e; }
+    }
+    console.log(`  [graph] cluster_headlines → ${clusters.length} clusters`);
+    return { clusters };
+  }
+
+  // Node 2 — lookup course titles (no LLM, fs-only "tool" call).
+  async function lookupTitlesNode(state) {
+    const titles = state.dayTitles.length ? state.dayTitles : await loadDayTitles();
+    console.log(`  [graph] lookup_course_titles → ${titles.length} day titles`);
+    return { dayTitles: titles };
+  }
+
+  // Node 3 — judge gap: combine grep-coverage with one batched LLM verdict
+  // (LLM call #2). The LLM gets the cluster list and all course day titles
+  // and decides for each cluster whether the topic is meaningfully missing.
+  async function judgeGapNode(state) {
+    const { clusters, dayCorpus, dayTitles } = state;
+    // Cheap pre-filter: anything mentioned literally in any day is covered.
+    const candidates = clusters
+      .map((c) => ({ ...c, ...clusterIsCovered(c, dayCorpus) }))
+      .filter(c => !c.covered);
+    if (!candidates.length) {
+      console.log('  [graph] judge_gap → 0 candidates (all clusters covered)');
+      return { gaps: [] };
+    }
+
+    const titlesBlob = dayTitles.length
+      ? dayTitles.map(t => `Day ${t.day}: ${t.subtitle}`).join('\n')
+      : '(course title index unavailable)';
+    const clustersBlob = candidates
+      .map((c, i) => `[${i}] ${c.title}  (aliases: ${(c.aliases || []).slice(0, 4).join(', ') || 'none'})`)
+      .join('\n');
+    const sys = 'You are an AI curriculum auditor. Given a 60-day AI Product Manager course title list and a set of newly-emerging topic clusters, decide which clusters are genuinely missing from the course. A cluster is NOT a gap if a day already covers the same conceptual ground (even with different wording).';
+    const user = `Course day titles:
+${titlesBlob}
+
+Topic clusters that did not match any day file by keyword:
+${clustersBlob}
+
+For each cluster, decide: is this a real gap (topic absent from course) or already covered conceptually? If covered, name the closest day. Either way, suggest where it would best slot in.
+
+Return JSON: {"verdicts":[{"index":0,"is_gap":true,"closest_day":12,"suggested_day_to_add":34,"rationale":"..."}, ...]}  (rationale ≤15 words)`;
+    let verdicts = [];
+    try {
+      const raw = await callModel({ system: sys, user, max_tokens: MAX_TOKENS });
+      const parsed = safeParseJson(raw);
+      verdicts = Array.isArray(parsed?.verdicts) ? parsed.verdicts : [];
+    } catch (e) {
+      if (DRY_RUN && /no_access|403|not configured|provider configured|no llm/i.test(e.message)) {
+        console.warn(`  ⚠ judge_gap fallback: assuming all uncovered clusters are gaps. (${e.message.split('\n')[0]})`);
+      } else { throw e; }
+    }
+
+    const verdictMap = new Map(verdicts.map(v => [v.index, v]));
+    const gaps = candidates.flatMap((c, i) => {
+      const v = verdictMap.get(i);
+      const isGap = v ? !!v.is_gap : true; // default-true on missing verdict
+      if (!isGap) return [];
+      const canonicalUrl = (c.headlines[0]?.source || '') + '#' + encodeURIComponent(c.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60));
+      return [{
+        title: c.title,
+        aliases: c.aliases,
+        canonical_url: canonicalUrl,
+        headlines: c.headlines,
+        suggested_day_to_add: clamp(v?.suggested_day_to_add, 1, 60, null),
+        closest_day: clamp(v?.closest_day, 1, 60, null),
+        rationale: (v?.rationale || '').slice(0, 140),
+      }];
+    });
+    console.log(`  [graph] judge_gap → ${gaps.length} gaps (of ${candidates.length} uncovered)`);
+    return { gaps };
+  }
+
+  // Node 4 — score gaps on impact, novelty, learner-relevance (LLM call #3).
+  async function scoreNode(state) {
+    if (!state.gaps.length) return { scoredGaps: [] };
+    const blob = state.gaps.map((g, i) =>
+      `[${i}] ${g.title}  (${g.headlines.length} mention${g.headlines.length === 1 ? '' : 's'} · vendors: ${[...new Set(g.headlines.map(h => h.vendor))].join(', ')})`
+    ).join('\n');
+    const sys = 'You rate AI industry topics for an AI Product Manager curriculum on three axes: impact (industry-wide significance), novelty (newness vs known territory), and learner_relevance (usefulness for a working PM). Be calibrated; reserve 5 for major releases or paradigm shifts.';
+    const user = `Rate each topic 1–5 on impact, novelty, learner_relevance:
+${blob}
+
+Return JSON: {"scores":[{"index":0,"impact":4,"novelty":3,"relevance":5,"reason":"..."}, ...]}  (reason ≤10 words)`;
+    let scores = [];
+    try {
+      const raw = await callModel({ system: sys, user, max_tokens: MAX_TOKENS });
+      const parsed = safeParseJson(raw);
+      scores = Array.isArray(parsed?.scores) ? parsed.scores : [];
+    } catch (e) {
+      if (DRY_RUN && /no_access|403|not configured|provider configured|no llm/i.test(e.message)) {
+        console.warn(`  ⚠ score_gaps fallback: defaulting all to 3/5. (${e.message.split('\n')[0]})`);
+      } else { throw e; }
+    }
+    const map = new Map(scores.map(s => [s.index, s]));
+    const scoredGaps = state.gaps.map((g, i) => {
+      const s = map.get(i);
+      const impact    = clamp(s?.impact, 1, 5, 3);
+      const novelty   = clamp(s?.novelty, 1, 5, 3);
+      const relevance = clamp(s?.relevance, 1, 5, 3);
+      // Composite importance keeps backwards-compatibility with the existing
+      // `content_gaps.importance` column.
+      const importance = Math.round((impact + novelty + relevance) / 3);
+      return {
+        ...g,
+        impact, novelty, relevance, importance,
+        score_reason: (s?.reason || '').slice(0, 80),
+      };
+    });
+    console.log(`  [graph] score_gaps → ${scoredGaps.length} scored`);
+    return { scoredGaps };
+  }
+
+  const graph = new StateGraph(State)
+    .addNode('cluster_headlines', clusterNode)
+    .addNode('lookup_course_titles', lookupTitlesNode)
+    .addNode('judge_gap', judgeGapNode)
+    .addNode('score_gaps', scoreNode)
+    .addEdge(START, 'cluster_headlines')
+    .addEdge('cluster_headlines', 'lookup_course_titles')
+    .addEdge('lookup_course_titles', 'judge_gap')
+    .addEdge('judge_gap', 'score_gaps')
+    .addEdge('score_gaps', END);
+
+  return graph.compile();
+}
+
 async function main() {
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
     console.error('Missing SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY'); process.exit(1);
@@ -227,50 +446,31 @@ async function main() {
   const dayCorpus = await loadDayCorpus();
   console.log(`  ${dayCorpus.length} day files indexed`);
 
-  console.log(`  clustering via ${MODEL_ID}…`);
-  let clusters;
-  try {
-    clusters = await clusterHeadlines(headlines);
-  } catch (e) {
-    if (DRY_RUN && /no_access|403/.test(e.message)) {
-      console.warn(`  ⚠ ${e.message.split('\n')[0]}`);
-      console.warn('  ⚠ DRY_RUN fallback: treating each headline as its own cluster.');
-      clusters = headlines.map(h => ({ title: h.headline, aliases: [], headlines: [h] }));
-    } else { throw e; }
-  }
-  console.log(`  ${clusters.length} clusters`);
+  console.log(`  building LangGraph state machine…`);
+  const app = await buildGapGraph();
 
-  const gaps = [];
-  for (const c of clusters) {
-    const { covered, hits } = clusterIsCovered(c, dayCorpus);
-    if (covered) continue;
-    const canonicalUrl = c.headlines[0]?.source || '';
-    gaps.push({
-      title: c.title,
-      aliases: c.aliases,
-      canonical_url: canonicalUrl + '#' + encodeURIComponent(c.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').slice(0, 60)),
-      headlines: c.headlines,
-    });
-  }
-  console.log(`  ${gaps.length} clusters NOT covered in any day file`);
+  const finalState = await app.invoke({
+    headlines,
+    dayCorpus,
+    dayTitles: [],
+    clusters: [],
+    gaps: [],
+    scoredGaps: [],
+  });
+
+  const clusters = finalState.clusters || [];
+  const gaps     = finalState.gaps || [];
+  let scored     = finalState.scoredGaps || [];
+
   if (!gaps.length) { console.log('\n✅ No content gaps detected. Done.\n'); return; }
 
-  console.log('  scoring importance…');
-  let scored;
-  try {
-    scored = await scoreImportance(gaps);
-  } catch (e) {
-    if (DRY_RUN && /no_access|403/.test(e.message)) {
-      console.warn(`  ⚠ ${e.message.split('\n')[0]}`);
-      scored = gaps.map(g => ({ ...g, importance: 3, score_reason: 'fallback (no model access)' }));
-    } else { throw e; }
-  }
   scored.sort((a, b) => b.importance - a.importance);
   const top10 = scored.slice(0, 10);
+  const top3  = scored.slice(0, 3);
 
   if (DRY_RUN) {
     console.log('\n  Top gaps:');
-    top10.forEach((g, i) => console.log(`  ${i + 1}. [${g.importance}/5] ${g.title}  — ${g.score_reason}`));
+    top10.forEach((g, i) => console.log(`  ${i + 1}. [I${g.importance}/N${g.novelty}/R${g.relevance} → ${g.importance}/5] ${g.title}  — ${g.score_reason}${g.suggested_day_to_add ? ` · suggest day ${g.suggested_day_to_add}` : ''}`));
   }
 
   // Persist (upsert by canonical_url)
@@ -293,25 +493,25 @@ async function main() {
     console.log(`  upserted ${upserted} rows`);
   }
 
-  // Admin digest email
+  // Admin digest email — top 3 (per Sprint 7 spec)
   const wk = weekLabel();
-  const html = adminDigestHtml(top10, wk);
-  const text = top10.map((g, i) => `${i + 1}. [${g.importance}/5] ${g.title} (${g.headlines.length} mentions) — ${g.score_reason}`).join('\n');
+  const html = adminDigestHtml(top3, wk);
+  const text = top3.map((g, i) => `${i + 1}. [I${g.impact}/N${g.novelty}/R${g.relevance}] ${g.title} (${g.headlines.length} mentions) — ${g.score_reason}${g.suggested_day_to_add ? ` · suggest day ${g.suggested_day_to_add}` : ''}`).join('\n');
 
   const result = await sendTemplated({
     clerkUserId: ADMIN_USER,
     to: ADMIN_EMAIL,
     kind: 'gap_digest',
-    subject: `Content gaps — ${top10.length} topics not yet covered`,
+    subject: `Content gaps — top ${top3.length} topics not yet covered`,
     html,
     text: `Content gaps · ${wk}\n\n${text}\n\nView: https://becomeaipm.com/gaps.html`,
-    payload: { week: wk, count: top10.length, top: top10.map(g => g.title) },
+    payload: { week: wk, count: top3.length, top: top3.map(g => g.title) },
     dryRun: DRY_RUN,
     supabase,
   });
   console.log(`  admin digest → ${ADMIN_EMAIL}: ${result.status}${result.error ? ' ('+result.error+')' : ''}`);
 
-  console.log(`\n✅ done · clusters=${clusters.length} gaps=${gaps.length} top=${top10.length}\n`);
+  console.log(`\n✅ done · clusters=${clusters.length} gaps=${gaps.length} top=${top3.length}\n`);
 }
 
 main().catch(e => { console.error(e); process.exit(1); });

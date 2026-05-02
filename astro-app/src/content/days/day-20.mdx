@@ -1,0 +1,53 @@
+---
+day: 20
+subtitle: "Synthesize Phase 1 — write the strategy document that will define your Phase 2 work and anchor your portfolio."
+track: full
+tasks:
+    - title: "Choose your product concept and write the strategy"
+      time: 25
+      description: "Pick one: (a) AI legal assistant for contract review at SMB law firms, (b) AI code reviewer integrated into GitHub PRs, (c) AI customer support automation for SaaS, (d) AI document Q&A for financial analysts, or (e) something you’d genuinely build. Write a 1,500+ word strategy document answering all 6 questions (including the open-source stress test). Be specific on model choice, architecture, cost model, and evals. Save as /day-20/phase1_capstone/product_strategy.md."
+    - title: "Technical architecture section"
+      time: 25
+      description: "Specify: which Claude model and why (with model string), RAG vs fine-tune vs raw API, embedding provider (Voyage AI or OpenAI), vector DB choice, tool use requirements, prompt caching strategy, expected context window usage, estimated cost per user per month. This should be specific enough for an engineer to start building. Save as /day-20/phase1_capstone/technical_architecture.md."
+    - title: "Success metrics and model dependency map"
+      time: 25
+      description: "Define: (a) primary quality eval metric, (b) North Star business metric, (c) guardrail metrics (what triggers rollback?), (d) launch criteria. Then create a model dependency map: which product features depend on which model capabilities? What happens if a capability improves? Degrades? Save as /day-20/phase1_capstone/success_metrics.md."
+    - title: "Portfolio checkpoint: review your GitHub repo"
+      time: 25
+      description: "Review your ai-pm-60days repo. How many commits do you have? (Target: 19.) Is the README clear and professional? Is there at least one working code example? Identify the 3 weakest daily entries and plan to improve them during Phase 2. Save as /day-20/phase1_retrospective.md."
+codeExample:
+  title: ""
+  lang: "python"
+  code: ""
+interview:
+  question: "Present a 2-minute product strategy for an AI product you’d build at Anthropic."
+  answer: "Here’s the structure. <strong>Opening (20s):</strong> \"Enterprise legal teams spend 40% of their time on contract review. Existing tools hallucinate critical clauses, creating liability.\" <strong>Model (20s):</strong> \"Claude Sonnet 4.6 — 200K context handles full contracts without chunking, Constitutional AI training produces calibrated outputs on sensitive legal content.\" <strong>Architecture (30s):</strong> \"Hybrid RAG with Voyage AI embeddings and Contextual Retrieval for the firm’s case law database. Structured JSON output for clause extraction. Prompt caching on the 8K-token system prompt saves 85% on that component. Human-in-the-loop for any clause flagged high-risk.\" <strong>Cost (20s):</strong> \"At current Sonnet pricing with caching: see <a href='https://www.anthropic.com/pricing' target='_blank'>Anthropic's pricing page</a> for the latest cost estimates. 100 contracts/user/month = $15/user/month fully loaded. Price at $200/user/month — strong unit economics.\" <strong>Success (20s):</strong> \"Primary eval: extraction accuracy vs lawyer review on 100-document golden set. Launch threshold: 95%. North Star: billable hours saved per attorney.\" <strong>Defensibility (10s):</strong> \"Workflow integration into the firm’s document management, proprietary case law RAG index, compliance certifications (SOC 2, HIPAA). Open-source alternative can’t match the compliance stack.\"<br><br>That hits all six questions in 2 minutes and demonstrates cost awareness, architectural specificity, and awareness of the open-source objection."
+pmAngle: "The capstone document is the seed of your portfolio. A PM who presents a coherent AI strategy — with model selection, architecture, cost model, evals, and defensibility against open-source alternatives — in writing and verbally is demonstrably more qualified than one who discusses concepts abstractly. The model dependency map (which features depend on which capabilities) is a genuinely novel PM framework — use it in every strategy document going forward."
+context: "<p>You’ve spent 19 days building the foundational knowledge that separates a real AI PM from someone with surface-level familiarity. Today’s capstone asks you to synthesize that knowledge into a written product strategy document — the format you will use in interviews, product planning, and design reviews. The goal is not to produce a perfect document; it’s to discover where your knowledge is solid and where it’s still thin.</p>\n  <p>A product strategy for an AI product must answer <strong>five questions</strong>: (1) What is the problem worth solving, and who has it? (2) Why is AI the right solution <em>now</em>? In 2026, \"now\" has changed: reasoning models handle edge cases that previously required human review, costs have dropped 100x from 2023, and agentic capabilities enable workflows that were impossible two years ago. (3) What is the architecture — model, infrastructure, tools? Be specific: not \"use an LLM\" but \"Claude Sonnet 4.6 with 200K context for full-document ingestion, hybrid RAG with Voyage AI embeddings for knowledge retrieval, prompt caching for cost efficiency.\" (4) What is the cost model — can this be a viable business? (5) How do you know when you’ve succeeded — evals, metrics, success criteria?</p>\n  <p>Add a <strong>sixth question for 2026</strong>: \"If Meta releases a comparable open-weight model for free next quarter, does your product survive? Why?\" Every strategy document must answer this. If your only defensible answer is \"our model is better,\" you don’t have a moat. Acceptable answers: workflow integration depth, proprietary data flywheel, compliance certification stack, customer switching costs, or <strong>network effects</strong> (more users → more data → better model → more users — the fourth defensibility type beyond data, workflow, and evaluation expertise).</p>\n  <p>Your strategy should also include a placeholder: <strong>\"How does this product evolve into an agentic product?\"</strong> You haven’t covered agentic topics yet (Phases 2-3), but most successful AI products in 2026 are adding autonomous capabilities. Acknowledging this trajectory — even before you’ve studied it — shows strategic foresight.</p>\n  <p><strong>Portfolio checkpoint:</strong> You should have 19 commits in your <code>ai-pm-60days</code> GitHub repo by now. If you don’t, Day 20 is the catch-up checkpoint. Review your repo: Is the README clear? Is the writing quality high enough to show a hiring manager? Is there at least one working code example? Your GitHub repo IS your primary portfolio artifact — 60 days of commits demonstrates applied learning more credibly than any resume claim.</p>"
+resources:
+    - type: "DOCS"
+      title: "Anthropic Building Overview"
+      url: "https://docs.anthropic.com/en/docs/build-with-claude/overview"
+      note: "Architecture reference for Claude-based products."
+    - type: "BLOG"
+      title: "Product Strategy Framework — Lenny’s Newsletter"
+      url: "https://www.lennysnewsletter.com/"
+      note: "Strong product strategy framework. Adapt for AI context."
+    - type: "BLOG"
+      title: "AI Product Spec Writing"
+      url: "https://www.intercom.com/blog"
+      note: "Intercom’s spec template. Transfers well to AI products."
+    - type: "PRICING"
+      title: "Anthropic Pricing (live)"
+      url: "https://www.anthropic.com/pricing"
+      note: "Use live pricing for your cost model. Never hardcode."
+    - type: "DOCS"
+      title: "Voyage AI (embeddings)"
+      url: "https://docs.voyageai.com/"
+      note: "Anthropic-ecosystem embeddings for your RAG architecture."
+    - type: "TOOL"
+      title: "Artificial Analysis (benchmarks)"
+      url: "https://artificialanalysis.ai/"
+      note: "Compare Claude Sonnet 4.6 vs alternatives for your strategy’s model choice rationale."
+---
+
