@@ -44,6 +44,112 @@ window.COURSE_DAY_DATA[20] = {
     }
   ],
 
+  codeExample: {
+    title: 'Capstone strategy-doc rubric scorer — Python',
+    lang: 'python',
+    code: `# Day 20 — Phase 1 Capstone Strategy-Doc Rubric Scorer
+#
+# A capstone AI strategy doc is the seed of the portfolio. This script
+# encodes an 8-section rubric with weights and grades a doc against it.
+# Use it as a self-review BEFORE you submit — the same rubric a hiring
+# manager would mentally apply when reading your portfolio repo.
+#
+# A section "score" is 0..4 (0 missing, 4 best-in-class). The weighted
+# total maps to a letter grade. The script also flags any section below
+# threshold so you know what to fix first.
+
+from dataclasses import dataclass
+from typing import Dict, List
+
+@dataclass
+class Section:
+    key: str
+    title: str
+    weight: float       # sums to 1.0 across sections
+    must_have: bool
+    rubric_anchors: Dict[int, str]
+
+RUBRIC: List[Section] = [
+    Section("problem", "Problem statement & target user", 0.10, True, {
+        0: "missing", 2: "named user, vague pain",
+        4: "specific user, quantified pain, citation"}),
+    Section("model_choice", "Model selection w/ rationale", 0.15, True, {
+        0: "missing", 2: "names a model",
+        4: "names model, defends vs 2 alternatives, current pricing"}),
+    Section("architecture", "Technical architecture diagram", 0.15, True, {
+        0: "missing", 2: "boxes + arrows",
+        4: "boxes + arrows + data flow + failure modes"}),
+    Section("evals", "Evaluation plan", 0.15, True, {
+        0: "missing", 2: "named metrics",
+        4: "metrics + dataset + thresholds + cadence"}),
+    Section("cost_model", "Cost model w/ formulas", 0.10, True, {
+        0: "missing", 2: "monthly $ guess",
+        4: "per-request formula + scale sweep + sensitivity"}),
+    Section("dependency_map", "Model dependency map", 0.10, False, {
+        0: "missing", 2: "list of features",
+        4: "feature->capability->model mapping w/ fallbacks"}),
+    Section("defensibility", "Defensibility vs OSS", 0.15, True, {
+        0: "missing", 2: "asserts moat",
+        4: "names OSS threat + 3 specific defensibility levers"}),
+    Section("safety", "Safety & policy posture", 0.10, False, {
+        0: "missing", 2: "mentions safety",
+        4: "explicit policy, refusal taxonomy, monitoring plan"}),
+]
+
+# Each grading: section.key -> integer 0..4
+def grade(scores: Dict[str, int]) -> Dict:
+    weighted = 0.0
+    flags: List[str] = []
+    detail = []
+    for s in RUBRIC:
+        sc = scores.get(s.key, 0)
+        sc = max(0, min(4, sc))
+        weighted += (sc / 4.0) * s.weight
+        if s.must_have and sc < 2:
+            flags.append(f"{s.key}: must-have section is below threshold ({sc}/4)")
+        detail.append((s, sc))
+    pct = round(weighted * 100, 1)
+    letter = ("A" if pct >= 90 else "B" if pct >= 80 else
+              "C" if pct >= 70 else "D" if pct >= 60 else "F")
+    return {"pct": pct, "letter": letter, "flags": flags, "detail": detail}
+
+# --- Two example submissions --------------------------------------------
+DRAFT_V1 = {
+    "problem": 2, "model_choice": 1, "architecture": 2, "evals": 1,
+    "cost_model": 1, "dependency_map": 0, "defensibility": 1, "safety": 1,
+}
+DRAFT_V2 = {
+    "problem": 4, "model_choice": 4, "architecture": 3, "evals": 3,
+    "cost_model": 4, "dependency_map": 3, "defensibility": 4, "safety": 3,
+}
+
+def report(name: str, scores: Dict[str, int]) -> None:
+    g = grade(scores)
+    print(f"\\n=== {name}  ->  {g['pct']}%  ({g['letter']}) ===")
+    print(f"{'section':22} {'weight':>7} {'score':>6} {'pts':>6}  anchor")
+    for s, sc in g["detail"]:
+        pts = round((sc / 4.0) * s.weight * 100, 2)
+        anchor = s.rubric_anchors.get(sc) or s.rubric_anchors.get(2, "—")
+        print(f"{s.title[:22]:22} {s.weight:>7.2f} {sc:>4}/4 {pts:>5.2f}  {anchor}")
+    if g["flags"]:
+        print("\\nMust-fix:")
+        for f in g["flags"]:
+            print("  -", f)
+
+print("Phase 1 Capstone Rubric — 8 sections, weighted")
+report("Draft v1", DRAFT_V1)
+report("Draft v2", DRAFT_V2)
+
+# --- Weight sanity check ------------------------------------------------
+total_w = round(sum(s.weight for s in RUBRIC), 4)
+print(f"\\nWeights sum: {total_w} (should be 1.0)")
+
+print("\\nPM takeaway: the rubric is the spec for the spec. If you can't "
+      "score a 4 on cost_model and defensibility, your portfolio reads as "
+      "an enthusiast project, not a frontier-lab PM artifact.")
+`,
+  },
+
   interview: {
     question: 'Present a 2-minute product strategy for an AI product you\u2019d build at Anthropic.',
     answer: `Here\u2019s the structure. <strong>Opening (20s):</strong> "Enterprise legal teams spend 40% of their time on contract review. Existing tools hallucinate critical clauses, creating liability." <strong>Model (20s):</strong> "Claude Sonnet 4.6 \u2014 200K context handles full contracts without chunking, Constitutional AI training produces calibrated outputs on sensitive legal content." <strong>Architecture (30s):</strong> "Hybrid RAG with Voyage AI embeddings and Contextual Retrieval for the firm\u2019s case law database. Structured JSON output for clause extraction. Prompt caching on the 8K-token system prompt saves 85% on that component. Human-in-the-loop for any clause flagged high-risk." <strong>Cost (20s):</strong> "At current Sonnet pricing with caching: see <a href='https://www.anthropic.com/pricing' target='_blank'>Anthropic's pricing page</a> for the latest cost estimates. 100 contracts/user/month = $15/user/month fully loaded. Price at $200/user/month \u2014 strong unit economics." <strong>Success (20s):</strong> "Primary eval: extraction accuracy vs lawyer review on 100-document golden set. Launch threshold: 95%. North Star: billable hours saved per attorney." <strong>Defensibility (10s):</strong> "Workflow integration into the firm\u2019s document management, proprietary case law RAG index, compliance certifications (SOC 2, HIPAA). Open-source alternative can\u2019t match the compliance stack."<br><br>That hits all six questions in 2 minutes and demonstrates cost awareness, architectural specificity, and awareness of the open-source objection.`

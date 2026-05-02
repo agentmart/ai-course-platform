@@ -19,6 +19,121 @@ window.COURSE_DAY_DATA[39] = {
     { title: 'Create the positioning map', description: 'Design a 2x2 positioning map for your vertical. Choose two axes that reveal strategic differences (e.g., breadth vs depth, developer-first vs enterprise-first, proprietary model vs API-dependent). Plot all major players. Write one paragraph explaining what the map reveals about market opportunity gaps. Save as /day-39/positioning_map.md.', time: '15 min' },
     { title: 'Peer review and finalize', description: 'Review your teardown against the quality checklist: Does it include primary research with specific examples? Does it cover all four threat layers? Is the recommendation actionable and defensible? Would this impress a VP of Product in an interview? Revise and finalize. Save final version as /day-39/competitive_teardown_final.md. Stage and commit your Days 35\u201439 capstone work.', time: '10 min' }
   ],
+
+  codeExample: {
+    title: 'Competitive teardown rubric scorer — Python',
+    lang: 'python',
+    code: `# Day 39 — Competitive Teardown Rubric Scorer
+# Score competitor products on 5 dimensions, weighted by evidence quality.
+# Self-contained; no API calls. Reinforces "primary research beats desk research".
+
+DIMENSIONS = [
+    ("product_depth",     0.25),  # how deep is the feature surface
+    ("ai_native_ux",      0.20),  # is AI woven in or bolted on
+    ("enterprise_ready",  0.20),  # SSO, audit, data residency, SLAs
+    ("ecosystem_lockin",  0.15),  # integrations, marketplace, network effects
+    ("pricing_clarity",   0.20),  # transparent, predictable, fair
+]
+
+# Evidence quality multiplier: hands-on use is worth ~2x desk research
+EVIDENCE_WEIGHT = {
+    "primary_handson":   1.00,  # signed up, used the product
+    "primary_interview": 0.85,  # spoke with users or buyers
+    "secondary_review":  0.60,  # G2, Reddit, expert reviews
+    "marketing_only":    0.30,  # only the vendor's own website
+}
+
+# Sample teardown: AI code-assistant category (3 competitors)
+TEARDOWN = {
+    "Cursor": {
+        "product_depth":     {"score": 9, "evidence": "primary_handson"},
+        "ai_native_ux":      {"score": 9, "evidence": "primary_handson"},
+        "enterprise_ready":  {"score": 6, "evidence": "secondary_review"},
+        "ecosystem_lockin":  {"score": 7, "evidence": "primary_handson"},
+        "pricing_clarity":   {"score": 8, "evidence": "marketing_only"},
+    },
+    "GitHub Copilot": {
+        "product_depth":     {"score": 8, "evidence": "primary_handson"},
+        "ai_native_ux":      {"score": 6, "evidence": "primary_handson"},
+        "enterprise_ready":  {"score": 9, "evidence": "primary_interview"},
+        "ecosystem_lockin":  {"score": 9, "evidence": "secondary_review"},
+        "pricing_clarity":   {"score": 7, "evidence": "marketing_only"},
+    },
+    "Windsurf": {
+        "product_depth":     {"score": 7, "evidence": "primary_handson"},
+        "ai_native_ux":      {"score": 8, "evidence": "primary_handson"},
+        "enterprise_ready":  {"score": 8, "evidence": "primary_interview"},
+        "ecosystem_lockin":  {"score": 5, "evidence": "secondary_review"},
+        "pricing_clarity":   {"score": 6, "evidence": "marketing_only"},
+    },
+}
+
+
+def score_competitor(name, rubric):
+    raw_total = 0.0
+    weighted_total = 0.0
+    breakdown = []
+    for dim, weight in DIMENSIONS:
+        cell = rubric[dim]
+        ev_mult = EVIDENCE_WEIGHT[cell["evidence"]]
+        raw = cell["score"] * weight
+        weighted = raw * ev_mult
+        raw_total += raw
+        weighted_total += weighted
+        breakdown.append((dim, cell["score"], cell["evidence"], ev_mult, weighted))
+    return raw_total, weighted_total, breakdown
+
+
+def evidence_grade(rubric):
+    # Average evidence multiplier across dimensions
+    mults = [EVIDENCE_WEIGHT[c["evidence"]] for c in rubric.values()]
+    avg = sum(mults) / len(mults)
+    if avg >= 0.85:
+        return "A — strong primary research"
+    if avg >= 0.65:
+        return "B — mostly primary, some gaps"
+    if avg >= 0.45:
+        return "C — leans on secondary sources"
+    return "D — desk research only, not interview-ready"
+
+
+def main():
+    print("=" * 64)
+    print("Phase 2 Capstone — Competitive Teardown Rubric")
+    print("=" * 64)
+    results = []
+    for name, rubric in TEARDOWN.items():
+        raw, weighted, breakdown = score_competitor(name, rubric)
+        grade = evidence_grade(rubric)
+        results.append((name, raw, weighted, grade, breakdown))
+
+    for name, raw, weighted, grade, breakdown in results:
+        print()
+        print("Competitor:", name)
+        print("  Raw rubric score:      {:.2f} / 10".format(raw))
+        print("  Evidence-adjusted:     {:.2f} / 10".format(weighted))
+        print("  Evidence grade:        {}".format(grade))
+        for dim, score, ev, mult, w in breakdown:
+            print("    - {:<18} {}/10  evidence={:<18} x{:.2f}  -> {:.2f}".format(
+                dim, score, ev, mult, w))
+
+    print()
+    print("-" * 64)
+    print("Ranking (evidence-adjusted, what an interviewer will trust):")
+    ranked = sorted(results, key=lambda r: r[2], reverse=True)
+    for i, (name, _raw, weighted, grade, _b) in enumerate(ranked, 1):
+        print("  {}. {:<16} {:.2f}  ({})".format(i, name, weighted, grade))
+
+    print()
+    print("PM takeaway: a 9/10 from marketing pages (x0.30) is worth less")
+    print("than a 7/10 backed by hands-on use (x1.00). Sign up. Use it.")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'Walk me through a competitive analysis of an AI product category you know well.', answer: `I\u2019ll use AI code assistants as the example since I\u2019ve done hands-on research.<br><br><strong>Market overview:</strong> AI code assistants are a multi-billion dollar market growing 80%+ annually. The primary buyer is engineering leadership; the primary user is the individual developer. The core value proposition: accelerate development velocity, reduce context-switching, and lower the barrier to working in unfamiliar codebases.<br><br><strong>Key players:</strong> Cursor leads in AI-native experience \u2014 the entire editor is designed around AI, with features like Composer (multi-file editing) and deep contextual awareness. GitHub Copilot has distribution advantage (VS Code installed base) and enterprise trust (Microsoft/GitHub brand). Windsurf (formerly Codeium) focuses on enterprise compliance and data privacy. Each uses different model strategies: Cursor is model-agnostic (Claude, GPT, custom), Copilot uses OpenAI models primarily, Windsurf runs proprietary models alongside APIs.<br><br><strong>Strategic comparison:</strong> On a developer-first vs enterprise-first axis crossed with AI-native vs AI-added, you get a clear map. Cursor: developer-first, AI-native. Copilot: broad audience, AI-added to existing editor. Windsurf: enterprise-first, AI-native. The gap: AI-native experience with enterprise-grade compliance \u2014 whoever fills that wins the next wave of enterprise deals.<br><br><strong>Threats:</strong> Platform risk is real \u2014 Anthropic and OpenAI both have incentives to build code tools natively. Open-source threat: models like DeepSeek Coder and CodeLlama make self-hosted code assistance viable at scale. The biggest underappreciated threat: IDE vendors (JetBrains) building native AI features that are \u201cgood enough\u201d and don\u2019t require switching editors.<br><br><strong>If I were building:</strong> I\u2019d go AI-native and enterprise-first with an on-premise deployment option using open-source models for maximum data privacy. That specific combination is underserved today.` },
   pmAngle: 'A competitive teardown with primary research \u2014 where you actually used the competitor\u2019s product and can cite specific strengths and failures \u2014 is 10x more credible than desk research alone. In interviews, the PM who says \u201cI signed up for their free trial and here\u2019s what I found\u201d immediately demonstrates the hands-on instinct that separates strong PMs from analysts.',
   resources: [

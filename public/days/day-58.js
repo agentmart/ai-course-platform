@@ -15,6 +15,133 @@ window.COURSE_DAY_DATA[58] = {
     { title: 'Deliver your vision aloud', description: 'Practice delivering your vision statement verbally. Requirements: under 60 seconds, jargon-free, emotionally resonant. Record yourself (voice memo or video). Listen to the recording. Note: Did you sound natural or rehearsed? Was it under 60 seconds? Would a non-technical person understand it? Revise and record again. Do this three times. Write notes on what improved with each iteration. Save as /day-58/vision_delivery_notes.md.', time: '15 min' },
     { title: 'Vision-to-roadmap translation', description: 'Take your final vision statement and translate it into three quarterly priorities. For each quarter: what specific product work advances the vision? How would you measure progress toward the vision? What would you explicitly NOT build (because it doesn\u2019t advance the vision)? The \u201cwhat we won\u2019t build\u201d section is the most important \u2014 a vision is only useful if it helps you say no. Save as /day-58/vision_to_roadmap.md.', time: '20 min' }
   ],
+
+  codeExample: {
+    title: 'AI Product Vision Statement Linter — Python',
+    lang: 'python',
+    code: `# Day 58 — AI Product Vision Statement Linter
+# Checks vision statements against three criteria: aspirational, bounded,
+# grounded. Pure stdlib. Hardcoded examples.
+
+ASPIRATIONAL_WORDS = ["enable", "empower", "transform", "default", "unlock", "north"]
+BOUNDED_HINTS      = ["for", "by 20", "within", "team", "segment", "industry"]
+GROUNDED_SIGNALS   = ["claude", "agent", "eval", "rag", "tool", "%", "users"]
+
+# A vision is good when each criterion is met, not when it's the longest.
+MAX_WORDS = 35  # Vision statements should be deliverable in under 30 seconds.
+
+VISIONS = [
+    {
+        "id": "V1", "author": "PM A",
+        "text": "Become the default AI copilot for relationship managers at mid-market banks by 2027, with claude-sonnet-4-6 powering 70% of weekly workflows.",
+    },
+    {
+        "id": "V2", "author": "PM B",
+        "text": "Use AI to make everything better.",  # too vague
+    },
+    {
+        "id": "V3", "author": "PM C",
+        "text": "Empower legal teams to draft contracts in 1/10th the time using a claude-opus-4-6 agent grounded in firm precedent by end of 2026.",
+    },
+    {
+        "id": "V4", "author": "PM D",
+        "text": "Build an enterprise platform that revolutionizes everything across all teams in all industries forever and ever.",  # unbounded
+    },
+    {
+        "id": "V5", "author": "PM E",
+        "text": "Replace human writers entirely with an LLM that always produces perfect output.",  # unrealistic + ungrounded
+    },
+]
+
+def words_in(text):
+    return text.lower().split()
+
+def aspirational_score(text):
+    hits = [w for w in ASPIRATIONAL_WORDS if w in text.lower()]
+    return min(len(hits), 2) / 2.0, hits
+
+def bounded_score(text):
+    hits = [h for h in BOUNDED_HINTS if h in text.lower()]
+    return min(len(hits), 2) / 2.0, hits
+
+def grounded_score(text):
+    hits = [s for s in GROUNDED_SIGNALS if s in text.lower()]
+    return min(len(hits), 2) / 2.0, hits
+
+def length_score(text):
+    n = len(words_in(text))
+    if n <= MAX_WORDS:
+        return 1.0, n
+    # Steep penalty above the cap.
+    return max(0.0, 1 - (n - MAX_WORDS) / MAX_WORDS), n
+
+def hyperbole_check(text):
+    """Flag absolutism words that fail the 'bounded' test."""
+    bad = ["always", "never", "everything", "everyone", "perfect", "forever", "all industries"]
+    return [b for b in bad if b in text.lower()]
+
+def deliverable_in_60s(text):
+    """Heuristic: short vision = deliverable aloud in under a minute."""
+    return len(words_in(text)) <= MAX_WORDS
+
+def lint_vision(v):
+    text = v["text"]
+    a_s, a_hits = aspirational_score(text)
+    b_s, b_hits = bounded_score(text)
+    g_s, g_hits = grounded_score(text)
+    l_s, n      = length_score(text)
+    bad_words   = hyperbole_check(text)
+    overall = (a_s + b_s + g_s + l_s) / 4.0
+    return {
+        "id": v["id"], "author": v["author"], "text": text,
+        "aspirational": (a_s, a_hits),
+        "bounded":      (b_s, b_hits),
+        "grounded":     (g_s, g_hits),
+        "length":       (l_s, n),
+        "hyperbole":    bad_words,
+        "overall":      overall,
+        "deliverable":  deliverable_in_60s(text),
+    }
+
+def grade(pct):
+    if pct >= 0.85: return "A"
+    if pct >= 0.70: return "B"
+    if pct >= 0.55: return "C"
+    if pct >= 0.40: return "D"
+    return "F"
+
+def print_one(r):
+    print(f"[{r['id']}] {r['author']}")
+    print(f"  Text: {r['text']}")
+    print(f"  Words: {r['length'][1]}  (cap {MAX_WORDS})  deliverable<60s: {r['deliverable']}")
+    print(f"  Aspirational: {r['aspirational'][0]:.2f}  hits={r['aspirational'][1]}")
+    print(f"  Bounded:      {r['bounded'][0]:.2f}  hits={r['bounded'][1]}")
+    print(f"  Grounded:     {r['grounded'][0]:.2f}  hits={r['grounded'][1]}")
+    if r["hyperbole"]:
+        print(f"  HYPERBOLE FLAGS: {r['hyperbole']}")
+    print(f"  Overall: {r['overall']:.2f}  ({grade(r['overall'])})")
+
+def main():
+    print("AI PRODUCT VISION LINTER")
+    print("=" * 60)
+    results = [lint_vision(v) for v in VISIONS]
+    for r in results:
+        print_one(r)
+        print()
+    print("-" * 60)
+    keepers = [r for r in results if r["overall"] >= 0.70 and not r["hyperbole"]]
+    print(f"Vision statements passing the bar (>=0.70 and no hyperbole): {len(keepers)}/{len(results)}")
+    for r in keepers:
+        print(f"  ✓ {r['id']} ({r['author']})")
+    print()
+    print("Three criteria, in order: aspirational, bounded, grounded.")
+    print("If your vision can't be said aloud in 60 seconds, it isn't a vision yet.")
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'What\u2019s your product vision for an AI assistant, and how does it guide decisions?', answer: `A strong AI product vision passes three tests: aspirational not vague, time-bounded, and product-grounded enough to guide feature prioritization.<br><br><strong>Common failure modes I avoid:</strong> Capability claims (\u201cmost advanced AI\u201d), platform-for-everything (\u201cserve every use case\u201d), and \u201cdemocratizing AI\u201d \u2014 which sounds inspiring but means nothing concrete. If the vision could appear on any AI company\u2019s website, it\u2019s not specific enough to guide decisions.<br><br><strong>What good looks like:</strong> GitHub Copilot\u2019s vision \u2014 making every developer more productive by handling routine coding tasks \u2014 is specific (developers), bounded (coding tasks), and aspirational (more productive). Claude\u2019s \u201cbrilliant friend\u201d framing works because it\u2019s relatable, aspirational, and product-grounded. I study both as models.<br><br><strong>The real test is feature prioritization:</strong> A vision is only useful if it helps you say no. If the vision says \u201cevery developer more productive,\u201d every feature gets evaluated: does this make a developer more productive? If a vision can\u2019t be used to kill a feature that doesn\u2019t align, it\u2019s decoration, not strategy.<br><br><strong>Verbal delivery matters:</strong> I can deliver the vision in under 60 seconds, jargon-free, to any audience. The best visions make people feel something \u2014 excitement about the future state, urgency about the problem. I practice delivering verbally until it sounds natural, not rehearsed.` },
   pmAngle: 'The product vision is the most compressed form of strategy. In AI, where the technology evolves faster than plans, a well-crafted vision is the North Star that keeps teams aligned when everything else changes. The PM who can write a vision that passes the three-criteria test and deliver it aloud in under 60 seconds is the PM who leads, not just manages.',
   resources: [

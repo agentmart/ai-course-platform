@@ -15,6 +15,126 @@ window.COURSE_DAY_DATA[33] = {
     { title: 'Practice: Evaluate a multi-agent system', description: 'Answer: \u201cHow would you evaluate a multi-agent customer support system where Agent A triages, Agent B handles billing, and Agent C handles technical issues?\u201d Cover: end-to-end metrics vs per-agent metrics, trace-level observability, error propagation testing, and what happens when Agent A misroutes. Save as /day-33/multi_agent_eval.md.', time: '20 min' },
     { title: 'Build your staying current system', description: 'Document your actual system for staying current with AI. Include: daily sources (5 min), weekly deep-dives (30 min), monthly hands-on experiments. Specifically list: Artificial Analysis, Latent Space, arXiv AI safety papers, and your plan for testing new model releases within 48 hours. Save as /day-33/staying_current_system.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'AI PM interview answer rubric — Python',
+    lang: 'python',
+    code: `# Day 33 — AI PM interview answer rubric scorer (STAR + tech depth)
+# Pedagogical goal: frontier-lab interviews reward STAR structure +
+# specific tradeoffs about evals, safety, and failure modes.
+
+from dataclasses import dataclass
+from typing import Dict, List
+
+
+@dataclass
+class Rubric:
+    section: str
+    weight: int
+    keywords: List[str]
+    description: str
+
+
+RUBRIC: List[Rubric] = [
+    Rubric("Situation", 10, ["context", "team", "users", "constraint"],
+           "Sets context: who, where, why this matters."),
+    Rubric("Task",      10, ["goal", "metric", "owner"],
+           "States the specific goal and how success was measured."),
+    Rubric("Action",    20, ["decision", "tradeoff", "alternative", "chose"],
+           "Names the decision, the alternative considered, and why one beat the other."),
+    Rubric("Result",    15, ["metric", "improved", "%", "shipped"],
+           "Quantifies outcome and ties to the goal."),
+    Rubric("EvalDepth", 15, ["eval", "benchmark", "ground truth", "rubric"],
+           "Shows how the AI system was evaluated, not just demoed."),
+    Rubric("FailureModes", 15, ["fail", "hallucination", "edge case", "regression"],
+           "Names where the system breaks and what guards exist."),
+    Rubric("SafetyHITL", 10, ["safety", "human in the loop", "policy", "red team"],
+           "Acknowledges safety and human oversight choices."),
+    Rubric("Reflection", 5, ["next time", "learn"],
+           "What you'd do differently."),
+]
+
+
+def score_answer(answer: str) -> Dict:
+    text = answer.lower()
+    rows = []
+    total = 0
+    for r in RUBRIC:
+        hits = sum(1 for k in r.keywords if k in text)
+        coverage = min(1.0, hits / max(1, len(r.keywords) - 1))
+        got = int(round(r.weight * coverage))
+        total += got
+        rows.append({"section": r.section, "got": got, "max": r.weight,
+                     "hits": hits, "of": len(r.keywords)})
+    grade = "Strong hire" if total >= 85 else "Hire" if total >= 70 else \\
+            "Mixed" if total >= 55 else "No hire"
+    return {"total": total, "grade": grade, "rows": rows}
+
+
+# Two answers to the same question:
+# "Tell me about an AI feature you shipped. How did you evaluate it?"
+weak_answer = (
+    "I shipped an AI summarizer for our docs. Users liked it. "
+    "We launched it after a quick demo to the team and it went well."
+)
+
+strong_answer = (
+    "Context: I led PM for a docs-AI feature for ~12k weekly users on a small team; "
+    "the constraint was a 1.2s p95 budget. "
+    "Task: the goal was acceptance rate >= 35% with hallucination rate < 1%, owner was me. "
+    "Action: I chose a retrieval-augmented setup over a pure long-context call; the alternative "
+    "was a single-shot prompt with claude-sonnet-4-6, but the tradeoff on cost and freshness pushed us to RAG. "
+    "We built a 600-example eval set with ground truth and a rubric for citation correctness. "
+    "Result: shipped in 6 weeks, acceptance improved to 42% and cost per accepted dropped 38%. "
+    "FailureModes: the system fails on tables and on out-of-corpus questions; we added a 'no answer' "
+    "escape hatch and a regression test to catch hallucination spikes. "
+    "Safety: human in the loop for any answer flagged by the policy classifier; we ran a red team week. "
+    "Next time: I'd invest in eval tooling earlier — we shipped late because we hand-graded too long."
+)
+
+
+def show(name: str, answer: str) -> None:
+    print(f"\\n=== {name} ===")
+    print(f"  ({len(answer)} chars)")
+    res = score_answer(answer)
+    print(f"  Score: {res['total']}/100   Verdict: {res['grade']}")
+    for row in res["rows"]:
+        bar = "#" * row["got"] + "." * (row["max"] - row["got"])
+        print(f"  {row['section']:<13} [{bar}] {row['got']:>2}/{row['max']:<2}  hits={row['hits']}/{row['of']}")
+
+
+show("WEAK ANSWER", weak_answer)
+show("STRONG ANSWER", strong_answer)
+
+
+print("\\n=== Frontier-lab interview signal map ===")
+signals = [
+    ("Eval methodology",     "ALWAYS asked"),
+    ("Failure modes",        "ALWAYS asked"),
+    ("Safety / red team",    "Often asked"),
+    ("Cost-per-outcome",     "Often asked"),
+    ("Architecture trivia",  "Rarely asked (vs 2023)"),
+]
+for name, freq in signals:
+    print(f"  {name:<22} {freq}")
+
+
+print("\\n=== Staying-current cadence (your own system) ===")
+weekly = [
+    ("Mon", "Read 1 frontier-lab eval paper"),
+    ("Tue", "Try 1 model release in your eval harness"),
+    ("Wed", "Review 1 failure case with engineers"),
+    ("Thu", "Update model dependency map"),
+    ("Fri", "Write 1 paragraph: what changed this week"),
+]
+for day, task in weekly:
+    print(f"  {day}: {task}")
+
+print("\\nPM takeaway: STAR structure + concrete eval/failure-mode answers")
+print("beat memorized architecture trivia at every frontier lab in 2026.")
+`,
+  },
+
   interview: { question: 'Walk me through how you would design an AI agent system for a complex workflow.', answer: `I\u2019d structure the design in five layers.<br><br><strong>1. Task decomposition:</strong> Break the complex workflow into discrete steps. For legal due diligence: document intake and classification, entity extraction, clause analysis, risk flagging, and summary generation. Each step has clear inputs, outputs, and success criteria.<br><br><strong>2. Architecture decision:</strong> Single agent with tools vs multi-agent system. Single agent works when steps are sequential and context needs to flow between them. Multi-agent works when steps can parallelize or require different specialized models. For legal due diligence, I\u2019d use a multi-agent system: a coordinator agent routes documents to specialized agents (contract analysis, financial review, regulatory compliance), then a synthesis agent combines findings.<br><br><strong>3. Tool and model selection:</strong> Each agent needs specific tools. Document parsing agent uses LlamaParse for complex PDFs. Entity extraction might use claude-haiku-4-5-20251001 for speed on high-volume tasks. Risk analysis uses claude-sonnet-4-6 for reasoning quality. Define the model for each agent based on the quality-speed-cost tradeoff for that specific step.<br><br><strong>4. Human-in-the-loop design:</strong> Critical for high-stakes domains. Define confidence thresholds: above 95% confidence, auto-proceed. Between 80\u201395%, flag for human review. Below 80%, escalate and halt. The PM decides these thresholds based on the cost of errors in each step.<br><br><strong>5. Evaluation methodology:</strong> End-to-end metrics (did the system produce correct due diligence output?) plus per-agent metrics (did each agent perform its step correctly?). Trace-level observability is essential \u2014 when the system fails, you need to identify which agent failed and why. Test with adversarial inputs: documents designed to confuse classification, edge-case contract structures, contradictory information across documents.` },
   pmAngle: 'The AI PM interview has shifted from \u201cexplain transformers\u201d to \u201cdesign and evaluate AI systems.\u201d Interviewers at frontier labs care less about whether you can recite architecture details and more about whether you can make sound product decisions about agent design, safety tradeoffs, and evaluation methodology. The candidates who stand out are those who naturally think about failure modes and human-in-the-loop design, not just the happy path.',
   resources: [

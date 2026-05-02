@@ -1,0 +1,88 @@
+name: Code Example Validation
+
+on:
+  pull_request:
+    paths:
+      - 'astro-app/public/days/**'
+      - 'public/days/**'
+  push:
+    branches: [main]
+    paths:
+      - 'astro-app/public/days/**'
+      - 'public/days/**'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate code examples in day-NN.js files
+        run: |
+          cat > /tmp/validate.mjs <<'EOF'
+          import fs from 'fs';
+          import { execSync } from 'child_process';
+
+          const dir = 'astro-app/public/days';
+          const legacyDir = 'public/days';
+          const files = fs.readdirSync(dir).filter(f => /^day-\d{2}\.js$/.test(f)).sort();
+          let fail = 0, ok = 0, skip = 0;
+
+          for (const file of files) {
+            const n = parseInt(file.match(/day-(\d+)/)[1], 10);
+            const astroPath = `${dir}/${file}`;
+            const legacyPath = `${legacyDir}/${file}`;
+            const a = fs.readFileSync(astroPath, 'utf8');
+
+            // Mirror check
+            if (fs.existsSync(legacyPath)) {
+              const l = fs.readFileSync(legacyPath, 'utf8');
+              if (a !== l) {
+                console.error(`MIRROR MISMATCH: day-${n}`);
+                fail++;
+                continue;
+              }
+            }
+
+            // Extract codeExample
+            global.window = { COURSE_DAY_DATA: {} };
+            let data;
+            try {
+              const fn = new Function('window', a + '\nreturn window.COURSE_DAY_DATA;');
+              data = fn(global.window);
+            } catch (e) {
+              console.error(`PARSE FAIL day-${n}: ${e.message}`);
+              fail++;
+              continue;
+            }
+            const ex = data[n] && data[n].codeExample;
+            if (!ex || !ex.code) { skip++; continue; }
+
+            const lang = ex.lang;
+            const ext = lang === 'python' ? 'py' : 'js';
+            const tmp = `/tmp/v-${n}.${ext}`;
+            fs.writeFileSync(tmp, ex.code);
+
+            try {
+              if (lang === 'python') {
+                execSync(`python3 -m py_compile ${tmp}`, { stdio: 'pipe' });
+              } else {
+                execSync(`node --check ${tmp}`, { stdio: 'pipe' });
+              }
+              ok++;
+            } catch (e) {
+              console.error(`SYNTAX FAIL day-${n} (${lang}):\n${e.stderr || e.message}`);
+              fail++;
+            }
+          }
+
+          console.log(`\nValidated: ${ok} ok, ${skip} skipped (no codeExample), ${fail} failed`);
+          if (fail > 0) process.exit(1);
+          EOF
+          node /tmp/validate.mjs

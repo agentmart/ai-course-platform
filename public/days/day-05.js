@@ -44,6 +44,102 @@ window.COURSE_DAY_DATA[5] = {
     }
   ],
 
+  codeExample: {
+    title: 'Head-to-head model scoring matrix — Python',
+    lang: 'python',
+    code: `# Day 05 — Head-to-Head Model Scoring Matrix
+#
+# A PM at a frontier lab needs to articulate where their model genuinely
+# wins and where it doesn't. This script builds a weighted scoring matrix
+# across Claude, GPT, Gemini, and an open-weight option (DeepSeek) for
+# three representative enterprise use cases.
+#
+# The output is a per-use-case ranking + an "open-source threat" delta:
+# how much quality you'd give up by self-hosting an open model. That delta
+# is the conversation every enterprise buyer will start in 2026.
+
+from collections import defaultdict
+from typing import Dict, List
+
+# Capability scores: 0..10. These are illustrative — refresh from your own
+# evals before quoting in any external doc.
+MODELS: Dict[str, Dict[str, float]] = {
+    "claude-sonnet-4-6":          {"reasoning": 9.2, "coding": 9.4, "vision": 9.0,
+                                    "long_context": 9.5, "safety": 9.3, "cost_eff": 7.8},
+    "claude-opus-4-6":            {"reasoning": 9.7, "coding": 9.5, "vision": 9.1,
+                                    "long_context": 9.6, "safety": 9.4, "cost_eff": 5.5},
+    "gpt-4o":                     {"reasoning": 9.0, "coding": 9.0, "vision": 9.2,
+                                    "long_context": 8.5, "safety": 8.7, "cost_eff": 8.0},
+    "o3":                         {"reasoning": 9.6, "coding": 9.3, "vision": 8.5,
+                                    "long_context": 8.8, "safety": 8.9, "cost_eff": 5.0},
+    "gemini-2.5-pro":             {"reasoning": 9.1, "coding": 8.8, "vision": 9.0,
+                                    "long_context": 9.8, "safety": 8.6, "cost_eff": 8.5},
+    "deepseek-r1-open":           {"reasoning": 8.7, "coding": 8.8, "vision": 6.0,
+                                    "long_context": 8.0, "safety": 7.0, "cost_eff": 9.8},
+}
+
+# Each use case has a different weight profile.
+USE_CASES = {
+    "M&A diligence (long-context legal)": {
+        "reasoning": 0.25, "coding": 0.05, "vision": 0.05,
+        "long_context": 0.30, "safety": 0.25, "cost_eff": 0.10,
+    },
+    "Coding copilot (high-volume)": {
+        "reasoning": 0.20, "coding": 0.40, "vision": 0.00,
+        "long_context": 0.10, "safety": 0.10, "cost_eff": 0.20,
+    },
+    "Document vision (insurance forms)": {
+        "reasoning": 0.10, "coding": 0.00, "vision": 0.45,
+        "long_context": 0.10, "safety": 0.20, "cost_eff": 0.15,
+    },
+}
+
+def score(model: str, weights: Dict[str, float]) -> float:
+    caps = MODELS[model]
+    return round(sum(caps[k] * w for k, w in weights.items()), 3)
+
+def rank(weights: Dict[str, float]) -> List[tuple]:
+    return sorted(((m, score(m, weights)) for m in MODELS),
+                  key=lambda x: x[1], reverse=True)
+
+# --- Per-use-case ranking ------------------------------------------------
+print("Head-to-head scoring (higher is better)\\n")
+oss_delta = defaultdict(float)
+for uc, weights in USE_CASES.items():
+    print(f"### {uc}")
+    print(f"  weights: {weights}")
+    leaders = rank(weights)
+    for i, (m, s) in enumerate(leaders, 1):
+        marker = " <-- OPEN-WEIGHT" if "open" in m else ""
+        print(f"  {i}. {m:28} {s:>5.2f}{marker}")
+    top_score = leaders[0][1]
+    oss = next(s for m, s in leaders if "open" in m)
+    oss_delta[uc] = round(top_score - oss, 2)
+    print(f"  -> open-source quality gap vs leader: {oss_delta[uc]:.2f}\\n")
+
+# --- Open-source threat summary -----------------------------------------
+print("OSS threat summary (smaller gap = stronger pull toward self-host):")
+for uc, delta in oss_delta.items():
+    flag = "HIGH RISK"  if delta < 0.5 else \\
+           "WATCH"      if delta < 1.0 else \\
+           "DEFENSIBLE"
+    print(f"  {flag:11}  Δ={delta:>4.2f}  {uc}")
+
+# --- Pick a "best Claude" recommendation per use case -------------------
+print("\\nBest Claude per use case (procurement-ready answer):")
+for uc, weights in USE_CASES.items():
+    claude_only = sorted(((m, score(m, weights))
+                          for m in MODELS if m.startswith("claude")),
+                         key=lambda x: x[1], reverse=True)
+    m, s = claude_only[0]
+    print(f"  {uc:38} -> {m} ({s:.2f})")
+
+print("\\nPM takeaway: weights are the strategy. The PM who can defend "
+      "their use-case weight vector in a meeting wins the model debate; "
+      "the PM who quotes a single 'best model' loses it.")
+`,
+  },
+
   interview: {
     question: 'OpenAI released o3 as a reasoning model. How does this change the competitive landscape for AI products?',
     answer: `O3 changes two things: it raises the capability ceiling for complex reasoning tasks, and it creates a new pricing tier that forces routing decisions.<br><br><strong>Capability:</strong> Tasks previously unreliable for AI — complex multi-step math, advanced code generation, scientific analysis — are now solvable with reasoning models. This opens new product categories. For Anthropic, it accelerated the need for Claude\u2019s extended thinking capability to match this tier.<br><br><strong>Pricing and o4-mini:</strong> The bigger strategic move was o4-mini — strong reasoning at dramatically lower cost than o3. This changes the routing calculus: "reasoning vs. non-reasoning" is no longer a $40/1M vs. $5/1M choice. O4-mini compresses the spread, making reasoning accessible for more use cases. Products need a routing classifier, but the economic penalty for over-routing is much lower with o4-mini.<br><br><strong>Open-source pressure:</strong> DeepSeek R1 demonstrated near-frontier reasoning at a fraction of the training cost, which accelerated OpenAI\u2019s pricing pressure. OpenAI responded with both o4-mini pricing and general price reductions. The competitive dynamic isn\u2019t just Anthropic vs. OpenAI — it\u2019s proprietary APIs vs. "run it ourselves for free" across the entire enterprise market.<br><br><strong>Strategic implication:</strong> OpenAI now competes on two axes — quality (o3) and affordability (o4-mini/GPT-4o-mini). This good-better-best product ladder captures more wallet share at both ends, which is textbook pricing strategy.`

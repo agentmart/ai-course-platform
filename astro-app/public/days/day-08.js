@@ -45,6 +45,112 @@ window.COURSE_DAY_DATA[8] = {
     }
   ],
 
+  codeExample: {
+    title: 'Frontier lab P&L unit-economics simulator — Python',
+    lang: 'python',
+    code: `# Day 08 — Frontier Lab P&L Unit-Economics Simulator
+#
+# A toy P&L for a frontier model lab. Captures the four economic forces
+# every PM at such a lab must reason about:
+#   1. Training capex amortized over a model's commercial life.
+#   2. Inference COGS as a function of GPU $/hr and tokens/sec.
+#   3. Cloud distribution partners (Bedrock, Vertex) taking a 25-30% cut.
+#   4. Open-source pressure compressing API gross margin year over year.
+#
+# This isn't a forecast — it's a sandbox for exploring HOW the levers move
+# together. Plug in your own assumptions before quoting any number.
+
+from dataclasses import dataclass
+
+@dataclass
+class Model:
+    name: str
+    train_cost_usd: float        # one-time pretraining + RLHF
+    life_months: int             # commercial life before deprecation
+    api_price_in:  float         # $ per 1M input tokens
+    api_price_out: float         # $ per 1M output tokens
+    inference_cost_per_mtok: float  # blended GPU + serving COGS
+
+@dataclass
+class Channel:
+    name: str
+    revenue_share_to_partner: float   # 0..1; e.g. 0.27 for Bedrock
+    monthly_input_mtok:  float
+    monthly_output_mtok: float
+
+def amortized_training(m: Model) -> float:
+    """Monthly training cost spread across the model's life."""
+    return m.train_cost_usd / max(m.life_months, 1)
+
+def channel_revenue(m: Model, c: Channel) -> float:
+    gross = c.monthly_input_mtok * m.api_price_in + c.monthly_output_mtok * m.api_price_out
+    return gross * (1.0 - c.revenue_share_to_partner)
+
+def channel_cogs(m: Model, c: Channel) -> float:
+    total_mtok = c.monthly_input_mtok + c.monthly_output_mtok
+    return total_mtok * m.inference_cost_per_mtok
+
+def simulate(m: Model, channels: list, oss_compression_pct: float = 0.0) -> dict:
+    """oss_compression_pct: % API price erosion from open-weight pressure."""
+    factor = 1.0 - oss_compression_pct
+    revenue = sum(channel_revenue(m, c) for c in channels) * factor
+    cogs    = sum(channel_cogs(m, c)    for c in channels)
+    train   = amortized_training(m)
+    gp      = revenue - cogs
+    op      = gp - train
+    return {
+        "revenue":            round(revenue, 2),
+        "inference_cogs":     round(cogs, 2),
+        "amortized_training": round(train, 2),
+        "gross_profit":       round(gp, 2),
+        "operating_profit":   round(op, 2),
+        "gross_margin":       round(gp / revenue, 3) if revenue else 0.0,
+    }
+
+# --- Scenario ------------------------------------------------------------
+sonnet = Model(
+    name="claude-sonnet-4-6",
+    train_cost_usd=120_000_000,
+    life_months=18,
+    api_price_in=3.00,
+    api_price_out=15.00,
+    inference_cost_per_mtok=0.55,
+)
+
+channels = [
+    Channel("Direct API",  0.00,  monthly_input_mtok=400.0, monthly_output_mtok=160.0),
+    Channel("Bedrock",     0.27,  monthly_input_mtok=350.0, monthly_output_mtok=140.0),
+    Channel("Vertex",      0.25,  monthly_input_mtok=180.0, monthly_output_mtok=70.0),
+]
+
+print(f"Model: {sonnet.name}")
+print(f"Training capex: \${sonnet.train_cost_usd:,.0f} amortized over "
+      f"{sonnet.life_months} months -> \${amortized_training(sonnet):,.0f}/mo\\n")
+
+# --- Sensitivity to OSS price compression --------------------------------
+print(f"{'OSS compression':>15}  {'Revenue':>12}  {'GP':>12}  {'GM%':>6}  {'OpProfit':>12}")
+print("-" * 64)
+for comp in (0.00, 0.10, 0.20, 0.30, 0.40):
+    s = simulate(sonnet, channels, oss_compression_pct=comp)
+    print(f"{comp*100:>14.0f}%  \${s['revenue']:>11,.0f}  \${s['gross_profit']:>11,.0f}  "
+          f"{s['gross_margin']*100:>5.1f}  \${s['operating_profit']:>11,.0f}")
+
+# --- Per-channel decomposition ------------------------------------------
+print("\\nPer-channel revenue (no OSS pressure):")
+for c in channels:
+    rev  = channel_revenue(sonnet, c)
+    cogs = channel_cogs(sonnet, c)
+    take = c.revenue_share_to_partner * 100
+    print(f"  {c.name:11}  partner cut {take:>4.0f}%  net \${rev:>10,.0f}  cogs \${cogs:>9,.0f}")
+
+# --- Consumer vs enterprise mix sanity check -----------------------------
+print("\\nPM takeaway: 30% partner cuts on Bedrock/Vertex are the price of "
+      "enterprise distribution. Open-source pressure compresses API GM "
+      "but rarely touches consumer subscriptions — so consumer ARR is the "
+      "hedge that keeps training capex investable. Always model both.")
+`,
+  },
+
   interview: {
     question: 'What are the unit economics of an AI API business, and how do they affect product decisions?',
     answer: `The core formula: revenue is tokens \u00d7 price per token; cost is tokens \u00d7 inference cost per token. The margin is the spread. By 2025, inference efficiency improvements have made gross margins positive for most frontier model API providers on most models — the "thin or negative margins" story from 2023 is no longer universally true. Smaller, efficient models like Haiku and GPT-4o-mini are often the highest-margin products.<br><br>Three product implications: First, free tiers are expensive customer acquisition investments. Every free API call is subsidized. When cash is tight, free tiers get constrained — but as inference costs fall, free tiers can be more generous. Second, enterprise deals are volume commits that lock in revenue but reduce per-token upside. PM teams face pressure to maximize contract utilization. Third, open-source models (Llama 4, Mistral, Phi-4) create a pricing floor — you can only command API pricing if your value extends beyond model quality to safety, compliance, support, and SLAs.<br><br>The biggest shift since 2024: inference costs fell 100x faster than expected. This changes what\u2019s economically viable. Products that were too expensive at $120/1M tokens are viable at $1/1M. Every quarterly pricing drop opens new product categories — a PM who understands this can time feature launches to coincide with cost thresholds.`

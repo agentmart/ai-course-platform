@@ -16,6 +16,118 @@ window.COURSE_DAY_DATA[56] = {
     { title: 'Write context notes for each piece', description: 'Write two-paragraph context notes for each of your top 5 artifacts. Paragraph 1: what this is and why it matters (problem addressed, skill demonstrated, relevance to target roles). Paragraph 2: what you learned and what you\u2019d do differently (reflective insight, improvements with more time/data). These notes become the README.md files in each day\u2019s subdirectory. Save as /day-56/context_notes.md.', time: '20 min' },
     { title: 'Portfolio peer review', description: 'Review your own portfolio with the hiring manager\u2019s lens: spend exactly 3 minutes browsing your GitHub repo. Note what you found, what confused you, what was missing. Then: can a reviewer understand your skill set in 3 minutes? Is your positioning clear? Are the 5 pieces easy to find? Is any piece below quality threshold? Write an honest self-assessment and an action list for improvements. Save as /day-56/portfolio_self_review.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'Portfolio Piece Scorer — Python',
+    lang: 'python',
+    code: `# Day 56 — Portfolio Piece Scorer
+# Scores each portfolio artifact on depth, novelty, evidence, narrative.
+# Pure stdlib. Hardcoded sample of five candidate artifacts.
+
+CRITERIA = [
+    ("depth",     "Real complexity tackled, not a toy demo",        0.30),
+    ("novelty",   "Unique angle vs the average AI PM portfolio",    0.20),
+    ("evidence",  "Numbers, evals, before/after, screenshots",      0.30),
+    ("narrative", "Reader knows the problem in 60 seconds",         0.20),
+]
+
+# Five candidate artifacts (the typical AI PM portfolio is 5 pieces).
+ARTIFACTS = [
+    {"id": "P1", "title": "Enterprise AI strategy doc (financial services)",
+     "scores": {"depth": 0.85, "novelty": 0.65, "evidence": 0.70, "narrative": 0.80}},
+    {"id": "P2", "title": "RAG eval harness with 200 graded examples",
+     "scores": {"depth": 0.80, "novelty": 0.75, "evidence": 0.90, "narrative": 0.65}},
+    {"id": "P3", "title": "Red-team report on customer-support agent",
+     "scores": {"depth": 0.70, "novelty": 0.85, "evidence": 0.75, "narrative": 0.70}},
+    {"id": "P4", "title": "DX audit of a public AI API",
+     "scores": {"depth": 0.65, "novelty": 0.70, "evidence": 0.60, "narrative": 0.85}},
+    {"id": "P5", "title": "Capstone case study: agentic workflow product",
+     "scores": {"depth": 0.90, "novelty": 0.70, "evidence": 0.80, "narrative": 0.75}},
+    # A weak example to illustrate what gets cut.
+    {"id": "P6", "title": "Weekend chatbot built from a tutorial",
+     "scores": {"depth": 0.30, "novelty": 0.20, "evidence": 0.25, "narrative": 0.50}},
+]
+
+def grade(pct):
+    if pct >= 0.85: return "A"
+    if pct >= 0.70: return "B"
+    if pct >= 0.55: return "C"
+    if pct >= 0.40: return "D"
+    return "F"
+
+def weighted(scores):
+    return sum(scores[k] * w for k, _, w in CRITERIA)
+
+def evaluate(artifact):
+    s = artifact["scores"]
+    rows = []
+    for key, label, w in CRITERIA:
+        rows.append((key, label, w, s[key], s[key] * w))
+    return rows, weighted(s)
+
+def print_artifact(a):
+    print("-" * 60)
+    print(f"[{a['id']}] {a['title']}")
+    rows, total = evaluate(a)
+    for key, _, w, raw, wt in rows:
+        print(f"   {key:10}  w={w:.2f}  raw={raw:.2f}  weighted={wt:.3f}  {grade(raw)}")
+    print(f"   TOTAL: {total:.2f}   GRADE: {grade(total)}")
+    return total
+
+def keep_or_cut(total):
+    # Portfolio quality bar: keep at >=0.70.
+    return "KEEP" if total >= 0.70 else "CUT"
+
+def narrative_audit(artifact):
+    """A piece below 0.7 narrative needs a stronger one-paragraph context note."""
+    if artifact["scores"]["narrative"] < 0.70:
+        return f"Rewrite the context note for {artifact['id']} so problem + outcome land in 60s."
+    return None
+
+def main():
+    print("PORTFOLIO PIECE SCORER")
+    print("=" * 60)
+    summary = []
+    for a in ARTIFACTS:
+        total = print_artifact(a)
+        summary.append((a, total))
+
+    print()
+    print("KEEP / CUT decisions:")
+    for a, total in sorted(summary, key=lambda r: -r[1]):
+        decision = keep_or_cut(total)
+        marker = "✓" if decision == "KEEP" else "✗"
+        print(f"  {marker} {a['id']} {a['title'][:42]:42}  {total:.2f}  {decision}")
+
+    kept = [a for a, t in summary if t >= 0.70]
+    print()
+    print(f"Final portfolio: {len(kept)} pieces (target = exactly 5).")
+    if len(kept) > 5:
+        print("  Trim the lowest-scoring KEEP to land at 5.")
+    elif len(kept) < 5:
+        print("  Backfill with stronger artifacts before applying.")
+
+    print()
+    print("Narrative audit:")
+    any_narrative = False
+    for a, _ in summary:
+        note = narrative_audit(a)
+        if note:
+            any_narrative = True
+            print("  - " + note)
+    if not any_narrative:
+        print("  (every piece tells its story in 60 seconds)")
+
+    print()
+    avg = sum(t for _, t in summary) / len(summary)
+    print(f"Portfolio average score: {avg:.2f} ({grade(avg)})")
+    print("Rule: if average < 0.75, ship one new artifact before applying.")
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'How do you demonstrate your AI PM capabilities to potential employers?', answer: `I use a GitHub-first portfolio approach that signals both product thinking and technical fluency.<br><br><strong>GitHub as primary portfolio:</strong> I maintain a structured repository (ai-pm-60days/) with curated artifacts. This signals to hiring managers that I\u2019m comfortable with developer tools, I can write structured documents, and I version my work. A Notion page with screenshots doesn\u2019t demonstrate the same technical literacy.<br><br><strong>Five polished pieces, not twenty mediocre ones:</strong> Hiring managers spend 2\u20133 minutes on a portfolio. I curate my top 5 artifacts across Strategy, Technical, Safety, DX, and Leadership. Each piece meets a quality bar: could be shared without apology, demonstrates a named PM skill, contains original analysis, and is professionally formatted.<br><br><strong>Context notes that sell:</strong> Every artifact has a two-paragraph context note. Paragraph one: what this is, what problem it addresses, what skill it demonstrates. Paragraph two: what I learned and what I\u2019d do differently. That second paragraph is critical \u2014 it demonstrates reflective thinking, which is the meta-skill that separates strong PMs from checklist-followers.<br><br><strong>The README is the landing page:</strong> The repo\u2019s README has my positioning statement, curated links to the top 5, and navigation guidance. If a recruiter can\u2019t understand my skill set in 3 minutes from the README alone, the portfolio has failed.` },
   pmAngle: 'Your portfolio is your proof of work. In a market where everyone claims AI PM experience, the candidate who shows a structured GitHub repo with five polished artifacts and reflective context notes stands out from the hundred applicants with bullet points on a resume. Curation is the skill \u2014 selection, context, and quality over volume.',
   resources: [

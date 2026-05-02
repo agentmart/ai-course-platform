@@ -44,6 +44,128 @@ window.COURSE_DAY_DATA[7] = {
     }
   ],
 
+  codeExample: {
+    title: 'Multimodal request builder & router — JavaScript',
+    lang: 'js',
+    code: `// Day 07 — Multimodal Request Builder & Use-Case Router
+//
+// In 2026, "send text to an LLM" is the simplest case. Real product work
+// is composing requests that mix text, images, PDFs, and audio, and
+// routing the right combination to the right model. This script builds
+// strongly-typed request shapes you'd send to the Anthropic Messages API
+// (claude-sonnet-4-6 supports native PDF + image input) and routes
+// representative enterprise use cases to the cheapest viable model.
+//
+// No network calls — everything below is a pure data structure builder.
+
+const MODELS = {
+  haiku:  { name: 'claude-haiku-4-5-20251001', vision: true,  pdf: true,  audio: false },
+  sonnet: { name: 'claude-sonnet-4-6',         vision: true,  pdf: true,  audio: false },
+  opus:   { name: 'claude-opus-4-6',           vision: true,  pdf: true,  audio: false },
+  gpt4o:  { name: 'gpt-4o',                    vision: true,  pdf: false, audio: true  },
+};
+
+// --- Content block constructors -----------------------------------------
+const text   = (s)      => ({ type: 'text',     text: s });
+const image  = (b64)    => ({ type: 'image',    source: { type: 'base64', media_type: 'image/png', data: b64 } });
+const pdf    = (b64)    => ({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } });
+const audio  = (b64)    => ({ type: 'input_audio', source: { type: 'base64', media_type: 'audio/wav', data: b64 } });
+
+function buildRequest({ model, system, blocks, maxTokens = 1024 }) {
+  return {
+    model: model.name,
+    max_tokens: maxTokens,
+    system,
+    messages: [{ role: 'user', content: blocks }],
+  };
+}
+
+// --- Use-case router -----------------------------------------------------
+// Picks the cheapest model that supports every required modality.
+function route(useCase) {
+  const need = useCase.modalities;
+  const order = [MODELS.haiku, MODELS.sonnet, MODELS.opus, MODELS.gpt4o];
+  for (const m of order) {
+    const ok = need.every((mod) => m[mod]);
+    if (!ok) continue;
+    if (useCase.needsHighReasoning && m === MODELS.haiku) continue;
+    return m;
+  }
+  return null;
+}
+
+// --- Demo use cases ------------------------------------------------------
+const FAKE_B64 = 'AAAA';
+
+const useCases = [
+  {
+    id: 'invoice-extraction',
+    description: 'Extract line items from a vendor PDF invoice.',
+    modalities: ['pdf'],
+    needsHighReasoning: false,
+    blocks: [text('Extract vendor, total, and line items as JSON.'), pdf(FAKE_B64)],
+  },
+  {
+    id: 'safety-photo-triage',
+    description: 'Field worker uploads a hazard photo for triage.',
+    modalities: ['vision'],
+    needsHighReasoning: false,
+    blocks: [text('Classify hazard severity (low/med/high) and explain.'), image(FAKE_B64)],
+  },
+  {
+    id: 'voice-call-summary',
+    description: 'Summarize a customer support call recording.',
+    modalities: ['audio'],
+    needsHighReasoning: false,
+    blocks: [text('Summarize the call and extract action items.'), audio(FAKE_B64)],
+  },
+  {
+    id: 'm-and-a-diligence',
+    description: 'Read a 100-page target deck plus financials PDF.',
+    modalities: ['pdf', 'vision'],
+    needsHighReasoning: true,
+    blocks: [text('Identify revenue concentration risks and red flags.'), pdf(FAKE_B64), image(FAKE_B64)],
+  },
+];
+
+// --- Run -----------------------------------------------------------------
+console.log('Multimodal routing — 2026 lineup\\n');
+for (const uc of useCases) {
+  const model = route(uc);
+  if (!model) {
+    console.log(\`SKIP \${uc.id}: no model supports \${uc.modalities.join('+')}\`);
+    continue;
+  }
+  const req = buildRequest({
+    model,
+    system: 'You are a careful enterprise assistant. Cite the source block when possible.',
+    blocks: uc.blocks,
+  });
+  console.log('use case  :', uc.id);
+  console.log('purpose   :', uc.description);
+  console.log('routed to :', model.name);
+  console.log('blocks    :', req.messages[0].content.map((b) => b.type).join(', '));
+  console.log('---');
+}
+
+// --- Capability matrix ---------------------------------------------------
+console.log('\\nModel capability matrix:');
+console.log('model'.padEnd(32), 'vision', 'pdf', 'audio');
+for (const m of Object.values(MODELS)) {
+  console.log(
+    m.name.padEnd(32),
+    String(m.vision).padEnd(6),
+    String(m.pdf).padEnd(3),
+    String(m.audio),
+  );
+}
+
+console.log('\\nPM takeaway: native PDF on Claude eliminates an entire ' +
+  'pre-processing pipeline. For voice, route to a speech-capable model ' +
+  '(or a separate STT step) — Claude is text+vision+PDF first.');
+`,
+  },
+
   interview: {
     question: 'How would you decide whether to add voice, vision, or text capabilities to an AI product first?',
     answer: `I start with three questions: Where is the user\u2019s primary input modality? What\u2019s the latency tolerance? And what\u2019s the failure recovery cost?<br><br><strong>Vision first</strong> when the existing workflow involves documents or images. If users photograph forms and manually type data, vision-based extraction is high-value and low-risk. Anthropic\u2019s native PDF support (no image conversion needed) simplifies this significantly. Structured form extraction — W2s, invoices, medical forms — is now the highest-deployment enterprise multimodal use case, and Claude Vision plus structured JSON output handles it well. The failure mode is localized: one document fails to parse, fallback to manual entry.<br><br><strong>Voice first</strong> when users are mobile or hands-occupied and the interaction is conversational. The GPT-4o Realtime API makes sub-300ms voice conversations production-viable. But voice has higher failure recovery cost — a misheard command causes real errors, and users are less tolerant of voice errors than text errors.<br><br><strong>Text first</strong> is almost always the right MVP. Cheapest, fastest to iterate, easiest to evaluate. Add vision or voice when you\u2019ve validated the core product and identified a specific workflow where multimodal genuinely unlocks more value than improved text UX.<br><br><strong>Video</strong> is now production-ready for specific use cases (meeting summarization, manufacturing QA, content moderation). It\u2019s no longer "emerging" — the question is whether your specific use case has enough video content to justify the compute cost.`

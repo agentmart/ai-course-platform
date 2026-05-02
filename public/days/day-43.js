@@ -17,6 +17,120 @@ window.COURSE_DAY_DATA[43] = {
     { title: 'Map the sub-agent architecture', description: 'For a large codebase refactoring task: design how Claude Code\u2019s sub-agents would coordinate. Map the main agent\u2019s responsibilities vs sub-agent tasks, define the coordination protocol, identify potential conflicts (two agents editing the same file), and specify verification steps. Include a concrete example with up to 10 sub-agents working in parallel. Save as /day-43/sub_agent_design.md.', time: '20 min' },
     { title: 'Analyze vibe-coding impact on product strategy', description: 'Write a strategic analysis: how do AI coding tools (Claude Code, Cursor, Copilot) change product defensibility? Cover: time-to-competition compression, the shift from \u201cbuilt it first\u201d to data/workflow/network moats, the impact on build-vs-buy decisions, and what this means for your product roadmap. Save as /day-43/vibe_coding_strategy.md.', time: '10 min' }
   ],
+
+  codeExample: {
+    title: 'Claude Code task router & tool-use loop — JavaScript',
+    lang: 'js',
+    code: `// Day 43 — Claude Code task router + tool-use loop (pseudocode model)
+// Self-contained simulation. No real API calls. Uses claude-sonnet-4-6 +
+// claude-haiku-4-5-20251001 by routing on task complexity.
+
+const TOOLS = {
+  read_file:   { cost: 1, side_effect: false },
+  search_repo: { cost: 2, side_effect: false },
+  edit_file:   { cost: 4, side_effect: true  },
+  run_tests:   { cost: 5, side_effect: true  },
+  shell:       { cost: 6, side_effect: true  },
+};
+
+const MODELS = {
+  fast:    'claude-haiku-4-5-20251001',
+  primary: 'claude-sonnet-4-6',
+  deep:    'claude-opus-4-6',
+};
+
+function classify(task) {
+  const t = task.toLowerCase();
+  if (t.includes('design') || t.includes('refactor entire')) return 'deep';
+  if (t.includes('rename') || t.includes('typo') || t.includes('lint')) return 'fast';
+  return 'primary';
+}
+
+function planTools(task) {
+  const t = task.toLowerCase();
+  const plan = ['read_file'];
+  if (t.includes('find') || t.includes('where')) plan.push('search_repo');
+  if (t.includes('fix') || t.includes('add') || t.includes('rename')) plan.push('edit_file');
+  if (t.includes('test') || t.includes('verify')) plan.push('run_tests');
+  return plan;
+}
+
+function fakeToolCall(name, args) {
+  if (name === 'read_file')   return 'def add(a,b): return a+b';
+  if (name === 'search_repo') return ['src/math.py:1', 'tests/test_math.py:1'];
+  if (name === 'edit_file')   return { changed: 1, file: args.path || 'src/math.py' };
+  if (name === 'run_tests')   return { passed: 12, failed: 0 };
+  if (name === 'shell')       return { stdout: 'ok', code: 0 };
+  return null;
+}
+
+function requireApproval(tool) {
+  return TOOLS[tool] && TOOLS[tool].side_effect;
+}
+
+function runAgent(task, claudemd) {
+  const tier = classify(task);
+  const model = MODELS[tier];
+  console.log('-'.repeat(60));
+  console.log('TASK:    ' + task);
+  console.log('CLAUDE.md hint: ' + claudemd.summary);
+  console.log('Routing: tier=' + tier + ' model=' + model);
+
+  const plan = planTools(task);
+  console.log('Plan:    ' + plan.join(' -> '));
+
+  let tokens = 0;
+  let touched = 0;
+  for (let i = 0; i < plan.length; i++) {
+    const tool = plan[i];
+    const needs = requireApproval(tool);
+    if (needs && !claudemd.allowSideEffects.includes(tool)) {
+      console.log('  step ' + (i + 1) + ': ' + tool + ' BLOCKED by CLAUDE.md policy');
+      return { ok: false, reason: 'policy_block', model: model };
+    }
+    const result = fakeToolCall(tool, { path: 'src/math.py' });
+    tokens += TOOLS[tool].cost * 100;
+    if (TOOLS[tool].side_effect) touched += 1;
+    console.log('  step ' + (i + 1) + ': ' + tool + ' -> ' + JSON.stringify(result));
+  }
+
+  return { ok: true, model: model, tokens: tokens, side_effects: touched };
+}
+
+const CLAUDE_MD = {
+  summary: 'Python lib. Tests must pass. Side-effect tools allowed: edit_file, run_tests.',
+  allowSideEffects: ['edit_file', 'run_tests'],
+};
+
+const TASKS = [
+  'Find where add() is defined and fix the typo in the docstring',
+  'Rename module utils to helpers across the repo',
+  'Design a plugin architecture for the cli',
+  'Run tests and verify nothing is broken',
+  'Open a shell and delete the build cache',
+];
+
+console.log('=' .repeat(60));
+console.log('Day 43 — Claude Code agent simulation');
+console.log('=' .repeat(60));
+
+let totalTokens = 0;
+let blocks = 0;
+TASKS.forEach(function (t) {
+  const r = runAgent(t, CLAUDE_MD);
+  if (!r.ok) blocks += 1;
+  if (r.tokens) totalTokens += r.tokens;
+  console.log('  result -> ' + JSON.stringify(r));
+});
+
+console.log('-'.repeat(60));
+console.log('Summary: ' + TASKS.length + ' tasks, ' + blocks + ' blocked by policy.');
+console.log('Approx tokens used: ' + totalTokens);
+console.log('Lesson: CLAUDE.md is the PRD for Claude Code. Policy in the file,');
+console.log('not in the prompt, is what scales agentic coding to a team.');
+`,
+  },
+
   interview: { question: 'What is Claude Code and how would you integrate it into a product development workflow?', answer: `Claude Code is Anthropic\u2019s agentic CLI tool that gives Claude direct access to your codebase and terminal \u2014 it\u2019s GA as of April 2025.<br><br><strong>What it does differently:</strong> Unlike inline code suggestions (Copilot-style), Claude Code operates as an autonomous agent. It reads your entire codebase, proposes multi-file changes, runs tests, debugs failures, and iterates \u2014 all in the terminal. It can spawn up to 10 sub-agents for parallel work and connects to external tools via MCP. Think of it as a junior developer who never sleeps and can work on 10 tasks simultaneously.<br><br><strong>CLAUDE.md is the key concept.</strong> Every project should have a CLAUDE.md file \u2014 a project-level instruction document that describes architecture, coding conventions, testing requirements, and anti-patterns. A well-crafted CLAUDE.md is the difference between Claude Code producing generic code and producing code that matches your team\u2019s standards. As a PM, helping engineering write effective CLAUDE.md files is one of the highest-leverage activities for AI-assisted development.<br><br><strong>Integration strategy:</strong> I\u2019d integrate Claude Code at three levels: (1) Individual developer productivity \u2014 each engineer uses it for coding, debugging, and refactoring. (2) CI/CD automation \u2014 GitHub Actions integration for automated PR review, test generation, and documentation. (3) Infrastructure automation \u2014 Claude Code as a deployment and maintenance tool via API access. The sub-agent capability is particularly powerful for large-scale tasks like dependency upgrades or cross-codebase refactoring.<br><br><strong>Strategic implication:</strong> Claude Code compresses development timelines, which changes competitive dynamics. If your competitor can replicate your feature in weeks instead of months, your defensibility must come from data, workflow integration, or network effects \u2014 not just being first to build.` },
   pmAngle: 'CLAUDE.md is to AI-assisted development what a PRD is to product development \u2014 it defines requirements, constraints, and expectations. PMs who help their teams write effective CLAUDE.md files multiply Claude Code\u2019s value organization-wide. The vibe-coding revolution means speed is no longer a moat; defensibility must come from proprietary data, workflow lock-in, or network effects.',
   resources: [

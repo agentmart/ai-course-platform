@@ -6,3 +6,4 @@ freshness-report.json
 .vscode/settings.json
 .playwright-mcp/
 .pr-body.md
+__pycache__/

@@ -16,6 +16,138 @@ window.COURSE_DAY_DATA[32] = {
     { title: 'Create a model dependency map', description: 'Document every model dependency: primary inference model, secondary/routing model, embedding model, evaluation model. For each: provider, version string, fallback option, estimated monthly cost, and what breaks if it\u2019s unavailable. Save as /day-32/model_dependency_map.md.', time: '20 min' },
     { title: 'Build vs Buy vs Partner vs Open-Source matrix', description: 'For a vertical AI product (legal, healthcare, or finance): identify 5 key capabilities. For each, evaluate Build/Buy/Partner/Open-Source using criteria: control needed, speed to market, cost at scale, data sensitivity, and competitive differentiation. Present as a decision matrix. Save as /day-32/build_buy_matrix.md. Stage and commit your Day 31\u201332 work.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'Strategy doc completeness scorer — Python',
+    lang: 'python',
+    code: `# Day 32 — AI product strategy doc completeness scorer
+# Pedagogical goal: a fundable AI strategy answers WHY the model provider
+# won't build it, WHY OSS won't kill it, and WHERE defensibility compounds.
+
+from dataclasses import dataclass, field
+from typing import Dict, List, Tuple
+
+
+@dataclass
+class Section:
+    key: str
+    title: str
+    weight: int
+    must_mention: List[str] = field(default_factory=list)
+
+
+SECTIONS: List[Section] = [
+    Section("problem", "Problem & user", 10, ["user", "pain", "today"]),
+    Section("wedge", "Wedge & ICP", 10, ["icp", "wedge", "first 10 customers"]),
+    Section("model_dep", "Model dependency map", 12, ["primary model", "fallback", "fine-tune", "eval"]),
+    Section("provider_risk", "Why the model provider won't build this", 14, ["distribution", "vertical", "data", "workflow"]),
+    Section("oss_risk", "Why open-source won't kill this", 14, ["latency", "compliance", "data", "fine-tune", "ops"]),
+    Section("defensibility", "Defensibility that compounds", 14, ["data", "workflow", "integration", "switching cost"]),
+    Section("metrics", "Success metrics", 10, ["acceptance", "cost per outcome", "hallucination"]),
+    Section("risks", "Risks & mitigations", 8, ["model deprecation", "pricing", "regulation"]),
+    Section("buy_build", "Build vs Buy vs Partner vs OSS", 8, ["build", "buy", "partner", "open-source"]),
+]
+
+
+@dataclass
+class StrategyDoc:
+    title: str
+    body: Dict[str, str]   # section key -> prose
+
+
+def score_section(section: Section, text: str) -> Tuple[int, List[str]]:
+    if not text or len(text.strip()) < 80:
+        return 0, [f"section too short (<80 chars)"]
+    lower = text.lower()
+    missing = [kw for kw in section.must_mention if kw not in lower]
+    coverage = (len(section.must_mention) - len(missing)) / max(1, len(section.must_mention))
+    raw = int(round(section.weight * coverage))
+    notes = []
+    if missing:
+        notes.append("missing keywords: " + ", ".join(missing))
+    if len(text) < 220:
+        notes.append("thin: aim for 220+ chars")
+    return raw, notes
+
+
+def score_doc(doc: StrategyDoc) -> Dict:
+    total = 0
+    rows = []
+    for s in SECTIONS:
+        text = doc.body.get(s.key, "")
+        got, notes = score_section(s, text)
+        total += got
+        rows.append((s.key, s.title, got, s.weight, notes))
+    grade = "A" if total >= 90 else "B" if total >= 75 else "C" if total >= 60 else "F"
+    return {"total": total, "grade": grade, "rows": rows}
+
+
+# A realistic, partially-complete strategy for a vertical legal AI product.
+draft = StrategyDoc(
+    title="LexAgent — vertical AI for in-house legal teams",
+    body={
+        "problem": (
+            "In-house legal teams today triage hundreds of contracts per quarter. "
+            "The user is the AGC; the pain is the manual review queue."
+        ),
+        "wedge": (
+            "ICP: post-Series-C SaaS in-house legal (5-25 lawyers). "
+            "Wedge: NDA + DPA review. First 10 customers from existing legaltech network."
+        ),
+        "model_dep": (
+            "Primary model claude-sonnet-4-6; fallback gpt-4o for capacity. "
+            "Fine-tune a small classifier for clause typing. Eval harness with 3k labeled clauses."
+        ),
+        "provider_risk": (
+            "Anthropic won't build a vertical legal workflow tool: distribution and data are wrong fit. "
+            "We own the legal workflow surface, the ICP relationships, and the labeled clause corpus."
+        ),
+        "oss_risk": (
+            "An open-weight Llama can match base capability, but compliance (SOC 2, BAA), "
+            "data residency in EU, and the fine-tune on our clause corpus create a moat. "
+            "Self-hosting OSS is not free for a 12-person legal team's ops budget."
+        ),
+        "defensibility": (
+            "Compounds via labeled clause data, workflow integration with iManage/NetDocs, "
+            "and switching cost through saved playbooks per customer."
+        ),
+        "metrics": (
+            "Acceptance rate of clause flags >= 65%. Cost per outcome < $1.20 per contract. "
+            "Hallucination rate < 0.5% on quarterly red-team set."
+        ),
+        "risks": "",   # intentionally missing to demonstrate scoring
+        "buy_build": (
+            "Build core review. Buy redaction (existing vendor). "
+            "Partner on iManage integration. Open-source the eval harness."
+        ),
+    },
+)
+
+result = score_doc(draft)
+print(f"=== Strategy: {draft.title} ===")
+print(f"Score: {result['total']}/100   Grade: {result['grade']}")
+
+print("\\n=== Section breakdown ===")
+for key, title, got, wt, notes in result["rows"]:
+    print(f"  [{got:>2}/{wt:>2}]  {title}")
+    for n in notes:
+        print(f"          - {n}")
+
+print("\\n=== The three fundability questions ===")
+checks = [
+    ("Why won't the model provider build it?", "provider_risk"),
+    ("Why won't open-source kill it?",         "oss_risk"),
+    ("Where does defensibility compound?",     "defensibility"),
+]
+for q, k in checks:
+    sec = next(s for s in SECTIONS if s.key == k)
+    got, _ = score_section(sec, draft.body.get(k, ""))
+    print(f"  [{got}/{sec.weight}]  {q}")
+
+print("\\nPM takeaway: a strategy that scores < 75 is a description, not a strategy.")
+`,
+  },
+
   interview: { question: 'How would you evaluate whether to build an AI feature in-house vs using a third-party API?', answer: `I\u2019d evaluate across five dimensions.<br><br><strong>Strategic importance:</strong> Is this capability core to our product\u2019s value proposition? If yes, lean toward building. If it\u2019s a commodity capability (summarization, classification), buy via API. Core capabilities need control over quality, latency, and iteration speed that APIs constrain.<br><br><strong>Data sensitivity:</strong> Can we send this data to a third-party? Healthcare, legal, and financial data often can\u2019t leave our infrastructure. This pushes toward self-hosted open-source models (Llama, Phi) or on-premise deployment via AWS Bedrock in the customer\u2019s VPC.<br><br><strong>Scale economics:</strong> At what volume does self-hosting become cheaper? For most tasks, API is cheaper under ~1M requests/month. Beyond that, self-hosted open-source models on dedicated GPUs often win on cost. Calculate the crossover point.<br><br><strong>Iteration speed:</strong> Building takes months; buying takes days. For v1, almost always buy. For v2+, build the components where you need differentiation. The mistake is building everything from scratch for v1 and shipping 6 months late.<br><br><strong>The open-source factor:</strong> Before buying an API <em>or</em> building from scratch, check if an open-source model handles the task adequately. Self-hosted Llama for high-volume classification is often 10x cheaper than an API and gives you full data control.` },
   pmAngle: 'The AI product strategy that gets funded answers three questions clearly: why the model provider won\u2019t build it, why an open-source alternative won\u2019t kill it, and where the defensibility compounds over time. Most AI product strategies fail because they describe what the product does, not why it\u2019s defensible. Engineers respect strategy that acknowledges technical reality; executives fund strategy that shows compounding moats.',
   resources: [

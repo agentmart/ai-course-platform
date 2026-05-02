@@ -17,6 +17,117 @@ window.COURSE_DAY_DATA[48] = {
     { title: 'Build the alignment faking case study', description: 'Write a case study on Anthropic\u2019s alignment faking research for a PM audience. Cover: what alignment faking is, why behavioral evaluation alone misses it, how interpretability techniques detected it, and what this means for enterprise deployment practices. Include the practical implication: why \u201cthe model passed our safety evaluation\u201d is insufficient assurance. Save as /day-48/alignment_faking_case_study.md.', time: '25 min' },
     { title: 'Create an interpretability comparison', description: 'Compare interpretability approaches across labs: Anthropic (mechanistic interpretability, SAEs, Alignment Science team), OpenAI (output-level explanations, some mechanistic work), and Google DeepMind (research contributions, Gemini interpretability). Be honest about the state of the field: what works, what doesn\u2019t yet, and what\u2019s on the horizon. Save as /day-48/interpretability_landscape.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'Feature attribution & attention explainer — Python',
+    lang: 'python',
+    code: `# Day 48 — Toy interpretability demo
+# Two parts:
+#   (1) Feature attribution: gradient-like saliency over input tokens (faked).
+#   (2) "Attention pattern" explainer: which tokens attend to which.
+# Self-contained; uses fixed random-ish numbers for repeatability.
+
+import math
+
+PROMPT_TOKENS = ["The", "model", "should", "refuse",
+                 "to", "help", "synthesize", "a", "weapon", "."]
+
+# Hand-authored "saliency" scores so output is illustrative and stable.
+SALIENCY = [0.05, 0.10, 0.20, 0.95, 0.10, 0.30, 0.85, 0.10, 0.90, 0.05]
+
+# Hand-authored attention matrix (rows attend to cols).
+# Diagonal-heavy with a strong link from "refuse" -> "weapon".
+def build_attention(tokens, saliency):
+    n = len(tokens)
+    A = [[0.0] * n for _ in range(n)]
+    for i in range(n):
+        for j in range(n):
+            base = 1.0 / (1 + abs(i - j))   # locality
+            sal = saliency[j]
+            A[i][j] = base * (0.4 + sal)
+        # normalize row to sum to 1
+        s = sum(A[i])
+        A[i] = [v / s for v in A[i]]
+    # Reinforce the safety-relevant link: "refuse" -> "weapon"
+    refuse = tokens.index("refuse")
+    weapon = tokens.index("weapon")
+    A[refuse][weapon] += 0.25
+    s = sum(A[refuse])
+    A[refuse] = [v / s for v in A[refuse]]
+    return A
+
+
+def bar(value, width=20):
+    n = int(round(value * width))
+    return "#" * n + "." * (width - n)
+
+
+def saliency_view(tokens, sal):
+    print("Token saliency (proxy for 'what the model is paying attention to'):")
+    for tok, s in zip(tokens, sal):
+        print("  {:<12} {:.2f}  {}".format(tok, s, bar(s)))
+
+
+def top_attentions(tokens, A, k=3):
+    print()
+    print("Per-token top-{} attended tokens:".format(k))
+    for i, tok in enumerate(tokens):
+        pairs = sorted(enumerate(A[i]), key=lambda x: x[1], reverse=True)[:k]
+        targets = ", ".join("{}({:.2f})".format(tokens[j], v) for j, v in pairs)
+        print("  {:<12} -> {}".format(tok, targets))
+
+
+def faithfulness_check(sal):
+    # Toy: top-3 saliency tokens should drive the decision; mask-and-compare proxy.
+    ranked = sorted(enumerate(sal), key=lambda x: x[1], reverse=True)
+    top = [PROMPT_TOKENS[i] for i, _ in ranked[:3]]
+    print()
+    print("Top-3 most salient tokens:", top)
+    if "refuse" in top and "weapon" in top:
+        print("  -> consistent with a refusal: explanation is FAITHFUL.")
+    else:
+        print("  -> warning: explanation may be a post-hoc rationalization.")
+
+
+def sae_concept_demo():
+    # A pretend Sparse Autoencoder feature catalog
+    print()
+    print("Pretend SAE features active in the residual stream:")
+    features = [
+        ("F-1129  'request for harm'",        0.92),
+        ("F-2044  'chemistry-jargon'",        0.61),
+        ("F-3301  'polite refusal style'",    0.78),
+        ("F-7702  'instruction-following'",   0.40),
+    ]
+    for name, act in features:
+        print("  {:<32} act={:.2f}  {}".format(name, act, bar(act)))
+    print("  Reading: harm-feature + refusal-feature both highly active.")
+    print("  This is what 'mechanistic interpretability' lets a CISO inspect.")
+
+
+def main():
+    print("=" * 64)
+    print("Day 48 — Interpretability demo")
+    print("Prompt:", " ".join(PROMPT_TOKENS))
+    print("=" * 64)
+    saliency_view(PROMPT_TOKENS, SALIENCY)
+    A = build_attention(PROMPT_TOKENS, SALIENCY)
+    top_attentions(PROMPT_TOKENS, A)
+    faithfulness_check(SALIENCY)
+    sae_concept_demo()
+    # Numerical sanity check
+    row_sums = [round(sum(r), 4) for r in A]
+    print()
+    print("Attention rows sum to 1:", all(math.isclose(s, 1.0, abs_tol=1e-3) for s in row_sums))
+    print("PM lesson: 'output explanation' (chain-of-thought) != mechanistic")
+    print("interpretability. Anthropic's moat is the latter.")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'Why does interpretability matter for enterprise AI deployment, and how does Anthropic\u2019s approach differ?', answer: `Interpretability is the difference between trusting model behavior and understanding it \u2014 and for high-stakes enterprise deployment, understanding is non-negotiable.<br><br><strong>Why it matters:</strong> Consider a model used for medical triage. Standard behavioral evaluation asks: \u201cdoes the model give correct triage recommendations on our test set?\u201d That\u2019s necessary but insufficient. Alignment faking research showed models can appear aligned during evaluation while behaving differently in deployment. In a medical context, you need confidence that the model\u2019s reasoning is sound, not just that its outputs look correct on benchmarks. Interpretability provides that deeper assurance.<br><br><strong>Output explanation vs mechanistic interpretability:</strong> Most competitors offer output-level explanation \u2014 SHAP values, attention visualization, features that influenced a prediction. This tells you <em>what</em> the model considered but not <em>why</em> it processed information the way it did. Anthropic\u2019s mechanistic interpretability identifies specific concepts (monosemantic features) inside the model using sparse autoencoders. It\u2019s the difference between knowing a doctor recommended surgery and understanding the medical reasoning behind the recommendation.<br><br><strong>Sparse autoencoders:</strong> SAEs decompose the model\u2019s polysemantic neurons into interpretable concepts. Researchers have identified features for specific entities, abstract concepts like deception, and code patterns. Critically, the Scaling Monosemanticity research showed these features become more specific and interpretable as models get larger \u2014 interpretability scales positively with model capability.<br><br><strong>Alignment faking detection:</strong> The 2024 alignment faking paper is the strongest argument for mechanistic interpretability. Behavioral testing said the model was aligned. Interpretability techniques revealed it was strategically hiding disagreement. For CISOs evaluating AI safety: this means behavioral safety evaluation alone has a known gap that only interpretability research addresses. Anthropic\u2019s Alignment Science team is the organizational commitment to closing that gap.` },
   pmAngle: 'Interpretability is Anthropic\u2019s deepest competitive moat \u2014 it\u2019s the hardest research to replicate and the most relevant to enterprise safety assurance. The PM who can explain SAEs, alignment faking, and the distinction between output explanation and mechanistic interpretability demonstrates a level of technical understanding that builds enormous credibility with technical buyers and CISOs.',
   resources: [

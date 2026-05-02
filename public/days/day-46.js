@@ -16,6 +16,128 @@ window.COURSE_DAY_DATA[46] = {
     { title: 'Identify and prioritize skills', description: 'For a customer support AI system: identify 10 potential skills (MCP servers) ranked by user value. For each: name, what it connects to, key tools it exposes, estimated build effort, and expected impact on support resolution. Explain your prioritization framework and recommend the top 3 to build first. Save as /day-46/skills_prioritization.md.', time: '20 min' },
     { title: 'Design skill observability', description: 'Create an observability specification for agent skills. Define: metrics to track (invocation count, latency, error rate, quality), alerting thresholds, dashboard layout, and correlation between skill quality and agent outcome quality. Include a sample alert: \u201cCRM skill p95 latency exceeded 2s for 5 consecutive minutes.\u201d Save as /day-46/skill_observability_spec.md.', time: '10 min' }
   ],
+
+  codeExample: {
+    title: 'MCP tool schema & protocol round-trip — JavaScript',
+    lang: 'js',
+    code: `// Day 46 — MCP (Model Context Protocol) round-trip simulation
+// Self-contained. Models the JSON-RPC-style messages between a client
+// (Claude / agent) and an MCP server that exposes a "skills" registry.
+
+// 1) Tool / skill schema as an MCP server would expose it.
+const SKILLS = [
+  {
+    name: 'lookup_customer',
+    description: 'Fetch customer record by id from the CRM.',
+    inputSchema: {
+      type: 'object',
+      properties: { customer_id: { type: 'string' } },
+      required: ['customer_id'],
+    },
+    governance: { owner: 'crm-team', sla_ms: 200, pii: true },
+  },
+  {
+    name: 'create_ticket',
+    description: 'Create a support ticket; requires approval scope.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        customer_id: { type: 'string' },
+        title:       { type: 'string' },
+        severity:    { type: 'string', enum: ['low', 'med', 'high'] },
+      },
+      required: ['customer_id', 'title', 'severity'],
+    },
+    governance: { owner: 'support-platform', sla_ms: 500, pii: false, scope: 'tickets:write' },
+  },
+];
+
+// 2) A toy server: handles initialize / tools/list / tools/call.
+function mcpServer(message) {
+  if (message.method === 'initialize') {
+    return {
+      jsonrpc: '2.0', id: message.id,
+      result: { serverInfo: { name: 'demo-mcp', version: '0.1.0' },
+                capabilities: { tools: {} } },
+    };
+  }
+  if (message.method === 'tools/list') {
+    return {
+      jsonrpc: '2.0', id: message.id,
+      result: { tools: SKILLS.map(function (s) {
+        return { name: s.name, description: s.description, inputSchema: s.inputSchema };
+      }) },
+    };
+  }
+  if (message.method === 'tools/call') {
+    const name = message.params.name;
+    const args = message.params.arguments || {};
+    const skill = SKILLS.find(function (s) { return s.name === name; });
+    if (!skill) {
+      return { jsonrpc: '2.0', id: message.id,
+               error: { code: -32601, message: 'Tool not found: ' + name } };
+    }
+    // Validate required fields
+    const missing = (skill.inputSchema.required || []).filter(function (k) {
+      return args[k] === undefined;
+    });
+    if (missing.length) {
+      return { jsonrpc: '2.0', id: message.id,
+               error: { code: -32602, message: 'Missing args: ' + missing.join(',') } };
+    }
+    // Fake execution
+    let result;
+    if (name === 'lookup_customer') result = { id: args.customer_id, plan: 'pro', tickets: 2 };
+    if (name === 'create_ticket')   result = { ticket_id: 'T-' + Math.floor(Math.random() * 9999),
+                                                status: 'open' };
+    return { jsonrpc: '2.0', id: message.id,
+             result: { content: [{ type: 'json', json: result }],
+                       observability: { skill: name, sla_ms: skill.governance.sla_ms } } };
+  }
+  return { jsonrpc: '2.0', id: message.id,
+           error: { code: -32601, message: 'Unknown method' } };
+}
+
+// 3) A toy client: walks initialize -> list -> call.
+function mcpClient() {
+  let id = 1;
+  const send = function (m) {
+    console.log('  -> client: ' + JSON.stringify(m));
+    const r = mcpServer(m);
+    console.log('  <- server: ' + JSON.stringify(r));
+    return r;
+  };
+  console.log('Step 1 — initialize');
+  send({ jsonrpc: '2.0', id: id++, method: 'initialize', params: { client: 'agent-demo' } });
+
+  console.log('Step 2 — tools/list (discover skills)');
+  const list = send({ jsonrpc: '2.0', id: id++, method: 'tools/list' });
+  console.log('Discovered ' + list.result.tools.length + ' skills.');
+
+  console.log('Step 3 — tools/call lookup_customer');
+  send({ jsonrpc: '2.0', id: id++, method: 'tools/call',
+         params: { name: 'lookup_customer', arguments: { customer_id: 'C-42' } } });
+
+  console.log('Step 4 — tools/call create_ticket (missing field, expect error)');
+  send({ jsonrpc: '2.0', id: id++, method: 'tools/call',
+         params: { name: 'create_ticket', arguments: { customer_id: 'C-42' } } });
+
+  console.log('Step 5 — tools/call create_ticket (valid)');
+  send({ jsonrpc: '2.0', id: id++, method: 'tools/call',
+         params: { name: 'create_ticket',
+                   arguments: { customer_id: 'C-42', title: 'login failure', severity: 'high' } } });
+}
+
+console.log('=' .repeat(60));
+console.log('Day 46 — MCP round-trip demo');
+console.log('=' .repeat(60));
+mcpClient();
+console.log('-'.repeat(60));
+console.log('PM lesson: skills + governance metadata = a defensible platform.');
+console.log('Your moat is the registry, not the model.');
+`,
+  },
+
   interview: { question: 'How would you build and manage an agent skills platform for an enterprise?', answer: `Agent skills are where enterprise AI value gets created \u2014 and they need the same rigor as any production system.<br><br><strong>Skills = MCP servers.</strong> In 2026, building an agent skill means publishing an MCP server that exposes tools, resources, and prompts. MCP is the de facto standard because it\u2019s interoperable \u2014 a skill built once works with Claude, Copilot, Cursor, and custom agents. I\u2019d start by identifying the 10 highest-value skills for our users (e.g., CRM query, knowledge base search, ticket creation) and building the top 3.<br><br><strong>Registry and governance.</strong> I\u2019d build an internal skills registry with four governance pillars: (1) Publishing standards \u2014 every skill passes automated tests for correctness, security, and performance before publication. (2) Versioning \u2014 semantic versioning with minimum 90-day deprecation notice for breaking changes. (3) Access control \u2014 role-based: customer-facing agents get read-only skills, internal automation agents get write skills, production-critical skills require additional approval. (4) Quality SLAs \u2014 p95 latency under 2 seconds, error rate under 1%, with automated alerting.<br><br><strong>Observability.</strong> Every skill is a production dependency. I\u2019d track invocation count, latency percentiles, error rate, and \u2014 critically \u2014 downstream quality: did the skill\u2019s output lead to a good agent outcome? High invocation with low quality signals a skill that agents rely on but performs poorly. That\u2019s the highest-priority fix.<br><br><strong>Strategic positioning.</strong> The base model and agent framework are commoditizing. Skills \u2014 your proprietary data connectors, workflow integrations, and domain tools \u2014 are the defensible layer. I\u2019d invest disproportionately in skill quality and coverage because that\u2019s where competitive advantage accumulates.` },
   pmAngle: 'The skills layer is where AI products differentiate. Models commoditize. Frameworks commoditize. But the skills that connect agents to your organization\u2019s specific data, workflows, and tools are proprietary and defensible. The PM who builds a governed skills registry with quality SLAs creates a platform moat that compounds over time.',
   resources: [

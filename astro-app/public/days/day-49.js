@@ -17,6 +17,142 @@ window.COURSE_DAY_DATA[49] = {
     { title: 'Analyze the US policy shift impact', description: 'Write an analysis of how the partial rescission of the Biden AI Executive Order (January 2025) affects AI product strategy. Cover: what requirements were removed, what remains in force (sector-specific regulation), how this affects competitive positioning relative to EU-regulated competitors, and what state-level legislation PMs should monitor. Save as /day-49/us_policy_analysis.md.', time: '20 min' },
     { title: 'Create an AI liability risk assessment', description: 'For a healthcare AI product deployed in the EU: create a liability risk assessment under the AI Liability Directive. Cover: potential harm scenarios, who bears liability (provider vs deployer), how burden of proof shifts work, what documentation you need to demonstrate compliance, and insurance/indemnification considerations. Save as /day-49/liability_risk_assessment.md.', time: '10 min' }
   ],
+
+  codeExample: {
+    title: 'EU AI Act risk-tier classifier — Python',
+    lang: 'python',
+    code: `# Day 49 — EU AI Act risk-tier classifier
+# Maps a product description to: prohibited | high-risk | limited | minimal.
+# Plus US-style sectoral overlay (HIPAA / FCRA / SR 11-7) hints.
+# Educational only: not legal advice.
+
+PROHIBITED_USES = {
+    "social_scoring_by_government", "real_time_biometric_id_in_public",
+    "emotion_recognition_at_work_or_school",
+    "predictive_policing_individuals", "scraped_facial_image_db",
+}
+
+HIGH_RISK_DOMAINS = {
+    "biometric_categorization", "critical_infrastructure",
+    "education_admissions", "employment_hiring_or_firing",
+    "essential_services_credit_scoring", "essential_services_insurance",
+    "law_enforcement", "migration_asylum_border", "administration_of_justice",
+}
+
+LIMITED_TRANSPARENCY_FEATURES = {
+    "chatbot_with_humans", "deepfake_or_synthetic_content",
+    "emotion_recognition_general",
+}
+
+
+def classify(product):
+    reasons = []
+    tier = "minimal"
+
+    # Prohibited overrides everything
+    for u in product.get("uses", []):
+        if u in PROHIBITED_USES:
+            reasons.append("Use '" + u + "' is PROHIBITED under Art. 5.")
+            return ("prohibited", reasons)
+
+    # High risk: domain + decision-affects-people test
+    domains = product.get("domains", [])
+    if any(d in HIGH_RISK_DOMAINS for d in domains) and product.get("affects_individuals", False):
+        tier = "high-risk"
+        for d in domains:
+            if d in HIGH_RISK_DOMAINS:
+                reasons.append("Domain '" + d + "' is Annex III high-risk.")
+
+    # Limited (transparency obligations)
+    for f in product.get("features", []):
+        if f in LIMITED_TRANSPARENCY_FEATURES:
+            if tier == "minimal":
+                tier = "limited"
+            reasons.append("Feature '" + f + "' triggers transparency obligations (Art. 50).")
+
+    # GPAI (general-purpose) overlay
+    if product.get("is_gpai_provider"):
+        reasons.append("GPAI provider -> Art. 53 transparency + training-data summary.")
+        if product.get("systemic_risk_tier"):
+            reasons.append("Systemic-risk GPAI -> Art. 55 evaluations + cybersecurity.")
+
+    if not reasons:
+        reasons.append("No Annex III use; no transparency feature; minimal risk.")
+    return (tier, reasons)
+
+
+def us_overlay(product):
+    out = []
+    if product.get("phi"):
+        out.append("HIPAA: BAAs + minimum necessary; covered entity / business associate.")
+    if "essential_services_credit_scoring" in product.get("domains", []):
+        out.append("FCRA + ECOA: adverse-action notices, model risk mgmt (SR 11-7).")
+    if product.get("sells_to_us_federal"):
+        out.append("OMB M-24-10 / EO follow-ons: rights-impacting AI inventory + impact assessments.")
+    return out
+
+
+def obligations_for(tier):
+    return {
+        "prohibited": ["Cannot deploy in EU. Redesign required."],
+        "high-risk":  ["Conformity assessment", "Risk management system",
+                        "Data governance + bias testing", "Logging + traceability",
+                        "Human oversight", "Post-market monitoring",
+                        "Registration in EU database", "CE marking"],
+        "limited":    ["Disclose AI to user (chatbot)",
+                        "Label synthetic / deepfake content"],
+        "minimal":    ["Voluntary codes of conduct"],
+    }[tier]
+
+
+PRODUCTS = [
+    {"name": "AI resume screener for hiring",
+     "uses": [], "domains": ["employment_hiring_or_firing"],
+     "features": ["chatbot_with_humans"],
+     "affects_individuals": True, "is_gpai_provider": False, "phi": False},
+    {"name": "Government social scoring system",
+     "uses": ["social_scoring_by_government"], "domains": [], "features": [],
+     "affects_individuals": True, "is_gpai_provider": False},
+    {"name": "Frontier foundation model (provider)",
+     "uses": [], "domains": [], "features": [],
+     "affects_individuals": False, "is_gpai_provider": True,
+     "systemic_risk_tier": True},
+    {"name": "Healthcare triage assistant (US)",
+     "uses": [], "domains": ["essential_services_insurance"],
+     "features": ["chatbot_with_humans"], "affects_individuals": True,
+     "is_gpai_provider": False, "phi": True, "sells_to_us_federal": True},
+]
+
+
+def main():
+    print("=" * 64)
+    print("Day 49 — EU AI Act Risk-Tier Classifier (educational)")
+    print("=" * 64)
+    for p in PRODUCTS:
+        tier, reasons = classify(p)
+        us = us_overlay(p)
+        print()
+        print("Product:", p["name"])
+        print("  EU tier:", tier)
+        for r in reasons:
+            print("    -", r)
+        print("  EU obligations:")
+        for o in obligations_for(tier):
+            print("    *", o)
+        if us:
+            print("  US overlay:")
+            for u in us:
+                print("    *", u)
+    print()
+    print("PM lesson: regulation as a product requirement = a moat.")
+    print("Compliance baked in is a feature your buyer pays a premium for.")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'How do you think about AI regulation when building an AI product?', answer: `Regulation is a product requirement, not a legal afterthought. I integrate it from day one.<br><br><strong>EU AI Act is the most concrete framework.</strong> Enforcement has started with prohibited systems (February 2025) and GPAI provisions (August 2025). High-risk requirements become enforceable in February 2026. My first step for any product: classify it under the EU AI Act risk framework. If we\u2019re in the high-risk category (employment, education, critical infrastructure), we need compliance architecture from the start \u2014 risk management system, data governance, transparency, human oversight, and audit logging. Retrofitting compliance is 5x more expensive than building it in.<br><br><strong>GPAI provisions affect Claude directly.</strong> Claude qualifies as a GPAI model with systemic risk provisions. Anthropic handles model-level compliance, but PMs building on Claude need to understand how GPAI obligations flow through. Documentation, safety evaluation transparency, and incident reporting requirements affect how we communicate with customers about our AI stack.<br><br><strong>Sector-specific regulation is the immediate risk.</strong> The FDA, FTC, CFPB, and EEOC are enforcing AI requirements under existing authority \u2014 they don\u2019t need new legislation. If our product touches healthcare (FDA), consumer lending (CFPB), or hiring (EEOC), sector regulation applies today. I map sector-specific exposure before EU AI Act exposure because enforcement is more immediate.<br><br><strong>US policy is evolving.</strong> The Biden EO was partially rescinded in January 2025, reducing federal reporting requirements but not eliminating sector-specific enforcement. State legislation continues to advance. My approach: design for the strictest applicable regulation (typically EU) because regulatory requirements only tighten over time.<br><br><strong>AI liability changes the risk calculus.</strong> The EU AI Liability Directive introduces burden-of-proof shift \u2014 if our AI causes harm and we can\u2019t demonstrate compliance, liability is presumed. That\u2019s a concrete financial risk that needs to be factored into product decisions, not just legal review.` },
   pmAngle: 'The PM who treats regulation as a constraint to work around ships a legal liability. The PM who treats regulation as a product requirement builds a defensible market position. In regulated industries, compliance is a moat: enterprises will pay premium prices for AI products that solve their compliance problem rather than creating a new one.',
   resources: [

@@ -17,6 +17,126 @@ window.COURSE_DAY_DATA[47] = {
     { title: 'Design a combined SK + AutoGen architecture', description: 'For a customer escalation system: design an architecture where SK handles individual agent logic and AutoGen coordinates multiple agents (Triage Agent, Technical Agent, Billing Agent, Supervisor Agent). Show how SK plugins provide skills to each agent and how AutoGen manages the multi-agent conversation. Include a sequence diagram description. Save as /day-47/sk_autogen_architecture.md.', time: '20 min' },
     { title: 'Evaluate SK Python SDK maturity', description: 'Research the current state of the SK Python SDK. Document: feature parity with .NET, available plugins, community size (GitHub stars, npm/PyPI downloads), documentation quality, and known limitations. Compare with LangChain Python on the same dimensions. Write a recommendation for a Python-first team evaluating SK. Save as /day-47/sk_python_evaluation.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'Orchestration pattern selector — Python',
+    lang: 'python',
+    code: `# Day 47 — Orchestration Pattern Selector
+# Pick: single-agent | sequential pipeline | concurrent fan-out | handoff (group chat)
+# Mirrors the choices Semantic Kernel + AutoGen surface to engineering teams.
+
+PATTERNS = ["single", "sequential", "concurrent", "handoff"]
+
+
+def recommend(req):
+    s = {p: 0 for p in PATTERNS}
+    notes = []
+
+    # Number of distinct subskills required
+    n = req["subskills"]
+    if n <= 1:
+        s["single"] += 3
+        notes.append("Only one subskill -> single-agent is simplest.")
+    elif n <= 4:
+        s["sequential"] += 2
+        s["concurrent"] += 2
+    else:
+        s["handoff"] += 2
+        notes.append(">4 subskills with branching -> handoff/group chat.")
+
+    # Are steps independent?
+    if req["steps_independent"]:
+        s["concurrent"] += 3
+        notes.append("Independent steps -> concurrent fan-out cuts latency.")
+    else:
+        s["sequential"] += 2
+
+    # Latency budget (ms)
+    if req["latency_budget_ms"] < 2000:
+        s["single"] += 2
+        s["concurrent"] += 1
+        s["sequential"] -= 1
+        s["handoff"] -= 2
+        notes.append("Tight latency: avoid handoff; prefer single or concurrent.")
+    elif req["latency_budget_ms"] > 10000:
+        s["handoff"] += 1
+
+    # Need for human-in-the-loop checkpoints
+    if req["human_in_the_loop"]:
+        s["sequential"] += 2
+        s["handoff"] += 1
+        notes.append("HITL -> sequential gives clean approval gates.")
+
+    # Determinism / auditability requirement
+    if req["high_audit"]:
+        s["sequential"] += 2
+        s["handoff"] -= 1
+        notes.append("Audit-heavy -> sequential is easier to log and replay.")
+
+    # Stack hint: SK Process Framework favors sequential; AutoGen favors handoff.
+    if req["stack"] == "dotnet_azure":
+        s["sequential"] += 1
+        notes.append("Stack=.NET/Azure -> SK Process Framework is a clean fit.")
+    elif req["stack"] == "python":
+        s["handoff"] += 1
+        s["concurrent"] += 1
+        notes.append("Stack=Python -> AutoGen handles handoff well.")
+
+    return s, notes
+
+
+def explain(name):
+    return {
+        "single":     "One LLM, one prompt, optional tools. Default. Cheapest.",
+        "sequential": "Stage 1 -> Stage 2 -> Stage 3. Best for audit + HITL.",
+        "concurrent": "Fan-out N agents in parallel, aggregate. Best for latency.",
+        "handoff":    "Agents pass control dynamically (group chat). Most flexible.",
+    }[name]
+
+
+CASES = [
+    {"name": "Contract review (regulated)",
+     "subskills": 4, "steps_independent": False,
+     "latency_budget_ms": 30000, "human_in_the_loop": True,
+     "high_audit": True, "stack": "dotnet_azure"},
+    {"name": "Real-time customer assistant",
+     "subskills": 2, "steps_independent": False,
+     "latency_budget_ms": 1500, "human_in_the_loop": False,
+     "high_audit": False, "stack": "python"},
+    {"name": "Research report generator",
+     "subskills": 6, "steps_independent": True,
+     "latency_budget_ms": 60000, "human_in_the_loop": False,
+     "high_audit": False, "stack": "python"},
+    {"name": "Sales-discovery copilot",
+     "subskills": 5, "steps_independent": False,
+     "latency_budget_ms": 8000, "human_in_the_loop": True,
+     "high_audit": False, "stack": "python"},
+]
+
+
+def main():
+    print("=" * 64)
+    print("Day 47 — Orchestration Pattern Selector")
+    print("=" * 64)
+    for c in CASES:
+        s, notes = recommend(c)
+        ranked = sorted(s.items(), key=lambda kv: kv[1], reverse=True)
+        print()
+        print("Use case:", c["name"])
+        for p, sc in ranked:
+            print("  {:<12} {}".format(p, sc))
+        print("  Pick:", ranked[0][0], "->", explain(ranked[0][0]))
+        for n in notes:
+            print("    note:", n)
+    print()
+    print("PM lesson: framework choice should follow the use case, not the brand.")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'When would you use Semantic Kernel vs other AI orchestration frameworks?', answer: `The framework choice depends on three factors: your tech stack, your use case complexity, and your cloud platform.<br><br><strong>Choose SK when:</strong> (1) You\u2019re a .NET team \u2014 SK\u2019s C# SDK is the most mature and best-supported. (2) You\u2019re deeply integrated with Azure \u2014 SK\u2019s Azure OpenAI integration and Process Framework for event-driven workflows are excellent. (3) You need auditability \u2014 SK\u2019s Process Framework provides traceable state machines where every AI decision is logged. (4) You need both single-agent orchestration (SK) and multi-agent coordination (AutoGen) \u2014 Microsoft\u2019s guidance is to layer them.<br><br><strong>Choose alternatives when:</strong> (1) Python-first team not on Azure \u2014 LangChain has a larger community, more tutorials, and more third-party integrations. (2) Simple applications \u2014 SK\u2019s abstraction overhead doesn\u2019t justify itself for basic prompt-and-response use cases. The direct Anthropic SDK is simpler and more performant. (3) Maximum model flexibility \u2014 while SK supports Claude, the ergonomics are optimized for Azure OpenAI. Native SDK usage gives you the best developer experience per model.<br><br><strong>SK Process Framework vs LangGraph:</strong> Both handle stateful, event-driven agent workflows. SK Process Framework integrates natively with Azure services and .NET. LangGraph integrates natively with LangChain\u2019s Python ecosystem. Choose based on your existing stack.<br><br><strong>The honest assessment:</strong> SK is excellent for Microsoft ecosystem teams. It\u2019s not the universal best choice. The PM who recommends SK because it\u2019s from Microsoft \u2014 rather than because it fits the team\u2019s stack \u2014 loses engineering credibility. Evaluate on merits.` },
   pmAngle: 'Framework selection reveals PM judgment. The PM who recommends a framework based on the team\u2019s actual tech stack, cloud platform, and use case complexity demonstrates practical wisdom. The PM who recommends based on brand affinity or hype loses engineering trust. SK is excellent for .NET/Azure teams. For Python-first teams on AWS, LangChain or the native Anthropic SDK may be better choices.',
   resources: [
