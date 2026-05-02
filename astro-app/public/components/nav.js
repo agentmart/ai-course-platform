@@ -26,7 +26,6 @@
         { key: 'companies',  href: '/companies.html',          label: 'Companies',     icon: '\u25CE' },
         { key: 'jobs',       href: '/ai-pm-jobs.html',         label: 'AI PM Jobs',    icon: '\u25B8' },
         { key: 'gaps',       href: '/gaps.html',               label: 'Content Gaps',  icon: '\u25B3' },
-        { key: 'how-to',     href: '/how-to-become-ai-pm.html',label: 'How-To',        icon: '?' },
         { key: 'pm-os',      href: '/pm-os.html',              label: 'PM-OS',         icon: '\u25C7' }
       ]
     },
