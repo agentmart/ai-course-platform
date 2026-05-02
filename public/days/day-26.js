@@ -72,13 +72,13 @@ for field in required_fields:
     print(f"  {'✓' if present else '✗'} {field}")
 
 # Simulate A2A task state machine
-print("\n=== A2A Task Lifecycle ===")
+print("\\n=== A2A Task Lifecycle ===")
 task_states = ["submitted", "working", "working", "completed"]
 for i, state in enumerate(task_states):
     icon = {"submitted": "📤", "working": "⚙️", "completed": "✅", "failed": "❌", "input-required": "❓"}.get(state, "?")
     print(f"  Step {i+1}: {icon} {state.upper()}")
 
-print("\n=== Protocol Comparison ===")
+print("\\n=== Protocol Comparison ===")
 comparison = [
     ("Protocol",  "Layer",          "Designed By",   "Primary Use Case"),
     ("MCP",       "Agent → Tool",   "Anthropic",     "Connect agent to tools/APIs/data"),

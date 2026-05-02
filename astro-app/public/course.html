@@ -134,6 +134,20 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
 .e-out{background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.05);padding:12px 18px;font-family:'IBM Plex Mono',monospace;font-size:12px;color:#90b878;min-height:44px;white-space:pre-wrap;word-break:break-all;}
 .e-out.err{color:#f87171;}
 .e-status{font-family:'IBM Plex Mono',monospace;font-size:9px;color:rgba(255,255,255,.18);padding:4px 14px;text-align:right;}
+.e-expand{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);color:rgba(255,255,255,.55);padding:5px 9px;border-radius:3px;font-size:11px;cursor:pointer;font-family:'IBM Plex Mono',monospace;display:inline-flex;align-items:center;gap:4px;}
+.e-expand:hover{background:rgba(255,255,255,.1);color:rgba(255,255,255,.85);}
+.code-drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;display:none;}
+.code-drawer-backdrop.open{display:block;}
+.code-drawer{position:fixed;top:0;right:0;height:100vh;width:60vw;max-width:1100px;background:#1a1614;box-shadow:-12px 0 40px rgba(0,0,0,.5);transform:translateX(100%);transition:transform .25s ease;z-index:9999;display:flex;flex-direction:column;}
+.code-drawer.open{transform:translateX(0);}
+.code-drawer-head{padding:14px 20px;border-bottom:1px solid rgba(255,255,255,.08);display:flex;align-items:center;gap:12px;}
+.code-drawer-title{font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.7);letter-spacing:.1em;text-transform:uppercase;flex:1;}
+.code-drawer-close{background:transparent;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.7);padding:6px 12px;border-radius:3px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:11px;}
+.code-drawer-close:hover{background:rgba(255,255,255,.08);}
+.code-drawer-body{flex:1;display:flex;flex-direction:column;overflow:hidden;}
+.code-drawer-body .e-ta{flex:1;min-height:0;font-size:14px;line-height:1.6;}
+.code-drawer-body .e-out{flex:0 0 28%;overflow:auto;font-size:13px;}
+@media (max-width:768px){.code-drawer{width:100vw;max-width:none;}}
 .notes-area{width:100%;min-height:120px;border:1px solid var(--border);border-radius:4px;padding:14px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--ink);background:var(--card);resize:vertical;outline:none;line-height:1.6;}
 .notes-area:focus{border-color:#c8590a;}
 .notes-save{margin-top:8px;padding:8px 18px;background:var(--ink);color:white;border:none;border-radius:3px;font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;}
@@ -277,6 +291,25 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
   </div>
 </div>
 <div class="share-toast" id="share-toast">Copied! Paste on Instagram</div>
+
+<!-- Code execution drawer (expanded view) -->
+<div class="code-drawer-backdrop" id="code-drawer-backdrop" onclick="closeCodeDrawer()"></div>
+<div class="code-drawer" id="code-drawer" role="dialog" aria-label="Expanded code editor">
+  <div class="code-drawer-head">
+    <div class="code-drawer-title" id="code-drawer-title">Code Exercise</div>
+    <select class="e-sel" id="code-drawer-lang" onchange="onDrawerLangChange()">
+      <option value="python">Python (Pyodide WASM)</option>
+      <option value="js">JavaScript (sandbox)</option>
+    </select>
+    <button class="e-run" onclick="runDrawer()"><span class="e-spin" id="code-drawer-spin"></span>&#9654; Run</button>
+    <button class="code-drawer-close" onclick="closeCodeDrawer()" aria-label="Close">&#10005; Close</button>
+  </div>
+  <div class="code-drawer-body">
+    <textarea class="e-ta" id="code-drawer-code" spellcheck="false"></textarea>
+    <div class="e-out" id="code-drawer-out">// Press Run</div>
+    <div class="e-status" id="code-drawer-status"></div>
+  </div>
+</div>
 
 <script src="/days/day-01.js"></script>
 <script src="/days/day-02.js"></script>
@@ -649,7 +682,8 @@ function renderTask(day,i,task){
 
 function renderCodeBlock(day,ex){
   const id=`editor-${day}`;
-  return `<div class="code-block"><div class="code-block-title">${ex.title||'Code Exercise'}</div><div class="editor"><div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'}</div></div><textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea><div class="e-foot"><select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')"><option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option><option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (sandbox)</option></select><button class="e-run" onclick="runEditor('${id}')"><span class="e-spin" id="${id}-spin"></span>&#9654; Run</button></div><div class="e-out" id="${id}-out">// Press Run</div><div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div></div></div>`;
+  const safeTitle=(ex.title||'Code Exercise').replace(/'/g,'&#39;');
+  return `<div class="code-block"><div class="code-block-title">${ex.title||'Code Exercise'}</div><div class="editor"><div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'}</div></div><textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea><div class="e-foot"><select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')"><option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option><option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (sandbox)</option></select><div style="display:flex;gap:8px;align-items:center;"><button class="e-expand" onclick="openCodeDrawer('${id}','${safeTitle}')" title="Expand to side panel">&#x26F6; Expand</button><button class="e-run" onclick="runEditor('${id}')"><span class="e-spin" id="${id}-spin"></span>&#9654; Run</button></div></div><div class="e-out" id="${id}-out">// Press Run</div><div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div></div></div>`;
 }
 
 function onEditorLangChange(id){ document.getElementById(id+'-badge').innerHTML=document.getElementById(id+'-lang').value==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'; }
@@ -706,14 +740,25 @@ function saveNote(day){
   saveProgress();
 }
 
+// ---- CODE RUNNER (fixed: spinner always clears, JS uses new Function instead of cross-origin iframe) ----
+
+const JS_TIMEOUT_MS = 5000;
+const PY_TIMEOUT_MS = 30000;
+
 async function runEditor(id){
   const lang=document.getElementById(id+'-lang').value;
   const code=document.getElementById(id+'-code').value;
   const out=document.getElementById(id+'-out');
   const spin=document.getElementById(id+'-spin');
   spin.classList.add('on');
-  if(lang==='python'){ await runPython(code,out,id+'-status'); } else { runJS(code,out); }
-  spin.classList.remove('on');
+  try {
+    if(lang==='python'){ await runPython(code,out,id+'-status'); } else { await runJS(code,out); }
+  } catch(e){
+    out.textContent='Runner error: '+(e && e.message || String(e));
+    out.className='e-out err';
+  } finally {
+    spin.classList.remove('on');
+  }
 }
 
 async function runPython(code,outEl,statusId){
@@ -729,24 +774,123 @@ async function runPython(code,outEl,statusId){
     } else if(pyLoading){ outEl.textContent='Python runtime still loading...'; return; }
     let buf='';
     pyodide.setStdout({batched:s=>buf+=s+'\n'});
-    pyodide.setStderr({batched:s=>buf+='&#9888; '+s+'\n'});
-    await pyodide.runPythonAsync(code);
+    pyodide.setStderr({batched:s=>buf+='\u26A0 '+s+'\n'});
+    const timeoutP=new Promise((_,rej)=>setTimeout(()=>rej(new Error('Python execution timed out after '+(PY_TIMEOUT_MS/1000)+'s')),PY_TIMEOUT_MS));
+    await Promise.race([pyodide.runPythonAsync(code), timeoutP]);
     outEl.textContent=buf.trimEnd()||'(no output)'; outEl.className='e-out';
-  }catch(e){ outEl.textContent=String(e); outEl.className='e-out err'; setStatus('Pyodide: error'); pyLoading=false; }
+  }catch(e){ outEl.textContent=String(e && e.message || e); outEl.className='e-out err'; setStatus('Pyodide: error'); pyLoading=false; }
 }
 
 function runJS(code,outEl){
-  const iframe=document.createElement('iframe'); iframe.style.display='none'; iframe.sandbox='allow-scripts'; document.body.appendChild(iframe);
-  const logs=[],w=iframe.contentWindow;
-  w.console={log:(...a)=>logs.push(a.map(x=>typeof x==='object'?JSON.stringify(x,null,2):String(x)).join(' ')),error:(...a)=>logs.push('&#9888; '+a.map(String).join(' ')),warn:(...a)=>logs.push('&#9888; '+a.map(String).join(' ')),table:(...a)=>logs.push(JSON.stringify(a,null,2))};
-  try{ w.eval(code); outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out'; }
-  catch(e){ outEl.textContent=e.toString(); outEl.className='e-out err'; }
-  finally{ document.body.removeChild(iframe); }
+  return new Promise(resolve=>{
+    const logs=[];
+    const stringify=(x)=>{
+      if(typeof x==='string') return x;
+      if(x instanceof Error) return x.stack||x.message;
+      try { return JSON.stringify(x,null,2); } catch(_) { return String(x); }
+    };
+    const fakeConsole={
+      log:(...a)=>logs.push(a.map(stringify).join(' ')),
+      info:(...a)=>logs.push(a.map(stringify).join(' ')),
+      error:(...a)=>logs.push('\u26A0 '+a.map(stringify).join(' ')),
+      warn:(...a)=>logs.push('\u26A0 '+a.map(stringify).join(' ')),
+      table:(x)=>logs.push(stringify(x)),
+      debug:(...a)=>logs.push(a.map(stringify).join(' '))
+    };
+    let timedOut=false;
+    const watchdog=setTimeout(()=>{ timedOut=true; }, JS_TIMEOUT_MS);
+    try{
+      // Run user code in its own scope with overridden console.
+      // Note: synchronous execution — infinite loops will block this thread; the watchdog
+      // flag is checked after eval returns. setTimeout / async callbacks WILL fire after
+      // we've shown output but the page remains responsive.
+      const fn = new Function('console','window','document', code);
+      const result = fn(fakeConsole, undefined, undefined);
+      clearTimeout(watchdog);
+      if (timedOut) {
+        outEl.textContent = 'Execution exceeded '+(JS_TIMEOUT_MS/1000)+'s timeout.';
+        outEl.className='e-out err';
+      } else if (result && typeof result.then === 'function'){
+        // Code returned a Promise (e.g., used async IIFE)
+        const racer = new Promise((_,rej)=>setTimeout(()=>rej(new Error('JS async execution timed out after '+(JS_TIMEOUT_MS/1000)+'s')),JS_TIMEOUT_MS));
+        Promise.race([result, racer]).then(()=>{
+          outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out'; resolve();
+        }).catch(err=>{
+          outEl.textContent=(logs.length?logs.join('\n')+'\n':'')+'\u26A0 '+(err && err.message||String(err)); outEl.className='e-out err'; resolve();
+        });
+        return;
+      } else {
+        outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out';
+      }
+    } catch(e){
+      clearTimeout(watchdog);
+      outEl.textContent=(logs.length?logs.join('\n')+'\n':'')+(e && e.stack || e && e.message || String(e));
+      outEl.className='e-out err';
+    }
+    resolve();
+  });
+}
+
+// ---- EXPANDED CODE DRAWER ----
+let drawerSourceId = null;
+
+function openCodeDrawer(sourceId, title){
+  drawerSourceId = sourceId;
+  const srcCode = document.getElementById(sourceId+'-code').value;
+  const srcLang = document.getElementById(sourceId+'-lang').value;
+  document.getElementById('code-drawer-title').textContent = title || 'Code Exercise';
+  document.getElementById('code-drawer-code').value = srcCode;
+  document.getElementById('code-drawer-lang').value = srcLang;
+  document.getElementById('code-drawer-out').textContent = '// Press Run';
+  document.getElementById('code-drawer-out').className = 'e-out';
+  document.getElementById('code-drawer-status').textContent = '';
+  document.getElementById('code-drawer-backdrop').classList.add('open');
+  document.getElementById('code-drawer').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeCodeDrawer(){
+  // Sync any edits back to the source editor before closing
+  if (drawerSourceId) {
+    const srcEl = document.getElementById(drawerSourceId+'-code');
+    const srcLangEl = document.getElementById(drawerSourceId+'-lang');
+    if (srcEl) srcEl.value = document.getElementById('code-drawer-code').value;
+    if (srcLangEl) {
+      srcLangEl.value = document.getElementById('code-drawer-lang').value;
+      onEditorLangChange(drawerSourceId);
+    }
+  }
+  document.getElementById('code-drawer-backdrop').classList.remove('open');
+  document.getElementById('code-drawer').classList.remove('open');
+  document.body.style.overflow = '';
+  drawerSourceId = null;
+}
+
+function onDrawerLangChange(){ /* visual only; lang select drives runDrawer */ }
+
+async function runDrawer(){
+  const lang = document.getElementById('code-drawer-lang').value;
+  const code = document.getElementById('code-drawer-code').value;
+  const out = document.getElementById('code-drawer-out');
+  const spin = document.getElementById('code-drawer-spin');
+  spin.classList.add('on');
+  try {
+    if(lang==='python'){ await runPython(code,out,'code-drawer-status'); } else { await runJS(code,out); }
+  } catch(e){
+    out.textContent='Runner error: '+(e && e.message || String(e));
+    out.className='e-out err';
+  } finally {
+    spin.classList.remove('on');
+  }
 }
 
 document.addEventListener('keydown',e=>{
+  if(e.key==='Escape' && document.getElementById('code-drawer').classList.contains('open')){
+    e.preventDefault(); closeCodeDrawer(); return;
+  }
   if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){
     const active=document.activeElement;
+    if(active && active.id==='code-drawer-code'){ e.preventDefault(); runDrawer(); return; }
     if(active&&active.classList.contains('e-ta')){ e.preventDefault(); runEditor(active.id.replace('-code','')); }
   }
 });
