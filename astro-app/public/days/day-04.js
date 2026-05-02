@@ -45,6 +45,116 @@ window.COURSE_DAY_DATA[4] = {
     }
   ],
 
+  codeExample: {
+    title: 'Claude model selection decision tree — Python',
+    lang: 'python',
+    code: `# Day 04 — Claude Model Selection Decision Tree
+#
+# Anthropic ships a product surface (Claude.ai, API, Bedrock, Vertex,
+# Claude Code) with multiple model tiers. The PM job is to pick the right
+# combination per use case and explain WHY — including limits.
+#
+# This script encodes the live 2025/2026 Claude lineup as a small decision
+# tree and recommends a (model, surface) pair plus a rationale a PM could
+# paste straight into a design doc. Pricing is pulled from a hardcoded
+# table — always verify at https://www.anthropic.com/pricing before quoting
+# real numbers in a customer artifact.
+
+from dataclasses import dataclass
+from typing import List, Optional
+
+@dataclass
+class UseCase:
+    name: str
+    needs_extended_thinking: bool   # multi-step reasoning, planning
+    needs_vision: bool
+    latency_critical_ms: Optional[int]   # None = batch-OK
+    monthly_calls: int
+    avg_input_tokens: int
+    avg_output_tokens: int
+    deployment: str                  # "saas" | "regulated" | "on_prem"
+
+# Hardcoded snapshot — verify before quoting.
+PRICES = {
+    # name             -> (in $/MTok, out $/MTok)
+    "claude-opus-4-6":              (15.00, 75.00),
+    "claude-sonnet-4-6":            ( 3.00, 15.00),
+    "claude-haiku-4-5-20251001":    ( 0.80,  4.00),
+}
+
+SURFACES = {
+    "saas":      "Anthropic API (direct).",
+    "regulated": "Amazon Bedrock — BAA, data residency, IAM auth.",
+    "on_prem":   "Google Vertex — VPC-SC, customer-managed encryption.",
+}
+
+def pick_model(uc: UseCase) -> str:
+    # Reasoning-heavy and quality > cost  -> Opus.
+    if uc.needs_extended_thinking and uc.monthly_calls < 200_000:
+        return "claude-opus-4-6"
+    # Latency-critical, high volume, narrow tasks  -> Haiku.
+    if uc.latency_critical_ms is not None and uc.latency_critical_ms < 800:
+        return "claude-haiku-4-5-20251001"
+    # Vision OR mixed reasoning at scale  -> Sonnet (the default workhorse).
+    return "claude-sonnet-4-6"
+
+def estimated_monthly_cost(model: str, uc: UseCase) -> float:
+    p_in, p_out = PRICES[model]
+    in_mtok  = uc.monthly_calls * uc.avg_input_tokens  / 1_000_000
+    out_mtok = uc.monthly_calls * uc.avg_output_tokens / 1_000_000
+    return round(in_mtok * p_in + out_mtok * p_out, 2)
+
+def rationale(model: str, uc: UseCase) -> str:
+    bits = []
+    if uc.needs_extended_thinking and model == "claude-opus-4-6":
+        bits.append("extended-thinking depth justifies Opus premium")
+    if uc.latency_critical_ms and model == "claude-haiku-4-5-20251001":
+        bits.append(f"sub-{uc.latency_critical_ms}ms target favors Haiku")
+    if model == "claude-sonnet-4-6":
+        bits.append("Sonnet is the cost/quality default for mixed workloads")
+    if uc.needs_vision:
+        bits.append("native PDF + image input supported on all 4.x models")
+    return "; ".join(bits) or "default workhorse"
+
+def recommend(uc: UseCase) -> dict:
+    model   = pick_model(uc)
+    surface = SURFACES[uc.deployment]
+    cost    = estimated_monthly_cost(model, uc)
+    return {
+        "use_case":   uc.name,
+        "model":      model,
+        "surface":    surface,
+        "est_$_mo":   cost,
+        "why":        rationale(model, uc),
+    }
+
+# --- Demo ----------------------------------------------------------------
+USE_CASES = [
+    UseCase("M&A diligence assistant",       True,  True,  None,    20_000, 8_000, 2_500, "regulated"),
+    UseCase("In-app autocomplete",           False, False, 300,  5_000_000,    600,   120, "saas"),
+    UseCase("Customer support triage",       False, False, 1500,   400_000,  2_400,   400, "saas"),
+    UseCase("Field-service photo Q&A",       False, True,  None,   120_000,  1_200,   300, "saas"),
+    UseCase("Healthcare claim adjudication", True,  False, None,    80_000,  3_500,   900, "regulated"),
+    UseCase("Defense doc analysis",          True,  True,  None,    30_000,  6_000,   800, "on_prem"),
+]
+
+print(f"{'Use case':38} {'Model':30} {'$/mo':>10}  Why")
+print("-" * 110)
+for uc in USE_CASES:
+    r = recommend(uc)
+    print(f"{r['use_case']:38} {r['model']:30} {r['est_$_mo']:>10.2f}  {r['why']}")
+
+print("\\nSurface mapping:")
+for k, v in SURFACES.items():
+    print(f"  {k:10}  {v}")
+
+print("\\nPM takeaway: Sonnet is the default; reach for Opus on hard reasoning, "
+      "Haiku on latency-critical loops. Surface choice is a procurement "
+      "decision, not a capability decision — Bedrock/Vertex unlock buyers, "
+      "not features.")
+`,
+  },
+
   interview: {
     question: 'Why would you choose to build on Claude rather than GPT-4o?',
     answer: `The answer depends entirely on the use case, but here are the scenarios where Claude wins and where it doesn\u2019t.<br><br><strong>Claude wins on:</strong> First, long-context applications. Claude Sonnet 4.6\u2019s 200K context handles full contracts, codebases, and research papers without chunking  — a genuine architectural simplification over models with smaller windows. Second, instruction-following fidelity. For products requiring strict structured output (JSON, specific formats, compliance-sensitive document generation), Claude consistently follows complex instructions with fewer deviations. Third, safety-by-design for regulated industries. Constitutional AI training means Claude reasons about edge cases rather than pattern-matching, which matters for products touching legal, medical, or financial content. Fourth, enterprise deployment flexibility: Claude is available on AWS Bedrock and Google Vertex AI, matching where the customer already has cloud agreements.<br><br><strong>GPT-4o wins on:</strong> Largest developer ecosystem (more third-party tools built for OpenAI first), Microsoft integration depth for Azure-native enterprises, and the o-series reasoning models for tasks requiring multi-step mathematical or scientific reasoning. Gemini 2.5 Pro wins on context window (1M+ tokens) for extremely long document use cases.<br><br>My principle: always benchmark both on your specific use case before committing. Public benchmarks don\u2019t predict domain-specific performance reliably. And know the open-source alternative: "Why not self-host Llama 4?" has a specific answer (SOC 2, HIPAA, SLA, support, Constitutional AI) that you should be able to recite.`

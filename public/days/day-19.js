@@ -43,6 +43,125 @@ window.COURSE_DAY_DATA[19] = {
     }
   ],
 
+  codeExample: {
+    title: 'RSP capability threshold checker — Python',
+    lang: 'python',
+    code: `# Day 19 — Responsible Scaling Policy (RSP) Capability Threshold Checker
+#
+# Anthropic's Responsible Scaling Policy assigns models AI Safety Levels
+# (ASLs) based on dangerous-capability evaluations: CBRN uplift, autonomy,
+# cyber. A model that crosses an ASL threshold cannot deploy until matching
+# safeguards exist. This script encodes a SIMPLIFIED version of that gate
+# so a PM can see the mechanics — it is NOT the actual policy and is for
+# pedagogy only. Read the real RSP at https://www.anthropic.com/rsp.
+
+from dataclasses import dataclass, field
+from typing import Dict, List
+
+@dataclass
+class CapabilityScore:
+    cbrn_uplift:    float   # 0..1; expert-graded uplift to a non-expert
+    autonomy:       float   # 0..1; can it complete a multi-week project?
+    cyber:          float   # 0..1; offensive cyber capability
+    self_replicate: float   # 0..1; can it acquire resources & persist?
+
+# Toy thresholds — pedagogical, not the actual RSP numbers.
+ASL_THRESHOLDS = {
+    "ASL-2": CapabilityScore(0.30, 0.30, 0.30, 0.10),
+    "ASL-3": CapabilityScore(0.55, 0.55, 0.55, 0.30),
+    "ASL-4": CapabilityScore(0.75, 0.75, 0.75, 0.60),
+    "ASL-5": CapabilityScore(0.90, 0.90, 0.90, 0.85),
+}
+
+REQUIRED_MITIGATIONS = {
+    "ASL-2": ["usage_policies", "abuse_monitoring"],
+    "ASL-3": ["red_team_program", "weight_security_v1", "deployment_misuse_evals"],
+    "ASL-4": ["weight_security_v2", "internal_compartmentalization", "third_party_audit"],
+    "ASL-5": ["weight_security_v3", "external_pause_authority", "frontier_govt_briefings"],
+}
+
+@dataclass
+class ModelEvalResult:
+    name: str
+    scores: CapabilityScore
+    mitigations_in_place: List[str] = field(default_factory=list)
+
+def required_asl(scores: CapabilityScore) -> str:
+    """Highest ASL whose threshold is crossed on ANY axis."""
+    selected = "ASL-1"
+    for level, t in ASL_THRESHOLDS.items():
+        crossed = (scores.cbrn_uplift    >= t.cbrn_uplift   or
+                   scores.autonomy       >= t.autonomy      or
+                   scores.cyber          >= t.cyber         or
+                   scores.self_replicate >= t.self_replicate)
+        if crossed:
+            selected = level
+    return selected
+
+def gating_decision(model: ModelEvalResult) -> Dict:
+    asl = required_asl(model.scores)
+    needed: List[str] = []
+    for level, mits in REQUIRED_MITIGATIONS.items():
+        if level <= asl:
+            needed.extend(mits)
+    missing = [m for m in needed if m not in model.mitigations_in_place]
+    return {
+        "model":     model.name,
+        "asl":       asl,
+        "needed":    needed,
+        "missing":   missing,
+        "deployable": len(missing) == 0,
+    }
+
+# --- Demo: three candidate models ---------------------------------------
+candidates = [
+    ModelEvalResult(
+        name="claude-haiku-4-5-20251001",
+        scores=CapabilityScore(0.20, 0.25, 0.22, 0.05),
+        mitigations_in_place=["usage_policies", "abuse_monitoring"],
+    ),
+    ModelEvalResult(
+        name="claude-sonnet-4-6",
+        scores=CapabilityScore(0.45, 0.60, 0.40, 0.15),
+        mitigations_in_place=["usage_policies", "abuse_monitoring",
+                              "red_team_program", "weight_security_v1",
+                              "deployment_misuse_evals"],
+    ),
+    ModelEvalResult(
+        name="claude-opus-4-6",
+        scores=CapabilityScore(0.62, 0.78, 0.58, 0.35),
+        mitigations_in_place=["usage_policies", "abuse_monitoring",
+                              "red_team_program", "weight_security_v1",
+                              "deployment_misuse_evals"],
+    ),
+]
+
+print("RSP gate (toy thresholds — see real RSP for actual numbers)\\n")
+for m in candidates:
+    d = gating_decision(m)
+    print(f"Model       : {d['model']}")
+    print(f"  Required ASL : {d['asl']}")
+    print(f"  Mitigations  : {len(d['needed'])} required, "
+          f"{len(d['needed']) - len(d['missing'])} in place")
+    if d["missing"]:
+        print(f"  MISSING      : {d['missing']}")
+    print(f"  Deployable?  : {'YES' if d['deployable'] else 'NO — block release'}")
+    print()
+
+# --- Threshold table -----------------------------------------------------
+print("ASL thresholds (toy):")
+print(f"  {'level':6} {'cbrn':>6} {'auton':>7} {'cyber':>7} {'self_rep':>9}")
+for level, t in ASL_THRESHOLDS.items():
+    print(f"  {level:6} {t.cbrn_uplift:>6.2f} {t.autonomy:>7.2f} "
+          f"{t.cyber:>7.2f} {t.self_replicate:>9.2f}")
+
+print("\\nPM takeaway: the RSP is a product gate as much as a safety doc. "
+      "If your launch slips because mitigations aren't ready, that IS the "
+      "system working — and it is the most credible enterprise sales story "
+      "Anthropic has against frontier-lab competitors.")
+`,
+  },
+
   interview: {
     question: 'What is Anthropic\u2019s RSP and how does it affect product decisions?',
     answer: `The RSP is Anthropic\u2019s framework that links deployment decisions to safety evaluations. It defines capability thresholds (ASL 1-4) and commits Anthropic to implementing specific safeguards before deploying models that exceed those thresholds. All Claude 4.x models currently deployed are evaluated as ASL-2.<br><br>For product decisions, it affects three things. First, <strong>feature scope:</strong> some capabilities might be technically possible but would require ASL-3 evaluation \u2014 meaning enhanced safeguards and longer review cycles. As a PM, I need to understand this before committing to a roadmap that depends on capabilities not yet cleared for deployment.<br><br>Second, <strong>enterprise positioning:</strong> the RSP is a competitive differentiator with risk-averse buyers. For banks, hospitals, and government agencies, a transparent safety policy with specific commitments \u2014 reinforced by formal agreements with the UK AI Safety Institute and EU AI Office \u2014 is a reason to choose Anthropic over providers without equivalent frameworks.<br><br>Third, <strong>multi-layer governance:</strong> enterprise buyers deploying Claude via Bedrock get three oversight layers: Anthropic\u2019s RSP, Amazon\u2019s responsible AI policies, and their own governance. This stacking is a selling point for regulated industries. The PM who can explain this in a CISO meeting closes deals that the PM who only knows "we do safety testing" does not.<br><br>Compare to OpenAI\u2019s Preparedness Framework: similar intent, different specificity. The RSP\u2019s public commitment to halt deployment at capability thresholds is more explicit.`

@@ -15,6 +15,136 @@ window.COURSE_DAY_DATA[24] = {
     { title: 'Design cost attribution', description: 'Your product has 5 features using LLM calls. Design the metadata tagging scheme and the dashboard that shows cost per feature per day. How do you identify which feature is driving a sudden cost spike? Save as /day-24/cost_attribution_design.md.', time: '20 min' },
     { title: 'Debug a production failure from a trace', description: 'A user reports a wrong answer. You open the trace and see: retrieval returned 3 chunks, 2 were irrelevant. Write the root cause analysis and the fix (improve retrieval, not the prompt). Save as /day-24/trace_debug_exercise.md.', time: '10 min' },
   ],
+
+  codeExample: {
+    title: 'Trace + metric aggregator — Python',
+    lang: 'python',
+    code: `# Day 24 — Trace + Metric Aggregator (Langfuse / Helicone shape)
+#
+# An observability stack for AI products needs more than logs — it needs
+# per-call SPANS (model, tokens, latency, cost, accept/reject) that roll
+# up into p50/p95/p99 percentile dashboards by feature. This script
+# implements the rollup logic Langfuse and Helicone do for you, so you
+# understand what the numbers mean before you trust a vendor dashboard.
+#
+# It also demonstrates "debug a failure from a trace" — locate the slowest
+# trace, drill into its spans, and produce a one-line root-cause hypothesis.
+
+from collections import defaultdict
+from dataclasses import dataclass, field
+from typing import Dict, List
+import math
+import random
+
+@dataclass
+class Span:
+    trace_id: str
+    feature: str
+    model: str
+    input_tokens: int
+    output_tokens: int
+    latency_ms: int
+    accepted: bool
+    error: str = ""
+
+PRICES = {
+    "claude-sonnet-4-6":         (3.00, 15.00),
+    "claude-haiku-4-5-20251001": (0.80,  4.00),
+    "gpt-4o":                    (2.50, 10.00),
+}
+
+def cost_usd(s: Span) -> float:
+    p_in, p_out = PRICES[s.model]
+    return (s.input_tokens / 1e6) * p_in + (s.output_tokens / 1e6) * p_out
+
+# --- Percentile (no numpy; pure stdlib) ---------------------------------
+def percentile(values: List[float], p: float) -> float:
+    if not values: return 0.0
+    xs = sorted(values)
+    k = (len(xs) - 1) * (p / 100.0)
+    lo = math.floor(k); hi = math.ceil(k)
+    if lo == hi: return xs[int(k)]
+    return xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
+
+# --- Aggregator ---------------------------------------------------------
+def rollup(spans: List[Span]) -> Dict:
+    by_feature = defaultdict(list)
+    for s in spans:
+        by_feature[s.feature].append(s)
+
+    out = {}
+    for feat, ss in by_feature.items():
+        lats = [s.latency_ms for s in ss]
+        accepted = sum(1 for s in ss if s.accepted)
+        errors   = sum(1 for s in ss if s.error)
+        spend    = sum(cost_usd(s) for s in ss)
+        out[feat] = {
+            "calls":      len(ss),
+            "p50_ms":     round(percentile(lats, 50), 1),
+            "p95_ms":     round(percentile(lats, 95), 1),
+            "p99_ms":     round(percentile(lats, 99), 1),
+            "accept_pct": round(100.0 * accepted / len(ss), 1),
+            "error_pct":  round(100.0 *   errors / len(ss), 1),
+            "spend_usd":  round(spend, 4),
+            "spend_per_1k": round(spend / len(ss) * 1000, 2),
+        }
+    return out
+
+# --- Synthetic production traces ----------------------------------------
+random.seed(7)
+features = ["chat_qa", "doc_summary", "code_assist"]
+spans: List[Span] = []
+for i in range(900):
+    f = random.choice(features)
+    model = "claude-sonnet-4-6" if f != "code_assist" else "claude-haiku-4-5-20251001"
+    base_latency = {"chat_qa": 700, "doc_summary": 1800, "code_assist": 350}[f]
+    lat = max(50, int(random.gauss(base_latency, base_latency * 0.25)))
+    if random.random() < 0.01:
+        lat *= 6   # injected slow-call anomaly
+    accepted = random.random() < (0.92 if f != "doc_summary" else 0.78)
+    err = "" if random.random() > 0.005 else "context_length_exceeded"
+    spans.append(Span(
+        trace_id=f"tr-{i:04d}", feature=f, model=model,
+        input_tokens=random.randint(400, 6000),
+        output_tokens=random.randint(80, 900),
+        latency_ms=lat, accepted=accepted, error=err,
+    ))
+
+# --- Per-feature dashboard ----------------------------------------------
+print("Per-feature rollup\\n")
+print(f"{'feature':14} {'calls':>6} {'p50':>6} {'p95':>6} {'p99':>6} "
+      f"{'acc%':>6} {'err%':>6} {'spend $':>9} {'$/1k':>7}")
+for feat, m in rollup(spans).items():
+    print(f"{feat:14} {m['calls']:>6} {m['p50_ms']:>6.0f} {m['p95_ms']:>6.0f} "
+          f"{m['p99_ms']:>6.0f} {m['accept_pct']:>6.1f} {m['error_pct']:>6.1f} "
+          f"{m['spend_usd']:>9.2f} {m['spend_per_1k']:>7.2f}")
+
+# --- Debug-from-trace ---------------------------------------------------
+slowest = max(spans, key=lambda s: s.latency_ms)
+print(f"\\nSlowest trace: {slowest.trace_id} feature={slowest.feature} "
+      f"model={slowest.model} {slowest.latency_ms}ms "
+      f"in_tok={slowest.input_tokens} out_tok={slowest.output_tokens}")
+
+# Hypothesis: feature p95 vs this call.
+feat_p95 = rollup([s for s in spans if s.feature == slowest.feature])[slowest.feature]["p95_ms"]
+ratio = slowest.latency_ms / max(feat_p95, 1)
+hypothesis = ("input-token bloat — likely retrieval pulled too many chunks"
+              if slowest.input_tokens > 4000 else
+              "transient provider slowness — retry & alert")
+print(f"  feature p95 = {feat_p95}ms ; this call is {ratio:.1f}x p95")
+print(f"  root-cause hypothesis: {hypothesis}")
+
+# --- Errors --------------------------------------------------------------
+err_traces = [s for s in spans if s.error]
+print(f"\\nError sample ({len(err_traces)} total):")
+for s in err_traces[:5]:
+    print(f"  {s.trace_id}  feature={s.feature}  err={s.error}")
+
+print("\\nPM takeaway: percentiles, accept-rate, and $/1k calls are the "
+      "three numbers that belong on every AI-feature dashboard. Open one "
+      "trace per week; you will catch issues no aggregate metric shows.")
+`,
+  },
   interview: { question: 'How would you set up observability for an AI product in production?', answer: `Four layers, in order of implementation priority.<br><br><strong>Instrumentation (week 1):</strong> Every LLM call captured as a span with: input prompt, output, model, tokens (input/output/cached), latency, and custom metadata (feature name, user tier). Use OpenTelemetry \u2014 it\u2019s the de-facto standard supported by all major frameworks. Send to Langfuse (open-source) or Helicone (proxy-based, zero code changes).<br><br><strong>Monitoring (week 2):</strong> Dashboard tracking: p99 latency by feature, acceptance rate (users accepting vs rejecting AI outputs), cost per request and per feature, and error rate. The acceptance rate is the most undervalued metric \u2014 it\u2019s the leading indicator of product quality.<br><br><strong>Alerting (week 3):</strong> Statistical anomaly detection on acceptance rate (2 standard deviations from rolling 7-day average) and static threshold on p99 latency. Quality degradation is what hurts the product.<br><br><strong>Quality sampling (ongoing):</strong> Weekly manual review of 50 random production outputs. Automated evals miss edge cases that a PM reviewing real outputs catches. This is the PM\u2019s direct connection to product quality.` },
   pmAngle: 'Observability is a PM responsibility. You should be able to open a trace, see why the product gave a wrong answer, and diagnose whether the fix is retrieval quality, prompt engineering, or model selection. The PM who reviews production traces weekly builds better products than one who waits for complaint tickets.',
   resources: [

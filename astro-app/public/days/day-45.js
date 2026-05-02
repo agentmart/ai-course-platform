@@ -16,6 +16,125 @@ window.COURSE_DAY_DATA[45] = {
     { title: 'Build a procurement friction analysis', description: 'Document the typical enterprise procurement timeline for: (1) new vendor onboarding (Anthropic direct), (2) Azure AI Foundry marketplace deployment, (3) AWS Bedrock deployment. For each path: estimated timeline, required approvals, security review scope, and cost structure. Quantify the time savings of marketplace deployment vs new vendor onboarding. Save as /day-45/procurement_analysis.md.', time: '15 min' },
     { title: 'Write cloud platform recommendation guidelines', description: 'Create an internal guidelines document for recommending Azure vs Bedrock to enterprise customers. Rules: recommend based on existing cloud agreements, never disparage a cloud provider, focus on procurement speed, and always verify current Claude model availability on each platform. Include templates for the recommendation conversation. Save as /day-45/cloud_recommendation_guide.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'Enterprise deployment topology selector — Python',
+    lang: 'python',
+    code: `# Day 45 — Enterprise Deployment Topology Selector
+# Map a customer's procurement + compliance facts to a deployment recommendation:
+#   Anthropic API direct, AWS Bedrock, Azure AI Foundry, or hybrid.
+# Self-contained decision engine.
+
+OPTIONS = ["Anthropic API", "AWS Bedrock", "Azure AI Foundry", "Hybrid (BYOK)"]
+
+# A small ruleset. Each rule contributes points to one or more options.
+def score(customer):
+    s = {opt: 0 for opt in OPTIONS}
+    notes = []
+
+    # Existing cloud commit (EDP / MACC) is the single biggest driver.
+    if customer["cloud_commit"] == "AWS":
+        s["AWS Bedrock"] += 4
+        notes.append("AWS commit drains via Bedrock -> faster procurement")
+    elif customer["cloud_commit"] == "Azure":
+        s["Azure AI Foundry"] += 4
+        notes.append("Azure MACC drains via Foundry -> easier signoff")
+    elif customer["cloud_commit"] == "GCP":
+        notes.append("No first-party Claude on GCP -> consider Hybrid or direct API")
+        s["Anthropic API"] += 2
+        s["Hybrid (BYOK)"] += 2
+
+    # Data residency
+    res = customer["data_residency"]
+    if res == "EU":
+        s["Azure AI Foundry"] += 2
+        s["AWS Bedrock"] += 2
+        notes.append("EU residency: prefer Foundry (Sweden/France) or Bedrock (Frankfurt)")
+    elif res == "US":
+        for o in OPTIONS:
+            s[o] += 1
+
+    # BYOK / customer-managed keys requirement
+    if customer["byok_required"]:
+        s["AWS Bedrock"] += 2
+        s["Azure AI Foundry"] += 2
+        s["Anthropic API"] -= 1
+        notes.append("BYOK required: hyperscalers offer KMS/CMK paths")
+
+    # Private link / no public egress
+    if customer["private_link_required"]:
+        s["AWS Bedrock"] += 2
+        s["Azure AI Foundry"] += 2
+        s["Anthropic API"] -= 2
+        notes.append("Private link required: hyperscalers have it, direct API does not")
+
+    # Regulated industry: HIPAA, FedRAMP
+    if customer.get("hipaa"):
+        s["AWS Bedrock"] += 1
+        s["Azure AI Foundry"] += 1
+        notes.append("HIPAA: BAAs available via hyperscalers; verify with vendor")
+
+    # Speed matters: Anthropic API ships features first
+    if customer["wants_latest_features"]:
+        s["Anthropic API"] += 2
+        notes.append("Latest models/features land first on Anthropic API")
+
+    # Multi-cloud or multi-region:
+    if customer.get("multi_region"):
+        s["Hybrid (BYOK)"] += 2
+        notes.append("Multi-region active/active -> Hybrid simplifies failover")
+
+    return s, notes
+
+
+def recommend(customer):
+    s, notes = score(customer)
+    ranked = sorted(s.items(), key=lambda kv: kv[1], reverse=True)
+    return ranked, notes
+
+
+CUSTOMERS = [
+    {"name": "EU bank",
+     "cloud_commit": "Azure", "data_residency": "EU",
+     "byok_required": True, "private_link_required": True,
+     "hipaa": False, "wants_latest_features": False, "multi_region": True},
+    {"name": "US healthtech",
+     "cloud_commit": "AWS", "data_residency": "US",
+     "byok_required": True, "private_link_required": True,
+     "hipaa": True, "wants_latest_features": False, "multi_region": False},
+    {"name": "Series B AI startup",
+     "cloud_commit": "GCP", "data_residency": "US",
+     "byok_required": False, "private_link_required": False,
+     "hipaa": False, "wants_latest_features": True, "multi_region": False},
+]
+
+
+def main():
+    print("=" * 64)
+    print("Day 45 — Enterprise Deployment Topology Selector")
+    print("=" * 64)
+    for c in CUSTOMERS:
+        ranked, notes = recommend(c)
+        print()
+        print("Customer:", c["name"])
+        print("  Facts:", {k: c[k] for k in ("cloud_commit", "data_residency",
+                                              "byok_required", "private_link_required")})
+        for opt, sc in ranked:
+            print("    {:<20} score={}".format(opt, sc))
+        print("  Recommend:", ranked[0][0])
+        for n in notes:
+            print("    note:", n)
+
+    print()
+    print("PM lesson: deals close in procurement, not in product demos.")
+    print("Match the customer's existing cloud commit and you cut weeks off.")
+
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'How would you recommend enterprise customers deploy Claude?', answer: `The recommendation starts with procurement, not technology.<br><br><strong>First question: where do you already spend?</strong> The biggest barrier to enterprise AI adoption is procurement friction. New vendor onboarding takes 6\u201312 months at large enterprises. Cloud marketplace deployment \u2014 through Azure AI Foundry or AWS Bedrock \u2014 eliminates this by adding Claude to an existing vendor relationship. I always ask about existing cloud agreements first.<br><br><strong>Azure path:</strong> If the customer has Azure committed spend (MACC), I recommend Azure AI Foundry. Claude usage draws down existing Azure commitments. They get Azure\u2019s compliance certifications, VNet integration for data-in-perimeter, and unified billing. No new vendor procurement required.<br><br><strong>AWS path:</strong> If the customer runs primarily on AWS, I recommend Bedrock. Same benefits: PrivateLink for data-in-perimeter, existing AWS enterprise agreement, and Bedrock Guardrails for additional safety layers. Cross-region inference gives them automatic availability optimization.<br><br><strong>The BYOD pattern:</strong> For regulated industries, the architecture is data-in-perimeter: the model is accessed via API, but customer data stays within their cloud perimeter. On AWS, this is PrivateLink. On Azure, this is VNet peering. I always lead with this for healthcare, financial services, and government customers because without it, the deal stalls at security review.<br><br><strong>What I never do:</strong> I never recommend a cloud provider based on technical superiority. Both Azure and Bedrock provide equivalent Claude access. The recommendation is purely about procurement speed and cost optimization. The PM who unblocks procurement in week 1 closes the deal months faster than the PM who debates cloud architecture.` },
   pmAngle: 'Enterprise AI deals are won or lost in procurement, not product demos. The PM who understands cloud marketplace deployment paths and can recommend Azure AI Foundry or AWS Bedrock based on the customer\u2019s existing agreements accelerates deals by months. Technical architecture matters, but procurement friction is the actual bottleneck for enterprise AI adoption.',
   resources: [

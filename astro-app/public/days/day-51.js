@@ -16,6 +16,137 @@ window.COURSE_DAY_DATA[51] = {
     { title: 'Map AI Engineer vs ML Engineer', description: 'Create a detailed comparison of the AI Engineer and ML Engineer roles. For each: daily activities, required technical skills, tools they use, how they interact with the PM, career trajectory, and when to hire one vs the other. Include specific examples: an AI Engineer builds an MCP server for Claude tool use; an ML Engineer fine-tunes a classification model for content moderation. Save as /day-51/ai_vs_ml_engineer.md.', time: '15 min' },
     { title: 'Cross-functional pod simulation', description: 'Simulate a sprint planning meeting for your AI product pod. Write the agenda, identify three user stories for the sprint (one feature, one safety improvement, one eval improvement), assign owners from your pod, and identify cross-functional dependencies. Include a safety review checkpoint mid-sprint, not just at the end. Document the anti-patterns you\u2019re deliberately avoiding. Save as /day-51/pod_sprint_sim.md.', time: '20 min' }
   ],
+
+  codeExample: {
+    title: 'Cross-Functional AI Team Topology Designer — Python',
+    lang: 'python',
+    code: `# Day 51 — Cross-Functional AI Team Topology Designer
+# Detects role-coverage gaps for an AI product pod. Pure stdlib.
+
+# Canonical role catalog with the *capabilities* each role typically owns.
+ROLE_CATALOG = {
+    "AI PM":             ["roadmap", "prioritization", "discovery", "metrics"],
+    "AI Safety PM":      ["red-team", "policy", "eu-ai-act", "abuse-review"],
+    "AI Engineer":       ["prompts", "agents", "evals", "tool-use"],
+    "ML Engineer":       ["fine-tune", "training", "inference-perf"],
+    "Platform Engineer": ["mcp-servers", "deploy", "observability", "cost"],
+    "Designer":          ["ux", "trust-ui", "error-states"],
+    "Data Engineer":     ["pipelines", "ground-truth", "labeling"],
+    "DevRel":            ["cookbook", "samples", "docs"],
+    "Eng Manager":       ["delivery", "hiring", "rituals"],
+    "Domain Expert":     ["sme-input", "rubric-design"],
+}
+
+# Required capabilities per product archetype.
+ARCHETYPE_NEEDS = {
+    "internal-copilot": {
+        "must":   ["roadmap", "prompts", "evals", "deploy", "ux", "abuse-review"],
+        "should": ["mcp-servers", "ground-truth", "rubric-design", "cost"],
+    },
+    "developer-api": {
+        "must":   ["roadmap", "prompts", "evals", "cookbook", "docs", "deploy"],
+        "should": ["samples", "observability", "red-team", "metrics"],
+    },
+    "agentic-workflow": {
+        "must":   ["roadmap", "agents", "tool-use", "evals", "red-team", "deploy"],
+        "should": ["mcp-servers", "policy", "cost", "rubric-design"],
+    },
+}
+
+def expand_capabilities(team):
+    """team is list of role names. Return set of capabilities covered."""
+    caps = set()
+    for role in team:
+        caps.update(ROLE_CATALOG.get(role, []))
+    return caps
+
+def gap_analysis(team, archetype):
+    needs = ARCHETYPE_NEEDS[archetype]
+    covered = expand_capabilities(team)
+    must_missing   = [c for c in needs["must"]   if c not in covered]
+    should_missing = [c for c in needs["should"] if c not in covered]
+    return must_missing, should_missing, covered
+
+def staffing_score(must_missing, should_missing):
+    # Must-have gaps cost 2x should-have gaps.
+    penalty = 2 * len(must_missing) + len(should_missing)
+    raw = max(0, 10 - penalty)
+    return raw
+
+def topology_for(archetype):
+    """Recommended pod topology by archetype."""
+    if archetype == "internal-copilot":
+        return "Single product pod: PM + AI Eng + Platform Eng + Designer + Safety PM (shared)."
+    if archetype == "developer-api":
+        return "Platform pod: PM + 2 AI Eng + DevRel + Platform Eng + Safety PM."
+    if archetype == "agentic-workflow":
+        return "Agent pod: PM + 2 AI Eng + ML Eng (eval) + Platform Eng + Safety PM (embedded)."
+    return "Custom — start from product archetype."
+
+def print_team(team):
+    print("Team:")
+    for r in team:
+        caps = ", ".join(ROLE_CATALOG[r])
+        print(f"  - {r:18} -> {caps}")
+
+def print_report(team, archetype):
+    must, should, covered = gap_analysis(team, archetype)
+    score = staffing_score(must, should)
+    print("=" * 60)
+    print(f"ARCHETYPE: {archetype}")
+    print("=" * 60)
+    print_team(team)
+    print()
+    print(f"Capabilities covered: {len(covered)}")
+    print(f"MUST-HAVE gaps   ({len(must)}): {must or 'none'}")
+    print(f"SHOULD-HAVE gaps ({len(should)}): {should or 'none'}")
+    print(f"Staffing score: {score}/10")
+    print()
+    print("Recommended topology:")
+    print("  " + topology_for(archetype))
+    return score
+
+# Three example team configurations the PM might be evaluating.
+SCENARIOS = [
+    {
+        "name": "Lean copilot pilot",
+        "team": ["AI PM", "AI Engineer", "Platform Engineer", "Designer"],
+        "archetype": "internal-copilot",
+    },
+    {
+        "name": "API platform launch",
+        "team": ["AI PM", "AI Engineer", "AI Engineer", "DevRel", "Platform Engineer"],
+        "archetype": "developer-api",
+    },
+    {
+        "name": "Agent workflow product",
+        "team": ["AI PM", "AI Engineer", "Platform Engineer", "Eng Manager"],
+        "archetype": "agentic-workflow",
+    },
+]
+
+def main():
+    print("CROSS-FUNCTIONAL AI TEAM TOPOLOGY DESIGNER")
+    print()
+    results = []
+    for s in SCENARIOS:
+        print(">>> Scenario:", s["name"])
+        sc = print_report(s["team"], s["archetype"])
+        results.append((s["name"], sc))
+        print()
+    # Final ranking helps the PM see which staffing plan is closest to ready.
+    print("Ranking by staffing score:")
+    for name, sc in sorted(results, key=lambda x: -x[1]):
+        marker = "READY" if sc >= 8 else "GAPS"
+        print(f"  [{marker}] {name}: {sc}/10")
+    print()
+    print("Hiring rule of thumb: close MUST gaps before launch, SHOULD gaps before scale.")
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'How would you structure an AI product team, and what roles are essential?', answer: `I structure AI product teams as cross-functional pods, not siloed functions \u2014 and the roles have evolved significantly from traditional product teams.<br><br><strong>The core pod:</strong> PM, AI Engineer, Backend Engineer, Designer, and an embedded Safety Reviewer. This pod owns a complete AI feature end-to-end. The critical distinction from traditional teams: safety is embedded in the pod, not a stage gate at the end of development.<br><br><strong>Three roles that didn\u2019t exist two years ago:</strong> First, the AI Safety PM \u2014 a product role, not a policy role. They own what the model should and shouldn\u2019t do in specific product contexts, write system prompt specs, and manage the red-teaming cadence. Anthropic pioneered this as a dedicated product function. Second, the Evals Lead \u2014 someone who owns the evaluation pipeline full-time. Evals are too important to be a side project. Third, the AI Engineer, distinct from the ML Engineer. If you\u2019re building on Claude, you need people who integrate pre-trained models into products \u2014 system prompts, tool-use pipelines, agentic workflows, MCP servers \u2014 not people who train models from scratch.<br><br><strong>Hiring philosophy:</strong> Mission and technical challenge differentiate you, not comp. Every AI company pays well. What attracts the best talent is a meaningful problem and fascinating technical challenges. I lead with those in job descriptions and interviews.<br><br><strong>Anti-patterns I avoid:</strong> Centralized AI platform teams that create bottlenecks. Separate prompt engineering teams. Safety review only at launch. And hiring ML Engineers when the work requires AI Engineers.` },
   pmAngle: 'The PM who can build and lead an AI product team \u2014 with the right roles, the right topology, and embedded safety \u2014 is the PM who ships AI products that work. Team structure is strategy: a misstructured AI team will build the wrong things safely or the right things unsafely. Getting the team right is the highest-leverage thing you do.',
   resources: [

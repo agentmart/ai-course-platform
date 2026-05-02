@@ -1,5 +1,18 @@
 # Course Content Changelog
 
+## Sprint 8 — Code Examples Backfill (PR 2)
+
+Added executable `codeExample` blocks to 46 days that previously had none, bringing
+coverage from 14/60 to **60/60 (100%)**. Every example is 90–130 lines, self-contained
+(no API calls, stdlib only), and validated via `python3 -m py_compile` / `node --check`
+plus end-to-end execution.
+
+- **Python (39 days):** 3, 4, 5, 8, 14, 19, 20, 23, 24, 25, 28, 29, 30, 31, 32, 33, 35, 36, 37, 38, 39, 40, 41, 42, 44, 45, 47, 48, 49, 50, 51, 52, 53, 55, 56, 57, 58, 59, 60
+- **JavaScript (7 days):** 7, 22, 27, 34, 43, 46, 54
+
+A `.github/workflows/code-validation.yml` workflow now gates future PRs touching
+`astro-app/public/days/**` or `public/days/**` to prevent regressions.
+
 This folder contains individual day content files. Each file overrides the corresponding
 entry in the legacy phase files (`course-data-phase1.js`, `course-data-phase2.js`, `course-data-phase3.js`).
 

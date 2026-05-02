@@ -16,6 +16,142 @@ window.COURSE_DAY_DATA[54] = {
     { title: 'Audit error messages as product surface', description: 'Deliberately trigger five different error conditions in the Claude API (invalid API key, malformed request, rate limit, context window exceeded, invalid model name). For each error: document the current error response, rate it (helpful/confusing/missing information), and rewrite it to be maximally helpful. Apply the principle: every error message should tell the developer what went wrong, why, and how to fix it. Save as /day-54/error_message_audit.md.', time: '20 min' },
     { title: 'Design a DX improvement roadmap', description: 'You\u2019re the DX PM for an AI API. Design a quarterly DX improvement roadmap. Q1: reduce TTFSC to under 3 minutes. Q2: launch interactive playground. Q3: add AI-powered documentation search. Q4: build community cookbook program. For each quarter: define the specific deliverables, success metrics, and the team resources needed. Save as /day-54/dx_roadmap.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'DX Scorecard for an AI API — JavaScript',
+    lang: 'js',
+    code: `// Day 54 — DX Scorecard for an AI API
+// Scores an API's developer experience across five dimensions and prints a
+// prioritized fix list. Pure Node stdlib (none needed — plain JS).
+
+const DIMENSIONS = [
+  { key: 'auth',          label: 'Authentication setup',     weight: 0.20 },
+  { key: 'errors',        label: 'Error message clarity',    weight: 0.20 },
+  { key: 'docs',          label: 'Documentation depth',      weight: 0.20 },
+  { key: 'samples',       label: 'Code samples & cookbook',  weight: 0.20 },
+  { key: 'ttfc',          label: 'Time to first call',       weight: 0.20 },
+];
+
+// Sample scorecard for a hypothetical "Atlas API" the team is auditing.
+// Each dimension has raw observations the PM filled in.
+const ATLAS_API = {
+  name: 'Atlas API v1',
+  observations: {
+    auth:    { hasQuickstart: true,  oneLineCurl: true,  envSetup: false, score: 0.7 },
+    errors:  { hasCodes: true,  hasFixHint: false, hasRequestId: true,  score: 0.6 },
+    docs:    { quickstart: true, conceptual: true, reference: true, useCaseGuides: false, score: 0.7 },
+    samples: { langs: ['python', 'js'], cookbookEntries: 12, runnable: true, score: 0.75 },
+    ttfc:    { measuredSeconds: 480, target: 300, score: 0.55 },
+  },
+};
+
+// Reference model strings developers expect to see in samples.
+const EXPECTED_MODELS = [
+  'claude-sonnet-4-6',
+  'claude-haiku-4-5-20251001',
+  'claude-opus-4-6',
+];
+
+function grade(pct) {
+  if (pct >= 0.85) return 'A';
+  if (pct >= 0.70) return 'B';
+  if (pct >= 0.55) return 'C';
+  if (pct >= 0.40) return 'D';
+  return 'F';
+}
+
+function scoreDimension(api, dim) {
+  const obs = api.observations[dim.key];
+  return obs && typeof obs.score === 'number' ? obs.score : 0;
+}
+
+function findGaps(api) {
+  const gaps = [];
+  const o = api.observations;
+  if (!o.auth.envSetup)        gaps.push({ dim: 'auth',    fix: 'Add OS-by-OS env-var setup snippet' });
+  if (!o.errors.hasFixHint)    gaps.push({ dim: 'errors',  fix: 'Every error must include a one-line fix hint' });
+  if (!o.docs.useCaseGuides)   gaps.push({ dim: 'docs',    fix: 'Add use-case guides (RAG, agents, evals)' });
+  if (o.ttfc.measuredSeconds > o.ttfc.target) {
+    const over = o.ttfc.measuredSeconds - o.ttfc.target;
+    gaps.push({ dim: 'ttfc', fix: 'Cut TTFC by ' + over + 's via copy-paste curl on the landing page' });
+  }
+  if (o.samples.cookbookEntries < 20) {
+    gaps.push({ dim: 'samples', fix: 'Grow cookbook to >= 20 runnable recipes' });
+  }
+  return gaps;
+}
+
+function scorecard(api) {
+  const rows = [];
+  let total = 0;
+  for (const d of DIMENSIONS) {
+    const s = scoreDimension(api, d);
+    const weighted = s * d.weight;
+    total += weighted;
+    rows.push({ key: d.key, label: d.label, weight: d.weight, raw: s, weighted: weighted, grade: grade(s) });
+  }
+  return { rows: rows, total: total };
+}
+
+function pad(s, n) {
+  s = String(s);
+  return s.length >= n ? s : s + ' '.repeat(n - s.length);
+}
+
+function printReport(api) {
+  console.log('=' .repeat(64));
+  console.log('DX SCORECARD: ' + api.name);
+  console.log('=' .repeat(64));
+  const { rows, total } = scorecard(api);
+  console.log(pad('DIM', 10) + pad('LABEL', 28) + pad('WEIGHT', 8) + pad('RAW', 7) + 'GRADE');
+  console.log('-'.repeat(64));
+  for (const r of rows) {
+    console.log(
+      pad(r.key, 10) + pad(r.label, 28) +
+      pad(r.weight.toFixed(2), 8) + pad(r.raw.toFixed(2), 7) + r.grade
+    );
+  }
+  console.log('-'.repeat(64));
+  console.log('OVERALL: ' + total.toFixed(2) + '   GRADE: ' + grade(total));
+  return total;
+}
+
+function printSampleAudit(api) {
+  console.log('');
+  console.log('Sample/model coverage check:');
+  for (const m of EXPECTED_MODELS) {
+    const present = api.observations.samples.langs.length > 0;
+    console.log('  ' + (present ? '[ok]' : '[!!]') + ' ' + m + ' samples present');
+  }
+}
+
+function printGaps(api) {
+  const gaps = findGaps(api);
+  console.log('');
+  console.log('Prioritized DX fixes:');
+  if (gaps.length === 0) {
+    console.log('  (none — ship the doc updates and re-audit in 30 days)');
+    return;
+  }
+  let i = 1;
+  for (const g of gaps) {
+    console.log('  ' + i + '. [' + g.dim + '] ' + g.fix);
+    i += 1;
+  }
+}
+
+function main() {
+  const total = printReport(ATLAS_API);
+  printSampleAudit(ATLAS_API);
+  printGaps(ATLAS_API);
+  console.log('\\nRule: TTFC < 5 min, errors with fix-hints, cookbook >= 20 recipes.');
+  console.log('Final score: ' + total.toFixed(2));
+}
+
+main();
+`,
+  },
+
   interview: { question: 'How do you think about developer experience for an AI API product?', answer: `Developer experience is a product discipline, not a documentation project \u2014 and it\u2019s one of the strongest competitive advantages in the AI API market.<br><br><strong>TTFSC is the north star:</strong> Time to First Successful Call. How long from \u201cI want to use this API\u201d to receiving a successful response? Every minute is a point where developers abandon your platform. The best APIs achieve under 5 minutes. I measure this by instrumenting the onboarding flow and tracking time-to-first-200-response for new API keys.<br><br><strong>The Cookbook pattern:</strong> Anthropic\u2019s Cookbook is a model for DX. Production-ready, runnable code examples for common use cases. This answers 80% of support questions before they\u2019re asked and demonstrates best practices in actual code. Every AI API should have this.<br><br><strong>Error messages are product surface:</strong> Every error a developer sees is a product interaction. A good error tells you what went wrong, why, and how to fix it. A \u201c400 Bad Request\u201d sends developers to Stack Overflow and you lose them. I review error messages as carefully as landing pages.<br><br><strong>Documentation architecture:</strong> Five layers: quickstart (TTFSC under 5 min), use-case guides (not endpoint-organized), API reference, cookbook recipes, and changelog. Each layer serves a different developer at a different stage of their journey.<br><br><strong>Why this matters competitively:</strong> Stripe won payments not on infrastructure but on DX. The same dynamic applies to AI APIs. Better DX attracts more developers, who build more applications, who generate more feedback. It\u2019s a compounding advantage.` },
   pmAngle: 'DX is where API products are won and lost. The AI PM who treats developer experience as a first-class product concern \u2014 measuring TTFSC, curating the Cookbook, crafting error messages, structuring documentation by use case \u2014 builds the compounding advantage that turns an API into a platform.',
   resources: [

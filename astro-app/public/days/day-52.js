@@ -16,6 +16,142 @@ window.COURSE_DAY_DATA[52] = {
     { title: 'Design a weekly AI health review', description: 'Design the agenda, attendees, data sources, and action-item template for a weekly AI health review meeting. Include: eval suite dashboard design, user feedback aggregation method, cost/latency monitoring source, safety incident log, and a decision framework for when to escalate vs. when to add to backlog. Keep the meeting to 30 minutes. Save as /day-52/weekly_health_review.md.', time: '20 min' },
     { title: 'Critique bad AI OKRs', description: 'Here are three bad AI OKRs. Rewrite each to be effective. Bad OKR 1: \u201cImprove Claude accuracy to 95%.\u201d Bad OKR 2: \u201cReduce AI costs.\u201d Bad OKR 3: \u201cMake the AI agent work better.\u201d For each, explain why it\u2019s bad, rewrite it with specific key results, and identify what hygiene metric should accompany it. Save as /day-52/okr_critique.md.', time: '15 min' }
   ],
+
+  codeExample: {
+    title: 'AI Quality OKR → Eval Metric Mapper — Python',
+    lang: 'python',
+    code: `# Day 52 — AI Quality OKRs: Map OKRs to Eval Metrics
+# Maps draft OKRs onto eval metrics with leading/lagging weights. Stdlib only.
+
+# Catalog of eval metrics with type (leading vs lagging) and unit.
+METRICS = {
+    "eval_pass_rate":      {"type": "leading", "unit": "%",  "owner": "AI Eng"},
+    "rubric_score_p50":    {"type": "leading", "unit": "pts","owner": "AI PM"},
+    "red_team_block_rate": {"type": "leading", "unit": "%",  "owner": "Safety"},
+    "tool_call_success":   {"type": "leading", "unit": "%",  "owner": "AI Eng"},
+    "p95_latency":         {"type": "leading", "unit": "ms", "owner": "Platform"},
+    "csat":                {"type": "lagging", "unit": "pts","owner": "AI PM"},
+    "weekly_active_users": {"type": "lagging", "unit": "n",  "owner": "Growth"},
+    "task_completion":     {"type": "lagging", "unit": "%",  "owner": "AI PM"},
+    "cogs_per_session":    {"type": "lagging", "unit": "$",  "owner": "Finance"},
+    "thumbs_up_rate":      {"type": "lagging", "unit": "%",  "owner": "AI PM"},
+}
+
+# Draft OKRs the team is considering for the quarter.
+OKRS = [
+    {
+        "id": "O1",
+        "objective": "Make the agent reliably finish multi-step workflows.",
+        "key_results": [
+            {"kr": "task_completion >= 75%",      "metric": "task_completion",    "leading_metrics": ["eval_pass_rate", "tool_call_success"]},
+            {"kr": "tool_call_success >= 92%",    "metric": "tool_call_success",  "leading_metrics": []},
+            {"kr": "rubric_score_p50 >= 4.2",     "metric": "rubric_score_p50",   "leading_metrics": []},
+        ],
+    },
+    {
+        "id": "O2",
+        "objective": "Earn trust with regulated customers.",
+        "key_results": [
+            {"kr": "red_team_block_rate >= 95%",  "metric": "red_team_block_rate","leading_metrics": []},
+            {"kr": "csat >= 4.4 in regulated segment", "metric": "csat",          "leading_metrics": ["rubric_score_p50", "red_team_block_rate"]},
+        ],
+    },
+    {
+        "id": "O3",
+        "objective": "Run profitable inference at scale.",
+        "key_results": [
+            {"kr": "cogs_per_session <= $0.18",   "metric": "cogs_per_session",   "leading_metrics": ["p95_latency"]},
+            {"kr": "p95_latency <= 4500ms",       "metric": "p95_latency",        "leading_metrics": []},
+        ],
+    },
+]
+
+# Weights: leading indicators are watched weekly; lagging quarterly.
+WEIGHT_LEADING = 0.6
+WEIGHT_LAGGING = 0.4
+
+def classify_kr(kr):
+    """Return ('leading'|'lagging', metric)."""
+    m = kr["metric"]
+    return METRICS[m]["type"], m
+
+def kr_health(kr, observed):
+    """Crude health score: 1.0 if any leading indicator improved."""
+    leading = kr.get("leading_metrics", [])
+    if not leading:
+        return None
+    improved = sum(1 for m in leading if observed.get(m, 0) > 0)
+    return improved / len(leading)
+
+# Hypothetical week-over-week deltas (positive = improving direction).
+OBSERVED_DELTAS = {
+    "eval_pass_rate":      +0.03,
+    "tool_call_success":   +0.01,
+    "rubric_score_p50":    +0.10,
+    "red_team_block_rate": -0.02,
+    "p95_latency":         +0.05,
+}
+
+def render_okr(o):
+    print(f"[{o['id']}] {o['objective']}")
+    for kr in o["key_results"]:
+        kind, metric = classify_kr(kr)
+        unit = METRICS[metric]["unit"]
+        owner = METRICS[metric]["owner"]
+        marker = "LEAD" if kind == "leading" else "LAG "
+        print(f"  {marker} {kr['kr']:38} ({unit}, owner: {owner})")
+        h = kr_health(kr, OBSERVED_DELTAS)
+        if h is not None:
+            print(f"       leading-indicator health: {h:.0%}")
+
+def coverage_audit():
+    """Every OKR must have at least one leading indicator behind it."""
+    bad = []
+    for o in OKRS:
+        for kr in o["key_results"]:
+            kind, _ = classify_kr(kr)
+            if kind == "lagging" and not kr.get("leading_metrics"):
+                bad.append((o["id"], kr["kr"]))
+    return bad
+
+def weighted_focus():
+    """How much of the OKR set is leading vs lagging."""
+    leading = lagging = 0
+    for o in OKRS:
+        for kr in o["key_results"]:
+            kind, _ = classify_kr(kr)
+            if kind == "leading":
+                leading += 1
+            else:
+                lagging += 1
+    total = leading + lagging
+    return leading / total, lagging / total
+
+def main():
+    print("AI QUALITY OKR MAPPER")
+    print("=" * 56)
+    for o in OKRS:
+        render_okr(o)
+        print()
+    bad = coverage_audit()
+    print("Lagging KRs missing leading indicators:")
+    if not bad:
+        print("  (none — every lagging KR has a leading proxy)")
+    for o_id, kr in bad:
+        print(f"  - {o_id}: {kr}")
+    print()
+    lead, lag = weighted_focus()
+    print(f"OKR focus mix: {lead:.0%} leading, {lag:.0%} lagging")
+    print(f"Weights for weekly review: leading={WEIGHT_LEADING}, lagging={WEIGHT_LAGGING}")
+    print()
+    print("Rule: if the leading-indicator health stays >= 60% for 4 weeks,")
+    print("the lagging KR will move. If not, the OKR is mis-specified.")
+
+if __name__ == "__main__":
+    main()
+`,
+  },
+
   interview: { question: 'How do you set OKRs for AI products when performance is probabilistic?', answer: `The key insight is separating hygiene metrics from OKRs \u2014 and always establishing baselines before setting targets.<br><br><strong>Hygiene metrics are floors, not goals:</strong> Eval thresholds are non-negotiable minimums. If our medical Q&A eval drops below 92% accuracy, everything stops. But that\u2019s not the OKR. The OKR is the business outcome: physician adoption, task completion, user satisfaction. Teams that make eval scores their OKR end up gaming benchmarks instead of delivering user value.<br><br><strong>Baseline first, targets second:</strong> You cannot set credible performance targets without baselines. My first quarter with any new AI feature includes an explicit baseline discovery objective: instrument, collect data, establish current performance. Then Q2 targets are grounded in reality, not aspiration.<br><br><strong>Agentic metrics are different:</strong> For products where Claude performs multi-step tasks autonomously, I track: task completion rate (north star), human override rate (trust indicator), multi-step success rate (error compounding), recovery rate (resilience), and cost per completed task (efficiency). These don\u2019t exist in traditional software OKRs.<br><br><strong>Weekly health review:</strong> Quarterly OKRs aren\u2019t enough for AI products because quality can shift with model updates. I run a weekly 30-minute health review: eval results, user feedback themes, cost/latency trends, safety incidents, and model behavior changes. This catches regressions before they become quarter-defining problems.` },
   pmAngle: 'The PM who separates hygiene metrics from OKRs, insists on baseline discovery before target-setting, and runs a disciplined weekly health review is the PM whose AI product actually improves quarter over quarter. Everyone else is either chasing benchmarks or flying blind.',
   resources: [
