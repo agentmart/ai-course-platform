@@ -299,7 +299,7 @@ body{background:var(--bg);color:var(--ink);font-family:'DM Sans',sans-serif;disp
     <div class="code-drawer-title" id="code-drawer-title">Code Exercise</div>
     <select class="e-sel" id="code-drawer-lang" onchange="onDrawerLangChange()">
       <option value="python">Python (Pyodide WASM)</option>
-      <option value="js">JavaScript (sandbox)</option>
+      <option value="js">JavaScript (isolated iframe)</option>
     </select>
     <button class="e-run" onclick="runDrawer()"><span class="e-spin" id="code-drawer-spin"></span>&#9654; Run</button>
     <button class="code-drawer-close" onclick="closeCodeDrawer()" aria-label="Close">&#10005; Close</button>
@@ -680,13 +680,16 @@ function renderTask(day,i,task){
   return `<div class="task ${done?'done':''}" id="task-${day}-${i}"><div class="task-check" onclick="toggleTask(${day},${i})">${done?'&#10003;':''}</div><div class="task-body"><div class="task-label">Task ${i+1}</div><div class="task-title">${task.title}</div><div class="task-desc">${task.description}</div><div class="task-time">&#9203; ${task.time}</div></div></div>`;
 }
 
+// Title lookup so we don't have to JS-string-escape titles into inline onclick attrs
+const editorTitles = {};
+
 function renderCodeBlock(day,ex){
   const id=`editor-${day}`;
-  const safeTitle=(ex.title||'Code Exercise').replace(/'/g,'&#39;');
-  return `<div class="code-block"><div class="code-block-title">${ex.title||'Code Exercise'}</div><div class="editor"><div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'}</div></div><textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea><div class="e-foot"><select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')"><option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option><option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (sandbox)</option></select><div style="display:flex;gap:8px;align-items:center;"><button class="e-expand" onclick="openCodeDrawer('${id}','${safeTitle}')" title="Expand to side panel">&#x26F6; Expand</button><button class="e-run" onclick="runEditor('${id}')"><span class="e-spin" id="${id}-spin"></span>&#9654; Run</button></div></div><div class="e-out" id="${id}-out">// Press Run</div><div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div></div></div>`;
+  editorTitles[id] = ex.title || 'Code Exercise';
+  return `<div class="code-block"><div class="code-block-title">${ex.title||'Code Exercise'}</div><div class="editor"><div class="e-bar"><div class="e-dot e-r"></div><div class="e-dot e-y"></div><div class="e-dot e-g"></div><div class="e-badge" id="${id}-badge">${ex.lang==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; ISOLATED IFRAME'}</div></div><textarea class="e-ta" id="${id}-code" spellcheck="false">${ex.code}</textarea><div class="e-foot"><select class="e-sel" id="${id}-lang" onchange="onEditorLangChange('${id}')"><option value="python" ${ex.lang==='python'?'selected':''}>Python (Pyodide WASM)</option><option value="js" ${ex.lang==='js'?'selected':''}>JavaScript (isolated iframe)</option></select><div style="display:flex;gap:8px;align-items:center;"><button class="e-expand" onclick="openCodeDrawer('${id}')" title="Expand to side panel">&#x26F6; Expand</button><button class="e-run" onclick="runEditor('${id}')"><span class="e-spin" id="${id}-spin"></span>&#9654; Run</button></div></div><div class="e-out" id="${id}-out">// Press Run</div><div class="e-status" id="${id}-status">${ex.lang==='python'?'Pyodide: not loaded':''}</div></div></div>`;
 }
 
-function onEditorLangChange(id){ document.getElementById(id+'-badge').innerHTML=document.getElementById(id+'-lang').value==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; SANDBOX'; }
+function onEditorLangChange(id){ document.getElementById(id+'-badge').innerHTML=document.getElementById(id+'-lang').value==='python'?'PYTHON &middot; WASM':'JAVASCRIPT &middot; ISOLATED IFRAME'; }
 function toggleAnswer(btn){ const ans=btn.nextElementSibling; const open=ans.classList.toggle('open'); btn.textContent=(open?'&#9660; HIDE':'&#9658; SHOW')+' MODEL ANSWER'; }
 
 function toggleTask(day,i){
@@ -770,7 +773,7 @@ async function runPython(code,outEl,statusId){
       const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/pyodide/v0.25.1/full/pyodide.js'; document.head.appendChild(s);
       await new Promise((res,rej)=>{ s.onload=res; s.onerror=()=>rej(new Error('CDN unreachable')); });
       pyodide=await window.loadPyodide({indexURL:'https://cdn.jsdelivr.net/pyodide/v0.25.1/full/'});
-      setStatus('Pyodide: ready &#10003;'); pyLoading=false;
+      setStatus('Pyodide: ready \u2713'); pyLoading=false;
     } else if(pyLoading){ outEl.textContent='Python runtime still loading...'; return; }
     let buf='';
     pyodide.setStdout({batched:s=>buf+=s+'\n'});
@@ -781,64 +784,82 @@ async function runPython(code,outEl,statusId){
   }catch(e){ outEl.textContent=String(e && e.message || e); outEl.className='e-out err'; setStatus('Pyodide: error'); pyLoading=false; }
 }
 
+// Run JS in a fully-isolated sandboxed iframe (srcdoc, no allow-same-origin).
+// Console output is shipped back via postMessage. Note: synchronous infinite loops
+// inside the iframe still block the parent's main thread (iframes share it), so the
+// wall-clock watchdog only fires once that loop yields. This is a documented limit
+// of in-browser JS execution without a Web Worker; user-typed loops will require a
+// page refresh, which is acceptable since the user authored the code themselves.
 function runJS(code,outEl){
   return new Promise(resolve=>{
+    const iframe=document.createElement('iframe');
+    iframe.style.display='none';
+    iframe.sandbox='allow-scripts'; // truly isolated: no DOM access to parent, no same-origin
+    const escaped = code.replace(/<\/script>/gi, '<\\/script>');
+    iframe.srcdoc = '<!doctype html><html><body><script>(function(){\n'
+      + 'var send=function(level,args){try{parent.postMessage({__rj:1,type:"console",level:level,args:args.map(function(a){if(typeof a==="string")return a;try{return JSON.stringify(a,null,2)}catch(e){return String(a)}})},"*")}catch(e){}};\n'
+      + 'console.log=function(){send("log",[].slice.call(arguments))};\n'
+      + 'console.info=function(){send("log",[].slice.call(arguments))};\n'
+      + 'console.debug=function(){send("log",[].slice.call(arguments))};\n'
+      + 'console.warn=function(){send("warn",[].slice.call(arguments))};\n'
+      + 'console.error=function(){send("error",[].slice.call(arguments))};\n'
+      + 'console.table=function(x){send("log",[x])};\n'
+      + 'window.addEventListener("error",function(e){parent.postMessage({__rj:1,type:"error",message:(e.message||"Error")+" ("+(e.lineno||"?")+":"+(e.colno||"?")+")"},"*");parent.postMessage({__rj:1,type:"done"},"*")});\n'
+      + 'window.addEventListener("unhandledrejection",function(e){parent.postMessage({__rj:1,type:"error",message:"Unhandled rejection: "+(e.reason&&e.reason.message||e.reason||"unknown")},"*");parent.postMessage({__rj:1,type:"done"},"*")});\n'
+      + 'try{\n'
+      + 'var __r=(function(){' + escaped + '\n})();\n'
+      + 'if(__r&&typeof __r.then==="function"){__r.then(function(){parent.postMessage({__rj:1,type:"done"},"*")},function(err){parent.postMessage({__rj:1,type:"error",message:(err&&err.stack)||(err&&err.message)||String(err)},"*");parent.postMessage({__rj:1,type:"done"},"*")})}\n'
+      + 'else{parent.postMessage({__rj:1,type:"done"},"*")}\n'
+      + '}catch(e){parent.postMessage({__rj:1,type:"error",message:(e&&e.stack)||(e&&e.message)||String(e)},"*");parent.postMessage({__rj:1,type:"done"},"*")}\n'
+      + '})();<\/script></body></html>';
     const logs=[];
-    const stringify=(x)=>{
-      if(typeof x==='string') return x;
-      if(x instanceof Error) return x.stack||x.message;
-      try { return JSON.stringify(x,null,2); } catch(_) { return String(x); }
+    let settled=false;
+    let errored=false;
+    const cleanup=()=>{
+      window.removeEventListener('message',onMsg);
+      if(iframe.parentNode) iframe.parentNode.removeChild(iframe);
     };
-    const fakeConsole={
-      log:(...a)=>logs.push(a.map(stringify).join(' ')),
-      info:(...a)=>logs.push(a.map(stringify).join(' ')),
-      error:(...a)=>logs.push('\u26A0 '+a.map(stringify).join(' ')),
-      warn:(...a)=>logs.push('\u26A0 '+a.map(stringify).join(' ')),
-      table:(x)=>logs.push(stringify(x)),
-      debug:(...a)=>logs.push(a.map(stringify).join(' '))
-    };
-    let timedOut=false;
-    const watchdog=setTimeout(()=>{ timedOut=true; }, JS_TIMEOUT_MS);
-    try{
-      // Run user code in its own scope with overridden console.
-      // Note: synchronous execution — infinite loops will block this thread; the watchdog
-      // flag is checked after eval returns. setTimeout / async callbacks WILL fire after
-      // we've shown output but the page remains responsive.
-      const fn = new Function('console','window','document', code);
-      const result = fn(fakeConsole, undefined, undefined);
-      clearTimeout(watchdog);
-      if (timedOut) {
-        outEl.textContent = 'Execution exceeded '+(JS_TIMEOUT_MS/1000)+'s timeout.';
-        outEl.className='e-out err';
-      } else if (result && typeof result.then === 'function'){
-        // Code returned a Promise (e.g., used async IIFE)
-        const racer = new Promise((_,rej)=>setTimeout(()=>rej(new Error('JS async execution timed out after '+(JS_TIMEOUT_MS/1000)+'s')),JS_TIMEOUT_MS));
-        Promise.race([result, racer]).then(()=>{
-          outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out'; resolve();
-        }).catch(err=>{
-          outEl.textContent=(logs.length?logs.join('\n')+'\n':'')+'\u26A0 '+(err && err.message||String(err)); outEl.className='e-out err'; resolve();
-        });
-        return;
-      } else {
-        outEl.textContent=logs.join('\n')||'(no output)'; outEl.className='e-out';
+    const onMsg=(e)=>{
+      if(!e.data || e.data.__rj!==1) return;
+      if(e.source !== iframe.contentWindow) return;
+      const m=e.data;
+      if(m.type==='console'){
+        const prefix = m.level==='log' ? '' : '\u26A0 ';
+        logs.push(prefix + (m.args||[]).join(' '));
+        if (m.level !== 'log') errored = true;
+      } else if(m.type==='error'){
+        logs.push('\u26A0 '+m.message);
+        errored = true;
+      } else if(m.type==='done' && !settled){
+        settled=true;
+        outEl.textContent = logs.join('\n') || '(no output)';
+        outEl.className = errored ? 'e-out err' : 'e-out';
+        cleanup();
+        resolve();
       }
-    } catch(e){
-      clearTimeout(watchdog);
-      outEl.textContent=(logs.length?logs.join('\n')+'\n':'')+(e && e.stack || e && e.message || String(e));
-      outEl.className='e-out err';
-    }
-    resolve();
+    };
+    window.addEventListener('message',onMsg);
+    document.body.appendChild(iframe);
+    setTimeout(()=>{
+      if(!settled){
+        settled=true;
+        outEl.textContent = (logs.length ? logs.join('\n')+'\n' : '') + '\u26A0 Execution exceeded ' + (JS_TIMEOUT_MS/1000) + 's; iframe terminated.';
+        outEl.className = 'e-out err';
+        cleanup();
+        resolve();
+      }
+    }, JS_TIMEOUT_MS);
   });
 }
 
 // ---- EXPANDED CODE DRAWER ----
 let drawerSourceId = null;
 
-function openCodeDrawer(sourceId, title){
+function openCodeDrawer(sourceId){
   drawerSourceId = sourceId;
   const srcCode = document.getElementById(sourceId+'-code').value;
   const srcLang = document.getElementById(sourceId+'-lang').value;
-  document.getElementById('code-drawer-title').textContent = title || 'Code Exercise';
+  document.getElementById('code-drawer-title').textContent = editorTitles[sourceId] || 'Code Exercise';
   document.getElementById('code-drawer-code').value = srcCode;
   document.getElementById('code-drawer-lang').value = srcLang;
   document.getElementById('code-drawer-out').textContent = '// Press Run';
