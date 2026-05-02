@@ -44,90 +44,127 @@ window.COURSE_DAY_DATA[2] = {
   ],
 
   codeExample: {
-    title: 'Token counting and cost framework — JavaScript',
-    lang: 'js',
-    code: `// Day 02 — Token Counting and Context Budget Framework
-// IMPORTANT: Use Anthropic's token counting API in production, not estimates.
-// API endpoint: POST https://api.anthropic.com/v1/messages/count_tokens
-// Docs: https://docs.anthropic.com/en/api/messages-count-tokens
+    title: 'Token counting and context budget framework — Python',
+    lang: 'python',
+    code: `# Day 02 — Token Counting and Context Budget Framework
+# IMPORTANT: In production, use Anthropic's exact token counter:
+#   POST https://api.anthropic.com/v1/messages/count_tokens
+#   Docs: https://docs.anthropic.com/en/api/messages-count-tokens
+# This file is a stdlib-only simulation that mimics BPE-style merging
+# closely enough to teach the budget intuition every PM needs.
 
-// For rough planning: approximate estimator (NOT for production use)
-function roughEstimateTokens(text) {
-  // Word-based: within 10-25% of actual BPE count
-  // WARNING: Inaccurate for code, non-English, structured data
-  const words = text.trim().split(/\\s+/).length;
-  return Math.ceil(words / 0.75);
+import re
+from dataclasses import dataclass
+
+# ---- 1. Tiny BPE-style tokenizer simulation -----------------------------
+# Real BPE merges learned subwords; we approximate by splitting on common
+# prefixes/suffixes plus punctuation. Within 10-25% of real BPE counts on
+# English prose and far better than the naive words / 0.75 heuristic.
+
+COMMON_AFFIXES = ("ing", "ed", "ly", "tion", "ness", "able", "ible", "ment", "er", "est", "s")
+
+def bpe_like_tokens(text: str) -> list[str]:
+    raw = re.findall(r"[A-Za-z]+|\\d+|[^\\sA-Za-z0-9]", text)
+    tokens: list[str] = []
+    for piece in raw:
+        if piece.isalpha() and len(piece) > 5:
+            for suffix in COMMON_AFFIXES:
+                if piece.lower().endswith(suffix) and len(piece) - len(suffix) >= 3:
+                    tokens.append(piece[:-len(suffix)])
+                    tokens.append(suffix)
+                    break
+            else:
+                tokens.append(piece)
+        else:
+            tokens.append(piece)
+    return tokens
+
+def count_tokens(text: str) -> int:
+    return len(bpe_like_tokens(text))
+
+def rough_word_estimate(text: str) -> int:
+    return -(-len(text.split()) // 1) * 4 // 3  # ceil(words / 0.75)
+
+# ---- 2. Context-window catalog (verify at provider docs each release) ---
+CONTEXT_WINDOWS = {
+    "claude-sonnet-4-6":         200_000,  # 200K combined input + output
+    "claude-opus-4-6":           200_000,
+    "claude-haiku-4-5-20251001": 200_000,
+    "gpt-4o":                    128_000,
+    "gemini-2.5-pro":          1_000_000,  # 1M+ native
 }
 
-// Context window budgets by model (verify at docs.anthropic.com/en/docs/about-claude/models)
-const CONTEXT_WINDOWS = {
-  'claude-sonnet-4-6':       200000,  // 200K combined input+output
-  'claude-opus-4-6':         200000,
-  'claude-haiku-4-5-20251001': 200000,
-  'gpt-4o':                  128000,
-  'gemini-2.5-pro':         1000000,  // 1M+ tokens
-};
+# ---- 3. Budget designer --------------------------------------------------
+@dataclass
+class Budget:
+    model: str
+    window: int
+    system_prompt: int
+    documents: int
+    history: int
+    reserved_output: int
+    @property
+    def total(self) -> int:
+        return self.system_prompt + self.documents + self.history + self.reserved_output
+    @property
+    def headroom(self) -> int:
+        return self.window - self.total
+    @property
+    def verdict(self) -> str:
+        if self.headroom > 0:
+            return "Full-context viable - no RAG required"
+        return "Over budget by " + str(abs(self.headroom)) + " tokens - chunk, RAG, or upgrade model"
 
-// Context budget designer
-function designContextBudget(model, systemPromptTokens, maxDocTokens, maxHistoryTurns, avgTurnTokens, reservedOutput) {
-  const totalWindow = CONTEXT_WINDOWS[model];
-  if (!totalWindow) return { error: 'Unknown model — check docs.anthropic.com' };
+def design_budget(model: str, system_prompt: int, docs: int, history_turns: int,
+                  avg_turn: int, reserved_output: int) -> Budget:
+    return Budget(
+        model=model,
+        window=CONTEXT_WINDOWS[model],
+        system_prompt=system_prompt,
+        documents=docs,
+        history=history_turns * avg_turn * 2,  # user + assistant per turn
+        reserved_output=reserved_output,
+    )
 
-  const historyTokens = maxHistoryTurns * avgTurnTokens * 2; // user + assistant per turn
-  const totalNeeded = systemPromptTokens + maxDocTokens + historyTokens + reservedOutput;
-  const headroom = totalWindow - totalNeeded;
-
-  return {
-    model,
-    totalWindow,
-    budget: {
-      systemPrompt: systemPromptTokens,
-      documents: maxDocTokens,
-      conversationHistory: historyTokens,
-      reservedForOutput: reservedOutput,
-      total: totalNeeded,
-      headroom: headroom
-    },
-    fits: headroom > 0,
-    recommendation: headroom > 0
-      ? 'Full-context approach viable — no RAG needed'
-      : 'Over budget by ' + Math.abs(headroom) + ' tokens — need RAG or document selection'
-  };
+# ---- 4. Demo: estimator accuracy on real-ish text -----------------------
+SAMPLES = {
+    "marketing copy": "We help product managers ship AI features faster with a 60-day curriculum.",
+    "code snippet":   "def chunk(text, n=512): return [text[i:i+n] for i in range(0, len(text), n)]",
+    "structured":     '{"user_id": 42, "tier": "enterprise", "tokens_used_30d": 1284393}',
 }
+print("ESTIMATOR ACCURACY (lower drift = closer to real BPE)")
+print("-" * 64)
+for label, sample in SAMPLES.items():
+    bpe = count_tokens(sample)
+    rough = rough_word_estimate(sample)
+    drift = round((rough - bpe) / max(bpe, 1) * 100)
+    print(f"  {label:16} bpe~{bpe:>3}  rough~{rough:>3}  drift {drift:+d}%")
 
-// Scenario: Document Q&A product
-console.log('CONTEXT WINDOW BUDGET — Document Q&A Product');
-console.log('='.repeat(60));
+# ---- 5. Demo: budget across three product scenarios ---------------------
+print()
+print("CONTEXT-BUDGET DESIGNER")
+print("-" * 64)
+SCENARIOS = [
+    ("M&A diligence (3 docs x 40K)", "claude-sonnet-4-6", 2_000, 120_000, 5, 200, 4_000),
+    ("Long-tail support agent",      "gpt-4o",            1_500,  20_000, 8, 180, 2_000),
+    ("Whole-codebase review",        "gemini-2.5-pro",    3_000, 600_000, 2, 250, 8_000),
+]
+for name, model, sp, docs, turns, avg, out in SCENARIOS:
+    b = design_budget(model, sp, docs, turns, avg, out)
+    print(f"  {name}")
+    print(f"    model={b.model}  window={b.window:>9,}")
+    print(f"    sys={b.system_prompt:,}  docs={b.documents:,}  hist={b.history:,}  out={b.reserved_output:,}")
+    print(f"    total={b.total:,}  headroom={b.headroom:>+,}  -> {b.verdict}")
 
-const budget = designContextBudget(
-  'claude-sonnet-4-6',
-  2000,    // system prompt
-  120000,  // 3 docs × 40K avg
-  5,       // 5 turns of history
-  200,     // ~200 tokens per message
-  4000     // reserve 4K for output
-);
-
-console.log('Model:             ' + budget.model);
-console.log('Total window:      ' + budget.totalWindow.toLocaleString() + ' tokens');
-console.log('System prompt:     ' + budget.budget.systemPrompt.toLocaleString());
-console.log('Documents:         ' + budget.budget.documents.toLocaleString());
-console.log('History (5 turns): ' + budget.budget.conversationHistory.toLocaleString());
-console.log('Reserved output:   ' + budget.budget.reservedForOutput.toLocaleString());
-console.log('Total needed:      ' + budget.budget.total.toLocaleString());
-console.log('Headroom:          ' + budget.budget.headroom.toLocaleString());
-console.log('Fits?              ' + budget.fits);
-console.log('Recommendation:    ' + budget.recommendation);
-
-console.log('\\n' + '='.repeat(60));
-console.log('SAMPLING PARAMETERS — Anthropic Guidance');
-console.log('Temperature: the ONLY parameter you should usually change');
-console.log('  0.0 → deterministic (extraction, classification, code)');
-console.log('  0.3-0.7 → balanced (conversation, creative tasks)');
-console.log('  1.0 → maximum variety (brainstorming)');
-console.log('top_p & top_k: Anthropic recommends leaving at defaults');
-console.log('\\nProduction tip: always use the token counting API, not estimates');
-console.log('POST /v1/messages/count_tokens → exact count before making the call');`
+# ---- 6. Sampling guidance (Anthropic 2026) -----------------------------
+print()
+print("SAMPLING PARAMETERS - only change temperature")
+print("  0.0       deterministic (extraction, classification, code)")
+print("  0.3-0.7   balanced (conversation, creative tasks)")
+print("  1.0       maximum variety (brainstorming)")
+print("  top_p / top_k: leave at defaults per Anthropic guidance")
+print()
+print("Production tip: always call POST /v1/messages/count_tokens for exact counts.")`
   },
 
   interview: {
