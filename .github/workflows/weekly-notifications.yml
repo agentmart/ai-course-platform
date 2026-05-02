@@ -42,6 +42,10 @@ jobs:
           RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
           NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          LLM_PROVIDER:              ${{ secrets.LLM_PROVIDER }}
+          AZURE_FOUNDRY_API_KEY:     ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          AZURE_FOUNDRY_ENDPOINT:    ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_DEFAULT_MODEL: ${{ secrets.AZURE_FOUNDRY_DEFAULT_MODEL }}
           DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
         run: node scripts/weekly-job-alerts.mjs
 
@@ -75,6 +79,10 @@ jobs:
           RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
           RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
           NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
+          LLM_PROVIDER:              ${{ secrets.LLM_PROVIDER }}
+          AZURE_FOUNDRY_API_KEY:     ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          AZURE_FOUNDRY_ENDPOINT:    ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_DEFAULT_MODEL: ${{ secrets.AZURE_FOUNDRY_DEFAULT_MODEL }}
           GH_MODELS_TOKEN:           ${{ secrets.GH_MODELS_TOKEN || secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
           DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
@@ -111,6 +119,10 @@ jobs:
           RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
           NEXT_PUBLIC_APP_URL:       ${{ secrets.NEXT_PUBLIC_APP_URL }}
           ADMIN_EMAIL:               ${{ secrets.ADMIN_EMAIL || 'stavanm@gmail.com' }}
+          LLM_PROVIDER:              ${{ secrets.LLM_PROVIDER }}
+          AZURE_FOUNDRY_API_KEY:     ${{ secrets.AZURE_FOUNDRY_API_KEY }}
+          AZURE_FOUNDRY_ENDPOINT:    ${{ secrets.AZURE_FOUNDRY_ENDPOINT }}
+          AZURE_FOUNDRY_DEFAULT_MODEL: ${{ secrets.AZURE_FOUNDRY_DEFAULT_MODEL }}
           GH_MODELS_TOKEN:           ${{ secrets.GH_MODELS_TOKEN || secrets.GITHUB_TOKEN }}
           GITHUB_TOKEN:              ${{ secrets.GITHUB_TOKEN }}
           DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}

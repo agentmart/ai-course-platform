@@ -5,3 +5,4 @@ node_modules/
 freshness-report.json
 .vscode/settings.json
 .playwright-mcp/
+.pr-body.md
