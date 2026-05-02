@@ -745,11 +745,37 @@ function saveNote(day){
 const JS_TIMEOUT_MS = 5000;
 const PY_TIMEOUT_MS = 30000;
 
+// Heuristic: detect when the dropdown language doesn't match the textarea's
+// content. Returns a friendly error message, or null if the code looks plausible.
+function detectLangMismatch(code, lang){
+  if(!code || !code.trim()) return null;
+  // Use the first ~25 non-empty lines so a stray comment doesn't dominate.
+  const sample = code.split('\n').filter(l=>l.trim()).slice(0,25).join('\n');
+  const looksJS = /(^|\n)\s*(?:\/\/|\/\*|const\s|let\s|var\s|function\s|class\s|import\s.+from\s|console\.\w+\(|=>\s*[{(])/.test(sample);
+  const looksPy = /(^|\n)\s*(?:#\s|def\s|class\s\w+\s*[:(]|import\s+\w|from\s+\w+\s+import|print\s*\(|@dataclass|if\s+__name__)/.test(sample);
+  if(lang==='python' && looksJS && !looksPy){
+    return 'This example was authored in JavaScript, but the runtime is set to Python.\n'
+         + 'Switch the dropdown back to "JavaScript (sandbox)" to run it as-is, '
+         + 'or rewrite the code in Python before running.';
+  }
+  if(lang==='js' && looksPy && !looksJS){
+    return 'This example was authored in Python, but the runtime is set to JavaScript.\n'
+         + 'Switch the dropdown back to "Python (Pyodide WASM)" to run it as-is, '
+         + 'or rewrite the code in JavaScript before running.';
+  }
+  return null;
+}
+
 async function runEditor(id){
   const lang=document.getElementById(id+'-lang').value;
   const code=document.getElementById(id+'-code').value;
   const out=document.getElementById(id+'-out');
   const spin=document.getElementById(id+'-spin');
+  const mismatch=detectLangMismatch(code,lang);
+  if(mismatch){
+    out.textContent=mismatch; out.className='e-out err';
+    return;
+  }
   spin.classList.add('on');
   try {
     if(lang==='python'){ await runPython(code,out,id+'-status'); } else { await runJS(code,out); }
@@ -873,6 +899,11 @@ async function runDrawer(){
   const code = document.getElementById('code-drawer-code').value;
   const out = document.getElementById('code-drawer-out');
   const spin = document.getElementById('code-drawer-spin');
+  const mismatch = detectLangMismatch(code, lang);
+  if(mismatch){
+    out.textContent = mismatch; out.className = 'e-out err';
+    return;
+  }
   spin.classList.add('on');
   try {
     if(lang==='python'){ await runPython(code,out,'code-drawer-status'); } else { await runJS(code,out); }

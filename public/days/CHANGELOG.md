@@ -1,5 +1,22 @@
 # Course Content Changelog
 
+## Sprint 9 — Validation, Day-2 Language Realignment, Runner UX Hardening
+
+- **Day 2** `codeExample` rewritten in **Python** (was JavaScript). Token Counting and
+  Context Budgeting fits a Python idiom (BPE-style tokenizer simulation, dataclass
+  budget, drift comparison vs. naïve word/0.75 estimator). Reinforces day-2 subtitle
+  *"Understand how language models process text"* and pmAngle on context windows.
+- **Course-runner UX:** if a user toggles the language dropdown to a runtime that
+  doesn't match the example's source (e.g., picks Python while running JS code),
+  the runner now shows a friendly hint instead of a cryptic Pyodide/V8 error.
+- **CI hardening:** `scripts/audit-course-content.mjs` runs every day's example
+  end-to-end (parse → mirror → syntax → execute → log-count → topic-keyword
+  overlap). The `code-validation.yml` workflow now invokes it on every PR
+  touching `astro-app/public/days/**` or `public/days/**` and fails on any
+  exec/syntax/mirror failure or low-output run (<10 lines).
+- **Audit baseline (60/60 passing):**  60 ok / 0 fail / 0 mirror-mismatch /
+  0 missing-codeExample / 0 low-topic-overlap.
+
 ## Sprint 8 — Code Examples Backfill (PR 2)
 
 Added executable `codeExample` blocks to 46 days that previously had none, bringing

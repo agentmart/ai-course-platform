@@ -24,65 +24,18 @@ jobs:
           python-version: '3.12'
 
       - name: Validate code examples in day-NN.js files
+        run: node scripts/audit-course-content.mjs
+
+      - name: Fail if any day failed execution or has mirror mismatch
         run: |
-          cat > /tmp/validate.mjs <<'EOF'
-          import fs from 'fs';
-          import { execSync } from 'child_process';
-
-          const dir = 'astro-app/public/days';
-          const legacyDir = 'public/days';
-          const files = fs.readdirSync(dir).filter(f => /^day-\d{2}\.js$/.test(f)).sort();
-          let fail = 0, ok = 0, skip = 0;
-
-          for (const file of files) {
-            const n = parseInt(file.match(/day-(\d+)/)[1], 10);
-            const astroPath = `${dir}/${file}`;
-            const legacyPath = `${legacyDir}/${file}`;
-            const a = fs.readFileSync(astroPath, 'utf8');
-
-            // Mirror check
-            if (fs.existsSync(legacyPath)) {
-              const l = fs.readFileSync(legacyPath, 'utf8');
-              if (a !== l) {
-                console.error(`MIRROR MISMATCH: day-${n}`);
-                fail++;
-                continue;
-              }
+          node -e "
+            const r = require('/tmp/course-audit.json');
+            const fails = r.days.filter(d => d.exec === 'fail' || d.syntax === 'fail' || d.mirror === 'mismatch');
+            const lowOut = r.days.filter(d => d.exec === 'ok' && d.outLines !== undefined && d.outLines < 10);
+            if (fails.length || lowOut.length) {
+              console.error('FAILURES:', JSON.stringify(fails, null, 2));
+              if (lowOut.length) console.error('LOW OUTPUT:', lowOut.map(d => 'day-' + d.n + ' (' + d.outLines + ' lines)'));
+              process.exit(1);
             }
-
-            // Extract codeExample
-            global.window = { COURSE_DAY_DATA: {} };
-            let data;
-            try {
-              const fn = new Function('window', a + '\nreturn window.COURSE_DAY_DATA;');
-              data = fn(global.window);
-            } catch (e) {
-              console.error(`PARSE FAIL day-${n}: ${e.message}`);
-              fail++;
-              continue;
-            }
-            const ex = data[n] && data[n].codeExample;
-            if (!ex || !ex.code) { skip++; continue; }
-
-            const lang = ex.lang;
-            const ext = lang === 'python' ? 'py' : 'js';
-            const tmp = `/tmp/v-${n}.${ext}`;
-            fs.writeFileSync(tmp, ex.code);
-
-            try {
-              if (lang === 'python') {
-                execSync(`python3 -m py_compile ${tmp}`, { stdio: 'pipe' });
-              } else {
-                execSync(`node --check ${tmp}`, { stdio: 'pipe' });
-              }
-              ok++;
-            } catch (e) {
-              console.error(`SYNTAX FAIL day-${n} (${lang}):\n${e.stderr || e.message}`);
-              fail++;
-            }
-          }
-
-          console.log(`\nValidated: ${ok} ok, ${skip} skipped (no codeExample), ${fail} failed`);
-          if (fail > 0) process.exit(1);
-          EOF
-          node /tmp/validate.mjs
+            console.log('All ' + r.summary.ok + ' days passed end-to-end execution.');
+          "
