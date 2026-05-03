@@ -83,7 +83,8 @@ def count_tokens(text: str) -> int:
     return len(bpe_like_tokens(text))
 
 def rough_word_estimate(text: str) -> int:
-    return -(-len(text.split()) // 1) * 4 // 3  # ceil(words / 0.75)
+    import math
+    return math.ceil(len(text.split()) / 0.75)
 
 # ---- 2. Context-window catalog (verify at provider docs each release) ---
 CONTEXT_WINDOWS = {

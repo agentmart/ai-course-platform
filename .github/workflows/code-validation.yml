@@ -26,16 +26,28 @@ jobs:
       - name: Validate code examples in day-NN.js files
         run: node scripts/audit-course-content.mjs
 
-      - name: Fail if any day failed execution or has mirror mismatch
+      - name: Fail if any day failed audit
         run: |
           node -e "
             const r = require('/tmp/course-audit.json');
-            const fails = r.days.filter(d => d.exec === 'fail' || d.syntax === 'fail' || d.mirror === 'mismatch');
-            const lowOut = r.days.filter(d => d.exec === 'ok' && d.outLines !== undefined && d.outLines < 10);
-            if (fails.length || lowOut.length) {
-              console.error('FAILURES:', JSON.stringify(fails, null, 2));
-              if (lowOut.length) console.error('LOW OUTPUT:', lowOut.map(d => 'day-' + d.n + ' (' + d.outLines + ' lines)'));
+            const summary = r.summary;
+            // Strict gate: every day must be fully ok. Catches parse failures,
+            // missing files, and missing codeExample blocks (where exec/syntax
+            // would otherwise stay null and silently pass).
+            if (summary.ok !== summary.total) {
+              const issues = r.days.filter(d => d.parse !== 'ok' || d.syntax !== 'ok' || d.exec !== 'ok' || d.mirror === 'mismatch' || d.notes.length);
+              console.error('AUDIT FAILED:', JSON.stringify(summary, null, 2));
+              console.error('Days with issues:');
+              for (const d of issues) {
+                console.error('  day-' + String(d.n).padStart(2,'0') + ' parse=' + d.parse + ' syntax=' + d.syntax + ' exec=' + d.exec + ' mirror=' + d.mirror);
+                for (const note of d.notes) console.error('     ⚠  ' + note);
+              }
               process.exit(1);
             }
-            console.log('All ' + r.summary.ok + ' days passed end-to-end execution.');
+            const lowOut = r.days.filter(d => d.exec === 'ok' && d.outLines !== undefined && d.outLines < 10);
+            if (lowOut.length) {
+              console.error('LOW OUTPUT:', lowOut.map(d => 'day-' + d.n + ' (' + d.outLines + ' lines)'));
+              process.exit(1);
+            }
+            console.log('All ' + summary.ok + ' days passed end-to-end execution.');
           "
