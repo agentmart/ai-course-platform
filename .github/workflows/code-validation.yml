@@ -35,7 +35,7 @@ jobs:
             // missing files, and missing codeExample blocks (where exec/syntax
             // would otherwise stay null and silently pass).
             if (summary.ok !== summary.total) {
-              const issues = r.days.filter(d => d.parse !== 'ok' || d.syntax !== 'ok' || d.exec !== 'ok' || d.mirror === 'mismatch' || d.notes.length);
+              const issues = r.days.filter(d => d.parse !== 'ok' || d.syntax !== 'ok' || d.exec !== 'ok' || d.mirror !== 'ok' || d.notes.length);
               console.error('AUDIT FAILED:', JSON.stringify(summary, null, 2));
               console.error('Days with issues:');
               for (const d of issues) {
