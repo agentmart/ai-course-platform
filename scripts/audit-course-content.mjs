@@ -182,7 +182,7 @@ console.log('=== Course Validation Audit ===');
 console.log(JSON.stringify(report.summary, null, 2));
 console.log('\n--- Per-day issues ---');
 for (const d of report.days) {
-  if (d.notes.length || d.mirror === 'mismatch' || d.exec === 'fail' || d.syntax === 'fail' || d.overlap < 2) {
+  if (d.notes.length || d.mirror !== 'ok' || d.exec === 'fail' || d.syntax === 'fail' || d.overlap < 2) {
     console.log(`day-${String(d.n).padStart(2,'0')} lang=${d.lang} mirror=${d.mirror} syntax=${d.syntax} exec=${d.exec} logs=${d.logs} overlap=${d.overlap}${d.overlapWords?.length?' ['+d.overlapWords.join(',')+']':''}`);
     for (const note of d.notes) console.log(`   ⚠  ${note}`);
   }
