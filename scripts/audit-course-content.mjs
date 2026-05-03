@@ -32,9 +32,12 @@ function tokenize(text) {
 
 function extractDay(file, n) {
   const src = fs.readFileSync(file, 'utf8');
-  // Sandbox: no fs/process/require — only a fake `window`. vm.Script with
-  // a 2s timeout prevents a malicious or accidentally-infinite-loop day file
-  // from hanging CI.
+  // Note: Node's `vm` is NOT a security sandbox against adversarial code —
+  // sandbox-escape vectors exist. We use it here for two practical benefits:
+  // (1) a 2s execution timeout that prevents an accidental infinite loop in
+  // a day file from hanging CI, and (2) scope isolation so the day file
+  // doesn't pollute the audit script's globals. Day files are vetted in PR
+  // review; this layer just guards against accidents, not malice.
   const sandbox = { window: { COURSE_DAY_DATA: {} } };
   const ctx = vm.createContext(sandbox, { name: `day-${n}` });
   const script = new vm.Script(src, { filename: file });
@@ -92,6 +95,7 @@ for (let n = 1; n <= 60; n++) {
     if (a !== l) mismatchCount++;
   } else {
     entry.mirror = 'missing-legacy';
+    mismatchCount++;
   }
 
   let day;
@@ -158,8 +162,8 @@ for (let n = 1; n <= 60; n++) {
   entry.overlapWords = intersection.slice(0, 8);
   if (intersection.length < 2) lowOverlap++;
 
-  if (entry.parse === 'ok' && entry.syntax === 'ok' && entry.exec === 'ok' && entry.mirror !== 'mismatch') okCount++;
-  else if (entry.exec === 'fail' || entry.syntax === 'fail') failCount++;
+  if (entry.parse === 'ok' && entry.syntax === 'ok' && entry.exec === 'ok' && entry.mirror === 'ok') okCount++;
+  else if (entry.exec === 'fail' || entry.syntax === 'fail' || entry.mirror !== 'ok') failCount++;
 
   report.days.push(entry);
 }
