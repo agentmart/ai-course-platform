@@ -17,6 +17,10 @@ export interface Env extends SupabaseEnv {
   TURNSTILE_SITE_KEY?: string;
   TURNSTILE_SECRET_KEY?: string;
   GITHUB_TOKEN?: string;
+  GH_PAT_TOKEN?: string;
+  GH_MODELS_TOKEN?: string;
+  ADVISOR_MODEL?: string;
+  CRON_SECRET?: string;
   RESEND_API_KEY?: string;
   ANTHROPIC_API_KEY?: string;
   OPENAI_API_KEY?: string;
@@ -43,6 +47,10 @@ export function envFrom(_locals?: App.Locals): Env {
     TURNSTILE_SITE_KEY: pick('TURNSTILE_SITE_KEY'),
     TURNSTILE_SECRET_KEY: pick('TURNSTILE_SECRET_KEY'),
     GITHUB_TOKEN: pick('GITHUB_TOKEN'),
+    GH_PAT_TOKEN: pick('GH_PAT_TOKEN'),
+    GH_MODELS_TOKEN: pick('GH_MODELS_TOKEN'),
+    ADVISOR_MODEL: pick('ADVISOR_MODEL'),
+    CRON_SECRET: pick('CRON_SECRET'),
     RESEND_API_KEY: pick('RESEND_API_KEY'),
     ANTHROPIC_API_KEY: pick('ANTHROPIC_API_KEY'),
     OPENAI_API_KEY: pick('OPENAI_API_KEY'),
