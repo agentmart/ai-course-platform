@@ -14,7 +14,7 @@ jobs:
       - name: Trigger price update
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app' }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://becomeaipm.com' }}
         run: |
           # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
           RESPONSE=$(curl -s -o /tmp/resp.json -w "%{http_code}" \

@@ -13,7 +13,7 @@ jobs:
       - name: Trigger reminder endpoint
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://ai-course-platform-git-main-stavanmehtas-projects.vercel.app' }}
+          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://becomeaipm.com' }}
         run: |
           # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
           # becomeaipm.com sits behind Cloudflare which challenges server-to-server requests.
