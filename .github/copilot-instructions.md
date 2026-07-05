@@ -2,19 +2,32 @@
 
 ## Architecture
 
-Static HTML/CSS/JS frontend + Vercel serverless API functions + Supabase PostgreSQL.
+> **Hosting: Cloudflare Workers (migrated off Vercel).** The live site
+> `becomeaipm.com` is served by the Cloudflare Worker **`ai-course-platform`**
+> (account `hello@becomeaipm.com`), built from the **Astro app in
+> [`astro-app/`](../astro-app/)** — Astro 6 SSR (`output: 'server'`) +
+> `@astrojs/cloudflare`, React islands, MDX content collection. **`astro-app/`
+> is the canonical app**; see [`astro-app/AGENTS.md`](../astro-app/AGENTS.md)
+> and [`astro-app/DEPLOY.md`](../astro-app/DEPLOY.md).
+>
+> The root `public/`, `api/*.js`, and `vercel.json` are **legacy Vercel
+> artifacts** kept for reference/URL parity during cutover. The sections below
+> describe that legacy structure — for new work, prefer `astro-app/`.
+
+Legacy (Vercel) layout — static HTML/CSS/JS frontend + serverless API functions + Supabase PostgreSQL:
 
 | Layer | Tech | Key Files |
 |-------|------|-----------|
 | Frontend | Vanilla HTML/CSS/JS | `public/course.html`, `public/index.html` |
 | Navigation | Shared sidebar component | `public/components/nav.js`, `public/components/nav.css` |
-| API | Vercel serverless (Node.js 18+) | `api/*.js` |
-| Auth | Clerk (OIDC JWT) | `lib/clerk.js` |
+| API (legacy) | Vercel serverless (Node.js 18+) | `api/*.js` |
+| API (current) | Astro routes on Cloudflare Workers | `astro-app/src/pages/api/*.ts` |
+| Auth | Clerk (OIDC JWT) | `lib/clerk.js` (legacy); `jose` + remote JWKS in astro-app |
 | Database | Supabase (PostgreSQL, RLS) | `supabase-schema.sql` |
-| Course Content | 60 day files | `public/days/day-NN.js` |
+| Course Content | 60 day files → MDX collection | `public/days/day-NN.js` (legacy); `astro-app/src/content` (current) |
 | Analytics | Pendo | Initialized post-auth in `course.html` |
 
-No build step. Vercel serves `public/` as static files and `api/` as serverless functions.
+Legacy had no build step (Vercel served `public/` static + `api/` functions). The current app **builds with Astro** and deploys as a single Cloudflare Worker.
 
 ## Build and Test
 
@@ -30,13 +43,17 @@ npm run notify:interview # Weekly interview-prep emails
 
 Most scripts have a `:dry` variant (sets `DRY_RUN=true`, no DB/email writes) — see `package.json` for the full list.
 
-No test suite or linter configured. Deploy via `git push` to `main` → Vercel auto-deploys.
+No test suite or linter configured.
+
+**Deploy (Cloudflare Workers):** the app deploys via **Workers Builds** (git-connected CI on Cloudflare) or manually with `cd astro-app && npm run deploy` (`astro build` → `wrangler deploy --config dist/server/wrangler.json --name ai-course-platform`). The `@astrojs/cloudflare` adapter auto-generates `dist/server/wrangler.json` (bindings: `ASSETS`, `IMAGES`, `SESSION` KV). Requires Node ≥ 20. Vercel git-push auto-deploy is **retired**.
 
 See [DEPLOY.md](../DEPLOY.md) for full setup, [PRODUCTION_CHECKLIST.md](../PRODUCTION_CHECKLIST.md) for launch steps.
 
 ## API Conventions
 
-Every file in `api/` is a **standalone Vercel serverless function** (not Express).
+**Current:** API routes live in `astro-app/src/pages/api/*.ts` (Astro endpoints running on Cloudflare Workers, V8 isolates with `nodejs_compat`). Read env via the Worker runtime (`locals`/`env` binding), not `process.env`.
+
+**Legacy (`api/*.js`, Vercel):** each file is a **standalone Vercel serverless function** (not Express).
 
 - Export a single `default async function handler(req, res)`
 - Check `req.method` manually; handle `OPTIONS` for CORS preflight
@@ -77,15 +94,19 @@ window.COURSE_DAY_DATA[N] = {
 
 **Public (safe for browser):** `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`, `NEXT_PUBLIC_APP_URL`
 
-**Secret (server-only):** `CLERK_DOMAIN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `PENDO_API_KEY`, `GITHUB_TOKEN`, `TURNSTILE_SECRET_KEY`
+**Secret (server-only):** `CLERK_DOMAIN`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`, `RESEND_API_KEY`, `CRON_SECRET`, `PENDO_API_KEY`, `TURNSTILE_SECRET_KEY`
 
-Never commit `.env`. Configure in Vercel dashboard for production.
+**GitHub tokens (fine-grained PATs, both optional):**
+- `GH_PAT_TOKEN` — powers the feedback/contact forms (`Issues: write` + `Projects: write` on `agentmart/ai-course-platform`). If unset, `/api/create-feedback` returns "Feedback system not configured"; everything else works.
+- `GH_MODELS_TOKEN` — GitHub Models access for the course advisor (`Models: read`, account-level). Falls back to a static rationale if unset.
+
+Never commit `.env`. For production, set vars on the **Cloudflare Worker** — dashboard (Workers & Pages → `ai-course-platform` → Settings → Variables) or `wrangler secret put <NAME>`. (Not the Vercel dashboard.) The **GitHub Actions cron workflows** use Actions' auto-injected `GITHUB_TOKEN` + repo secrets — configured in GitHub, independent of the Worker.
 
 ## Conventions
 
-- **No framework** — vanilla JS, no React/Vue/Svelte. Keep it that way.
+- **Legacy site = no framework** — the root `public/` pages are vanilla JS (no React/Vue/Svelte); keep them that way. **New work happens in `astro-app/`**, which intentionally uses **Astro + React islands + MDX** (see `astro-app/AGENTS.md`).
 - **No CSS framework** — custom properties for theming (dark nav, beige background, amber accents)
-- **Navigation** — pages mount a shared sidebar: include `<aside id="app-nav"></aside>`, load `/components/nav.js`, then call `renderSidebar({ active: '<key>' })` (key from `NAV_ITEMS` in `nav.js`; omit/`{}` for no highlight). Do not hand-write inline `<nav>` blocks per page.
-- **ES modules** — `import`/`export` in `.mjs` scripts; Vercel functions use CommonJS-style but support top-level await
+- **Navigation (legacy)** — `public/` pages mount a shared sidebar: include `<aside id="app-nav"></aside>`, load `/components/nav.js`, then call `renderSidebar({ active: '<key>' })` (key from `NAV_ITEMS` in `nav.js`; omit/`{}` for no highlight). Do not hand-write inline `<nav>` blocks per page.
+- **ES modules** — `import`/`export` in `.mjs` scripts; astro-app is TypeScript ESM; legacy Vercel functions use CommonJS-style but support top-level await
 - **User access** — all authenticated Clerk users get full 60-day access, no payment gating
 - **Progress data** — stored as JSONB in `user_access.progress_data`, not in separate tables
