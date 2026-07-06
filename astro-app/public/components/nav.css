@@ -36,9 +36,7 @@ body.has-app-nav.nav-collapsed { padding-left: var(--nav-w-collapsed); }
   white-space: nowrap;
 }
 #app-nav .nav-brand img { height: 20px; flex: 0 0 auto; }
-#app-nav .nav-brand .brand-text { font-weight: 700; }
 #app-nav.collapsed .nav-brand { padding: 16px 14px; justify-content: center; }
-#app-nav.collapsed .nav-brand .brand-text { display: none; }
 
 #app-nav .nav-toggle {
   position: absolute; top: 14px; right: -12px;

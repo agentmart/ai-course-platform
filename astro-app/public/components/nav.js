@@ -63,8 +63,7 @@
 
     return ''
       + '<a class="nav-brand" href="/" aria-label="becomeaipm home">'
-      +   '<img src="/assets/becomeaipm-logo-on-dark.svg" alt="" />'
-      +   '<span class="brand-text">becomeaipm</span>'
+      +   '<img src="/assets/becomeaipm-logo-on-dark.svg" alt="becomeaipm" />'
       + '</a>'
       + '<button class="nav-toggle" type="button" aria-label="Collapse sidebar" data-nav-toggle>&#x276E;</button>'
       + '<div class="nav-scroll">'
