@@ -19,7 +19,11 @@
     "notify:jobs": "node scripts/weekly-job-alerts.mjs",
     "notify:interview:dry": "DRY_RUN=true node scripts/weekly-interview-prep.mjs",
     "notify:interview:test": "DRY_RUN=true TEST_EMAIL=stavanm@gmail.com node scripts/weekly-interview-prep.mjs",
-    "notify:interview": "node scripts/weekly-interview-prep.mjs"
+    "notify:interview": "node scripts/weekly-interview-prep.mjs",
+    "reminders:dry": "DRY_RUN=true node scripts/send-reminders-cron.mjs",
+    "reminders": "node scripts/send-reminders-cron.mjs",
+    "prices:dry": "DRY_RUN=true node scripts/price-check-cron.mjs",
+    "prices:check": "node scripts/price-check-cron.mjs"
   },
   "dependencies": {
     "@langchain/anthropic": "^1.3.28",

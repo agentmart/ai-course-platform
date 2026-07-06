@@ -2,31 +2,41 @@ name: Daily Inactivity Reminders
 on:
   schedule:
     - cron: '0 15 * * *'  # 3 PM UTC / 8 AM PT daily
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Run in dry mode (no emails sent, no DB writes)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
 
-permissions: {}
+permissions:
+  contents: read
 
 jobs:
   send-reminders:
+    name: Send inactivity reminders
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - name: Trigger reminder endpoint
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Send reminders
         env:
-          CRON_SECRET: ${{ secrets.CRON_SECRET }}
-          APP_BASE_URL: ${{ vars.APP_BASE_URL || 'https://becomeaipm.com' }}
-        run: |
-          # Hit the Vercel deployment URL directly to bypass Cloudflare bot protection.
-          # becomeaipm.com sits behind Cloudflare which challenges server-to-server requests.
-          response=$(curl -s -w "\n%{http_code}" -X POST \
-            "${APP_BASE_URL}/api/send-reminders" \
-            -H "Authorization: Bearer ${CRON_SECRET}" \
-            -H "Content-Type: application/json" \
-            -H "User-Agent: becomeaipm-cron/1.0")
-          http_code=$(echo "$response" | tail -1)
-          body=$(echo "$response" | head -n -1)
-          echo "Status: $http_code"
-          echo "Response: $body"
-          if [ "$http_code" -ge 400 ]; then
-            echo "::error::Reminder job failed with status $http_code"
-            exit 1
-          fi
+          SUPABASE_URL:              ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          RESEND_API_KEY:            ${{ secrets.RESEND_API_KEY }}
+          RESEND_FROM_EMAIL:         ${{ secrets.RESEND_FROM_EMAIL }}
+          DRY_RUN:                   ${{ github.event.inputs.dry_run || 'false' }}
+        run: node scripts/send-reminders-cron.mjs
