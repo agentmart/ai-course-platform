@@ -302,7 +302,8 @@ async function boot() {
       const d2 = new Date(updated);
       document.getElementById('ph-updated').textContent = 'Prices as of ' + d2.toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
     }
-    document.getElementById('model-count-nav').textContent = ALL_MODELS.length + ' models';
+    const navCount = document.getElementById('model-count-nav');
+    if (navCount) navCount.textContent = ALL_MODELS.length + ' models';
     renderModels();
   } catch(e) {
     document.getElementById('models-container').innerHTML = '<div class="empty-state"><div class="es-icon">⚠️</div><div class="es-title">Could not load models</div><div class="es-sub">Check your connection and refresh.</div></div>';
