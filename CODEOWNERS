@@ -1,0 +1,4 @@
+/security/ @security-team
+/.github/workflows/ @platform-team
+/infra/ @platform-team
+* @core-team
