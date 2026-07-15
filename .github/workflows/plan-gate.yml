@@ -7,13 +7,29 @@ on:
 jobs:
   require-plan:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Require plan artifact
+      - name: Require plan sections in PR body
         run: |
-          if [ ! -f "Github/pull_request_template.md" ]; then
-            echo "Github/pull_request_template.md is required for this pull request."
-            exit 1
-          fi
-          echo "Github/pull_request_template.md found."
+          BODY="$(jq -r '.pull_request.body // ""' "$GITHUB_EVENT_PATH")"
+          REQUIRED=(
+            "## Plan (required)"
+            "- **Goal:**"
+            "- **Scope (paths/files):**"
+            "- **Steps:**"
+            "- **Success criteria (verifiable):**"
+            "- **Risks + mitigations:**"
+            "- **Rollback / escalation plan:**"
+            "## Evidence"
+            "## Review checklist"
+          )
+
+          for section in "${REQUIRED[@]}"; do
+            if ! grep -Fq -- "$section" <<< "$BODY"; then
+              echo "Missing required PR section: $section"
+              exit 1
+            fi
+          done
+
+          echo "All required PR plan sections are present."
